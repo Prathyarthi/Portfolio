@@ -1,0 +1,57 @@
+# Next.js Starter Template
+
+A modern full-stack starter template built with technologies for rapid development.
+
+## Tech Stack
+
+This starter template includes:
+
+- **[Next.js](https://nextjs.org)** - React framework for production
+- **[Elysia](https://elysiajs.com)** - Fast and ergonomic web framework for backend API routes
+- **[TanStack Query](https://tanstack.com/query)** - Powerful data synchronization and state management
+- **[Tailwind CSS](https://tailwindcss.com)** - Utility-first CSS framework for styling
+- **[shadcn/ui](https://ui.shadcn.com)** - Beautifully designed components built with Radix UI and Tailwind CSS
+- **[Prisma](https://www.prisma.io)** - Next-generation ORM for database management
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+## Features
+
+- ✨ Type-safe database queries with Prisma ORM
+- 🚀 High-performance backend with Elysia
+- 🔄 Optimized data fetching with TanStack Query
+- 🎨 Beautiful UI with Tailwind CSS and shadcn/ui components
+- ⚡ Fast refresh and modern development experience
+
+## Learn More
+
+To learn more about the technologies used in this template:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API
+- [Elysia Documentation](https://elysiajs.com/introduction.html) - explore Elysia framework
+- [TanStack Query Docs](https://tanstack.com/query/latest) - master data fetching patterns
+- [Tailwind CSS Docs](https://tailwindcss.com/docs) - learn utility-first CSS
+- [shadcn/ui Docs](https://ui.shadcn.com) - explore the component library
+- [Prisma Documentation](https://www.prisma.io/docs) - understand Prisma ORM
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
