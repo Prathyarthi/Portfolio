@@ -6,3 +6,177 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ============================================================
+// USER MODEL (JWT sessions - no Account/Session tables needed)
+// ============================================================
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  portfolio Portfolio?
+
+  @@map("users")
+}
+
+// ============================================================
+// PORTFOLIO MODELS
+// ============================================================
+
+model Portfolio {
+  id     String @id @default(uuid())
+  userId String @unique
+  slug   String @unique
+
+  title    String @default("")
+  headline String @default("")
+  summary  String @default("") @db.Text
+  avatarUrl String?
+  resumeUrl String?
+
+  templateId String  @default("minimal")
+  isPublished Boolean @default(false)
+
+  metaTitle       String?
+  metaDescription String?
+
+  contactEmail String?
+  phone        String?
+  location     String?
+  websiteUrl   String?
+
+  customization Json @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experiences    Experience[]
+  educations     Education[]
+  skills         Skill[]
+  projects       Project[]
+  socialProfiles SocialProfile[]
+  certifications Certification[]
+
+  @@index([slug])
+  @@map("portfolios")
+}
+
+model Experience {
+  id          String    @id @default(uuid())
+  portfolioId String
+  company     String
+  role        String
+  description String    @db.Text
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?
+  logoUrl     String?
+  sortOrder   Int       @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("experiences")
+}
+
+model Education {
+  id          String    @id @default(uuid())
+  portfolioId String
+  institution String
+  degree      String
+  field       String?
+  description String?   @db.Text
+  startDate   DateTime
+  endDate     DateTime?
+  gpa         String?
+  sortOrder   Int       @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("educations")
+}
+
+model Skill {
+  id          String @id @default(uuid())
+  portfolioId String
+  name        String
+  category    String @default("general")
+  level       Int?
+  sortOrder   Int    @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("skills")
+}
+
+model Project {
+  id          String  @id @default(uuid())
+  portfolioId String
+  title       String
+  description String  @db.Text
+  imageUrl    String?
+  liveUrl     String?
+  sourceUrl   String?
+  techStack   String[]
+  featured    Boolean @default(false)
+  sortOrder   Int     @default(0)
+
+  githubStars Int?
+  githubForks Int?
+  language    String?
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("projects")
+}
+
+model SocialProfile {
+  id          String @id @default(uuid())
+  portfolioId String
+  platform    String
+  url         String
+  username    String?
+
+  cachedStats Json?
+  lastFetched DateTime?
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, platform])
+  @@map("social_profiles")
+}
+
+model Certification {
+  id          String    @id @default(uuid())
+  portfolioId String
+  name        String
+  issuer      String
+  issueDate   DateTime?
+  expiryDate  DateTime?
+  url         String?
+  sortOrder   Int       @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("certifications")
+}
+
+// ============================================================
+// TEMPLATE REGISTRY (seeded)
+// ============================================================
+
+model Template {
+  id          String @id
+  name        String
+  description String
+  previewUrl  String
+  category    String @default("general")
+
+  @@map("templates")
+}
