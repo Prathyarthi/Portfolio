@@ -93,16 +93,12 @@ export function ExperienceForm() {
       toast.error("Company and role are required");
       return;
     }
-    if (!form.startDate) {
-      toast.error("Start date is required");
-      return;
-    }
     try {
       await addExperience.mutateAsync({
         company: form.company,
         role: form.role,
         description: form.description,
-        startDate: form.startDate,
+        startDate: form.startDate || null,
         endDate: form.endDate || null,
         location: form.location || null,
       });
@@ -125,7 +121,7 @@ export function ExperienceForm() {
         company: form.company,
         role: form.role,
         description: form.description,
-        startDate: form.startDate,
+        startDate: form.startDate || null,
         endDate: form.endDate || null,
         location: form.location || null,
       });
@@ -232,7 +228,7 @@ export function ExperienceForm() {
               <div className="space-y-2">
                 <Label htmlFor="startDate" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  Start Date *
+                  Start Date
                 </Label>
                 <Input
                   id="startDate"
@@ -240,6 +236,7 @@ export function ExperienceForm() {
                   type="date"
                   value={form.startDate}
                   onChange={handleChange}
+                  placeholder="Optional"
                 />
               </div>
               <div className="space-y-2">
@@ -338,7 +335,7 @@ export function ExperienceForm() {
                     </p>
                     <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
                       <Calendar className="h-3 w-3" />
-                      {exp.startDate?.substring(0, 10)}
+                      {exp.startDate ? exp.startDate.substring(0, 10) : "Date not provided"}
                       {" -- "}
                       {exp.endDate ? exp.endDate.substring(0, 10) : "Present"}
                     </p>

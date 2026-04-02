@@ -29,6 +29,28 @@ export function useUpdatePortfolio() {
   });
 }
 
+/** Deletes experiences, education, skills, projects, certifications, and achievements for the current portfolio. */
+export function useClearImportableContent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/portfolio/clear-importable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          typeof data.error === "string" ? data.error : "Failed to clear content"
+        );
+      }
+      return res.json() as Promise<{ success: boolean }>;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
 export function useUpdateTemplate() {
   const qc = useQueryClient();
   return useMutation({
@@ -282,6 +304,53 @@ export function useDeleteCertification() {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete certification");
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
+// Achievements
+export function useAddAchievement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const res = await fetch("/api/portfolio/achievement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to add achievement");
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
+export function useUpdateAchievement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: any) => {
+      const res = await fetch(`/api/portfolio/achievement/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update achievement");
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
+export function useDeleteAchievement() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/portfolio/achievement/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete achievement");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),

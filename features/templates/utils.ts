@@ -1,9 +1,10 @@
-export function formatDate(dateStr: string): string {
+export function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "Date not provided";
   const date = new Date(dateStr);
   return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
-export function formatDateRange(start: string, end: string | null): string {
+export function formatDateRange(start: string | null, end: string | null): string {
   const startFormatted = formatDate(start);
   const endFormatted = end ? formatDate(end) : "Present";
   return `${startFormatted} - ${endFormatted}`;

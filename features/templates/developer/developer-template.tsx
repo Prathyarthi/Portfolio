@@ -4,9 +4,16 @@ import {
   getPlatformIcon,
 } from "@/features/templates/utils";
 import type { PortfolioData } from "@/features/templates/types";
+import { Trophy } from "lucide-react";
+import {
+  buildTemplateSections,
+  ContactChips,
+  HeroProfileButtons,
+  TemplateNavbar,
+} from "@/features/templates/shared";
 
 export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications } =
+  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements } =
     data;
   const skillsByCategory = groupSkillsByCategory(skills);
 
@@ -19,6 +26,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
   );
   const githubStats = githubProfile?.cachedStats as Record<string, unknown> | null;
   const leetcodeStats = leetcodeProfile?.cachedStats as Record<string, unknown> | null;
+  const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
     <div className="min-h-screen bg-gray-950 text-green-400 font-mono selection:bg-green-400/20">
@@ -66,15 +74,33 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                   </a>
                 </p>
               )}
+              <div className="mt-4">
+                <HeroProfileButtons
+                  profiles={socialProfiles}
+                  className="rounded border border-green-900/40 bg-gray-900/70 px-3 py-1.5 text-sm text-green-400/80 transition-colors hover:text-green-300"
+                />
+              </div>
               <div className="mt-4 inline-block h-5 w-2.5 animate-pulse bg-green-400" />
             </div>
           </div>
         </div>
       </header>
 
+      {navbarEnabled && (
+        <div className="border-b border-green-900/40 bg-gray-950/90">
+          <div className="mx-auto max-w-5xl px-6 py-3">
+            <TemplateNavbar
+              items={sections}
+              className="rounded-full border-green-900/40 bg-gray-900/70"
+              linkClassName="rounded-full px-4 py-2 text-sm text-gray-500 transition-colors hover:bg-green-950/50 hover:text-green-300"
+            />
+          </div>
+        </div>
+      )}
+
       {/* About / cat summary.md */}
       {portfolio.summary && (
-        <section className="border-b border-green-900/30 bg-gray-950/50">
+        <section id="about" className="scroll-mt-24 border-b border-green-900/30 bg-gray-950/50">
           <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-4 text-sm text-gray-600">
               guest@portfolio:~$ cat summary.md
@@ -142,7 +168,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
 
       {/* Experience / git log */}
       {experiences.length > 0 && (
-        <section className="border-b border-green-900/30">
+        <section id="experience" className="scroll-mt-24 border-b border-green-900/30">
           <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-8 text-sm text-gray-600">
               guest@portfolio:~$ git log --oneline --graph career.log
@@ -245,7 +271,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
 
       {/* Projects */}
       {projects.length > 0 && (
-        <section className="border-b border-green-900/30">
+        <section id="work" className="scroll-mt-24 border-b border-green-900/30">
           <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-8 text-sm text-gray-600">
               guest@portfolio:~$ ls -la ~/projects/
@@ -351,6 +377,46 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
         </section>
       )}
 
+      {hasProfiles && (
+        <section id="profiles" className="scroll-mt-24 border-b border-green-900/30 bg-gray-950/60">
+          <div className="mx-auto max-w-5xl px-6 py-16">
+            <p className="mb-6 text-sm text-gray-600">
+              guest@portfolio:~$ cat profiles.json
+            </p>
+            <div className="rounded-lg border border-green-900/40 bg-gray-900/50 p-5">
+              <p className="text-sm text-green-300">connect</p>
+              <p className="mt-2 text-sm text-gray-500">
+                Open the profiles below to verify identity, code, and contact details.
+              </p>
+              <div className="mt-5">
+                <ContactChips
+                  portfolio={portfolio}
+                  chipClassName="rounded border border-green-900/40 bg-gray-950 px-3 py-1.5 text-sm text-gray-400"
+                />
+              </div>
+              {socialProfiles.length > 0 && (
+                <div className="mt-5 flex flex-wrap gap-3">
+                  {socialProfiles.map((profile) => (
+                    <a
+                      key={`${profile.platform}-${profile.url}`}
+                      href={profile.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded border border-green-900/40 bg-gray-950 px-3 py-1.5 text-sm text-green-400/80 transition-colors hover:text-green-300"
+                    >
+                      {getPlatformIcon(profile.platform)}
+                      {profile.username && (
+                        <span className="text-gray-500"> ({profile.username})</span>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Education */}
       {educations.length > 0 && (
         <section className="border-b border-green-900/30">
@@ -418,6 +484,35 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                     {cert.issuer}
                     {cert.issueDate && ` | ${formatDateRange(cert.issueDate, null).split(" - ")[0]}`}
                   </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Achievements */}
+      {achievements.length > 0 && (
+        <section className="border-b border-green-900/30 bg-gray-950">
+          <div className="mx-auto max-w-5xl px-6 py-16">
+            <p className="mb-6 text-sm text-gray-600">
+              guest@portfolio:~$ cat ~/achievements.txt
+            </p>
+            <div className="space-y-3">
+              {achievements.map((ach) => (
+                <div key={ach.id} className="flex items-start gap-3 rounded border border-green-900/40 bg-gray-900/40 px-4 py-3">
+                  <Trophy className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-300 leading-relaxed">{ach.title}</p>
+                    {ach.date && (
+                      <p className="mt-1 text-xs text-gray-600">
+                        {new Date(ach.date).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
