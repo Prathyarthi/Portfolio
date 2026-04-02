@@ -84,5 +84,14 @@ export function portfolioToTemplateData(portfolio: any): PortfolioData {
         : null,
       url: c.url ?? null,
     })),
+    achievements: (portfolio.achievements ?? []).map((a: any) => ({
+      id: a.id,
+      title: a.title,
+      date: a.date
+        ? typeof a.date === "string"
+          ? a.date
+          : new Date(a.date).toISOString()
+        : null,
+    })),
   };
 }

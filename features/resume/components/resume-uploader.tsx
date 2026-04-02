@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useParseResume } from "@/features/resume/api/use-resume";
 import {
   useClearImportableContent,
+  useCreatePortfolio,
   useUpdatePortfolio,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
@@ -57,6 +59,7 @@ async function assertApiOk(res: Response, context: string) {
 }
 
 export function ResumeUploader() {
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [parsedData, setParsedData] = useState<ParsedResume | null>(null);
   const [importing, setImporting] = useState(false);
@@ -64,6 +67,7 @@ export function ResumeUploader() {
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
   const parseResume = useParseResume();
+  const createPortfolio = useCreatePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const clearImportable = useClearImportableContent();
 
@@ -110,6 +114,8 @@ export function ResumeUploader() {
     setImporting(true);
 
     try {
+      await createPortfolio.mutateAsync();
+
       await updatePortfolio.mutateAsync({
         title: parsedData.name,
         headline: parsedData.headline,
@@ -197,6 +203,9 @@ export function ResumeUploader() {
       }
       console.log("✅ All achievements imported");
 
+      await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      await queryClient.refetchQueries({ queryKey: ["portfolio"] });
+
       toast.success("Resume data imported to your portfolio");
       setParsedData(null);
     } catch (error: any) {
@@ -262,6 +271,8 @@ export function ResumeUploader() {
             ref={fileInputRef}
             type="file"
             accept="application/pdf"
+            aria-label="Upload resume PDF"
+            title="Upload resume PDF"
             className="hidden"
             onChange={handleFileChange}
             disabled={parseResume.isPending}

@@ -6,7 +6,7 @@ export function usePortfolio() {
   return useQuery({
     queryKey: ["portfolio"],
     queryFn: async () => {
-      const res = await fetch("/api/portfolio");
+      const res = await fetch("/api/portfolio", { cache: "no-store" });
       if (res.status === 404) return null;
       if (!res.ok) throw new Error("Failed to fetch portfolio");
       return res.json();
@@ -58,7 +58,9 @@ export function useClearImportableContent() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(
-          typeof data.error === "string" ? data.error : "Failed to clear content"
+          typeof data.error === "string"
+            ? data.error
+            : "Failed to clear content",
         );
       }
       return res.json() as Promise<{ success: boolean }>;

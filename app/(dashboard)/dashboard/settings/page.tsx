@@ -10,22 +10,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 import {
+  useCreatePortfolio,
   usePortfolio,
   useUpdatePortfolio,
   useUpdateSlug,
 } from "@/features/portfolio/api/use-portfolio";
 import type { PortfolioCustomization, TemplateSectionId } from "@/features/templates/types";
-import { toast } from "sonner";
-import { Loader2, Check, X } from "lucide-react";
 
 const defaultNavbarSettings: {
   enabled: boolean;
@@ -43,6 +36,7 @@ const defaultNavbarSettings: {
 export default function SettingsPage() {
   const { data: session } = useSession();
   const { data: portfolio } = usePortfolio();
+  const createPortfolio = useCreatePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const updateSlug = useUpdateSlug();
   const [slug, setSlug] = useState("");
@@ -59,8 +53,8 @@ export default function SettingsPage() {
   useEffect(() => {
     const customization =
       portfolio?.customization &&
-      typeof portfolio.customization === "object" &&
-      !Array.isArray(portfolio.customization)
+        typeof portfolio.customization === "object" &&
+        !Array.isArray(portfolio.customization)
         ? (portfolio.customization as PortfolioCustomization)
         : {};
 
@@ -121,6 +115,15 @@ export default function SettingsPage() {
         onError: (e) => toast.error(e.message),
       }
     );
+  };
+
+  const handleCreatePortfolio = async () => {
+    try {
+      await createPortfolio.mutateAsync();
+      toast.success("Portfolio created");
+    } catch {
+      toast.error("Failed to create portfolio");
+    }
   };
 
   return (
