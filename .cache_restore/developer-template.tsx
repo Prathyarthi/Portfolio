@@ -35,11 +35,11 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
 
       {/* Hero / whoami */}
       <header className="relative border-b border-green-900/50 bg-gray-950">
-        <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-20">
+        <div className="mx-auto max-w-5xl px-6 py-20">
           <div className="mb-2 text-sm text-gray-600">
             guest@portfolio:~$
           </div>
-          <div className="flex items-start gap-6 md:gap-8">
+          <div className="flex items-start gap-8">
             {portfolio.avatarUrl && (
               <img
                 src={portfolio.avatarUrl}
@@ -88,7 +88,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
 
       {navbarEnabled && (
         <div className="border-b border-green-900/40 bg-gray-950/90">
-          <div className="mx-auto max-w-5xl px-5 py-2.5 sm:px-6 md:py-3">
+          <div className="mx-auto max-w-5xl px-6 py-3">
             <TemplateNavbar
               items={sections}
               className="rounded-full border-green-900/40 bg-gray-900/70"
@@ -101,7 +101,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* About / cat summary.md */}
       {portfolio.summary && (
         <section id="about" className="scroll-mt-24 border-b border-green-900/30 bg-gray-950/50">
-          <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-16">
+          <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-4 text-sm text-gray-600">
               guest@portfolio:~$ cat summary.md
             </p>
@@ -116,8 +116,8 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                 <div className="hidden select-none border-r border-green-900/30 px-4 py-4 text-right text-sm text-gray-700 sm:block">
                   {portfolio.summary.split("\n").length > 1
                     ? portfolio.summary.split("\n").map((_, i) => (
-                      <div key={i}>{i + 1}</div>
-                    ))
+                        <div key={i}>{i + 1}</div>
+                      ))
                     : [1, 2, 3].map((n) => <div key={n}>{n}</div>)}
                 </div>
                 <div className="p-4 text-green-300/90 leading-relaxed whitespace-pre-wrap">
@@ -132,7 +132,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Stats bar */}
       {(githubStats || leetcodeStats) && (
         <section className="border-b border-green-900/30">
-          <div className="mx-auto max-w-5xl px-5 py-10 sm:px-6 md:py-12">
+          <div className="mx-auto max-w-5xl px-6 py-12">
             <p className="mb-6 text-sm text-gray-600">
               guest@portfolio:~$ neofetch --stats
             </p>
@@ -169,7 +169,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Experience / git log */}
       {experiences.length > 0 && (
         <section id="experience" className="scroll-mt-24 border-b border-green-900/30">
-          <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-16">
+          <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-8 text-sm text-gray-600">
               guest@portfolio:~$ git log --oneline --graph career.log
             </p>
@@ -179,7 +179,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                 return (
                   <div key={exp.id} className="relative group">
                     {/* Dot on timeline */}
-                    <div className="absolute -left-8 top-1 h-3 w-3 rounded-full border-2 border-green-700 bg-gray-950 group-hover:bg-green-600 transition-colors" />
+                    <div className="absolute -left-[31px] top-1 h-3 w-3 rounded-full border-2 border-green-700 bg-gray-950 group-hover:bg-green-600 transition-colors" />
                     <div className="rounded-lg border border-green-900/30 bg-gray-900/40 p-5 hover:border-green-800/60 transition-colors">
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                         <span className="text-yellow-500/80 text-xs">
@@ -215,7 +215,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Skills / package.json */}
       {skills.length > 0 && (
         <section className="border-b border-green-900/30">
-          <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-16">
+          <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-6 text-sm text-gray-600">
               guest@portfolio:~$ cat package.json | jq &apos;.dependencies&apos;
             </p>
@@ -276,7 +276,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
             <p className="mb-8 text-sm text-gray-600">
               guest@portfolio:~$ ls -la ~/projects/
             </p>
-            <div className="grid gap-5 md:grid-cols-2 md:gap-6">
+            <div className="grid gap-6 md:grid-cols-2">
               {projects.map((project) => (
                 <div
                   key={project.id}
@@ -379,7 +379,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
 
       {hasProfiles && (
         <section id="profiles" className="scroll-mt-24 border-b border-green-900/30 bg-gray-950/60">
-          <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-16">
+          <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-6 text-sm text-gray-600">
               guest@portfolio:~$ cat profiles.json
             </p>
@@ -420,7 +420,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Education */}
       {educations.length > 0 && (
         <section className="border-b border-green-900/30">
-          <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-16">
+          <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-6 text-sm text-gray-600">
               guest@portfolio:~$ cat education.log
             </p>
@@ -456,7 +456,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Certifications */}
       {certifications.length > 0 && (
         <section className="border-b border-green-900/30">
-          <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-16">
+          <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-6 text-sm text-gray-600">
               guest@portfolio:~$ ls ~/certifications/
             </p>
@@ -494,7 +494,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Achievements */}
       {achievements.length > 0 && (
         <section className="border-b border-green-900/30 bg-gray-950">
-          <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-16">
+          <div className="mx-auto max-w-5xl px-6 py-16">
             <p className="mb-6 text-sm text-gray-600">
               guest@portfolio:~$ cat ~/achievements.txt
             </p>

@@ -8,6 +8,7 @@ import {
   ProfileLinksSection,
   ProjectActions,
   SocialPills,
+  StatStrip,
   TemplateNavbar,
 } from "../shared";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -30,10 +31,10 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
 
   return (
     <div className="min-h-screen bg-[#eef2f7] text-slate-900 antialiased">
-      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 md:px-10 md:py-12">
+      <div className="mx-auto max-w-6xl px-6 py-10 md:px-10 md:py-14">
         <header className="overflow-hidden rounded-[2rem] bg-[#0f172a] text-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
           <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="p-6 md:p-10">
+            <div className="p-8 md:p-12">
               <p className="text-xs uppercase tracking-[0.3em] text-sky-300/70">
                 Executive Portfolio
               </p>
@@ -71,13 +72,15 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
               )}
             </div>
 
-            <div className="border-t border-white/10 bg-linear-to-br from-sky-500/20 via-transparent to-white/5 p-6 lg:border-l lg:border-t-0 md:p-10">
-              {portfolio.avatarUrl && (
+            <div className="border-t border-white/10 bg-gradient-to-br from-sky-500/20 via-transparent to-white/5 p-8 lg:border-l lg:border-t-0 md:p-12">
+              {portfolio.avatarUrl ? (
                 <img
                   src={portfolio.avatarUrl}
                   alt={portfolio.title}
                   className="h-72 w-full rounded-[1.75rem] object-cover"
                 />
+              ) : (
+                <div className="h-72 rounded-[1.75rem] bg-gradient-to-br from-sky-400/30 to-slate-700/40" />
               )}
             </div>
           </div>
@@ -93,10 +96,36 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <div className="mt-6 grid gap-6 md:mt-8 md:gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <main className="space-y-6 md:space-y-8">
+        <div className="mt-8">
+          <StatStrip
+            items={[
+              {
+                label: "Experience",
+                value: experiences.length > 0 ? `${experiences.length} roles` : null,
+              },
+              {
+                label: "Projects",
+                value: projects.length > 0 ? `${projects.length} launches` : null,
+              },
+              {
+                label: "Skills",
+                value: skills.length > 0 ? `${skills.length} listed` : null,
+              },
+              {
+                label: "Certifications",
+                value: certifications.length > 0 ? `${certifications.length}` : null,
+              },
+            ]}
+            className="lg:grid-cols-4"
+            valueClassName="text-2xl font-semibold text-slate-900"
+            labelClassName="mt-1 text-xs uppercase tracking-[0.22em] text-slate-500"
+          />
+        </div>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          <main className="space-y-8">
             {portfolio.summary && (
-              <section id="about" className="scroll-mt-24 rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
+              <section id="about" className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm">
                 <SectionHeading>Professional Summary</SectionHeading>
                 <DescriptionBlock
                   text={portfolio.summary}
@@ -109,7 +138,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             {experiences.length > 0 && (
               <section
                 id="experience"
-                className="scroll-mt-24 rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8"
+                className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm"
               >
                 <SectionHeading>Experience</SectionHeading>
                 <div className="space-y-5">
@@ -148,7 +177,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {visibleProjects.length > 0 && (
-              <section id="work" className="scroll-mt-24 rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
+              <section id="work" className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm">
                 <SectionHeading>Selected Work</SectionHeading>
                 <div className="grid gap-5 sm:grid-cols-2">
                   {visibleProjects.map((project) => (
@@ -234,9 +263,9 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
           </main>
 
-          <aside className="space-y-6 md:space-y-8">
+          <aside className="space-y-8">
             {skills.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
+              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
                 <SectionHeading>Capabilities</SectionHeading>
                 <div className="space-y-6">
                   {Object.entries(skillsByCategory).map(([category, names]) => (
@@ -261,7 +290,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {educations.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
+              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
                 <SectionHeading>Education</SectionHeading>
                 <div className="space-y-4">
                   {educations.map((edu) => (
@@ -282,7 +311,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {certifications.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
+              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
                 <SectionHeading>Certifications</SectionHeading>
                 <div className="space-y-4">
                   {certifications.map((cert) => (
@@ -317,7 +346,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {achievements.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
+              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
                 <SectionHeading>Achievements</SectionHeading>
                 <div className="space-y-3">
                   {achievements.map((ach) => (
@@ -340,22 +369,22 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
               </section>
             )}
 
-            {hasProfiles && (
-              <section
-                id="profiles"
-                className="scroll-mt-24 rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8"
-              >
-                <SectionHeading>Profiles</SectionHeading>
-                <ProfileLinksSection
-                  portfolio={portfolio}
-                  profiles={socialProfiles}
-                  chipClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600"
-                  pillClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900"
-                  titleClassName="text-slate-900"
-                  textClassName="text-slate-500"
-                />
-              </section>
-            )}
+              {hasProfiles && (
+                <section
+                  id="profiles"
+                  className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm"
+                >
+                  <SectionHeading>Profiles</SectionHeading>
+                  <ProfileLinksSection
+                    portfolio={portfolio}
+                    profiles={socialProfiles}
+                    chipClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600"
+                    pillClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900"
+                    titleClassName="text-slate-900"
+                    textClassName="text-slate-500"
+                  />
+                </section>
+              )}
           </aside>
         </div>
       </div>

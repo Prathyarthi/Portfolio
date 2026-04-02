@@ -30,9 +30,9 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
 
   return (
     <div className="min-h-screen bg-[#f5f2ea] text-stone-800">
-      <div className="mx-auto max-w-6xl px-6 pb-20 pt-10 md:px-10 md:pt-14">
-        <header className="rounded-[2rem] border border-stone-200/80 bg-[#fbf8f1] p-8 shadow-[0_20px_80px_rgba(120,113,108,0.08)] md:p-12">
-          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+      <div className="mx-auto max-w-6xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-20 md:pt-14">
+        <header className="rounded-[2rem] border border-stone-200/80 bg-[#fbf8f1] p-6 shadow-[0_20px_80px_rgba(120,113,108,0.08)] md:p-10">
+          <div className="grid gap-8 md:gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.3em] text-stone-400">
                 Minimal Portfolio
@@ -72,14 +72,12 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             </div>
 
             <div className="space-y-4">
-              {portfolio.avatarUrl ? (
+              {portfolio.avatarUrl && (
                 <img
                   src={portfolio.avatarUrl}
                   alt={portfolio.title}
                   className="h-72 w-full rounded-[1.75rem] object-cover"
                 />
-              ) : (
-                <div className="h-72 rounded-[1.75rem] bg-gradient-to-br from-stone-200 via-[#f7efe2] to-stone-100" />
               )}
               <div className="rounded-[1.5rem] border border-stone-200 bg-white/80 p-5">
                 <p className="text-xs uppercase tracking-[0.24em] text-stone-400">
@@ -104,12 +102,12 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
-          <main className="space-y-10">
+        <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <main className="space-y-8 md:space-y-10">
             {portfolio.summary && (
               <section
                 id="about"
-                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8"
+                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8"
               >
                 <SectionHeading>About</SectionHeading>
                 <DescriptionBlock
@@ -123,7 +121,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             {visibleProjects.length > 0 && (
               <section
                 id="work"
-                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8"
+                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8"
               >
                 <SectionHeading>Selected Work</SectionHeading>
                 <div className="grid gap-5">
@@ -176,27 +174,27 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                         {(project.techStack.length > 0 ||
                           project.githubStars !== null ||
                           project.githubForks !== null) && (
-                          <div className="mt-5 flex flex-wrap items-center gap-2">
-                            {project.techStack.map((tech) => (
-                              <span
-                                key={tech}
-                                className="rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-500"
-                              >
-                                {tech}
-                              </span>
-                            ))}
-                            {project.githubStars !== null && (
-                              <span className="rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500">
-                                {project.githubStars} stars
-                              </span>
-                            )}
-                            {project.githubForks !== null && (
-                              <span className="rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500">
-                                {project.githubForks} forks
-                              </span>
-                            )}
-                          </div>
-                        )}
+                            <div className="mt-5 flex flex-wrap items-center gap-2">
+                              {project.techStack.map((tech) => (
+                                <span
+                                  key={tech}
+                                  className="rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-500"
+                                >
+                                  {tech}
+                                </span>
+                              ))}
+                              {project.githubStars !== null && (
+                                <span className="rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500">
+                                  {project.githubStars} stars
+                                </span>
+                              )}
+                              {project.githubForks !== null && (
+                                <span className="rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500">
+                                  {project.githubForks} forks
+                                </span>
+                              )}
+                            </div>
+                          )}
                       </div>
                     </article>
                   ))}
@@ -207,14 +205,14 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             {experiences.length > 0 && (
               <section
                 id="experience"
-                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8"
+                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8"
               >
                 <SectionHeading>Experience</SectionHeading>
                 <div className="space-y-6">
                   {experiences.map((exp) => (
                     <article
                       key={exp.id}
-                      className="rounded-[1.25rem] border border-stone-200 bg-[#fffdf8] p-5"
+                      className="rounded-4xl border border-stone-200 bg-[#fffdf8] p-5"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -244,9 +242,9 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             )}
           </main>
 
-          <aside className="space-y-10">
+          <aside className="space-y-8 md:space-y-10">
             {skills.length > 0 && (
-              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8">
                 <SectionHeading>Skills</SectionHeading>
                 <div className="space-y-6">
                   {Object.entries(groupedSkills).map(([category, names]) => (
@@ -271,11 +269,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {educations.length > 0 && (
-              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8">
                 <SectionHeading>Education</SectionHeading>
                 <div className="space-y-5">
                   {educations.map((edu) => (
-                    <article key={edu.id} className="rounded-[1.25rem] bg-[#fffdf8] p-5">
+                    <article key={edu.id} className="rounded-4xl bg-[#fffdf8] p-5">
                       <h3 className="font-serif text-lg font-semibold text-stone-900">
                         {edu.degree}
                         {edu.field && <span className="text-stone-500"> in {edu.field}</span>}
@@ -292,11 +290,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {certifications.length > 0 && (
-              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8">
                 <SectionHeading>Certifications</SectionHeading>
                 <div className="space-y-4">
                   {certifications.map((cert) => (
-                    <article key={cert.id} className="rounded-[1.25rem] bg-[#fffdf8] p-5">
+                    <article key={cert.id} className="rounded-4xl bg-[#fffdf8] p-5">
                       <h3 className="font-medium text-stone-900">
                         {cert.url ? (
                           <a
@@ -327,11 +325,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {achievements.length > 0 && (
-              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8">
                 <SectionHeading>Achievements</SectionHeading>
                 <div className="space-y-3">
                   {achievements.map((ach) => (
-                    <article key={ach.id} className="flex items-start gap-3 rounded-[1.25rem] bg-[#fffdf8] p-5">
+                    <article key={ach.id} className="flex items-start gap-3 rounded-4xl bg-[#fffdf8] p-5">
                       <Trophy className="h-4 w-4 text-stone-500 mt-0.5 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-stone-900 leading-relaxed">{ach.title}</p>
@@ -353,7 +351,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             {hasProfiles && (
               <section
                 id="profiles"
-                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8"
+                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8"
               >
                 <SectionHeading>Profiles</SectionHeading>
                 <ProfileLinksSection
@@ -375,7 +373,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-6 font-serif text-3xl font-semibold tracking-tight text-stone-900">
+    <h2 className="mb-5 font-serif text-2xl font-semibold tracking-tight text-stone-900 md:mb-6 md:text-3xl">
       {children}
     </h2>
   );

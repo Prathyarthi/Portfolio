@@ -9,7 +9,8 @@ export const templateRegistry: Record<string, TemplateComponent> = {
   minimal: {
     id: "minimal",
     name: "Minimal",
-    description: "Editorial, quiet, and typography-led for a refined personal brand",
+    description:
+      "Editorial, quiet, and typography-led for a refined personal brand",
     previewImage: "/templates/minimal-preview.png",
     category: "general",
     component: MinimalTemplate,
@@ -17,7 +18,8 @@ export const templateRegistry: Record<string, TemplateComponent> = {
   modern: {
     id: "modern",
     name: "Modern",
-    description: "Dark premium presentation with glass cards and product-style composition",
+    description:
+      "Dark premium presentation with glass cards and product-style composition",
     previewImage: "/templates/modern-preview.png",
     category: "general",
     component: ModernTemplate,

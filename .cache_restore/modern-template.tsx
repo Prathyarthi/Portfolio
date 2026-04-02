@@ -8,6 +8,7 @@ import {
   ProfileLinksSection,
   ProjectActions,
   SocialPills,
+  StatStrip,
   TemplateNavbar,
 } from "../shared";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -31,12 +32,12 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
   return (
     <div className="min-h-screen bg-[#070b16] text-zinc-100">
       <div className="relative overflow-hidden">
-        <div className="absolute -left-40 -top-32 h-112 w-md rounded-full bg-violet-500/20 blur-3xl" />
-        <div className="absolute -right-32 top-20 h-96 w-[24rem] rounded-full bg-cyan-400/14 blur-3xl" />
+        <div className="absolute left-[-10rem] top-[-8rem] h-[28rem] w-[28rem] rounded-full bg-violet-500/20 blur-3xl" />
+        <div className="absolute right-[-8rem] top-20 h-[24rem] w-[24rem] rounded-full bg-cyan-400/14 blur-3xl" />
 
-        <div className="relative mx-auto max-w-6xl px-5 pb-14 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-16">
-          <header className="rounded-[2rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-10">
-            <div className="grid gap-8 md:gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+        <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-12 md:px-10 md:pb-24 md:pt-16">
+          <header className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl md:p-12">
+            <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
               <div>
                 <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-zinc-500">
                   Modern Portfolio
@@ -53,14 +54,14 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                 <div className="mt-6">
                   <ContactChips
                     portfolio={portfolio}
-                    chipClassName="rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-sm text-zinc-400"
+                    chipClassName="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-400"
                   />
                 </div>
 
                 <div className="mt-4">
                   <HeroProfileButtons
                     profiles={socialProfiles}
-                    className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 transition-colors hover:bg-white/9"
+                    className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-zinc-200 transition-colors hover:bg-white/[0.09]"
                   />
                 </div>
 
@@ -69,22 +70,44 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                     <SocialPills
                       profiles={socialProfiles}
                       showUsername
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-white/9"
+                      className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-white/[0.09]"
                     />
                   </div>
                 )}
               </div>
 
               <div className="grid gap-4">
-                {portfolio.avatarUrl && (
-                  <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-linear-to-br from-violet-500/15 via-white/6 to-cyan-400/10 p-5">
+                <div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-violet-500/15 via-white/6 to-cyan-400/10 p-5">
+                  {portfolio.avatarUrl ? (
                     <img
                       src={portfolio.avatarUrl}
                       alt={portfolio.title}
                       className="h-72 w-full rounded-[1.4rem] object-cover"
                     />
-                  </div>
-                )}
+                  ) : (
+                    <div className="h-72 rounded-[1.4rem] bg-gradient-to-br from-violet-400/30 to-cyan-300/20" />
+                  )}
+                </div>
+
+                <StatStrip
+                  className="md:grid-cols-3"
+                  items={[
+                    {
+                      label: "Experience",
+                      value: experiences.length > 0 ? `${experiences.length} roles` : null,
+                    },
+                    {
+                      label: "Projects",
+                      value: projects.length > 0 ? `${projects.length} builds` : null,
+                    },
+                    {
+                      label: "Certifications",
+                      value: certifications.length > 0 ? `${certifications.length}` : null,
+                    },
+                  ]}
+                  valueClassName="text-lg font-semibold text-white"
+                  labelClassName="mt-1 text-xs uppercase tracking-[0.22em] text-zinc-500"
+                />
               </div>
             </div>
           </header>
@@ -93,18 +116,18 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
             <div className="mt-6">
               <TemplateNavbar
                 items={sections}
-                className="rounded-full border-white/10 bg-white/5"
+                className="rounded-full border-white/10 bg-white/[0.05]"
                 linkClassName="rounded-full px-4 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/[0.08] hover:text-white"
               />
             </div>
           )}
 
-          <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-            <main className="space-y-8 md:space-y-10">
+          <div className="mt-10 grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+            <main className="space-y-10">
               {portfolio.summary && (
                 <section
                   id="about"
-                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8"
+                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl"
                 >
                   <SectionHeading>Overview</SectionHeading>
                   <DescriptionBlock
@@ -118,7 +141,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {leadProjects.length > 0 && (
                 <section
                   id="work"
-                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8"
+                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl"
                 >
                   <SectionHeading>Selected Projects</SectionHeading>
                   <div className="grid gap-5">
@@ -135,7 +158,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                           />
                         )}
 
-                        <div className="p-5 md:p-6">
+                        <div className="p-6">
                           <div className="flex flex-wrap items-start justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-2">
@@ -143,7 +166,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                                   {project.title}
                                 </h3>
                                 {project.featured && (
-                                  <span className="rounded-full bg-linear-to-r from-violet-500 to-cyan-400 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-white">
+                                  <span className="rounded-full bg-gradient-to-r from-violet-500 to-cyan-400 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-white">
                                     Featured
                                   </span>
                                 )}
@@ -172,27 +195,27 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                           {(project.techStack.length > 0 ||
                             project.githubStars !== null ||
                             project.githubForks !== null) && (
-                              <div className="mt-5 flex flex-wrap items-center gap-2">
-                                {project.techStack.map((tech) => (
-                                  <span
-                                    key={tech}
-                                    className="rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-zinc-400"
-                                  >
-                                    {tech}
-                                  </span>
-                                ))}
-                                {project.githubStars !== null && (
-                                  <span className="rounded-full bg-white/4 px-3 py-1 text-xs text-zinc-400">
-                                    {project.githubStars} stars
-                                  </span>
-                                )}
-                                {project.githubForks !== null && (
-                                  <span className="rounded-full bg-white/4 px-3 py-1 text-xs text-zinc-400">
-                                    {project.githubForks} forks
-                                  </span>
-                                )}
-                              </div>
-                            )}
+                            <div className="mt-5 flex flex-wrap items-center gap-2">
+                              {project.techStack.map((tech) => (
+                                <span
+                                  key={tech}
+                                  className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-zinc-400"
+                                >
+                                  {tech}
+                                </span>
+                              ))}
+                              {project.githubStars !== null && (
+                                <span className="rounded-full bg-white/[0.04] px-3 py-1 text-xs text-zinc-400">
+                                  {project.githubStars} stars
+                                </span>
+                              )}
+                              {project.githubForks !== null && (
+                                <span className="rounded-full bg-white/[0.04] px-3 py-1 text-xs text-zinc-400">
+                                  {project.githubForks} forks
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </article>
                     ))}
@@ -203,7 +226,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {experiences.length > 0 && (
                 <section
                   id="experience"
-                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8"
+                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl"
                 >
                   <SectionHeading>Experience</SectionHeading>
                   <div className="space-y-5">
@@ -238,9 +261,9 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
             </main>
 
-            <aside className="space-y-8 md:space-y-10">
+            <aside className="space-y-10">
               {skills.length > 0 && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8">
+                <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
                   <SectionHeading>Skills</SectionHeading>
                   <div className="space-y-6">
                     {Object.entries(groupedSkills).map(([category, names]) => (
@@ -252,7 +275,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                           {names.map((name) => (
                             <span
                               key={name}
-                              className="rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-sm text-zinc-300"
+                              className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-300"
                             >
                               {name}
                             </span>
@@ -265,7 +288,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {educations.length > 0 && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8">
+                <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
                   <SectionHeading>Education</SectionHeading>
                   <div className="space-y-4">
                     {educations.map((edu) => (
@@ -286,7 +309,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {certifications.length > 0 && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8">
+                <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
                   <SectionHeading>Certifications</SectionHeading>
                   <div className="space-y-4">
                     {certifications.map((cert) => (
@@ -321,7 +344,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {achievements.length > 0 && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8">
+                <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
                   <SectionHeading>Achievements</SectionHeading>
                   <div className="space-y-3">
                     {achievements.map((ach) => (
@@ -347,14 +370,14 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {hasProfiles && (
                 <section
                   id="profiles"
-                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8"
+                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl"
                 >
                   <SectionHeading>Profiles</SectionHeading>
                   <ProfileLinksSection
                     portfolio={portfolio}
                     profiles={socialProfiles}
-                    chipClassName="rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-sm text-zinc-400"
-                    pillClassName="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-white/9"
+                    chipClassName="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-400"
+                    pillClassName="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-white/[0.09]"
                     titleClassName="text-white"
                     textClassName="text-zinc-400"
                   />
@@ -369,9 +392,5 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="mb-5 text-2xl font-semibold tracking-tight text-white md:mb-6 md:text-3xl">
-      {children}
-    </h2>
-  );
+  return <h2 className="mb-6 text-3xl font-semibold tracking-tight text-white">{children}</h2>;
 }

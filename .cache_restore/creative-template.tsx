@@ -24,17 +24,17 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
       {/* Hero */}
       <header className="relative overflow-hidden bg-gray-50">
         {/* Background decorative blobs */}
-        <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-linear-to-br from-pink-300/30 via-orange-200/30 to-yellow-200/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 right-0 h-125 w-125 rounded-full bg-linear-to-tl from-orange-300/20 via-pink-200/20 to-purple-200/20 blur-3xl" />
+        <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-gradient-to-br from-pink-300/30 via-orange-200/30 to-yellow-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 right-0 h-[500px] w-[500px] rounded-full bg-gradient-to-tl from-orange-300/20 via-pink-200/20 to-purple-200/20 blur-3xl" />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-5 py-16 sm:px-6 md:grid-cols-5 md:gap-10 md:py-24">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 py-24 md:grid-cols-5 md:py-32">
           {/* Left: Text (3 cols) */}
           <div className="md:col-span-3">
             <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pink-500">
               Portfolio
             </p>
             <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight md:text-7xl">
-              <span className="bg-linear-to-r from-pink-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
                 {portfolio.title}
               </span>
             </h1>
@@ -70,15 +70,17 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
           {/* Right: Avatar (2 cols) */}
           <div className="flex justify-center md:col-span-2 md:justify-end">
-            {portfolio.avatarUrl && (
+            {portfolio.avatarUrl ? (
               <div className="relative">
-                <div className="absolute -inset-3 rounded-3xl bg-linear-to-br from-pink-400 via-orange-400 to-yellow-400 opacity-60 blur-xl" />
+                <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-pink-400 via-orange-400 to-yellow-400 opacity-60 blur-xl" />
                 <img
                   src={portfolio.avatarUrl}
                   alt={portfolio.title}
                   className="relative h-56 w-56 rounded-3xl object-cover shadow-2xl ring-4 ring-white md:h-72 md:w-72"
                 />
               </div>
+            ) : (
+              <div className="relative h-56 w-56 rounded-3xl bg-gradient-to-br from-pink-400 via-orange-400 to-yellow-400 shadow-2xl md:h-72 md:w-72" />
             )}
           </div>
         </div>
@@ -86,7 +88,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
       {navbarEnabled && (
         <div className="border-b border-gray-200/70 bg-white/85">
-          <div className="mx-auto max-w-6xl px-5 py-3 sm:px-6">
+          <div className="mx-auto max-w-6xl px-6 py-3">
             <TemplateNavbar
               items={sections}
               className="rounded-full border-gray-200 bg-white"
@@ -99,7 +101,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
       {/* About: Split Layout */}
       {portfolio.summary && (
         <section id="about" className="scroll-mt-24 bg-white">
-          <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:px-6 md:grid-cols-5 md:gap-10 md:py-20">
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-5">
             <div className="md:col-span-3">
               <h2 className="mb-1 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
                 About
@@ -162,21 +164,21 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
       {/* Experience: Horizontal Timeline */}
       {experiences.length > 0 && (
         <section id="experience" className="scroll-mt-24 bg-gray-50">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
+          <div className="mx-auto max-w-6xl px-6 py-20">
             <h2 className="mb-12 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
               Experience
             </h2>
             <div className="relative">
               {/* Horizontal line */}
-              <div className="absolute left-0 right-0 top-5 hidden h-0.5 bg-linear-to-r from-pink-300 via-orange-300 to-yellow-300 md:block" />
+              <div className="absolute left-0 right-0 top-5 hidden h-0.5 bg-gradient-to-r from-pink-300 via-orange-300 to-yellow-300 md:block" />
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {experiences.map((exp) => (
                   <div key={exp.id} className="relative">
                     {/* Dot on timeline */}
                     <div className="relative mb-4 hidden md:block">
-                      <div className="mx-auto h-10 w-10 rounded-full bg-linear-to-br from-pink-400 to-orange-400 p-0.5">
+                      <div className="mx-auto h-10 w-10 rounded-full bg-gradient-to-br from-pink-400 to-orange-400 p-0.5">
                         <div className="flex h-full w-full items-center justify-center rounded-full bg-gray-50">
-                          <div className="h-3 w-3 rounded-full bg-linear-to-br from-pink-400 to-orange-400" />
+                          <div className="h-3 w-3 rounded-full bg-gradient-to-br from-pink-400 to-orange-400" />
                         </div>
                       </div>
                     </div>
@@ -210,7 +212,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
       {/* Skills: Gradient Pills */}
       {skills.length > 0 && (
         <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
+          <div className="mx-auto max-w-6xl px-6 py-20">
             <h2 className="mb-12 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
               Skills
             </h2>
@@ -238,10 +240,10 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         >
                           {/* Animated gradient background */}
                           <span
-                            className={`absolute inset-0 bg-linear-to-r ${gradient} opacity-90 transition-transform duration-500 group-hover:scale-110`}
+                            className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-90 transition-transform duration-500 group-hover:scale-110`}
                           />
                           <span
-                            className={`absolute inset-0 bg-linear-to-l ${gradient} opacity-0 transition-opacity duration-500 group-hover:opacity-90`}
+                            className={`absolute inset-0 bg-gradient-to-l ${gradient} opacity-0 transition-opacity duration-500 group-hover:opacity-90`}
                           />
                           <span className="relative">{skill}</span>
                         </span>
@@ -258,7 +260,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
       {/* Projects: Large Image-First Masonry Grid */}
       {projects.length > 0 && (
         <section id="work" className="scroll-mt-24 bg-gray-50">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
+          <div className="mx-auto max-w-6xl px-6 py-20">
             <h2 className="mb-12 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
               Projects
             </h2>
@@ -271,7 +273,8 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                     key={project.id}
                     className="group relative break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 hover:shadow-lg transition-all duration-300"
                   >
-                    {project.imageUrl && (
+                    {/* Image */}
+                    {project.imageUrl ? (
                       <div className={`relative overflow-hidden ${isTall ? "h-72" : "h-52"}`}>
                         <img
                           src={project.imageUrl}
@@ -279,7 +282,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                         {/* Overlay gradient */}
-                        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                         {/* Title overlaid on image */}
                         <div className="absolute bottom-0 left-0 right-0 p-5">
                           <div className="flex items-center gap-2">
@@ -287,7 +290,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                               {project.title}
                             </h3>
                             {project.featured && (
-                              <span className="rounded-full bg-linear-to-r from-pink-500 to-orange-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                              <span className="rounded-full bg-gradient-to-r from-pink-500 to-orange-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                                 Featured
                               </span>
                             )}
@@ -297,28 +300,28 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                           )}
                         </div>
                       </div>
-                    )}
-
-                    {/* Content */}
-                    <div className="p-5">
-                      {!project.imageUrl && (
-                        <div className="mb-3">
+                    ) : (
+                      <div className={`relative flex items-end bg-gradient-to-br from-pink-400 via-orange-400 to-yellow-400 p-5 ${isTall ? "h-52" : "h-40"}`}>
+                        <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="text-xl font-bold text-gray-900">
+                            <h3 className="text-xl font-bold text-white">
                               {project.title}
                             </h3>
                             {project.featured && (
-                              <span className="rounded-full bg-linear-to-r from-pink-500 to-orange-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                              <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm">
                                 Featured
                               </span>
                             )}
                           </div>
                           {project.language && (
-                            <p className="mt-1 text-xs text-gray-500">{project.language}</p>
+                            <p className="mt-1 text-xs text-white/80">{project.language}</p>
                           )}
                         </div>
-                      )}
+                      </div>
+                    )}
 
+                    {/* Content */}
+                    <div className="p-5">
                       <p className="text-sm leading-relaxed text-gray-500 line-clamp-3">
                         {project.description}
                       </p>
@@ -369,7 +372,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                             href={project.liveUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-full bg-linear-to-r from-pink-500 to-orange-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:shadow-md transition-shadow"
+                            className="rounded-full bg-gradient-to-r from-pink-500 to-orange-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:shadow-md transition-shadow"
                           >
                             Live Demo
                           </a>
@@ -390,7 +393,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
             <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
               Profiles
             </h2>
-            <div className="rounded-3xl border border-gray-100 bg-gray-50 p-6 md:p-8">
+            <div className="rounded-3xl border border-gray-100 bg-gray-50 p-8">
               <ProfileLinksSection
                 portfolio={portfolio}
                 profiles={socialProfiles}
@@ -407,7 +410,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
       {/* Education & Certifications */}
       {(educations.length > 0 || certifications.length > 0) && (
         <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
+          <div className="mx-auto max-w-6xl px-6 py-20">
             <div className="grid gap-16 md:grid-cols-2">
               {/* Education */}
               {educations.length > 0 && (
@@ -447,7 +450,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         key={cert.id}
                         className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3"
                       >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-pink-400 to-orange-400">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-400 to-orange-400">
                           <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                           </svg>
@@ -484,8 +487,8 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
       {/* Achievements */}
       {achievements.length > 0 && (
-        <section className="bg-linear-to-br from-gray-50 to-white">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
+        <section className="bg-gradient-to-br from-gray-50 to-white">
+          <div className="mx-auto max-w-6xl px-6 py-20">
             <h2 className="mb-10 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
               Achievements
             </h2>
@@ -495,7 +498,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   key={ach.id}
                   className="flex items-start gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-pink-400 to-orange-400">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-400 to-orange-400">
                     <Trophy className="h-5 w-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -522,10 +525,10 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
         <div className="pointer-events-none absolute -left-40 -top-40 h-80 w-80 rounded-full bg-pink-500/10 blur-3xl" />
         <div className="pointer-events-none absolute -right-40 -bottom-40 h-80 w-80 rounded-full bg-orange-500/10 blur-3xl" />
 
-        <div className="relative mx-auto max-w-6xl px-5 py-16 text-center sm:px-6 md:py-20">
+        <div className="relative mx-auto max-w-6xl px-6 py-20 text-center">
           <h2 className="text-3xl font-extrabold text-white md:text-4xl">
             Let&apos;s create something{" "}
-            <span className="bg-linear-to-r from-pink-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-pink-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
               amazing
             </span>{" "}
             together.
@@ -537,7 +540,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
           {portfolio.contactEmail && (
             <a
               href={`mailto:${portfolio.contactEmail}`}
-              className="mt-8 inline-block rounded-full bg-linear-to-r from-pink-500 via-orange-500 to-yellow-500 px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 transition-shadow"
+              className="mt-8 inline-block rounded-full bg-gradient-to-r from-pink-500 via-orange-500 to-yellow-500 px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 transition-shadow"
             >
               Get in Touch
             </a>
