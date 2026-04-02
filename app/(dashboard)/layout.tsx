@@ -3,8 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { SidebarNav } from "@/features/dashboard/components/sidebar-nav";
 import { TopBar } from "@/features/dashboard/components/top-bar";
 import { Loader2 } from "lucide-react";
 
@@ -33,14 +31,9 @@ export default function DashboardLayout({
   if (status === "unauthenticated") return null;
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-transparent">
-        <SidebarNav />
-        <div className="flex-1 flex flex-col">
-          <TopBar />
-          <main className="flex-1 p-6">{children}</main>
-        </div>
-      </div>
-    </SidebarProvider>
+    <div className="flex min-h-screen w-full flex-col bg-transparent">
+      <TopBar />
+      <main className="flex-1 p-4 sm:p-6">{children}</main>
+    </div>
   );
 }

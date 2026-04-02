@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Pencil, Palette, Download, Eye, ExternalLink } from "lucide-react";
+import { Pencil, Palette, Download, Eye, ExternalLink, Plus } from "lucide-react";
+import { useCreatePortfolio, usePortfolio } from "@/features/portfolio/api/use-portfolio";
+import { FlowFooter } from "@/features/dashboard/components/flow-footer";
+import { toast } from "sonner";
 
 const quickActions = [
   {
@@ -41,6 +45,19 @@ const quickActions = [
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const router = useRouter();
+  const { data: portfolio, isLoading } = usePortfolio();
+  const createPortfolio = useCreatePortfolio();
+
+  async function handleCreatePortfolio() {
+    try {
+      await createPortfolio.mutateAsync();
+      toast.success("Portfolio created");
+      router.push("/dashboard/edit");
+    } catch {
+      toast.error("Failed to create portfolio");
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -56,6 +73,40 @@ export default function DashboardPage() {
           public portfolio that feels deliberate.
         </p>
       </div>
+
+      <Card className="glass-card rounded-[2rem] border-white/8 bg-white/3">
+        <CardHeader>
+          <CardTitle className="text-zinc-100">
+            {portfolio ? "Continue your portfolio" : "Create your portfolio"}
+          </CardTitle>
+          <CardDescription className="text-zinc-400">
+            {portfolio
+              ? "Your portfolio is ready. Continue with the next section or jump back into editing."
+              : "Start a new portfolio so you can edit content, choose a template, and publish it."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-3">
+          {portfolio ? (
+            <Button asChild>
+              <Link href="/dashboard/edit">
+                <Pencil className="mr-2 h-4 w-4" />
+                Continue Editing
+              </Link>
+            </Button>
+          ) : (
+            <Button onClick={handleCreatePortfolio} disabled={createPortfolio.isPending || isLoading}>
+              <Plus className="mr-2 h-4 w-4" />
+              {createPortfolio.isPending ? "Creating..." : "Create Portfolio"}
+            </Button>
+          )}
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/edit">
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Go to Edit
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {quickActions.map((action) => (
@@ -101,6 +152,10 @@ export default function DashboardPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <FlowFooter
+        next={{ href: "/dashboard/edit", label: "Next: Edit Portfolio" }}
+      />
     </div>
   );
 }

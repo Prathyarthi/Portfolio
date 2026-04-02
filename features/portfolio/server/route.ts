@@ -63,6 +63,16 @@ function toOptionalResumeEndDate(value?: string | null) {
   return resumeDateOrThrow(s);
 }
 
+const portfolioInclude = {
+  experiences: { orderBy: { sortOrder: "asc" } },
+  educations: { orderBy: { sortOrder: "asc" } },
+  skills: { orderBy: { sortOrder: "asc" } },
+  projects: { orderBy: { sortOrder: "asc" } },
+  socialProfiles: true,
+  certifications: { orderBy: { sortOrder: "asc" } },
+  achievements: { orderBy: { sortOrder: "asc" } },
+} as const;
+
 export const portfolio = new Elysia({ prefix: "/portfolio" })
   // Get current user's portfolio
   .get("/", async (ctx) => {
@@ -86,37 +96,47 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     });
 
     if (!existing) {
-      // Auto-create portfolio for user
-      const user = await prisma.user.findUnique({
-        where: { id: session.userId },
-      });
-      const slug = await ensureUniqueSlug(
-        generateSlug(user?.name ?? "portfolio")
-      );
-
-      const created = await prisma.portfolio.create({
-        data: {
-          userId: session.userId,
-          slug,
-          title: user?.name ?? "",
-          contactEmail: user?.email ?? "",
-          avatarUrl: user?.avatar ?? undefined,
-        },
-        include: {
-          experiences: true,
-          educations: true,
-          skills: true,
-          projects: true,
-          socialProfiles: true,
-          certifications: true,
-          achievements: true,
-        },
-      });
-
-      return created;
+      ctx.set.status = 404;
+      return { error: "Portfolio not found" };
     }
 
     return existing;
+  })
+
+  // Create portfolio for current user
+  .post("/", async (ctx) => {
+    const session = await getSession(ctx.request);
+    if (!session) {
+      ctx.set.status = 401;
+      return { error: "Unauthorized" };
+    }
+
+    const existing = await prisma.portfolio.findUnique({
+      where: { userId: session.userId },
+      include: portfolioInclude,
+    });
+
+    if (existing) return existing;
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+    });
+    const slug = await ensureUniqueSlug(
+      generateSlug(user?.name ?? "portfolio"),
+    );
+
+    const created = await prisma.portfolio.create({
+      data: {
+        userId: session.userId,
+        slug,
+        title: user?.name ?? "",
+        contactEmail: user?.email ?? "",
+        avatarUrl: user?.avatar ?? undefined,
+      },
+      include: portfolioInclude,
+    });
+
+    return created;
   })
 
   // Update portfolio fields
@@ -187,14 +207,14 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
                     work: t.Optional(t.Boolean()),
                     experience: t.Optional(t.Boolean()),
                     profiles: t.Optional(t.Boolean()),
-                  })
+                  }),
                 ),
-              })
+              }),
             ),
           }),
-        })
+        }),
       ),
-    }
+    },
   )
 
   // Change template
@@ -216,7 +236,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({ templateId: t.String() }),
-    }
+    },
   )
 
   // Publish/unpublish
@@ -238,7 +258,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({ isPublished: t.Boolean() }),
-    }
+    },
   )
 
   // Check slug availability
@@ -252,7 +272,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({ slug: t.String() }),
-    }
+    },
   )
 
   // Change slug
@@ -282,39 +302,36 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({ slug: t.String() }),
-    }
+    },
   )
 
   // Remove sections typically filled by resume import (avoids duplicates on re-import)
-  .post(
-    "/clear-importable",
-    async (ctx) => {
-      const session = await getSession(ctx.request);
-      if (!session) {
-        ctx.set.status = 401;
-        return { error: "Unauthorized" };
-      }
-
-      const p = await prisma.portfolio.findUnique({
-        where: { userId: session.userId },
-      });
-      if (!p) {
-        ctx.set.status = 404;
-        return { error: "Portfolio not found" };
-      }
-
-      await prisma.$transaction([
-        prisma.experience.deleteMany({ where: { portfolioId: p.id } }),
-        prisma.education.deleteMany({ where: { portfolioId: p.id } }),
-        prisma.skill.deleteMany({ where: { portfolioId: p.id } }),
-        prisma.project.deleteMany({ where: { portfolioId: p.id } }),
-        prisma.certification.deleteMany({ where: { portfolioId: p.id } }),
-        prisma.achievement.deleteMany({ where: { portfolioId: p.id } }),
-      ]);
-
-      return { success: true };
+  .post("/clear-importable", async (ctx) => {
+    const session = await getSession(ctx.request);
+    if (!session) {
+      ctx.set.status = 401;
+      return { error: "Unauthorized" };
     }
-  )
+
+    const p = await prisma.portfolio.findUnique({
+      where: { userId: session.userId },
+    });
+    if (!p) {
+      ctx.set.status = 404;
+      return { error: "Portfolio not found" };
+    }
+
+    await prisma.$transaction([
+      prisma.experience.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.education.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.skill.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.project.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.certification.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.achievement.deleteMany({ where: { portfolioId: p.id } }),
+    ]);
+
+    return { success: true };
+  })
 
   // === EXPERIENCE CRUD ===
   .post(
@@ -339,7 +356,8 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
 
       try {
         const description =
-          ctx.body.description != null && String(ctx.body.description).trim() !== ""
+          ctx.body.description != null &&
+          String(ctx.body.description).trim() !== ""
             ? String(ctx.body.description)
             : "";
 
@@ -351,7 +369,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             location: ctx.body.location ?? null,
             portfolioId: p.id,
             sortOrder: count,
-            startDate: ctx.body.startDate ? resumeDateOrThrow(ctx.body.startDate) : null,
+            startDate: ctx.body.startDate
+              ? resumeDateOrThrow(ctx.body.startDate)
+              : null,
             endDate: toOptionalResumeEndDate(ctx.body.endDate),
           },
         });
@@ -359,7 +379,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 400;
         return {
           error:
-            error instanceof Error ? error.message : "Failed to create experience",
+            error instanceof Error
+              ? error.message
+              : "Failed to create experience",
         };
       }
     },
@@ -372,7 +394,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         endDate: t.Optional(t.Union([t.String(), t.Null()])),
         location: t.Optional(t.Union([t.String(), t.Null()])),
       }),
-    }
+    },
   )
   .patch(
     "/experience/:id",
@@ -385,10 +407,14 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       try {
         const data: any = { ...ctx.body };
         if (ctx.body.startDate !== undefined) {
-          data.startDate = ctx.body.startDate ? toDateOrThrow(ctx.body.startDate) : null;
+          data.startDate = ctx.body.startDate
+            ? toDateOrThrow(ctx.body.startDate)
+            : null;
         }
         if (ctx.body.endDate !== undefined) {
-          data.endDate = ctx.body.endDate ? toOptionalDate(ctx.body.endDate) : null;
+          data.endDate = ctx.body.endDate
+            ? toOptionalDate(ctx.body.endDate)
+            : null;
         }
 
         return await prisma.experience.update({
@@ -399,7 +425,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 400;
         return {
           error:
-            error instanceof Error ? error.message : "Failed to update experience",
+            error instanceof Error
+              ? error.message
+              : "Failed to update experience",
         };
       }
     },
@@ -413,9 +441,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           endDate: t.Union([t.String(), t.Null()]),
           location: t.Union([t.String(), t.Null()]),
           sortOrder: t.Number(),
-        })
+        }),
       ),
-    }
+    },
   )
   .delete("/experience/:id", async (ctx) => {
     const session = await getSession(ctx.request);
@@ -454,7 +482,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             ...ctx.body,
             portfolioId: p.id,
             sortOrder: count,
-            startDate: ctx.body.startDate ? resumeDateOrThrow(ctx.body.startDate) : null,
+            startDate: ctx.body.startDate
+              ? resumeDateOrThrow(ctx.body.startDate)
+              : null,
             endDate: toOptionalResumeEndDate(ctx.body.endDate),
           },
         });
@@ -462,7 +492,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 400;
         return {
           error:
-            error instanceof Error ? error.message : "Failed to create education",
+            error instanceof Error
+              ? error.message
+              : "Failed to create education",
         };
       }
     },
@@ -476,7 +508,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         endDate: t.Optional(t.Union([t.String(), t.Null()])),
         gpa: t.Optional(t.Union([t.String(), t.Null()])),
       }),
-    }
+    },
   )
   .patch(
     "/education/:id",
@@ -489,10 +521,14 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       try {
         const data: any = { ...ctx.body };
         if (ctx.body.startDate !== undefined) {
-          data.startDate = ctx.body.startDate ? toDateOrThrow(ctx.body.startDate) : null;
+          data.startDate = ctx.body.startDate
+            ? toDateOrThrow(ctx.body.startDate)
+            : null;
         }
         if (ctx.body.endDate !== undefined) {
-          data.endDate = ctx.body.endDate ? toOptionalDate(ctx.body.endDate) : null;
+          data.endDate = ctx.body.endDate
+            ? toOptionalDate(ctx.body.endDate)
+            : null;
         }
 
         return await prisma.education.update({
@@ -503,7 +539,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 400;
         return {
           error:
-            error instanceof Error ? error.message : "Failed to update education",
+            error instanceof Error
+              ? error.message
+              : "Failed to update education",
         };
       }
     },
@@ -518,9 +556,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           endDate: t.Union([t.String(), t.Null()]),
           gpa: t.Union([t.String(), t.Null()]),
           sortOrder: t.Number(),
-        })
+        }),
       ),
-    }
+    },
   )
   .delete("/education/:id", async (ctx) => {
     const session = await getSession(ctx.request);
@@ -558,7 +596,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         category: t.Optional(t.String()),
         level: t.Optional(t.Union([t.Number(), t.Null()])),
       }),
-    }
+    },
   )
   .delete("/skill/:id", async (ctx) => {
     const session = await getSession(ctx.request);
@@ -604,10 +642,10 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             name: t.String(),
             category: t.Optional(t.String()),
             level: t.Optional(t.Union([t.Number(), t.Null()])),
-          })
+          }),
         ),
       }),
-    }
+    },
   )
 
   // === PROJECTS CRUD ===
@@ -648,7 +686,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         githubForks: t.Optional(t.Union([t.Number(), t.Null()])),
         language: t.Optional(t.Union([t.String(), t.Null()])),
       }),
-    }
+    },
   )
   .patch(
     "/project/:id",
@@ -674,9 +712,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           techStack: t.Array(t.String()),
           featured: t.Boolean(),
           sortOrder: t.Number(),
-        })
+        }),
       ),
-    }
+    },
   )
   .delete("/project/:id", async (ctx) => {
     const session = await getSession(ctx.request);
@@ -732,7 +770,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         expiryDate: t.Optional(t.Union([t.String(), t.Null()])),
         url: t.Optional(t.Union([t.String(), t.Null()])),
       }),
-    }
+    },
   )
   .patch(
     "/certification/:id",
@@ -778,9 +816,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           expiryDate: t.Union([t.String(), t.Null()]),
           url: t.Union([t.String(), t.Null()]),
           sortOrder: t.Number(),
-        })
+        }),
       ),
-    }
+    },
   )
   .delete("/certification/:id", async (ctx) => {
     const session = await getSession(ctx.request);
@@ -832,7 +870,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         url: t.String(),
         username: t.Optional(t.Union([t.String(), t.Null()])),
       }),
-    }
+    },
   )
   .delete("/social/:id", async (ctx) => {
     const session = await getSession(ctx.request);
@@ -879,7 +917,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         title: t.String(),
         date: t.Optional(t.Union([t.String(), t.Null()])),
       }),
-    }
+    },
   )
   .patch(
     "/achievement/:id",
@@ -891,7 +929,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       }
       const updateData: any = { ...ctx.body };
       if (ctx.body.date !== undefined) {
-        updateData.date = ctx.body.date ? resumeDateOrThrow(ctx.body.date) : null;
+        updateData.date = ctx.body.date
+          ? resumeDateOrThrow(ctx.body.date)
+          : null;
       }
       return prisma.achievement.update({
         where: { id: ctx.params.id },
@@ -904,9 +944,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           title: t.String(),
           date: t.Union([t.String(), t.Null()]),
           sortOrder: t.Number(),
-        })
+        }),
       ),
-    }
+    },
   )
   .delete("/achievement/:id", async (ctx) => {
     const session = await getSession(ctx.request);

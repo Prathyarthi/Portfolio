@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { Check, Loader2, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -41,14 +45,15 @@ export default function SettingsPage() {
   const { data: portfolio } = usePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const updateSlug = useUpdateSlug();
-
   const [slug, setSlug] = useState("");
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(false);
   const [navbarSettings, setNavbarSettings] = useState(defaultNavbarSettings);
 
   useEffect(() => {
-    if (portfolio?.slug) setSlug(portfolio.slug);
+    if (portfolio?.slug) {
+      setSlug(portfolio.slug);
+    }
   }, [portfolio?.slug]);
 
   useEffect(() => {
@@ -77,6 +82,7 @@ export default function SettingsPage() {
       setSlugAvailable(null);
       return;
     }
+
     setChecking(true);
     try {
       const res = await fetch("/api/portfolio/slug/check", {
@@ -88,14 +94,15 @@ export default function SettingsPage() {
       setSlugAvailable(data.available);
     } catch {
       setSlugAvailable(null);
+    } finally {
+      setChecking(false);
     }
-    setChecking(false);
   };
 
   const handleSlugSave = () => {
     updateSlug.mutate(slug, {
       onSuccess: () => toast.success("Slug updated"),
-      onError: (e) => toast.error(e.message),
+      onError: (error) => toast.error(error.message),
     });
   };
 
@@ -117,13 +124,31 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-2xl">
+    <div className="space-y-8 max-w-2xl pb-6">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your account and portfolio settings.
-        </p>
+        <p className="mt-1 text-muted-foreground">Manage your account and portfolio settings.</p>
       </div>
+
+      {!portfolio && (
+        <Card className="glass-card rounded-[2rem] border-white/8 bg-white/3">
+          <CardHeader>
+            <CardTitle className="text-zinc-100">Create your portfolio first</CardTitle>
+            <CardDescription className="text-zinc-400">
+              Settings are available after a portfolio has been created.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-3">
+            <Button onClick={handleCreatePortfolio} disabled={createPortfolio.isPending}>
+              <Plus className="mr-2 h-4 w-4" />
+              {createPortfolio.isPending ? "Creating..." : "Create Portfolio"}
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard">Go to Overview</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -146,10 +171,7 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Portfolio URL</CardTitle>
           <CardDescription>
-            Your portfolio will be available at{" "}
-            <span className="font-mono text-foreground">
-              {typeof window !== "undefined" ? window.location.origin : ""}/p/{slug || "your-slug"}
-            </span>
+            Your portfolio will be available at {typeof window !== "undefined" ? window.location.origin : ""}/p/{slug || "your-slug"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -160,37 +182,18 @@ export default function SettingsPage() {
                 <Input
                   value={slug}
                   onChange={(e) => {
-                    const val = e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9-]/g, "");
-                    setSlug(val);
-                    checkSlug(val);
+                    const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+                    setSlug(value);
+                    checkSlug(value);
                   }}
                   placeholder="your-portfolio-slug"
                 />
-                {checking && (
-                  <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-muted-foreground" />
-                )}
-                {!checking && slugAvailable === true && (
-                  <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-500" />
-                )}
-                {!checking && slugAvailable === false && (
-                  <X className="absolute right-3 top-2.5 h-4 w-4 text-destructive" />
-                )}
+                {checking && <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-muted-foreground" />}
+                {!checking && slugAvailable === true && <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-500" />}
+                {!checking && slugAvailable === false && <X className="absolute right-3 top-2.5 h-4 w-4 text-destructive" />}
               </div>
-              <Button
-                onClick={handleSlugSave}
-                disabled={
-                  updateSlug.isPending ||
-                  slug === portfolio?.slug ||
-                  slugAvailable === false
-                }
-              >
-                {updateSlug.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Save"
-                )}
+              <Button onClick={handleSlugSave} disabled={updateSlug.isPending || slug === portfolio?.slug || slugAvailable === false}>
+                {updateSlug.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
               </Button>
             </div>
           </div>
@@ -280,14 +283,16 @@ export default function SettingsPage() {
           <CardDescription>Irreversible actions</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button
-            variant="destructive"
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
+          <Button variant="destructive" onClick={() => signOut({ callbackUrl: "/" })}>
             Sign Out
           </Button>
         </CardContent>
       </Card>
+
+      <FlowFooter
+        previous={{ href: "/dashboard/preview", label: "Previous: Preview" }}
+        next={{ href: "/dashboard", label: "Finish: Overview" }}
+      />
     </div>
   );
 }

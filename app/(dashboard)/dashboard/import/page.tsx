@@ -1,13 +1,17 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResumeUploader } from "@/features/resume/components/resume-uploader";
 import { GitHubImporter } from "@/features/profile/components/github-importer";
 import { LeetCodeImporter } from "@/features/profile/components/leetcode-importer";
 import { FileText, Trophy } from "lucide-react";
 import { GithubIcon as Github } from "@/components/icons";
+import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 
 export default function ImportPage() {
+  const router = useRouter();
+
   return (
     <div className="space-y-6">
       <div>
@@ -46,6 +50,11 @@ export default function ImportPage() {
           <LeetCodeImporter />
         </TabsContent>
       </Tabs>
+
+      <FlowFooter
+        previous={{ href: "/dashboard/templates", label: "Previous: Templates" }}
+        next={{ label: "Next: Preview", onClick: () => router.push("/dashboard/preview") }}
+      />
     </div>
   );
 }

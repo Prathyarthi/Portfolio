@@ -21,10 +21,18 @@ import { GithubIcon as Github } from "@/components/icons";
 
 export default function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const emailState = useState("");
+  const passwordState = useState("");
+  const errorState = useState("");
+  const loadingState = useState(false);
+  const email = emailState[0];
+  const setEmail = emailState[1];
+  const password = passwordState[0];
+  const setPassword = passwordState[1];
+  const error = errorState[0];
+  const setError = errorState[1];
+  const loading = loadingState[0];
+  const setLoading = loadingState[1];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

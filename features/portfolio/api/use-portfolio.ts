@@ -7,9 +7,25 @@ export function usePortfolio() {
     queryKey: ["portfolio"],
     queryFn: async () => {
       const res = await fetch("/api/portfolio");
+      if (res.status === 404) return null;
       if (!res.ok) throw new Error("Failed to fetch portfolio");
       return res.json();
     },
+  });
+}
+
+export function useCreatePortfolio() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/portfolio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Failed to create portfolio");
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
   });
 }
 
