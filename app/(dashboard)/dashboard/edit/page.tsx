@@ -152,39 +152,6 @@ export default function EditPortfolioPage() {
               </TabsTrigger>
             );
           })}
-          <TabsTrigger value="basic" className="gap-1.5">
-            <User className="h-4 w-4" />
-            <span className="hidden sm:inline">Basic Info</span>
-            <span className="sm:hidden">Basic</span>
-          </TabsTrigger>
-          <TabsTrigger value="experience" className="gap-1.5">
-            <Briefcase className="h-4 w-4" />
-            <span className="hidden sm:inline">Experience</span>
-            <span className="sm:hidden">Exp</span>
-          </TabsTrigger>
-          <TabsTrigger value="education" className="gap-1.5">
-            <GraduationCap className="h-4 w-4" />
-            <span className="hidden sm:inline">Education</span>
-            <span className="sm:hidden">Edu</span>
-          </TabsTrigger>
-          <TabsTrigger value="skills" className="gap-1.5">
-            <Wrench className="h-4 w-4" />
-            Skills
-          </TabsTrigger>
-          <TabsTrigger value="projects" className="gap-1.5">
-            <FolderKanban className="h-4 w-4" />
-            Projects
-          </TabsTrigger>
-          <TabsTrigger value="social" className="gap-1.5">
-            <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">Social Links</span>
-            <span className="sm:hidden">Social</span>
-          </TabsTrigger>
-          <TabsTrigger value="achievements" className="gap-1.5">
-            <Trophy className="h-4 w-4" />
-            <span className="hidden sm:inline">Achievements</span>
-            <span className="sm:hidden">Awards</span>
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic" className="space-y-6">
