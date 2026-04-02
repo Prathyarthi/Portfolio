@@ -63,6 +63,7 @@ model Portfolio {
   projects       Project[]
   socialProfiles SocialProfile[]
   certifications Certification[]
+  achievements   Achievement[]
 
   @@index([slug])
   @@map("portfolios")
@@ -74,7 +75,7 @@ model Experience {
   company     String
   role        String
   description String    @db.Text
-  startDate   DateTime
+  startDate   DateTime?
   endDate     DateTime?
   location    String?
   logoUrl     String?
@@ -92,7 +93,7 @@ model Education {
   degree      String
   field       String?
   description String?   @db.Text
-  startDate   DateTime
+  startDate   DateTime?
   endDate     DateTime?
   gpa         String?
   sortOrder   Int       @default(0)
@@ -165,6 +166,18 @@ model Certification {
   portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 
   @@map("certifications")
+}
+
+model Achievement {
+  id          String    @id @default(uuid())
+  portfolioId String
+  title       String    @db.Text
+  date        DateTime?
+  sortOrder   Int       @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("achievements")
 }
 
 // ============================================================

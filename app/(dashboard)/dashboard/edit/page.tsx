@@ -9,6 +9,7 @@ import { EducationForm } from "@/features/portfolio/components/education-form";
 import { SkillsEditor } from "@/features/portfolio/components/skills-editor";
 import { ProjectForm } from "@/features/portfolio/components/project-form";
 import { SocialLinksEditor } from "@/features/portfolio/components/social-links-editor";
+import { AchievementForm } from "@/features/portfolio/components/achievement-form";
 import { PublishButton } from "@/features/portfolio/components/publish-button";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import {
   Globe,
   Eye,
   Share2,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -109,6 +111,11 @@ export default function EditPortfolioPage() {
             <span className="hidden sm:inline">Social Links</span>
             <span className="sm:hidden">Social</span>
           </TabsTrigger>
+          <TabsTrigger value="achievements" className="gap-1.5">
+            <Trophy className="h-4 w-4" />
+            <span className="hidden sm:inline">Achievements</span>
+            <span className="sm:hidden">Awards</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic" className="space-y-6">
@@ -135,6 +142,10 @@ export default function EditPortfolioPage() {
 
         <TabsContent value="social">
           <SocialLinksEditor />
+        </TabsContent>
+
+        <TabsContent value="achievements">
+          <AchievementForm />
         </TabsContent>
       </Tabs>
     </div>

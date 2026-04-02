@@ -1,3 +1,15 @@
+export type TemplateSectionId = "about" | "work" | "experience" | "profiles";
+
+export interface TemplateNavbarCustomization {
+  enabled?: boolean;
+  sections?: Partial<Record<TemplateSectionId, boolean>>;
+}
+
+export interface PortfolioCustomization {
+  navbar?: TemplateNavbarCustomization;
+  [key: string]: unknown;
+}
+
 export interface PortfolioData {
   portfolio: {
     title: string;
@@ -8,14 +20,14 @@ export interface PortfolioData {
     phone: string | null;
     location: string | null;
     websiteUrl: string | null;
-    customization: Record<string, unknown>;
+    customization: PortfolioCustomization;
   };
   experiences: Array<{
     id: string;
     company: string;
     role: string;
     description: string;
-    startDate: string;
+    startDate: string | null;
     endDate: string | null;
     location: string | null;
   }>;
@@ -24,7 +36,7 @@ export interface PortfolioData {
     institution: string;
     degree: string;
     field: string | null;
-    startDate: string;
+    startDate: string | null;
     endDate: string | null;
     gpa: string | null;
   }>;
@@ -59,6 +71,11 @@ export interface PortfolioData {
     issuer: string;
     issueDate: string | null;
     url: string | null;
+  }>;
+  achievements: Array<{
+    id: string;
+    title: string;
+    date: string | null;
   }>;
 }
 

@@ -1,9 +1,14 @@
 import type { PortfolioData } from "../types";
+import { Trophy } from "lucide-react";
 import {
+  buildTemplateSections,
   ContactChips,
   DescriptionBlock,
+  HeroProfileButtons,
+  ProfileLinksSection,
   ProjectActions,
   SocialPills,
+  TemplateNavbar,
 } from "../shared";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 
@@ -16,10 +21,12 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
     projects,
     socialProfiles,
     certifications,
+    achievements,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
   const featuredProjects = projects.filter((project) => project.featured);
   const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects;
+  const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
     <div className="min-h-screen bg-[#f5f2ea] text-stone-800">
@@ -43,6 +50,13 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                 <ContactChips
                   portfolio={portfolio}
                   chipClassName="rounded-full border border-stone-200 bg-white/80 px-3 py-1.5 text-sm text-stone-500"
+                />
+              </div>
+
+              <div className="mt-4">
+                <HeroProfileButtons
+                  profiles={socialProfiles}
+                  className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm text-stone-700 transition-colors hover:border-stone-300 hover:text-stone-900"
                 />
               </div>
 
@@ -80,10 +94,23 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
           </div>
         </header>
 
+        {navbarEnabled && (
+          <div className="mt-6">
+            <TemplateNavbar
+              items={sections}
+              className="rounded-full border-stone-200/80 bg-[#fbf8f1]/95"
+              linkClassName="rounded-full px-4 py-2 text-sm text-stone-500 transition-colors hover:bg-white hover:text-stone-900"
+            />
+          </div>
+        )}
+
         <div className="mt-10 grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
           <main className="space-y-10">
             {portfolio.summary && (
-              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+              <section
+                id="about"
+                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8"
+              >
                 <SectionHeading>About</SectionHeading>
                 <DescriptionBlock
                   text={portfolio.summary}
@@ -94,7 +121,10 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {visibleProjects.length > 0 && (
-              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+              <section
+                id="work"
+                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8"
+              >
                 <SectionHeading>Selected Work</SectionHeading>
                 <div className="grid gap-5">
                   {visibleProjects.map((project) => (
@@ -175,7 +205,10 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {experiences.length > 0 && (
-              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+              <section
+                id="experience"
+                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8"
+              >
                 <SectionHeading>Experience</SectionHeading>
                 <div className="space-y-6">
                   {experiences.map((exp) => (
@@ -290,6 +323,47 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                     </article>
                   ))}
                 </div>
+              </section>
+            )}
+
+            {achievements.length > 0 && (
+              <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+                <SectionHeading>Achievements</SectionHeading>
+                <div className="space-y-3">
+                  {achievements.map((ach) => (
+                    <article key={ach.id} className="flex items-start gap-3 rounded-[1.25rem] bg-[#fffdf8] p-5">
+                      <Trophy className="h-4 w-4 text-stone-500 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-stone-900 leading-relaxed">{ach.title}</p>
+                        {ach.date && (
+                          <p className="mt-1 text-xs text-stone-500">
+                            {new Date(ach.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {hasProfiles && (
+              <section
+                id="profiles"
+                className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8"
+              >
+                <SectionHeading>Profiles</SectionHeading>
+                <ProfileLinksSection
+                  portfolio={portfolio}
+                  profiles={socialProfiles}
+                  chipClassName="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-500"
+                  pillClassName="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
+                  titleClassName="text-stone-900"
+                  textClassName="text-stone-500"
+                />
               </section>
             )}
           </aside>

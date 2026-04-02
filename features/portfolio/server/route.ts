@@ -15,9 +15,52 @@ function toDateOrThrow(value: string) {
   return normalized;
 }
 
+/** Parses dates often returned by resume parsers (not only ISO YYYY-MM-DD). */
+function resumeDateOrThrow(value: string) {
+  const v = value.trim();
+  if (!v) {
+    throw new Error("Invalid date: (empty)");
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+    return toDateOrThrow(v);
+  }
+
+  const mdy = v.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/);
+  if (mdy) {
+    const [, m, d, y] = mdy;
+    const iso = `${y}-${m!.padStart(2, "0")}-${d!.padStart(2, "0")}`;
+    return toDateOrThrow(iso);
+  }
+
+  const my = v.match(/^(\d{1,2})[/.-](\d{4})$/);
+  if (my) {
+    const [, m, y] = my;
+    return toDateOrThrow(`${y}-${m!.padStart(2, "0")}-01`);
+  }
+
+  if (/^\d{4}$/.test(v)) {
+    return toDateOrThrow(`${v}-01-01`);
+  }
+
+  const parsed = Date.parse(v);
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed);
+  }
+
+  return toDateOrThrow(v);
+}
+
 function toOptionalDate(value?: string | null) {
   if (!value) return null;
   return toDateOrThrow(value);
+}
+
+function toOptionalResumeEndDate(value?: string | null) {
+  if (value == null || value === "") return null;
+  const s = String(value).trim();
+  if (/^(present|current|now|ongoing|till date|to date)$/i.test(s)) return null;
+  return resumeDateOrThrow(s);
 }
 
 export const portfolio = new Elysia({ prefix: "/portfolio" })
@@ -38,6 +81,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         projects: { orderBy: { sortOrder: "asc" } },
         socialProfiles: true,
         certifications: { orderBy: { sortOrder: "asc" } },
+        achievements: { orderBy: { sortOrder: "asc" } },
       },
     });
 
@@ -65,6 +109,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           projects: true,
           socialProfiles: true,
           certifications: true,
+          achievements: true,
         },
       });
 
@@ -84,9 +129,37 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
 
+      const { customization, headline, summary, ...rest } = ctx.body;
+      const existingCustomization = customization
+        ? await prisma.portfolio.findUnique({
+            where: { userId: session.userId },
+            select: { customization: true },
+          })
+        : null;
+
+      const portfolioFields = {
+        ...rest,
+        ...(headline !== undefined ? { headline: headline ?? "" } : {}),
+        ...(summary !== undefined ? { summary: summary ?? "" } : {}),
+      };
+
       const updated = await prisma.portfolio.update({
         where: { userId: session.userId },
-        data: ctx.body,
+        data: {
+          ...portfolioFields,
+          ...(customization
+            ? {
+                customization: {
+                  ...(existingCustomization?.customization &&
+                  typeof existingCustomization.customization === "object" &&
+                  !Array.isArray(existingCustomization.customization)
+                    ? existingCustomization.customization
+                    : {}),
+                  ...customization,
+                },
+              }
+            : {}),
+        },
       });
 
       return updated;
@@ -95,8 +168,8 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       body: t.Partial(
         t.Object({
           title: t.String(),
-          headline: t.String(),
-          summary: t.String(),
+          headline: t.Union([t.String(), t.Null()]),
+          summary: t.Union([t.String(), t.Null()]),
           avatarUrl: t.Union([t.String(), t.Null()]),
           contactEmail: t.Union([t.String(), t.Null()]),
           phone: t.Union([t.String(), t.Null()]),
@@ -104,6 +177,21 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           websiteUrl: t.Union([t.String(), t.Null()]),
           metaTitle: t.Union([t.String(), t.Null()]),
           metaDescription: t.Union([t.String(), t.Null()]),
+          customization: t.Object({
+            navbar: t.Optional(
+              t.Object({
+                enabled: t.Optional(t.Boolean()),
+                sections: t.Optional(
+                  t.Object({
+                    about: t.Optional(t.Boolean()),
+                    work: t.Optional(t.Boolean()),
+                    experience: t.Optional(t.Boolean()),
+                    profiles: t.Optional(t.Boolean()),
+                  })
+                ),
+              })
+            ),
+          }),
         })
       ),
     }
@@ -197,6 +285,37 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     }
   )
 
+  // Remove sections typically filled by resume import (avoids duplicates on re-import)
+  .post(
+    "/clear-importable",
+    async (ctx) => {
+      const session = await getSession(ctx.request);
+      if (!session) {
+        ctx.set.status = 401;
+        return { error: "Unauthorized" };
+      }
+
+      const p = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+      });
+      if (!p) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
+      }
+
+      await prisma.$transaction([
+        prisma.experience.deleteMany({ where: { portfolioId: p.id } }),
+        prisma.education.deleteMany({ where: { portfolioId: p.id } }),
+        prisma.skill.deleteMany({ where: { portfolioId: p.id } }),
+        prisma.project.deleteMany({ where: { portfolioId: p.id } }),
+        prisma.certification.deleteMany({ where: { portfolioId: p.id } }),
+        prisma.achievement.deleteMany({ where: { portfolioId: p.id } }),
+      ]);
+
+      return { success: true };
+    }
+  )
+
   // === EXPERIENCE CRUD ===
   .post(
     "/experience",
@@ -219,13 +338,21 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       });
 
       try {
+        const description =
+          ctx.body.description != null && String(ctx.body.description).trim() !== ""
+            ? String(ctx.body.description)
+            : "";
+
         return await prisma.experience.create({
           data: {
-            ...ctx.body,
+            company: ctx.body.company,
+            role: ctx.body.role,
+            description,
+            location: ctx.body.location ?? null,
             portfolioId: p.id,
             sortOrder: count,
-            startDate: toDateOrThrow(ctx.body.startDate),
-            endDate: toOptionalDate(ctx.body.endDate),
+            startDate: ctx.body.startDate ? resumeDateOrThrow(ctx.body.startDate) : null,
+            endDate: toOptionalResumeEndDate(ctx.body.endDate),
           },
         });
       } catch (error) {
@@ -240,8 +367,8 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       body: t.Object({
         company: t.String(),
         role: t.String(),
-        description: t.String(),
-        startDate: t.String(),
+        description: t.Optional(t.Union([t.String(), t.Null()])),
+        startDate: t.Optional(t.Union([t.String(), t.Null()])),
         endDate: t.Optional(t.Union([t.String(), t.Null()])),
         location: t.Optional(t.Union([t.String(), t.Null()])),
       }),
@@ -256,16 +383,13 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
       try {
-        const data = {
-          ...ctx.body,
-          startDate: ctx.body.startDate
-            ? toDateOrThrow(ctx.body.startDate)
-            : undefined,
-          endDate:
-            ctx.body.endDate === undefined
-              ? undefined
-              : toOptionalDate(ctx.body.endDate),
-        };
+        const data: any = { ...ctx.body };
+        if (ctx.body.startDate !== undefined) {
+          data.startDate = ctx.body.startDate ? toDateOrThrow(ctx.body.startDate) : null;
+        }
+        if (ctx.body.endDate !== undefined) {
+          data.endDate = ctx.body.endDate ? toOptionalDate(ctx.body.endDate) : null;
+        }
 
         return await prisma.experience.update({
           where: { id: ctx.params.id },
@@ -330,8 +454,8 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             ...ctx.body,
             portfolioId: p.id,
             sortOrder: count,
-            startDate: toDateOrThrow(ctx.body.startDate),
-            endDate: toOptionalDate(ctx.body.endDate),
+            startDate: ctx.body.startDate ? resumeDateOrThrow(ctx.body.startDate) : null,
+            endDate: toOptionalResumeEndDate(ctx.body.endDate),
           },
         });
       } catch (error) {
@@ -348,7 +472,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         degree: t.String(),
         field: t.Optional(t.Union([t.String(), t.Null()])),
         description: t.Optional(t.Union([t.String(), t.Null()])),
-        startDate: t.String(),
+        startDate: t.Optional(t.Union([t.String(), t.Null()])),
         endDate: t.Optional(t.Union([t.String(), t.Null()])),
         gpa: t.Optional(t.Union([t.String(), t.Null()])),
       }),
@@ -363,16 +487,13 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
       try {
-        const data = {
-          ...ctx.body,
-          startDate: ctx.body.startDate
-            ? toDateOrThrow(ctx.body.startDate)
-            : undefined,
-          endDate:
-            ctx.body.endDate === undefined
-              ? undefined
-              : toOptionalDate(ctx.body.endDate),
-        };
+        const data: any = { ...ctx.body };
+        if (ctx.body.startDate !== undefined) {
+          data.startDate = ctx.body.startDate ? toDateOrThrow(ctx.body.startDate) : null;
+        }
+        if (ctx.body.endDate !== undefined) {
+          data.endDate = ctx.body.endDate ? toOptionalDate(ctx.body.endDate) : null;
+        }
 
         return await prisma.education.update({
           where: { id: ctx.params.id },
@@ -720,5 +841,79 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       return { error: "Unauthorized" };
     }
     await prisma.socialProfile.delete({ where: { id: ctx.params.id } });
+    return { success: true };
+  })
+
+  // === ACHIEVEMENTS CRUD ===
+  .post(
+    "/achievement",
+    async (ctx) => {
+      const session = await getSession(ctx.request);
+      if (!session) {
+        ctx.set.status = 401;
+        return { error: "Unauthorized" };
+      }
+      const p = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+      });
+      if (!p) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
+      }
+
+      const count = await prisma.achievement.count({
+        where: { portfolioId: p.id },
+      });
+
+      return prisma.achievement.create({
+        data: {
+          ...ctx.body,
+          portfolioId: p.id,
+          sortOrder: count,
+          date: ctx.body.date ? resumeDateOrThrow(ctx.body.date) : null,
+        },
+      });
+    },
+    {
+      body: t.Object({
+        title: t.String(),
+        date: t.Optional(t.Union([t.String(), t.Null()])),
+      }),
+    }
+  )
+  .patch(
+    "/achievement/:id",
+    async (ctx) => {
+      const session = await getSession(ctx.request);
+      if (!session) {
+        ctx.set.status = 401;
+        return { error: "Unauthorized" };
+      }
+      const updateData: any = { ...ctx.body };
+      if (ctx.body.date !== undefined) {
+        updateData.date = ctx.body.date ? resumeDateOrThrow(ctx.body.date) : null;
+      }
+      return prisma.achievement.update({
+        where: { id: ctx.params.id },
+        data: updateData,
+      });
+    },
+    {
+      body: t.Partial(
+        t.Object({
+          title: t.String(),
+          date: t.Union([t.String(), t.Null()]),
+          sortOrder: t.Number(),
+        })
+      ),
+    }
+  )
+  .delete("/achievement/:id", async (ctx) => {
+    const session = await getSession(ctx.request);
+    if (!session) {
+      ctx.set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    await prisma.achievement.delete({ where: { id: ctx.params.id } });
     return { success: true };
   });

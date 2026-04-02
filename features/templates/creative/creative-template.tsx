@@ -5,11 +5,19 @@ import {
   getPlatformIcon,
 } from "@/features/templates/utils";
 import type { PortfolioData } from "@/features/templates/types";
+import { Trophy } from "lucide-react";
+import {
+  buildTemplateSections,
+  HeroProfileButtons,
+  ProfileLinksSection,
+  TemplateNavbar,
+} from "@/features/templates/shared";
 
 export default function CreativeTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications } =
+  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements } =
     data;
   const skillsByCategory = groupSkillsByCategory(skills);
+  const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 selection:bg-pink-300/40">
@@ -52,6 +60,12 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                 </a>
               )}
             </div>
+            <div className="mt-4">
+              <HeroProfileButtons
+                profiles={socialProfiles}
+                className="rounded-full border border-pink-100 bg-white px-4 py-2 text-sm text-pink-600 transition-colors hover:border-pink-200 hover:text-pink-700"
+              />
+            </div>
           </div>
 
           {/* Right: Avatar (2 cols) */}
@@ -72,9 +86,21 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
         </div>
       </header>
 
+      {navbarEnabled && (
+        <div className="border-b border-gray-200/70 bg-white/85">
+          <div className="mx-auto max-w-6xl px-6 py-3">
+            <TemplateNavbar
+              items={sections}
+              className="rounded-full border-gray-200 bg-white"
+              linkClassName="rounded-full px-4 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
+            />
+          </div>
+        </div>
+      )}
+
       {/* About: Split Layout */}
       {portfolio.summary && (
-        <section className="bg-white">
+        <section id="about" className="scroll-mt-24 bg-white">
           <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-5">
             <div className="md:col-span-3">
               <h2 className="mb-1 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
@@ -137,7 +163,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
       {/* Experience: Horizontal Timeline */}
       {experiences.length > 0 && (
-        <section className="bg-gray-50">
+        <section id="experience" className="scroll-mt-24 bg-gray-50">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <h2 className="mb-12 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
               Experience
@@ -233,7 +259,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
       {/* Projects: Large Image-First Masonry Grid */}
       {projects.length > 0 && (
-        <section className="bg-gray-50">
+        <section id="work" className="scroll-mt-24 bg-gray-50">
           <div className="mx-auto max-w-6xl px-6 py-20">
             <h2 className="mb-12 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
               Projects
@@ -361,6 +387,26 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
         </section>
       )}
 
+      {hasProfiles && (
+        <section id="profiles" className="scroll-mt-24 bg-white">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
+              Profiles
+            </h2>
+            <div className="rounded-3xl border border-gray-100 bg-gray-50 p-8">
+              <ProfileLinksSection
+                portfolio={portfolio}
+                profiles={socialProfiles}
+                chipClassName="rounded-full border border-white bg-white px-3 py-1.5 text-sm text-gray-500"
+                pillClassName="rounded-full border border-white bg-white px-3 py-1.5 text-sm text-gray-600 transition-colors hover:text-pink-500"
+                titleClassName="text-gray-900"
+                textClassName="text-gray-500"
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Education & Certifications */}
       {(educations.length > 0 || certifications.length > 0) && (
         <section className="bg-white">
@@ -434,6 +480,40 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Achievements */}
+      {achievements.length > 0 && (
+        <section className="bg-gradient-to-br from-gray-50 to-white">
+          <div className="mx-auto max-w-6xl px-6 py-20">
+            <h2 className="mb-10 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
+              Achievements
+            </h2>
+            <div className="space-y-4">
+              {achievements.map((ach) => (
+                <div
+                  key={ach.id}
+                  className="flex items-start gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-400 to-orange-400">
+                    <Trophy className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900 leading-relaxed">{ach.title}</p>
+                    {ach.date && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        {new Date(ach.date).toLocaleDateString("en-US", {
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>

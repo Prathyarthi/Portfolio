@@ -1,10 +1,15 @@
 import type { PortfolioData } from "../types";
+import { Trophy } from "lucide-react";
 import {
+  buildTemplateSections,
   ContactChips,
   DescriptionBlock,
+  HeroProfileButtons,
+  ProfileLinksSection,
   ProjectActions,
   SocialPills,
   StatStrip,
+  TemplateNavbar,
 } from "../shared";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 
@@ -17,10 +22,12 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
     projects,
     socialProfiles,
     certifications,
+    achievements,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
   const featuredProjects = projects.filter((project) => project.featured);
   const leadProjects = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 4);
+  const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
     <div className="min-h-screen bg-[#070b16] text-zinc-100">
@@ -51,6 +58,13 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   />
                 </div>
 
+                <div className="mt-4">
+                  <HeroProfileButtons
+                    profiles={socialProfiles}
+                    className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm text-zinc-200 transition-colors hover:bg-white/[0.09]"
+                  />
+                </div>
+
                 {socialProfiles.length > 0 && (
                   <div className="mt-6">
                     <SocialPills
@@ -78,9 +92,18 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                 <StatStrip
                   className="md:grid-cols-3"
                   items={[
-                    { label: "Experience", value: `${experiences.length} roles` },
-                    { label: "Projects", value: `${projects.length} builds` },
-                    { label: "Certifications", value: `${certifications.length}` },
+                    {
+                      label: "Experience",
+                      value: experiences.length > 0 ? `${experiences.length} roles` : null,
+                    },
+                    {
+                      label: "Projects",
+                      value: projects.length > 0 ? `${projects.length} builds` : null,
+                    },
+                    {
+                      label: "Certifications",
+                      value: certifications.length > 0 ? `${certifications.length}` : null,
+                    },
                   ]}
                   valueClassName="text-lg font-semibold text-white"
                   labelClassName="mt-1 text-xs uppercase tracking-[0.22em] text-zinc-500"
@@ -89,10 +112,23 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
             </div>
           </header>
 
+          {navbarEnabled && (
+            <div className="mt-6">
+              <TemplateNavbar
+                items={sections}
+                className="rounded-full border-white/10 bg-white/[0.05]"
+                linkClassName="rounded-full px-4 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/[0.08] hover:text-white"
+              />
+            </div>
+          )}
+
           <div className="mt-10 grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
             <main className="space-y-10">
               {portfolio.summary && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
+                <section
+                  id="about"
+                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl"
+                >
                   <SectionHeading>Overview</SectionHeading>
                   <DescriptionBlock
                     text={portfolio.summary}
@@ -103,7 +139,10 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {leadProjects.length > 0 && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
+                <section
+                  id="work"
+                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl"
+                >
                   <SectionHeading>Selected Projects</SectionHeading>
                   <div className="grid gap-5">
                     {leadProjects.map((project) => (
@@ -185,7 +224,10 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {experiences.length > 0 && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
+                <section
+                  id="experience"
+                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl"
+                >
                   <SectionHeading>Experience</SectionHeading>
                   <div className="space-y-5">
                     {experiences.map((exp) => (
@@ -298,6 +340,47 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                       </article>
                     ))}
                   </div>
+                </section>
+              )}
+
+              {achievements.length > 0 && (
+                <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
+                  <SectionHeading>Achievements</SectionHeading>
+                  <div className="space-y-3">
+                    {achievements.map((ach) => (
+                      <article key={ach.id} className="flex items-start gap-3 rounded-[1.4rem] bg-black/20 p-5">
+                        <Trophy className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-white leading-relaxed">{ach.title}</p>
+                          {ach.date && (
+                            <p className="mt-1 text-xs text-zinc-500">
+                              {new Date(ach.date).toLocaleDateString("en-US", {
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {hasProfiles && (
+                <section
+                  id="profiles"
+                  className="scroll-mt-24 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl"
+                >
+                  <SectionHeading>Profiles</SectionHeading>
+                  <ProfileLinksSection
+                    portfolio={portfolio}
+                    profiles={socialProfiles}
+                    chipClassName="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-sm text-zinc-400"
+                    pillClassName="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-white/[0.09]"
+                    titleClassName="text-white"
+                    textClassName="text-zinc-400"
+                  />
                 </section>
               )}
             </aside>

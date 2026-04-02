@@ -1,10 +1,15 @@
 import type { PortfolioData } from "../types";
+import { Trophy } from "lucide-react";
 import {
+  buildTemplateSections,
   ContactChips,
   DescriptionBlock,
+  HeroProfileButtons,
+  ProfileLinksSection,
   ProjectActions,
   SocialPills,
   StatStrip,
+  TemplateNavbar,
 } from "../shared";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 
@@ -17,10 +22,12 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     projects,
     socialProfiles,
     certifications,
+    achievements,
   } = data;
   const skillsByCategory = groupSkillsByCategory(skills);
   const featuredProjects = projects.filter((project) => project.featured);
   const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 4);
+  const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
     <div className="min-h-screen bg-[#eef2f7] text-slate-900 antialiased">
@@ -44,6 +51,13 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 <ContactChips
                   portfolio={portfolio}
                   chipClassName="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-sm text-slate-300"
+                />
+              </div>
+
+              <div className="mt-4">
+                <HeroProfileButtons
+                  profiles={socialProfiles}
+                  className="rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-slate-100 transition-colors hover:bg-white/12"
                 />
               </div>
 
@@ -72,13 +86,35 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
           </div>
         </header>
 
+        {navbarEnabled && (
+          <div className="mt-6">
+            <TemplateNavbar
+              items={sections}
+              className="rounded-full border-slate-200 bg-white/90"
+              linkClassName="rounded-full px-4 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+            />
+          </div>
+        )}
+
         <div className="mt-8">
           <StatStrip
             items={[
-              { label: "Experience", value: `${experiences.length} roles` },
-              { label: "Projects", value: `${projects.length} launches` },
-              { label: "Skills", value: `${skills.length} listed` },
-              { label: "Certifications", value: `${certifications.length}` },
+              {
+                label: "Experience",
+                value: experiences.length > 0 ? `${experiences.length} roles` : null,
+              },
+              {
+                label: "Projects",
+                value: projects.length > 0 ? `${projects.length} launches` : null,
+              },
+              {
+                label: "Skills",
+                value: skills.length > 0 ? `${skills.length} listed` : null,
+              },
+              {
+                label: "Certifications",
+                value: certifications.length > 0 ? `${certifications.length}` : null,
+              },
             ]}
             className="lg:grid-cols-4"
             valueClassName="text-2xl font-semibold text-slate-900"
@@ -89,7 +125,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <main className="space-y-8">
             {portfolio.summary && (
-              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+              <section id="about" className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm">
                 <SectionHeading>Professional Summary</SectionHeading>
                 <DescriptionBlock
                   text={portfolio.summary}
@@ -100,7 +136,10 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {experiences.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+              <section
+                id="experience"
+                className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm"
+              >
                 <SectionHeading>Experience</SectionHeading>
                 <div className="space-y-5">
                   {experiences.map((exp) => (
@@ -138,7 +177,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {visibleProjects.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+              <section id="work" className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm">
                 <SectionHeading>Selected Work</SectionHeading>
                 <div className="grid gap-5 sm:grid-cols-2">
                   {visibleProjects.map((project) => (
@@ -305,6 +344,47 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 </div>
               </section>
             )}
+
+            {achievements.length > 0 && (
+              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+                <SectionHeading>Achievements</SectionHeading>
+                <div className="space-y-3">
+                  {achievements.map((ach) => (
+                    <article key={ach.id} className="flex items-start gap-3 rounded-[1.4rem] border border-slate-200 p-5">
+                      <Trophy className="h-4 w-4 text-sky-600 mt-0.5 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-slate-900 leading-relaxed">{ach.title}</p>
+                        {ach.date && (
+                          <p className="mt-1 text-xs text-slate-500">
+                            {new Date(ach.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
+
+              {hasProfiles && (
+                <section
+                  id="profiles"
+                  className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm"
+                >
+                  <SectionHeading>Profiles</SectionHeading>
+                  <ProfileLinksSection
+                    portfolio={portfolio}
+                    profiles={socialProfiles}
+                    chipClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600"
+                    pillClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900"
+                    titleClassName="text-slate-900"
+                    textClassName="text-slate-500"
+                  />
+                </section>
+              )}
           </aside>
         </div>
       </div>
