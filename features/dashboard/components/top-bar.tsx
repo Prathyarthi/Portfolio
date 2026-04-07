@@ -13,7 +13,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Pencil, Palette, Download, Eye, Settings, LogOut, User } from "lucide-react";
+import {
+  LayoutDashboard,
+  Pencil,
+  Palette,
+  Download,
+  Eye,
+  Settings,
+  LogOut,
+  User,
+  CreditCard,
+} from "lucide-react";
 
 const navItems = [
   { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -21,6 +31,7 @@ const navItems = [
   { title: "Templates", href: "/dashboard/templates", icon: Palette },
   { title: "Import", href: "/dashboard/import", icon: Download },
   { title: "Preview", href: "/dashboard/preview", icon: Eye },
+  { title: "Pricing", href: "/pricing", icon: CreditCard },
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

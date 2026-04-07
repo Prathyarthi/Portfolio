@@ -1,6 +1,7 @@
 import { Hero } from "@/features/landing/components/hero";
 import { Features } from "@/features/landing/components/features";
 import { TemplateShowcase } from "@/features/landing/components/template-showcase";
+import { Pricing } from "@/features/landing/components/pricing";
 import { CTA } from "@/features/landing/components/cta";
 import { Footer } from "@/features/landing/components/footer";
 import Link from "next/link";
@@ -20,7 +21,15 @@ export default function LandingPage() {
             </span>
           </Link>
 
-          <nav className="flex items-center gap-4">
+          <nav className="flex items-center gap-2 sm:gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="rounded-full text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+            >
+              <Link href="/pricing">Pricing</Link>
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -38,6 +47,7 @@ export default function LandingPage() {
       <Hero />
       <Features />
       <TemplateShowcase />
+      <Pricing />
       <CTA />
       <Footer />
     </div>

@@ -23,16 +23,21 @@ import { PublishButton } from "@/features/portfolio/components/publish-button";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
 import { SkillsEditor } from "@/features/portfolio/components/skills-editor";
 
-const STEPS = [
+type StepValue = "basic" | "experience" | "education" | "skills" | "projects" | "social";
+
+const STEPS: ReadonlyArray<{
+  value: StepValue;
+  label: string;
+  short: string;
+  icon: LucideIcon;
+}> = [
   { value: "basic", label: "Basic Info", short: "Basic", icon: User },
   { value: "experience", label: "Experience", short: "Exp", icon: Briefcase },
   { value: "education", label: "Education", short: "Edu", icon: GraduationCap },
   { value: "skills", label: "Skills", short: "Skills", icon: Wrench },
   { value: "projects", label: "Projects", short: "Projects", icon: FolderKanban },
   { value: "social", label: "Social Links", short: "Social", icon: Globe },
-] as const;
-
-type StepValue = (typeof STEPS)[number]["value"];
+];
 
 export default function EditPortfolioPage() {
   const router = useRouter();
