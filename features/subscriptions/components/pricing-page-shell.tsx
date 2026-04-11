@@ -5,13 +5,15 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SubscriptionFlow } from "./subscription-flow";
+import { landingSurfaceMuted } from "@/features/landing/surface";
+import { cn } from "@/lib/utils";
 
 export function PricingPageShell() {
   const { data: session } = useSession();
 
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <header className="sticky top-0 z-50 border-b border-white/6 bg-[#080b14]/70 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#080b14]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
             <span className="gradient-text text-xl font-bold tracking-wide">
@@ -69,7 +71,7 @@ export function PricingPageShell() {
 
           <SubscriptionFlow />
 
-          <Card className="rounded-2xl border-white/[0.06] bg-white/[0.02] md:rounded-3xl">
+          <Card className={cn(landingSurfaceMuted, "md:rounded-3xl")}>
             <CardContent className="flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between md:p-8">
               <div className="max-w-xl">
                 <h2 className="text-lg font-semibold text-zinc-100">

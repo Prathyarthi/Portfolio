@@ -15,16 +15,25 @@ type FlowFooterProps = {
   previous?: FlowAction;
   next?: FlowAction;
   className?: string;
+  /** Short hint shown on the left; omit for none. */
+  message?: string | null;
 };
 
-export function FlowFooter({ previous, next, className }: FlowFooterProps) {
+export function FlowFooter({
+  previous,
+  next,
+  className,
+  message = "Use the buttons below to move through the portfolio flow.",
+}: FlowFooterProps) {
   return (
     <div
       className={`flex flex-col gap-3 border-t border-white/6 pt-5 sm:flex-row sm:items-center sm:justify-between ${className ?? ""}`}
     >
-      <div className="flex-1 text-sm text-muted-foreground">
-        Use the buttons below to move through the portfolio flow.
-      </div>
+      {message ? (
+        <div className="flex-1 text-sm text-muted-foreground">{message}</div>
+      ) : (
+        <div className="flex-1" />
+      )}
       <div className="flex items-center gap-3">
         {previous ? (
           previous.href ? (

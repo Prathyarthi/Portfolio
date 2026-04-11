@@ -1,123 +1,130 @@
-import {
-  BrainCircuit,
-  Palette,
-  Globe,
-  Code2,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+"use client";
+
+import { Code2, Globe, Palette } from "lucide-react";
 import { GithubIcon } from "@/components/icons";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion, useReducedMotion } from "motion/react";
+import { cn } from "@/lib/utils";
+import { landingSurfaceInteractive } from "@/features/landing/surface";
+import {
+  landingGridContainerVariants,
+  landingGridItemVariants,
+  landingSectionHeaderProps,
+} from "@/features/landing/motion-presets";
 
 const features = [
   {
     icon: GithubIcon,
-    title: "GitHub Import",
-    description:
-      "Automatically fetch your repositories, contributions, and profile details from GitHub.",
+    label: "GitHub import",
+    tagline: "Structured proof",
+    blurb: "Repos and profile pulled in as structured proof, not pasted bullets.",
+    barClass: "bg-zinc-400/80",
   },
   {
     icon: Code2,
-    title: "LeetCode Proof",
-    description:
-      "Show your problem-solving depth with live LeetCode stats instead of a generic skills section.",
-  },
-  {
-    icon: BrainCircuit,
-    title: "Smart Onboarding",
-    description:
-      "Use a resume only as raw input. Foliofy restructures your experience for a stronger public portfolio.",
+    label: "LeetCode signal",
+    tagline: "Depth, not jargon",
+    blurb: "Live stats that read as depth instead of a generic skills grid.",
+    barClass: "bg-emerald-400/82",
   },
   {
     icon: Palette,
-    title: "Template System",
-    description:
-      "Switch between Minimal, Modern, Developer, Creative, and Corporate layouts without rewriting content.",
+    label: "Template switch",
+    tagline: "Same content",
+    blurb: "Swap presentation without rewriting content—find the tone that fits.",
+    barClass: "bg-violet-400/85",
   },
   {
     icon: Globe,
-    title: "Public Presence",
-    description:
-      "Publish to a shareable portfolio URL that feels intentional, polished, and easy to send around.",
+    label: "Public URL",
+    tagline: "Shareable site",
+    blurb: "A shareable `/p/slug` page that feels intentional, not like an export.",
+    barClass: "bg-cyan-400/78",
   },
-  {
-    icon: Zap,
-    title: "Fast Publish Loop",
-    description:
-      "Edit, preview, switch templates, and go live quickly when your story is ready.",
-  },
-  {
-    icon: Sparkles,
-    title: "Story-First Editing",
-    description:
-      "Shape projects, experience, and links into a narrative recruiters can scan in minutes.",
-  },
-  {
-    icon: Palette,
-    title: "Visual Personality",
-    description:
-      "Pick a visual tone that matches your work style, from clean and corporate to bold and developer-first.",
-  },
-  {
-    icon: Globe,
-    title: "Built To Be Seen",
-    description:
-      "Everything is designed for a public landing page, not a document export hidden in downloads.",
-  },
-  {
-    icon: Zap,
-    title: "One Workspace",
-    description:
-      "Imports, editing, previewing, and publishing all happen in one app-like workflow.",
-  },
-  {
-    icon: BrainCircuit,
-    title: "AI Where It Helps",
-    description:
-      "Use AI for cleanup and acceleration without letting it turn your portfolio into generic filler.",
-  },
-];
+] as const;
 
 export function Features() {
-  return (
-    <section id="features" className="px-4 py-24 md:px-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
-          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-            Why Foliofy
-          </p>
-          <h2 className="mb-4 text-3xl font-bold md:text-5xl">
-            A better interface for <span className="gradient-text">building presence</span>
-          </h2>
-          <p className="mx-auto max-w-3xl text-lg text-muted-foreground">
-            The flow is designed around curation and public presentation. Import
-            whatever helps, edit what matters, preview the result, and publish
-            with confidence.
-          </p>
-        </div>
+  const reducedMotion = useReducedMotion();
+  const reduce = Boolean(reducedMotion);
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {features.map((feature) => (
-            <Card
-              key={feature.title}
-              className="glass-card rounded-[1.75rem] border-white/8 bg-white/3 transition-transform duration-200 hover:-translate-y-1"
-            >
-              <CardHeader>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/4">
-                  <feature.icon className="h-5 w-5 text-zinc-200" />
-                </div>
-                <CardTitle className="text-xl text-zinc-100">
-                  {feature.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="leading-relaxed text-zinc-400">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+  const containerVariants = landingGridContainerVariants(reduce);
+  const tileVariants = landingGridItemVariants(reduce);
+  const headerMotion = landingSectionHeaderProps(reduce);
+
+  return (
+    <section id="features" className="px-4 py-20 md:px-6 md:py-28">
+      <div className="mx-auto max-w-5xl">
+        <motion.div
+          className="mx-auto mb-14 max-w-2xl text-center md:mb-16"
+          {...headerMotion}
+        >
+          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+            Essentials
+          </p>
+          <h2 className="mb-3 text-2xl font-semibold tracking-tight text-balance md:text-3xl">
+            Everything you need, <span className="gradient-text">nothing noisy</span>
+          </h2>
+          <p className="text-sm leading-relaxed text-zinc-500 md:text-[15px]">
+            Four pillars: import proof, shape the story, pick a look, ship a link.
+          </p>
+        </motion.div>
+
+        <motion.div
+          className="grid gap-3 sm:grid-cols-2 sm:gap-4"
+          variants={containerVariants}
+          initial={reduce ? false : "hidden"}
+          whileInView={reduce ? undefined : "show"}
+          viewport={{ once: true, margin: "-40px", amount: 0.12 }}
+        >
+          {features.map((feature, index) => {
+            const idx = String(index + 1).padStart(2, "0");
+            return (
+              <motion.div key={feature.label} variants={tileVariants} className="min-h-0">
+                <article
+                  className={cn(
+                    landingSurfaceInteractive,
+                    "group relative flex h-full flex-col p-5 md:p-6"
+                  )}
+                >
+                  <motion.div
+                    className="flex h-full w-full flex-col"
+                    whileHover={reduce ? undefined : { y: -2 }}
+                    transition={{ type: "spring", stiffness: 440, damping: 30 }}
+                  >
+                    <div className="mb-5 flex items-center justify-between gap-3">
+                      <span className="font-mono text-[10px] tabular-nums tracking-widest text-zinc-600">
+                        {idx}
+                      </span>
+                      <div
+                        className={cn(
+                          "h-[3px] origin-left rounded-full transition-[width,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                          "w-11 opacity-60 group-hover:w-[4.25rem] group-hover:opacity-100",
+                          feature.barClass
+                        )}
+                      />
+                    </div>
+
+                    <div className="mb-3 flex items-center gap-2.5">
+                      <feature.icon className="h-4 w-4 shrink-0 text-zinc-500 transition-colors duration-300 group-hover:text-zinc-400" />
+                      <h3 className="text-lg font-medium tracking-tight text-zinc-100 md:text-xl">
+                        {feature.label}
+                      </h3>
+                    </div>
+                    <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-600">
+                      {feature.tagline}
+                    </p>
+                    <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-500 md:text-[15px]">
+                      {feature.blurb}
+                    </p>
+                  </motion.div>
+                </article>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        <p className="mt-12 text-center text-xs text-zinc-600">
+          Edit → preview → publish in one calm loop.
+        </p>
       </div>
     </section>
   );
