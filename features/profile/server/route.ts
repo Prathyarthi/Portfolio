@@ -1,7 +1,11 @@
 import Elysia, { t } from "elysia";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import { fetchGitHubProfile } from "@/lib/github";
+import {
+  buildGitHubCachedStats,
+  fetchGitHubContributionsFromProfilePage,
+  fetchGitHubProfile,
+} from "@/lib/github";
 import { fetchLeetCodeStats } from "@/lib/leetcode";
 
 export const profile = new Elysia({ prefix: "/profile" })
@@ -17,11 +21,20 @@ export const profile = new Elysia({ prefix: "/profile" })
       }
 
       try {
-        const data = await fetchGitHubProfile(ctx.body.username);
+        const data = await fetchGitHubProfile(
+          ctx.body.username,
+          process.env.GITHUB_TOKEN
+        );
         return { success: true, data };
-      } catch (error: any) {
+      } catch (error: unknown) {
         ctx.set.status = 400;
-        return { error: error.message };
+        const message =
+          error instanceof Error ? error.message : "Failed to fetch GitHub data";
+        const hint =
+          message.includes("fetch") || message.includes("aborted")
+            ? " (GitHub may be slow or unreachable; try again or set GITHUB_TOKEN in .env for higher rate limits.)"
+            : "";
+        return { error: `${message}${hint}` };
       }
     },
     {
@@ -66,8 +79,21 @@ export const profile = new Elysia({ prefix: "/profile" })
 
       const result = await prisma.project.createMany({ data: projects });
 
-      // Also save GitHub as a social profile
       if (ctx.body.username) {
+        const token = process.env.GITHUB_TOKEN;
+        let cachedStats: Record<string, unknown> | undefined;
+        let lastFetched: Date | undefined;
+        try {
+          const ghData = await fetchGitHubProfile(ctx.body.username, token);
+          const calendar = await fetchGitHubContributionsFromProfilePage(
+            ctx.body.username
+          );
+          cachedStats = buildGitHubCachedStats(ghData, calendar);
+          lastFetched = new Date();
+        } catch {
+          // Projects are already saved; still link GitHub without cached stats.
+        }
+
         await prisma.socialProfile.upsert({
           where: {
             portfolioId_platform: {
@@ -78,12 +104,24 @@ export const profile = new Elysia({ prefix: "/profile" })
           update: {
             url: `https://github.com/${ctx.body.username}`,
             username: ctx.body.username,
+            ...(cachedStats != null
+              ? {
+                  cachedStats: cachedStats as object,
+                  lastFetched,
+                }
+              : {}),
           },
           create: {
             portfolioId: portfolio.id,
             platform: "github",
             url: `https://github.com/${ctx.body.username}`,
             username: ctx.body.username,
+            ...(cachedStats != null
+              ? {
+                  cachedStats: cachedStats as object,
+                  lastFetched,
+                }
+              : {}),
           },
         });
       }
