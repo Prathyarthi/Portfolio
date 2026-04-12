@@ -275,19 +275,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                 </section>
               )}
 
-              {contributionCalendar && (
-                <section className="rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8">
-                  <SectionHeading>GitHub Activity</SectionHeading>
-                  <GitHubContributionHeatmap
-                    calendar={contributionCalendar}
-                    profileUrl={githubProfile?.url}
-                    username={githubProfile?.username}
-                    variant="modern"
-                    label="GitHub Contribution Calendar"
-                  />
-                </section>
-              )}
-
               {educations.length > 0 && (
                 <section className="rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8">
                   <SectionHeading>Education</SectionHeading>
@@ -386,6 +373,19 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
             </aside>
           </div>
+
+          {contributionCalendar && (
+            <section className="mt-8 rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:mt-10 md:p-8">
+              <SectionHeading>GitHub Activity</SectionHeading>
+              <GitHubContributionHeatmap
+                calendar={contributionCalendar}
+                profileUrl={githubProfile?.url}
+                username={githubProfile?.username}
+                variant="modern"
+                label="GitHub Contribution Calendar"
+              />
+            </section>
+          )}
         </div>
       </div>
     </div>

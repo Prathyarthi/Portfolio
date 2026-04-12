@@ -134,7 +134,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                 id="work"
                 className="scroll-mt-24 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8"
               >
-                <SectionHeading>Selected Work</SectionHeading>
+                <SectionHeading>Work</SectionHeading>
                 <div className="grid gap-5">
                   {visibleProjects.map((project) => (
                     <article
@@ -279,19 +279,6 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
               </section>
             )}
 
-              {contributionCalendar && (
-                <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8">
-                  <SectionHeading>GitHub Activity</SectionHeading>
-                  <GitHubContributionHeatmap
-                    calendar={contributionCalendar}
-                    profileUrl={githubProfile?.url}
-                    username={githubProfile?.username}
-                    variant="minimal"
-                    label="GitHub Contribution Calendar"
-                  />
-                </section>
-              )}
-
             {educations.length > 0 && (
               <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8">
                 <SectionHeading>Education</SectionHeading>
@@ -390,6 +377,19 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             )}
           </aside>
         </div>
+
+        {contributionCalendar && (
+          <section className="mt-8 rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:mt-10 md:p-8">
+            <SectionHeading>GitHub Activity</SectionHeading>
+            <GitHubContributionHeatmap
+              calendar={contributionCalendar}
+              profileUrl={githubProfile?.url}
+              username={githubProfile?.username}
+              variant="minimal"
+              label="GitHub Contribution Calendar"
+            />
+          </section>
+        )}
       </div>
     </div>
   );

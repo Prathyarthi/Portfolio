@@ -160,7 +160,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
 
             {visibleProjects.length > 0 && (
               <section id="work" className="scroll-mt-24 rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
-                <SectionHeading>Selected Work</SectionHeading>
+                <SectionHeading>Work</SectionHeading>
                 <div className="grid gap-5 sm:grid-cols-2">
                   {visibleProjects.map((project) => (
                     <article
@@ -271,19 +271,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
               </section>
             )}
 
-            {contributionCalendar && (
-              <section className="rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
-                <SectionHeading>GitHub Activity</SectionHeading>
-                <GitHubContributionHeatmap
-                  calendar={contributionCalendar}
-                  profileUrl={githubProfile?.url}
-                  username={githubProfile?.username}
-                  variant="corporate"
-                  label="GitHub Contribution Calendar"
-                />
-              </section>
-            )}
-
             {educations.length > 0 && (
               <section className="rounded-[1.75rem] bg-white p-6 shadow-sm md:p-8">
                 <SectionHeading>Education</SectionHeading>
@@ -382,6 +369,19 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
           </aside>
         </div>
+
+        {contributionCalendar && (
+          <section className="mt-6 rounded-[1.75rem] bg-white p-6 shadow-sm md:mt-8 md:p-8">
+            <SectionHeading>GitHub Activity</SectionHeading>
+            <GitHubContributionHeatmap
+              calendar={contributionCalendar}
+              profileUrl={githubProfile?.url}
+              username={githubProfile?.username}
+              variant="corporate"
+              label="GitHub Contribution Calendar"
+            />
+          </section>
+        )}
       </div>
     </div>
   );

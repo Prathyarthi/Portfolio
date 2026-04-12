@@ -266,25 +266,6 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
         </section>
       )}
 
-      {contributionCalendar && (
-        <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
-            <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-              GitHub Activity
-            </h2>
-            <div className="rounded-3xl border border-pink-100 bg-gray-50 p-6 md:p-8">
-              <GitHubContributionHeatmap
-                calendar={contributionCalendar}
-                profileUrl={githubProfile?.url}
-                username={githubProfile?.username}
-                variant="creative"
-                label="GitHub Contribution Calendar"
-              />
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Projects: Large Image-First Masonry Grid */}
       {projects.length > 0 && (
         <section id="work" className="scroll-mt-24 bg-gray-50">
@@ -541,6 +522,25 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {contributionCalendar && (
+        <section className="bg-white">
+          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
+            <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
+              GitHub Activity
+            </h2>
+            <div className="rounded-3xl border border-pink-100 bg-gray-50 p-6 md:p-8">
+              <GitHubContributionHeatmap
+                calendar={contributionCalendar}
+                profileUrl={githubProfile?.url}
+                username={githubProfile?.username}
+                variant="creative"
+                label="GitHub Contribution Calendar"
+              />
             </div>
           </div>
         </section>
