@@ -4,6 +4,10 @@ import {
   getPlatformIcon,
 } from "@/features/templates/utils";
 import type { PortfolioData } from "@/features/templates/types";
+import {
+  GitHubContributionHeatmap,
+  parseContributionCalendar,
+} from "@/features/templates/github-contribution-heatmap";
 import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
@@ -26,6 +30,9 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
   );
   const githubStats = githubProfile?.cachedStats as Record<string, unknown> | null;
   const leetcodeStats = leetcodeProfile?.cachedStats as Record<string, unknown> | null;
+  const contributionCalendar = parseContributionCalendar(
+    githubStats?.contributionCalendar
+  );
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
@@ -130,7 +137,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       )}
 
       {/* Stats bar */}
-      {(githubStats || leetcodeStats) && (
+      {(githubStats || leetcodeStats || contributionCalendar) && (
         <section className="border-b border-green-900/30">
           <div className="mx-auto max-w-5xl px-5 py-10 sm:px-6 md:py-12">
             <p className="mb-6 text-sm text-gray-600">
@@ -162,6 +169,13 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                 />
               )}
             </div>
+            {contributionCalendar && (
+              <GitHubContributionHeatmap
+                calendar={contributionCalendar}
+                profileUrl={githubProfile?.url}
+                username={githubProfile?.username}
+              />
+            )}
           </div>
         </section>
       )}

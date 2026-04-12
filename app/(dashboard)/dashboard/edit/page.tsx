@@ -3,7 +3,18 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Eye, Share2, User, Briefcase, GraduationCap, Wrench, FolderKanban, Globe, Trophy } from "lucide-react";
+import {
+  Plus,
+  Eye,
+  Share2,
+  User,
+  Briefcase,
+  GraduationCap,
+  Wrench,
+  FolderKanban,
+  Globe,
+  type LucideIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,13 +42,13 @@ const STEPS: ReadonlyArray<{
   short: string;
   icon: LucideIcon;
 }> = [
-  { value: "basic", label: "Basic Info", short: "Basic", icon: User },
-  { value: "experience", label: "Experience", short: "Exp", icon: Briefcase },
-  { value: "education", label: "Education", short: "Edu", icon: GraduationCap },
-  { value: "skills", label: "Skills", short: "Skills", icon: Wrench },
-  { value: "projects", label: "Projects", short: "Projects", icon: FolderKanban },
-  { value: "social", label: "Social Links", short: "Social", icon: Globe },
-];
+    { value: "basic", label: "Basic Info", short: "Basic", icon: User },
+    { value: "experience", label: "Experience", short: "Exp", icon: Briefcase },
+    { value: "education", label: "Education", short: "Edu", icon: GraduationCap },
+    { value: "skills", label: "Skills", short: "Skills", icon: Wrench },
+    { value: "projects", label: "Projects", short: "Projects", icon: FolderKanban },
+    { value: "social", label: "Social Links", short: "Social", icon: Globe },
+  ];
 
 export default function EditPortfolioPage() {
   const router = useRouter();
