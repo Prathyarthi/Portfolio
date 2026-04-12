@@ -5,6 +5,10 @@ import {
   getPlatformIcon,
 } from "@/features/templates/utils";
 import type { PortfolioData } from "@/features/templates/types";
+import {
+  GitHubContributionHeatmap,
+  parseContributionCalendar,
+} from "@/features/templates/github-contribution-heatmap";
 import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
@@ -17,6 +21,13 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements } =
     data;
   const skillsByCategory = groupSkillsByCategory(skills);
+  const githubProfile = socialProfiles.find(
+    (profile) => profile.platform.toLowerCase() === "github"
+  );
+  const githubStats = githubProfile?.cachedStats as Record<string, unknown> | null;
+  const contributionCalendar = parseContributionCalendar(
+    githubStats?.contributionCalendar
+  );
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
@@ -250,6 +261,25 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {contributionCalendar && (
+        <section className="bg-white">
+          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
+            <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
+              GitHub Activity
+            </h2>
+            <div className="rounded-3xl border border-pink-100 bg-gray-50 p-6 md:p-8">
+              <GitHubContributionHeatmap
+                calendar={contributionCalendar}
+                profileUrl={githubProfile?.url}
+                username={githubProfile?.username}
+                variant="creative"
+                label="GitHub Contribution Calendar"
+              />
             </div>
           </div>
         </section>

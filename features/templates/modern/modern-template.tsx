@@ -1,4 +1,8 @@
 import type { PortfolioData } from "../types";
+import {
+  GitHubContributionHeatmap,
+  parseContributionCalendar,
+} from "../github-contribution-heatmap";
 import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
@@ -24,6 +28,13 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
     achievements,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
+  const githubProfile = socialProfiles.find(
+    (profile) => profile.platform.toLowerCase() === "github"
+  );
+  const githubStats = githubProfile?.cachedStats as Record<string, unknown> | null;
+  const contributionCalendar = parseContributionCalendar(
+    githubStats?.contributionCalendar
+  );
   const featuredProjects = projects.filter((project) => project.featured);
   const leadProjects = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 4);
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
@@ -261,6 +272,19 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     ))}
                   </div>
+                </section>
+              )}
+
+              {contributionCalendar && (
+                <section className="rounded-[1.75rem] border border-white/10 bg-white/4 p-6 backdrop-blur-xl md:p-8">
+                  <SectionHeading>GitHub Activity</SectionHeading>
+                  <GitHubContributionHeatmap
+                    calendar={contributionCalendar}
+                    profileUrl={githubProfile?.url}
+                    username={githubProfile?.username}
+                    variant="modern"
+                    label="GitHub Contribution Calendar"
+                  />
                 </section>
               )}
 

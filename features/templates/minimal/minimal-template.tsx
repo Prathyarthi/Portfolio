@@ -1,4 +1,8 @@
 import type { PortfolioData } from "../types";
+import {
+  GitHubContributionHeatmap,
+  parseContributionCalendar,
+} from "../github-contribution-heatmap";
 import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
@@ -24,6 +28,13 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
     achievements,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
+  const githubProfile = socialProfiles.find(
+    (profile) => profile.platform.toLowerCase() === "github"
+  );
+  const githubStats = githubProfile?.cachedStats as Record<string, unknown> | null;
+  const contributionCalendar = parseContributionCalendar(
+    githubStats?.contributionCalendar
+  );
   const featuredProjects = projects.filter((project) => project.featured);
   const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
@@ -267,6 +278,19 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                 </div>
               </section>
             )}
+
+              {contributionCalendar && (
+                <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8">
+                  <SectionHeading>GitHub Activity</SectionHeading>
+                  <GitHubContributionHeatmap
+                    calendar={contributionCalendar}
+                    profileUrl={githubProfile?.url}
+                    username={githubProfile?.username}
+                    variant="minimal"
+                    label="GitHub Contribution Calendar"
+                  />
+                </section>
+              )}
 
             {educations.length > 0 && (
               <section className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-6 md:p-8">
