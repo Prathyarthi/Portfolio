@@ -13,7 +13,7 @@ export function PricingPageShell() {
 
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#080b14]/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/6 bg-[#080b14]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
             <span className="gradient-text text-xl font-bold tracking-wide">
@@ -63,9 +63,9 @@ export function PricingPageShell() {
               Two simple plans
             </h1>
             <p className="text-sm leading-relaxed text-zinc-500 md:text-base">
-              Pick where you want to start. Starter proves the workflow; Pro adds
-              priority support, early access, and polish when you are shipping
-              hard.
+              Start with a one-month free trial of all core workflows. After
+              that, stay on free essentials or upgrade to Pro for premium
+              templates and resume import.
             </p>
           </header>
 
@@ -78,10 +78,11 @@ export function PricingPageShell() {
                   Why only two plans?
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-zinc-500">
-                  Starter is for getting a credible public portfolio live. Pro is
-                  for job search seasons when you want faster support and the
-                  newest tools first. We will keep the lineup this simple until
-                  usage tells us we need more.
+                  Starter gives you one free month with full workflow access, then
+                  keeps core publishing on Minimal. Pro is for job-search seasons
+                  when you want premium templates, resume import, and faster
+                  support. We will keep the lineup this simple until usage tells us
+                  we need more.
                 </p>
               </div>
               <Button

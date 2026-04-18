@@ -78,7 +78,14 @@ export function useUpdateTemplate() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ templateId }),
       });
-      if (!res.ok) throw new Error("Failed to update template");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          typeof data.error === "string"
+            ? data.error
+            : "Failed to update template"
+        );
+      }
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),

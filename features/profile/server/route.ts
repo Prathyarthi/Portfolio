@@ -7,6 +7,50 @@ import {
   fetchGitHubProfile,
 } from "@/lib/github";
 import { fetchLeetCodeStats } from "@/lib/leetcode";
+import { getPlanLimitMessage, resolveAccessForUser } from "@/lib/entitlements";
+
+async function requireImportEntitlement(request: Request) {
+  const session = await getSession(request);
+  if (!session) {
+    return {
+      ok: false as const,
+      status: 401 as const,
+      body: { error: "Unauthorized" },
+    };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: {
+      id: true,
+      email: true,
+      createdAt: true,
+      subscriptionStatus: true,
+    },
+  });
+  if (!user) {
+    return {
+      ok: false as const,
+      status: 404 as const,
+      body: { error: "User not found" },
+    };
+  }
+
+  const access = resolveAccessForUser(user);
+  if (!access.canUseImports) {
+    return {
+      ok: false as const,
+      status: 403 as const,
+      body: {
+        error: getPlanLimitMessage(access),
+        code: "PLAN_LIMITED",
+        access,
+      },
+    };
+  }
+
+  return { ok: true as const, session };
+}
 
 export const profile = new Elysia({ prefix: "/profile" })
 
@@ -14,10 +58,10 @@ export const profile = new Elysia({ prefix: "/profile" })
   .post(
     "/github/fetch",
     async (ctx) => {
-      const session = await getSession(ctx.request);
-      if (!session) {
-        ctx.set.status = 401;
-        return { error: "Unauthorized" };
+      const gate = await requireImportEntitlement(ctx.request);
+      if (!gate.ok) {
+        ctx.set.status = gate.status;
+        return gate.body;
       }
 
       try {
@@ -47,14 +91,14 @@ export const profile = new Elysia({ prefix: "/profile" })
   .post(
     "/github/import",
     async (ctx) => {
-      const session = await getSession(ctx.request);
-      if (!session) {
-        ctx.set.status = 401;
-        return { error: "Unauthorized" };
+      const gate = await requireImportEntitlement(ctx.request);
+      if (!gate.ok) {
+        ctx.set.status = gate.status;
+        return gate.body;
       }
 
       const portfolio = await prisma.portfolio.findUnique({
-        where: { userId: session.userId },
+        where: { userId: gate.session.userId },
       });
       if (!portfolio) {
         ctx.set.status = 404;
@@ -150,10 +194,10 @@ export const profile = new Elysia({ prefix: "/profile" })
   .post(
     "/leetcode/fetch",
     async (ctx) => {
-      const session = await getSession(ctx.request);
-      if (!session) {
-        ctx.set.status = 401;
-        return { error: "Unauthorized" };
+      const gate = await requireImportEntitlement(ctx.request);
+      if (!gate.ok) {
+        ctx.set.status = gate.status;
+        return gate.body;
       }
 
       try {
@@ -174,14 +218,14 @@ export const profile = new Elysia({ prefix: "/profile" })
   .post(
     "/leetcode/import",
     async (ctx) => {
-      const session = await getSession(ctx.request);
-      if (!session) {
-        ctx.set.status = 401;
-        return { error: "Unauthorized" };
+      const gate = await requireImportEntitlement(ctx.request);
+      if (!gate.ok) {
+        ctx.set.status = gate.status;
+        return gate.body;
       }
 
       const portfolio = await prisma.portfolio.findUnique({
-        where: { userId: session.userId },
+        where: { userId: gate.session.userId },
       });
       if (!portfolio) {
         ctx.set.status = 404;

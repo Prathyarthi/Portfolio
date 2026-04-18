@@ -16,12 +16,18 @@ export function SubscriptionFlow() {
   const [paymentsReady, setPaymentsReady] = useState(false);
   const [paidActive, setPaidActive] = useState(false);
   const [paidPending, setPaidPending] = useState(false);
+  const [accessTier, setAccessTier] = useState<"free" | "trial" | "pro" | null>(
+    null
+  );
+  const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
 
   useEffect(() => {
     if (!user) {
       setPaymentsReady(false);
       setPaidActive(false);
       setPaidPending(false);
+      setAccessTier(null);
+      setTrialDaysRemaining(0);
       return;
     }
 
@@ -33,17 +39,22 @@ export function SubscriptionFlow() {
         const data = (await res.json().catch(() => ({}))) as {
           razorpayReady?: boolean;
           subscription?: { status?: string } | null;
+          access?: { tier?: "free" | "trial" | "pro"; trialDaysRemaining?: number };
         };
         if (cancelled) return;
 
         setPaymentsReady(Boolean(data.razorpayReady));
         setPaidActive(data.subscription?.status === "ACTIVE");
         setPaidPending(data.subscription?.status === "PENDING");
+        setAccessTier(data.access?.tier ?? null);
+        setTrialDaysRemaining(data.access?.trialDaysRemaining ?? 0);
       } catch {
         if (cancelled) return;
         setPaymentsReady(false);
         setPaidActive(false);
         setPaidPending(false);
+        setAccessTier(null);
+        setTrialDaysRemaining(0);
       } finally {
         if (!cancelled) setBillingLoading(false);
       }
@@ -89,8 +100,8 @@ export function SubscriptionFlow() {
   if (authLoading || billingLoading) {
     return (
       <div className="grid animate-pulse grid-cols-1 gap-5 md:grid-cols-2">
-        <div className="h-96 rounded-3xl bg-white/[0.04]" />
-        <div className="h-96 rounded-3xl bg-white/[0.04]" />
+        <div className="h-96 rounded-3xl bg-white/4" />
+        <div className="h-96 rounded-3xl bg-white/4" />
       </div>
     );
   }
@@ -107,6 +118,18 @@ export function SubscriptionFlow() {
           >
             Dismiss
           </button>
+        </p>
+      )}
+      {accessTier === "trial" && (
+        <p className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-center text-sm text-emerald-300">
+          You are on your free month. {trialDaysRemaining} day
+          {trialDaysRemaining === 1 ? "" : "s"} remaining with full features.
+        </p>
+      )}
+      {accessTier === "free" && (
+        <p className="rounded-xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-center text-sm text-amber-200">
+          Your free month ended. Free essentials remain active; upgrade to Pro
+          for imports (resume, GitHub, LeetCode) and premium templates.
         </p>
       )}
       <PricingCards

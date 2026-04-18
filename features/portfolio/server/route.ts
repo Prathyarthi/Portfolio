@@ -2,6 +2,11 @@ import Elysia, { t } from "elysia";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { generateSlug, ensureUniqueSlug } from "@/lib/slug";
+import {
+  canUseTemplate,
+  getPlanLimitMessage,
+  resolveAccessForUser,
+} from "@/lib/entitlements";
 
 function toDateOrThrow(value: string) {
   const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -227,9 +232,29 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
 
+      const requestedTemplate = ctx.body.templateId.trim();
+      const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { id: true, email: true, createdAt: true, subscriptionStatus: true },
+      });
+      if (!user) {
+        ctx.set.status = 404;
+        return { error: "User not found" };
+      }
+
+      const access = resolveAccessForUser(user);
+      if (!canUseTemplate(access, requestedTemplate)) {
+        ctx.set.status = 403;
+        return {
+          error: getPlanLimitMessage(access),
+          code: "PLAN_LIMITED",
+          access,
+        };
+      }
+
       const updated = await prisma.portfolio.update({
         where: { userId: session.userId },
-        data: { templateId: ctx.body.templateId },
+        data: { templateId: requestedTemplate },
       });
 
       return updated;

@@ -1,5 +1,6 @@
 import Elysia from "elysia";
 import { prisma } from "@/lib/prisma";
+import { canUseTemplate, resolveAccessForUser } from "@/lib/entitlements";
 
 export const publicPortfolio = new Elysia({ prefix: "/public" })
 
@@ -8,6 +9,14 @@ export const publicPortfolio = new Elysia({ prefix: "/public" })
     const portfolio = await prisma.portfolio.findUnique({
       where: { slug: ctx.params.slug },
       include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            createdAt: true,
+            subscriptionStatus: true,
+          },
+        },
         experiences: { orderBy: { sortOrder: "asc" } },
         educations: { orderBy: { sortOrder: "asc" } },
         skills: { orderBy: { sortOrder: "asc" } },
@@ -28,9 +37,16 @@ export const publicPortfolio = new Elysia({ prefix: "/public" })
     }
 
     // Strip sensitive fields
-    const { userId, ...publicData } = portfolio;
+    const { userId, user, ...publicData } = portfolio;
+    const access = resolveAccessForUser(user);
+    const templateId = canUseTemplate(access, publicData.templateId)
+      ? publicData.templateId
+      : "minimal";
 
-    return publicData;
+    return {
+      ...publicData,
+      templateId,
+    };
   })
 
   // List available templates

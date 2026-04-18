@@ -1,6 +1,8 @@
 import Elysia from "elysia";
 import { getSession } from "@/lib/session";
 import { parseResume } from "@/lib/gemini";
+import { prisma } from "@/lib/prisma";
+import { getPlanLimitMessage, resolveAccessForUser } from "@/lib/entitlements";
 
 export const resume = new Elysia({ prefix: "/resume" })
   .post("/parse", async (ctx) => {
@@ -8,6 +10,30 @@ export const resume = new Elysia({ prefix: "/resume" })
     if (!session) {
       ctx.set.status = 401;
       return { error: "Unauthorized" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+        subscriptionStatus: true,
+      },
+    });
+    if (!user) {
+      ctx.set.status = 404;
+      return { error: "User not found" };
+    }
+
+    const access = resolveAccessForUser(user);
+    if (!access.canUseImports) {
+      ctx.set.status = 403;
+      return {
+        error: getPlanLimitMessage(access),
+        code: "PLAN_LIMITED",
+        access,
+      };
     }
 
     const formData = await ctx.request.formData();
