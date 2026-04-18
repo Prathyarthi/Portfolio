@@ -3,6 +3,7 @@ import { getTemplate } from "@/features/templates/registry";
 import { portfolioToTemplateData } from "@/features/templates/transform";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { canUseTemplate, resolveAccessForUser } from "@/lib/entitlements";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -32,6 +33,14 @@ export default async function PortfolioPage({ params }: Props) {
   const portfolio = await prisma.portfolio.findUnique({
     where: { slug, isPublished: true },
     include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          createdAt: true,
+          subscriptionStatus: true,
+        },
+      },
       experiences: { orderBy: { sortOrder: "asc" } },
       educations: { orderBy: { sortOrder: "asc" } },
       skills: { orderBy: { sortOrder: "asc" } },
@@ -43,7 +52,11 @@ export default async function PortfolioPage({ params }: Props) {
 
   if (!portfolio) notFound();
 
-  const template = getTemplate(portfolio.templateId);
+  const access = resolveAccessForUser(portfolio.user);
+  const templateId = canUseTemplate(access, portfolio.templateId)
+    ? portfolio.templateId
+    : "minimal";
+  const template = getTemplate(templateId);
   const TemplateComponent = template.component;
   const data = portfolioToTemplateData(portfolio);
 

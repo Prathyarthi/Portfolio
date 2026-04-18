@@ -2,9 +2,12 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import Razorpay from "razorpay";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth-options";
+import { prisma } from "@/lib/prisma";
 
-const PRO_PRICE_INR = 299;
-
+/**
+ * Creates a recurring Razorpay subscription checkout.
+ * Pro access is granted when webhook marks `User.subscriptionStatus` as `active`.
+ */
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -13,10 +16,14 @@ export async function POST(req: Request) {
 
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const planId = process.env.RAZORPAY_PRO_PLAN_ID;
 
-  if (!keyId || !keySecret) {
+  if (!keyId || !keySecret || !planId) {
     return NextResponse.json(
-      { error: "Razorpay is not configured on the server." },
+      {
+        error:
+          "Razorpay is not configured for subscriptions (missing key/secret/plan).",
+      },
       { status: 503 }
     );
   }
@@ -30,30 +37,34 @@ export async function POST(req: Request) {
       key_secret: keySecret,
     });
 
-    const link = await razorpay.paymentLink.create({
-      amount: PRO_PRICE_INR * 100,
-      currency: "INR",
-      description: "Foliofy Pro monthly subscription",
-      customer: {
-        name: session.user.name ?? undefined,
-        email: session.user.email ?? undefined,
-      },
-      notify: {
-        email: true,
-        sms: false,
-      },
-      reminder_enable: true,
-      callback_url: redirectBase ? `${redirectBase}/pricing` : undefined,
-      callback_method: "get",
+    const subscription = await razorpay.subscriptions.create({
+      plan_id: planId,
+      customer_notify: 1,
+      total_count: 120,
+      ...(redirectBase
+        ? { callback_url: `${redirectBase}/pricing`, callback_method: "get" }
+        : {}),
       notes: {
         userId: session.user.id,
         plan: "pro",
       },
     });
 
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { subscriptionStatus: "pending" },
+    });
+
+    if (!subscription.short_url) {
+      return NextResponse.json(
+        { error: "Subscription checkout URL was not returned by Razorpay." },
+        { status: 502 }
+      );
+    }
+
     return NextResponse.json({
-      checkoutUrl: link.short_url,
-      paymentLinkId: link.id,
+      checkoutUrl: subscription.short_url,
+      subscriptionId: subscription.id,
     });
   } catch (error) {
     return NextResponse.json(
@@ -61,7 +72,7 @@ export async function POST(req: Request) {
         error:
           error instanceof Error
             ? error.message
-            : "Failed to create Razorpay checkout.",
+            : "Failed to create Razorpay subscription checkout.",
       },
       { status: 500 }
     );

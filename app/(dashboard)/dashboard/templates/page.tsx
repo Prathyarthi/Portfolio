@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Check, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -39,12 +40,53 @@ export default function TemplatesPage() {
   const { data: portfolio, isLoading } = usePortfolio();
   const createPortfolio = useCreatePortfolio();
   const updateTemplate = useUpdateTemplate();
+  const [allowedTemplateIds, setAllowedTemplateIds] = useState<string[] | null>(
+    null
+  );
+  const [accessTier, setAccessTier] = useState<"free" | "trial" | "pro" | null>(
+    null
+  );
+  const [trialDaysRemaining, setTrialDaysRemaining] = useState<number>(0);
   const currentTemplate = portfolio?.templateId ?? "minimal";
 
+  useEffect(() => {
+    let cancelled = false;
+    const loadAccess = async () => {
+      try {
+        const res = await fetch("/api/billing/me", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as {
+          access?: {
+            allowedTemplateIds?: string[];
+            tier?: "free" | "trial" | "pro";
+            trialDaysRemaining?: number;
+          };
+        };
+        if (cancelled) return;
+        setAllowedTemplateIds(data.access?.allowedTemplateIds ?? null);
+        setAccessTier(data.access?.tier ?? null);
+        setTrialDaysRemaining(data.access?.trialDaysRemaining ?? 0);
+      } catch {
+        if (cancelled) return;
+        setAllowedTemplateIds(null);
+      }
+    };
+    loadAccess();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleSelect = (templateId: string) => {
+    if (allowedTemplateIds && !allowedTemplateIds.includes(templateId)) {
+      toast.error("Your free month has ended. Upgrade to Pro to unlock this template.");
+      return;
+    }
+
     updateTemplate.mutate(templateId, {
       onSuccess: () => toast.success(`Template changed to ${templateId}`),
-      onError: () => toast.error("Failed to change template"),
+      onError: (error) =>
+        toast.error(error instanceof Error ? error.message : "Failed to change template"),
     });
   };
 
@@ -102,11 +144,24 @@ export default function TemplatesPage() {
         <p className="mt-2 max-w-2xl text-muted-foreground">
           Pick the visual language that best fits your work. Content stays the same while layout, rhythm, and tone shift with the template.
         </p>
+        {accessTier === "trial" && (
+          <p className="mt-3 text-sm text-emerald-400/90">
+            Free month active: {trialDaysRemaining} day{trialDaysRemaining === 1 ? "" : "s"} left for all templates.
+          </p>
+        )}
+        {accessTier === "free" && (
+          <p className="mt-3 text-sm text-amber-300/90">
+            Your free month ended. Minimal stays available; upgrade to Pro to unlock premium benefits.
+          </p>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Object.values(templateRegistry).map((template) => {
           const isActive = currentTemplate === template.id;
+          const isLocked = allowedTemplateIds
+            ? !allowedTemplateIds.includes(template.id)
+            : false;
 
           return (
             <Card
@@ -124,7 +179,7 @@ export default function TemplatesPage() {
                     variant={isActive ? "default" : "secondary"}
                     className={!isActive ? "bg-white/6 text-zinc-300" : undefined}
                   >
-                    {template.category}
+                    {isLocked ? "Pro" : template.category}
                   </Badge>
                 </div>
                 <CardDescription className="text-zinc-400">{template.description}</CardDescription>
@@ -134,13 +189,15 @@ export default function TemplatesPage() {
                   variant={isActive ? "secondary" : "outline"}
                   className="w-full"
                   onClick={() => handleSelect(template.id)}
-                  disabled={updateTemplate.isPending}
+                  disabled={updateTemplate.isPending || isLocked}
                 >
                   {isActive ? (
                     <>
                       <Check className="mr-2 h-4 w-4" />
                       Current Template
                     </>
+                  ) : isLocked ? (
+                    "Upgrade to unlock"
                   ) : (
                     "Use Template"
                   )}
