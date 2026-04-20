@@ -36,7 +36,7 @@ export function TemplateMicroScene({ id, reduced }: { id: TemplateSceneId; reduc
     case "corporate":
       return <CorporateScene />;
     case "kiranbusari":
-      return <KiranbusariScene />;
+      return <LightModeScene />;
     default:
       return null;
   }
@@ -223,10 +223,10 @@ function CorporateScene() {
 }
 
 /**
- * Kiran Busari template: #fbfffe mint canvas, gray-950 type, #fc3 accent (live site).
+ * Light Mode template: #fbfffe mint canvas, gray-950 type, #fc3 accent.
  * @see features/templates/kiranbusari/kiranbusari-template.tsx
  */
-function KiranbusariScene() {
+function LightModeScene() {
   return (
     <div className={cn(frame, "border-gray-100 bg-[#fbfffe]")} aria-hidden>
       <div className="absolute left-3 top-3 h-1.5 w-16 rounded-full bg-gray-950/80" />

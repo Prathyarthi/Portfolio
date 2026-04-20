@@ -53,7 +53,7 @@ const templates = [
   },
   {
     id: "kiranbusari",
-    name: "Kiran Busari",
+    name: "Light Mode",
     tagline: "Portfolio site",
     description:
       "Dark typography-led layout inspired by a stacked project and achievements flow.",

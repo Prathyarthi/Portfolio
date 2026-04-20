@@ -47,9 +47,9 @@ const templates = [
   },
   {
     id: "kiranbusari",
-    name: "Kiran Busari",
+    name: "Light Mode",
     description:
-      "Mint background, Made Tommy typography, and yellow accent links (kiranbusari.vercel.app)",
+      "Mint background, Made Tommy typography, and yellow accent interactions.",
     previewUrl: "/templates/modern-preview.png",
     category: "developer",
   },

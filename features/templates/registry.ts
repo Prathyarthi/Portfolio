@@ -3,7 +3,7 @@ import { ModernTemplate } from "./modern/modern-template";
 import DeveloperTemplate from "./developer/developer-template";
 import CreativeTemplate from "./creative/creative-template";
 import { CorporateTemplate } from "./corporate/corporate-template";
-import { KiranbusariTemplate } from "./kiranbusari/kiranbusari-template";
+import { LightModeTemplate } from "./kiranbusari/kiranbusari-template";
 import type { TemplateComponent } from "./types";
 
 export const templateRegistry: Record<string, TemplateComponent> = {
@@ -54,12 +54,12 @@ export const templateRegistry: Record<string, TemplateComponent> = {
   },
   kiranbusari: {
     id: "kiranbusari",
-    name: "Kiran Busari",
+    name: "Light Mode",
     description:
-      "Mint canvas (#fbfffe), Made Tommy type, and yellow accent links like kiranbusari.vercel.app",
+      "Mint canvas (#fbfffe), Made Tommy type, and yellow-accent interactions.",
     previewImage: "/templates/modern-preview.png",
     category: "developer",
-    component: KiranbusariTemplate,
+    component: LightModeTemplate,
   },
 };
 

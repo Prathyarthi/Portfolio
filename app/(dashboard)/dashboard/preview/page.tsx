@@ -61,6 +61,14 @@ export default function PreviewPage() {
     }
   };
 
+  const templateOptions = useMemo(
+    () =>
+      Object.values(templateRegistry).filter((templateInfo) =>
+        allowedTemplateIds ? allowedTemplateIds.includes(templateInfo.id) : true
+      ),
+    [allowedTemplateIds]
+  );
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -105,13 +113,6 @@ export default function PreviewPage() {
   const template = getTemplate(templateId);
   const TemplateComponent = template.component;
   const data = portfolioToTemplateData(portfolio);
-  const templateOptions = useMemo(
-    () =>
-      Object.values(templateRegistry).filter((templateInfo) =>
-        allowedTemplateIds ? allowedTemplateIds.includes(templateInfo.id) : true
-      ),
-    [allowedTemplateIds]
-  );
 
   return (
     <div className="space-y-4">
