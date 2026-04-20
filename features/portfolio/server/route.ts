@@ -154,19 +154,59 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
 
-      const { customization, headline, summary, ...rest } = ctx.body;
+      const body = ctx.body ?? {};
+      const { customization, headline, summary, templateId, ...rest } = body;
       const existingCustomization = customization
         ? await prisma.portfolio.findUnique({
             where: { userId: session.userId },
             select: { customization: true },
           })
         : null;
+      let resolvedTemplateId: string | undefined;
+      if (templateId !== undefined) {
+        if (typeof templateId !== "string") {
+          ctx.set.status = 400;
+          return { error: "Template id must be a string" };
+        }
+        const requestedTemplate = templateId.trim();
+        if (!requestedTemplate) {
+          ctx.set.status = 400;
+          return { error: "Template id is required" };
+        }
+        const user = await prisma.user.findUnique({
+          where: { id: session.userId },
+        });
+        if (!user) {
+          ctx.set.status = 404;
+          return { error: "User not found" };
+        }
+        const access = resolveAccessForUser(user);
+        if (!canUseTemplate(access, requestedTemplate)) {
+          ctx.set.status = 403;
+          return {
+            error: getPlanLimitMessage(access),
+            code: "PLAN_LIMITED",
+            access,
+          };
+        }
+        resolvedTemplateId = requestedTemplate;
+      }
 
       const portfolioFields = {
         ...rest,
         ...(headline !== undefined ? { headline: headline ?? "" } : {}),
         ...(summary !== undefined ? { summary: summary ?? "" } : {}),
+        ...(resolvedTemplateId !== undefined ? { templateId: resolvedTemplateId } : {}),
       };
+
+      const existingPortfolio = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+        select: { id: true },
+      });
+      if (!existingPortfolio) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
+      }
 
       const updated = await prisma.portfolio.update({
         where: { userId: session.userId },
@@ -200,6 +240,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           phone: t.Union([t.String(), t.Null()]),
           location: t.Union([t.String(), t.Null()]),
           websiteUrl: t.Union([t.String(), t.Null()]),
+          templateId: t.String(),
           metaTitle: t.Union([t.String(), t.Null()]),
           metaDescription: t.Union([t.String(), t.Null()]),
           customization: t.Object({
@@ -232,10 +273,18 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
 
-      const requestedTemplate = ctx.body.templateId.trim();
+      const rawTemplateId = ctx.body?.templateId;
+      if (typeof rawTemplateId !== "string") {
+        ctx.set.status = 400;
+        return { error: "Template id must be a string" };
+      }
+      const requestedTemplate = rawTemplateId.trim();
+      if (!requestedTemplate) {
+        ctx.set.status = 400;
+        return { error: "Template id is required" };
+      }
       const user = await prisma.user.findUnique({
         where: { id: session.userId },
-        select: { id: true, email: true, createdAt: true, subscriptionStatus: true },
       });
       if (!user) {
         ctx.set.status = 404;
@@ -250,6 +299,15 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           code: "PLAN_LIMITED",
           access,
         };
+      }
+
+      const existingPortfolio = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+        select: { id: true },
+      });
+      if (!existingPortfolio) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
       }
 
       const updated = await prisma.portfolio.update({

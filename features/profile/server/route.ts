@@ -21,12 +21,6 @@ async function requireImportEntitlement(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: {
-      id: true,
-      email: true,
-      createdAt: true,
-      subscriptionStatus: true,
-    },
   });
   if (!user) {
     return {

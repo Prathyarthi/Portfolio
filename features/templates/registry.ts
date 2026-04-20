@@ -3,7 +3,7 @@ import { ModernTemplate } from "./modern/modern-template";
 import DeveloperTemplate from "./developer/developer-template";
 import CreativeTemplate from "./creative/creative-template";
 import { CorporateTemplate } from "./corporate/corporate-template";
-import { LightModeTemplate } from "./kiranbusari/kiranbusari-template";
+import { SpotlightTemplate } from "./kiranbusari/kiranbusari-template";
 import type { TemplateComponent } from "./types";
 
 export const templateRegistry: Record<string, TemplateComponent> = {
@@ -54,12 +54,12 @@ export const templateRegistry: Record<string, TemplateComponent> = {
   },
   kiranbusari: {
     id: "kiranbusari",
-    name: "Light Mode",
+    name: "Spotlight",
     description:
       "Mint canvas (#fbfffe), Made Tommy type, and yellow-accent interactions.",
     previewImage: "/templates/modern-preview.png",
     category: "developer",
-    component: LightModeTemplate,
+    component: SpotlightTemplate,
   },
 };
 

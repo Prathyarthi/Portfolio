@@ -73,19 +73,31 @@ export function useUpdateTemplate() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (templateId: string) => {
-      const res = await fetch("/api/portfolio/template", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ templateId }),
-      });
+      const sendUpdate = async (url: string) =>
+        fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ templateId }),
+        });
+
+      let res = await sendUpdate("/api/portfolio/template");
+      if (!res.ok && (res.status === 404 || res.status === 405 || res.status >= 500)) {
+        // Fallback for environments where only /api/portfolio PATCH is wired.
+        res = await sendUpdate("/api/portfolio");
+      }
+
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
+        const data = await res.json().catch(async () => {
+          const text = await res.text().catch(() => "");
+          return text ? { error: text } : {};
+        });
         throw new Error(
           typeof data.error === "string"
             ? data.error
             : "Failed to update template"
         );
       }
+
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),

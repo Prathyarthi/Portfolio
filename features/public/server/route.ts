@@ -9,14 +9,7 @@ export const publicPortfolio = new Elysia({ prefix: "/public" })
     const portfolio = await prisma.portfolio.findUnique({
       where: { slug: ctx.params.slug },
       include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            createdAt: true,
-            subscriptionStatus: true,
-          },
-        },
+        user: true,
         experiences: { orderBy: { sortOrder: "asc" } },
         educations: { orderBy: { sortOrder: "asc" } },
         skills: { orderBy: { sortOrder: "asc" } },

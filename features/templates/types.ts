@@ -7,7 +7,7 @@ export interface TemplateNavbarCustomization {
 
 export interface PortfolioCustomization {
   navbar?: TemplateNavbarCustomization;
-  /** Shown by the Light Mode template as the large hero line under the headline. */
+  /** Shown by the Spotlight template as the large hero line under the headline. */
   heroTagline?: string;
   [key: string]: unknown;
 }

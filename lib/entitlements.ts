@@ -6,6 +6,7 @@ const PREMIUM_TEMPLATE_IDS = [
   "developer",
   "creative",
   "corporate",
+  "kiranbusari",
 ] as const;
 
 export type AccessTier = "free" | "trial" | "pro";
@@ -38,6 +39,11 @@ export function resolveAccessForUser(
   user: UserBillingProfile,
   now: Date = new Date()
 ): AccessSnapshot {
+  const billingConfigured = Boolean(
+    process.env.RAZORPAY_KEY_ID &&
+      process.env.RAZORPAY_KEY_SECRET &&
+      process.env.RAZORPAY_PRO_PLAN_ID
+  );
   const trialEndsAtDate = new Date(
     user.createdAt.getTime() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000
   );
@@ -54,8 +60,8 @@ export function resolveAccessForUser(
       )
     : 0;
 
-  const canUsePremiumTemplates = paidPro || inTrial;
-  const canUseImports = paidPro || inTrial;
+  const canUsePremiumTemplates = paidPro || inTrial || !billingConfigured;
+  const canUseImports = paidPro || inTrial || !billingConfigured;
   const allowedTemplateIds = canUsePremiumTemplates
     ? [...FREE_TEMPLATE_IDS, ...PREMIUM_TEMPLATE_IDS]
     : [...FREE_TEMPLATE_IDS];

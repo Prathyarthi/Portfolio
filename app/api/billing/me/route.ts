@@ -12,12 +12,6 @@ export async function GET() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: {
-      id: true,
-      email: true,
-      createdAt: true,
-      subscriptionStatus: true,
-    },
   });
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -30,7 +24,7 @@ export async function GET() {
   );
   const access = resolveAccessForUser(user);
 
-  const sub = user.subscriptionStatus?.toLowerCase();
+  const sub = String((user as { subscriptionStatus?: string | null }).subscriptionStatus ?? "").toLowerCase();
   const subscription =
     sub === "active"
       ? { status: "ACTIVE" as const }

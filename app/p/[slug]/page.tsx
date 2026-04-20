@@ -33,14 +33,7 @@ export default async function PortfolioPage({ params }: Props) {
   const portfolio = await prisma.portfolio.findUnique({
     where: { slug, isPublished: true },
     include: {
-      user: {
-        select: {
-          id: true,
-          email: true,
-          createdAt: true,
-          subscriptionStatus: true,
-        },
-      },
+      user: true,
       experiences: { orderBy: { sortOrder: "asc" } },
       educations: { orderBy: { sortOrder: "asc" } },
       skills: { orderBy: { sortOrder: "asc" } },

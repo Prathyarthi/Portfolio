@@ -7,7 +7,7 @@ import { ExternalLink, Menu, X } from "lucide-react";
 import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-const MADE_TOMMY_LINK_ID = "made-tommy-light-mode-font";
+const MADE_TOMMY_LINK_ID = "made-tommy-spotlight-font";
 
 const NAV = [
   { name: "home", link: "#top" },
@@ -19,13 +19,13 @@ const FILTERS = ["Frontend", "Fullstack", "Freelancing", "Archive"] as const;
 type Filter = (typeof FILTERS)[number] | "All";
 
 /**
- * Light Mode-inspired layout with sticky nav, hero, filter pills, project cards,
+ * Spotlight-inspired layout with sticky nav, hero, filter pills, project cards,
  * and a timeline section.
  * from the shipped bundle (sticky nav, hero, filter pills, project cards, timeline).
  * Content maps from portfolio fields; optional `customization.kiranProjectCategories`
  * maps project id → string[] for filters; else `language` may be comma-separated tags.
  */
-export function LightModeTemplate({ data }: { data: PortfolioData }) {
+export function SpotlightTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, projects, socialProfiles, certifications, achievements } = data;
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("All");
@@ -82,12 +82,12 @@ export function LightModeTemplate({ data }: { data: PortfolioData }) {
   return (
     <>
       <style>{`
-        .light-mode-root .custom-underline {
+        .spotlight-root .custom-underline {
           position: relative;
           display: inline-block;
           text-decoration: none;
         }
-        .light-mode-root .custom-underline:after {
+        .spotlight-root .custom-underline:after {
           content: "";
           position: absolute;
           left: 0;
@@ -99,7 +99,7 @@ export function LightModeTemplate({ data }: { data: PortfolioData }) {
           transform-origin: bottom right;
           transition: transform 0.3s ease-in-out;
         }
-        .light-mode-root .custom-underline:hover:after {
+        .spotlight-root .custom-underline:hover:after {
           transform: scaleX(1);
           transform-origin: bottom left;
         }
@@ -107,7 +107,7 @@ export function LightModeTemplate({ data }: { data: PortfolioData }) {
 
       <div
         id="top"
-        className="light-mode-root min-h-screen bg-[#fbfffe] text-gray-950"
+        className="spotlight-root min-h-screen bg-[#fbfffe] text-gray-950"
         style={{
           fontFamily: "'Made Tommy', 'Made Tommy 2', ui-sans-serif, system-ui, sans-serif",
         }}

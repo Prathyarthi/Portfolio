@@ -47,7 +47,7 @@ const templates = [
   },
   {
     id: "kiranbusari",
-    name: "Light Mode",
+    name: "Spotlight",
     description:
       "Mint background, Made Tommy typography, and yellow accent interactions.",
     previewUrl: "/templates/modern-preview.png",
