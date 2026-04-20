@@ -10,7 +10,10 @@ import {
   landingGridItemVariants,
   landingSectionHeaderProps,
 } from "@/features/landing/motion-presets";
-import { TemplateMicroScene } from "@/features/landing/components/template-micro-scenes";
+import {
+  TemplateMicroScene,
+  type TemplateSceneId,
+} from "@/features/landing/components/template-micro-scenes";
 
 const templates = [
   {
@@ -40,6 +43,21 @@ const templates = [
     tagline: "Expressive rhythm",
     description: "Warmer motion and asymmetry for portfolios that lead with craft.",
     barClass: "bg-rose-400/80",
+  },
+  {
+    id: "corporate",
+    name: "Corporate",
+    tagline: "Executive clarity",
+    description: "Sharper hierarchy and restrained polish for a more premium professional tone.",
+    barClass: "bg-sky-400/80",
+  },
+  {
+    id: "kiranbusari",
+    name: "Kiran Busari",
+    tagline: "Portfolio site",
+    description:
+      "Dark typography-led layout inspired by a stacked project and achievements flow.",
+    barClass: "bg-[#fc3]/90",
   },
 ] as const;
 
@@ -84,7 +102,10 @@ function TemplateTile({
             />
           </div>
 
-          <TemplateMicroScene id={template.id} reduced={Boolean(reducedMotion)} />
+          <TemplateMicroScene
+            id={template.id as TemplateSceneId}
+            reduced={Boolean(reducedMotion)}
+          />
 
           <div className="flex flex-1 flex-col">
             <h3 className="text-lg font-medium tracking-tight text-zinc-100 md:text-xl">
@@ -133,8 +154,8 @@ export function TemplateShowcase() {
             Same story. <span className="gradient-text">Different first impression.</span>
           </h2>
           <p className="text-sm leading-relaxed text-zinc-500 md:text-[15px]">
-            Your sections stay put—you only change presentation. Five layouts ship in
-            the app; four are highlighted here.
+            Your sections stay put and only the presentation changes. Six layouts
+            ship in the app, each tuned for a distinct public-facing tone.
           </p>
         </motion.div>
 

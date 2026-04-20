@@ -7,6 +7,8 @@ export interface TemplateNavbarCustomization {
 
 export interface PortfolioCustomization {
   navbar?: TemplateNavbarCustomization;
+  /** Shown by the Kiran Busari template as the large hero line under the headline. */
+  heroTagline?: string;
   [key: string]: unknown;
 }
 

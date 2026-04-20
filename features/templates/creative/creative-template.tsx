@@ -1,25 +1,32 @@
 import {
-  formatDate,
-  formatDateRange,
-  groupSkillsByCategory,
-  getPlatformIcon,
-} from "@/features/templates/utils";
-import type { PortfolioData } from "@/features/templates/types";
-import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
 } from "@/features/templates/github-contribution-heatmap";
-import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
+  ContactChips,
+  DescriptionBlock,
   HeroProfileButtons,
   ProfileLinksSection,
+  ProjectActions,
+  SocialPills,
   TemplateNavbar,
 } from "@/features/templates/shared";
+import type { PortfolioData } from "@/features/templates/types";
+import { formatDate, formatDateRange, groupSkillsByCategory } from "@/features/templates/utils";
+import { Trophy } from "lucide-react";
 
 export default function CreativeTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements } =
-    data;
+  const {
+    portfolio,
+    experiences,
+    educations,
+    skills,
+    projects,
+    socialProfiles,
+    certifications,
+    achievements,
+  } = data;
   const skillsByCategory = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -28,590 +35,410 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
   const contributionCalendar = parseContributionCalendar(
     githubStats?.contributionCalendar
   );
+  const featuredProjects = projects.filter((project) => project.featured);
+  const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
+  const quickFacts = [
+    { label: "Projects", value: visibleProjects.length },
+    { label: "Roles", value: experiences.length },
+    { label: "Skills", value: skills.length },
+  ].filter((item) => item.value > 0);
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 selection:bg-pink-300/40">
-      {/* Hero */}
-      <header className="relative overflow-hidden bg-gray-50">
-        {/* Background decorative blobs */}
-        <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-linear-to-br from-pink-300/30 via-orange-200/30 to-yellow-200/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 right-0 h-125 w-125 rounded-full bg-linear-to-tl from-orange-300/20 via-pink-200/20 to-purple-200/20 blur-3xl" />
+    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf7_0%,#fff7fb_45%,#ffffff_100%)] text-stone-900 selection:bg-rose-200/50">
+      <div className="relative overflow-hidden">
+        <div className="pointer-events-none absolute -left-24 top-0 h-80 w-80 rounded-full bg-rose-200/35 blur-3xl" />
+        <div className="pointer-events-none absolute right-0 top-24 h-96 w-96 rounded-full bg-orange-100/45 blur-3xl" />
+        <div className="pointer-events-none absolute left-1/3 top-64 h-72 w-72 rounded-full bg-fuchsia-100/25 blur-3xl" />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-5 py-16 sm:px-6 md:grid-cols-5 md:gap-10 md:py-24">
-          {/* Left: Text (3 cols) */}
-          <div className="md:col-span-3">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-pink-500">
-              Portfolio
-            </p>
-            <h1 className="text-5xl font-extrabold leading-[1.1] tracking-tight md:text-7xl">
-              <span className="bg-linear-to-r from-pink-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
-                {portfolio.title}
-              </span>
-            </h1>
-            <p className="mt-6 max-w-lg text-xl leading-relaxed text-gray-600">
-              {portfolio.headline}
-            </p>
-            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-500">
-              {portfolio.location && (
-                <span className="flex items-center gap-1.5">
-                  <svg className="h-4 w-4 text-orange-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z" />
-                  </svg>
-                  {portfolio.location}
-                </span>
-              )}
-              {portfolio.contactEmail && (
-                <a
-                  href={`mailto:${portfolio.contactEmail}`}
-                  className="text-pink-500 underline decoration-pink-200 underline-offset-2 hover:decoration-pink-400 transition-colors"
-                >
-                  {portfolio.contactEmail}
-                </a>
-              )}
+        <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
+          <header className="overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_80px_rgba(190,24,93,0.08)] backdrop-blur-xl md:p-10">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.28em] text-rose-400">
+                  Creative Portfolio
+                </p>
+                <h1 className="mt-4 max-w-3xl text-5xl font-semibold tracking-tight text-stone-950 md:text-7xl">
+                  {portfolio.title}
+                </h1>
+                {portfolio.headline && (
+                  <p className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-600 md:text-xl">
+                    {portfolio.headline}
+                  </p>
+                )}
+
+                <div className="mt-7">
+                  <ContactChips
+                    portfolio={portfolio}
+                    chipClassName="rounded-full border border-rose-100 bg-rose-50/80 px-3.5 py-1.5 text-sm text-stone-600"
+                  />
+                </div>
+
+                <div className="mt-4">
+                  <HeroProfileButtons
+                    profiles={socialProfiles}
+                    className="rounded-full border border-rose-200 bg-stone-950 px-4 py-2 text-sm text-white transition-colors hover:bg-stone-800"
+                  />
+                </div>
+
+                {socialProfiles.length > 0 && (
+                  <div className="mt-6">
+                    <SocialPills
+                      profiles={socialProfiles}
+                      showUsername
+                      className="rounded-full border border-rose-100 bg-white/90 px-3 py-1.5 text-sm text-stone-600 transition-colors hover:border-rose-200 hover:text-stone-900"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="grid gap-4 lg:pl-6">
+                {portfolio.avatarUrl && (
+                  <div className="rounded-[2rem] border border-rose-100/80 bg-linear-to-br from-rose-50 via-white to-orange-50 p-3 shadow-[0_18px_50px_rgba(190,24,93,0.08)]">
+                    <img
+                      src={portfolio.avatarUrl}
+                      alt={portfolio.title}
+                      className="h-80 w-full rounded-[1.6rem] object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {quickFacts.map((fact) => (
+                    <div
+                      key={fact.label}
+                      className="rounded-[1.2rem] border border-rose-100/80 bg-white/85 px-4 py-4"
+                    >
+                      <p className="text-xl font-semibold text-stone-950">{fact.value}</p>
+                      <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-stone-400">
+                        {fact.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="mt-4">
-              <HeroProfileButtons
-                profiles={socialProfiles}
-                className="rounded-full border border-pink-100 bg-white px-4 py-2 text-sm text-pink-600 transition-colors hover:border-pink-200 hover:text-pink-700"
+          </header>
+
+          {navbarEnabled && (
+            <div className="mt-6">
+              <TemplateNavbar
+                items={sections}
+                className="rounded-full border-white/90 bg-white/85 shadow-[0_12px_32px_rgba(15,23,42,0.05)]"
+                linkClassName="rounded-full px-4 py-2 text-sm text-stone-500 transition-colors hover:bg-stone-950 hover:text-white"
               />
             </div>
-          </div>
+          )}
 
-          {/* Right: Avatar (2 cols) */}
-          <div className="flex justify-center md:col-span-2 md:justify-end">
-            {portfolio.avatarUrl && (
-              <div className="relative">
-                <div className="absolute -inset-3 rounded-3xl bg-linear-to-br from-pink-400 via-orange-400 to-yellow-400 opacity-60 blur-xl" />
-                <img
-                  src={portfolio.avatarUrl}
-                  alt={portfolio.title}
-                  className="relative h-56 w-56 rounded-3xl object-cover shadow-2xl ring-4 ring-white md:h-72 md:w-72"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <main className="space-y-8">
+              {portfolio.summary && (
+                <section
+                  id="about"
+                  className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
+                >
+                  <SectionHeading accent="rose">About</SectionHeading>
+                  <DescriptionBlock
+                    text={portfolio.summary}
+                    paragraphClassName="whitespace-pre-line text-base leading-8 text-stone-600"
+                    listClassName="space-y-3 pl-5 text-base leading-8 text-stone-600 marker:text-rose-300"
+                  />
+                </section>
+              )}
 
-      {navbarEnabled && (
-        <div className="border-b border-gray-200/70 bg-white/85">
-          <div className="mx-auto max-w-6xl px-5 py-3 sm:px-6">
-            <TemplateNavbar
-              items={sections}
-              className="rounded-full border-gray-200 bg-white"
-              linkClassName="rounded-full px-4 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* About: Split Layout */}
-      {portfolio.summary && (
-        <section id="about" className="scroll-mt-24 bg-white">
-          <div className="mx-auto grid max-w-6xl gap-8 px-5 py-16 sm:px-6 md:grid-cols-5 md:gap-10 md:py-20">
-            <div className="md:col-span-3">
-              <h2 className="mb-1 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-                About
-              </h2>
-              <p className="mt-4 text-lg leading-relaxed text-gray-600">
-                {portfolio.summary}
-              </p>
-            </div>
-            <div className="md:col-span-2">
-              <div className="rounded-2xl bg-gray-50 p-6 space-y-4">
-                {portfolio.location && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Location</p>
-                    <p className="mt-1 text-gray-700">{portfolio.location}</p>
-                  </div>
-                )}
-                {portfolio.contactEmail && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Email</p>
-                    <p className="mt-1 text-gray-700">{portfolio.contactEmail}</p>
-                  </div>
-                )}
-                {portfolio.phone && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Phone</p>
-                    <p className="mt-1 text-gray-700">{portfolio.phone}</p>
-                  </div>
-                )}
-                {portfolio.websiteUrl && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Website</p>
-                    <a
-                      href={portfolio.websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 inline-block text-pink-500 underline decoration-pink-200 underline-offset-2 hover:decoration-pink-400 transition-colors"
-                    >
-                      {portfolio.websiteUrl.replace(/^https?:\/\//, "")}
-                    </a>
-                  </div>
-                )}
-                {experiences.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Experience</p>
-                    <p className="mt-1 text-gray-700">{experiences.length} roles</p>
-                  </div>
-                )}
-                {projects.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Projects</p>
-                    <p className="mt-1 text-gray-700">{projects.length} showcased</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Experience: Horizontal Timeline */}
-      {experiences.length > 0 && (
-        <section id="experience" className="scroll-mt-24 bg-gray-50">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
-            <h2 className="mb-12 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-              Experience
-            </h2>
-            <div className="relative">
-              {/* Horizontal line */}
-              <div className="absolute left-0 right-0 top-5 hidden h-0.5 bg-linear-to-r from-pink-300 via-orange-300 to-yellow-300 md:block" />
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {experiences.map((exp) => (
-                  <div key={exp.id} className="relative">
-                    {/* Dot on timeline */}
-                    <div className="relative mb-4 hidden md:block">
-                      <div className="mx-auto h-10 w-10 rounded-full bg-linear-to-br from-pink-400 to-orange-400 p-0.5">
-                        <div className="flex h-full w-full items-center justify-center rounded-full bg-gray-50">
-                          <div className="h-3 w-3 rounded-full bg-linear-to-br from-pink-400 to-orange-400" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 hover:shadow-md hover:ring-pink-100 transition-all duration-300">
-                      <p className="text-xs font-medium text-orange-500">
-                        {formatDateRange(exp.startDate, exp.endDate)}
-                      </p>
-                      <h3 className="mt-2 text-lg font-bold text-gray-900">
-                        {exp.role}
-                      </h3>
-                      <p className="text-sm font-medium text-pink-500">
-                        {exp.company}
-                      </p>
-                      {exp.location && (
-                        <p className="mt-1 text-xs text-gray-400">{exp.location}</p>
-                      )}
-                      {exp.description && (
-                        <p className="mt-3 text-sm leading-relaxed text-gray-500 line-clamp-4">
-                          {exp.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Skills: Gradient Pills */}
-      {skills.length > 0 && (
-        <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
-            <h2 className="mb-12 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-              Skills
-            </h2>
-            <div className="space-y-8">
-              {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
-                <div key={category}>
-                  <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                    {category}
-                  </h3>
-                  <div className="flex flex-wrap gap-3">
-                    {categorySkills.map((skill, idx) => {
-                      // Rotate through gradient variations for visual interest
-                      const gradients = [
-                        "from-pink-500 to-orange-500",
-                        "from-orange-500 to-yellow-500",
-                        "from-yellow-500 to-pink-500",
-                        "from-pink-500 to-purple-500",
-                        "from-orange-400 to-pink-500",
-                      ];
-                      const gradient = gradients[idx % gradients.length];
-                      return (
-                        <span
-                          key={skill}
-                          className="group relative overflow-hidden rounded-full px-4 py-2 text-sm font-medium text-white shadow-sm"
-                        >
-                          {/* Animated gradient background */}
-                          <span
-                            className={`absolute inset-0 bg-linear-to-r ${gradient} opacity-90 transition-transform duration-500 group-hover:scale-110`}
+              {visibleProjects.length > 0 && (
+                <section
+                  id="work"
+                  className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
+                >
+                  <SectionHeading accent="orange">Selected Work</SectionHeading>
+                  <div className="grid gap-5">
+                    {visibleProjects.map((project, index) => (
+                      <article
+                        key={project.id}
+                        className="overflow-hidden rounded-[1.6rem] border border-rose-100/80 bg-[#fffaf7] shadow-[0_14px_40px_rgba(190,24,93,0.05)]"
+                      >
+                        {project.imageUrl && (
+                          <img
+                            src={project.imageUrl}
+                            alt={project.title}
+                            className={`w-full object-cover ${
+                              index % 3 === 0 ? "h-72" : "h-56"
+                            }`}
                           />
-                          <span
-                            className={`absolute inset-0 bg-linear-to-l ${gradient} opacity-0 transition-opacity duration-500 group-hover:opacity-90`}
-                          />
-                          <span className="relative">{skill}</span>
-                        </span>
-                      );
-                    })}
+                        )}
+                        <div className="p-6">
+                          <div className="flex flex-wrap items-start justify-between gap-4">
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="text-2xl font-semibold tracking-tight text-stone-950">
+                                  {project.title}
+                                </h3>
+                                {project.featured && (
+                                  <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-rose-500">
+                                    Featured
+                                  </span>
+                                )}
+                              </div>
+                              {project.language && (
+                                <p className="mt-2 text-xs uppercase tracking-[0.22em] text-stone-400">
+                                  {project.language}
+                                </p>
+                              )}
+                            </div>
+
+                            <ProjectActions
+                              liveUrl={project.liveUrl}
+                              sourceUrl={project.sourceUrl}
+                              liveClassName="rounded-full bg-stone-950 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-stone-800"
+                              sourceClassName="rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-medium text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
+                            />
+                          </div>
+
+                          {project.description && (
+                            <p className="mt-4 text-sm leading-7 text-stone-600">
+                              {project.description}
+                            </p>
+                          )}
+
+                          {(project.techStack.length > 0 ||
+                            project.githubStars !== null ||
+                            project.githubForks !== null) && (
+                              <div className="mt-5 flex flex-wrap items-center gap-2">
+                                {project.techStack.map((tech) => (
+                                  <span
+                                    key={tech}
+                                    className="rounded-full border border-rose-100 bg-white px-3 py-1 text-xs text-stone-500"
+                                  >
+                                    {tech}
+                                  </span>
+                                ))}
+                                {project.githubStars !== null && (
+                                  <span className="rounded-full bg-rose-50 px-3 py-1 text-xs text-stone-500">
+                                    {project.githubStars} stars
+                                  </span>
+                                )}
+                                {project.githubForks !== null && (
+                                  <span className="rounded-full bg-orange-50 px-3 py-1 text-xs text-stone-500">
+                                    {project.githubForks} forks
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                        </div>
+                      </article>
+                    ))}
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+                </section>
+              )}
 
-      {/* Projects: Large Image-First Masonry Grid */}
-      {projects.length > 0 && (
-        <section id="work" className="scroll-mt-24 bg-gray-50">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
-            <h2 className="mb-12 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-              Projects
-            </h2>
-            <div className="columns-1 gap-6 space-y-6 md:columns-2">
-              {projects.map((project, idx) => {
-                // Alternate height for masonry effect
-                const isTall = idx % 3 === 0;
-                return (
-                  <div
-                    key={project.id}
-                    className="group relative break-inside-avoid overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 hover:shadow-lg transition-all duration-300"
-                  >
-                    {project.imageUrl && (
-                      <div className={`relative overflow-hidden ${isTall ? "h-72" : "h-52"}`}>
-                        <img
-                          src={project.imageUrl}
-                          alt={project.title}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        {/* Overlay gradient */}
-                        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
-                        {/* Title overlaid on image */}
-                        <div className="absolute bottom-0 left-0 right-0 p-5">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-xl font-bold text-white">
-                              {project.title}
-                            </h3>
-                            {project.featured && (
-                              <span className="rounded-full bg-linear-to-r from-pink-500 to-orange-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                                Featured
-                              </span>
-                            )}
+              {experiences.length > 0 && (
+                <section
+                  id="experience"
+                  className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
+                >
+                  <SectionHeading accent="amber">Experience</SectionHeading>
+                  <div className="space-y-5">
+                    {experiences.map((exp) => (
+                      <article
+                        key={exp.id}
+                        className="rounded-[1.55rem] border border-orange-100/80 bg-[#fffaf7] p-5"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <h3 className="text-xl font-semibold text-stone-950">{exp.role}</h3>
+                            <p className="mt-1 text-sm font-medium text-rose-500">
+                              {exp.company}
+                              {exp.location ? ` · ${exp.location}` : ""}
+                            </p>
                           </div>
-                          {project.language && (
-                            <p className="mt-1 text-xs text-white/70">{project.language}</p>
-                          )}
+                          <p className="text-xs uppercase tracking-[0.22em] text-stone-400">
+                            {formatDateRange(exp.startDate, exp.endDate)}
+                          </p>
                         </div>
-                      </div>
-                    )}
+                        {exp.description && (
+                          <DescriptionBlock
+                            text={exp.description}
+                            paragraphClassName="mt-4 text-sm leading-7 text-stone-600"
+                            listClassName="mt-4 space-y-2 pl-5 text-sm leading-7 text-stone-600 marker:text-rose-300"
+                          />
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </main>
 
-                    {/* Content */}
-                    <div className="p-5">
-                      {!project.imageUrl && (
-                        <div className="mb-3">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-xl font-bold text-gray-900">
-                              {project.title}
-                            </h3>
-                            {project.featured && (
-                              <span className="rounded-full bg-linear-to-r from-pink-500 to-orange-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                                Featured
-                              </span>
-                            )}
-                          </div>
-                          {project.language && (
-                            <p className="mt-1 text-xs text-gray-500">{project.language}</p>
-                          )}
-                        </div>
-                      )}
-
-                      <p className="text-sm leading-relaxed text-gray-500 line-clamp-3">
-                        {project.description}
-                      </p>
-
-                      {project.techStack.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {project.techStack.map((tech) => (
+            <aside className="space-y-8">
+              {skills.length > 0 && (
+                <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
+                  <SectionHeading accent="fuchsia">Skills</SectionHeading>
+                  <div className="space-y-6">
+                    {Object.entries(skillsByCategory).map(([category, names]) => (
+                      <div key={category}>
+                        <h3 className="mb-3 text-xs uppercase tracking-[0.22em] text-stone-400">
+                          {category}
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {names.map((name) => (
                             <span
-                              key={tech}
-                              className="rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-600"
+                              key={name}
+                              className="rounded-full border border-rose-100 bg-rose-50/80 px-3 py-1.5 text-sm text-stone-700"
                             >
-                              {tech}
+                              {name}
                             </span>
                           ))}
                         </div>
-                      )}
-
-                      <div className="mt-4 flex items-center gap-4">
-                        {project.githubStars != null && project.githubStars > 0 && (
-                          <span className="flex items-center gap-1 text-xs text-gray-400">
-                            <svg className="h-3.5 w-3.5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                            {project.githubStars}
-                          </span>
-                        )}
-                        {project.githubForks != null && project.githubForks > 0 && (
-                          <span className="flex items-center gap-1 text-xs text-gray-400">
-                            <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 16 16">
-                              <path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 9.5a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm7.5-9.5a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM5 12.75v-1a4 4 0 0 1 4-4h1.25v-1A2.25 2.25 0 0 1 12.5 4.5V3.25a2.25 2.25 0 1 0-4.5 0v1.25A4 4 0 0 0 4 8.5v1a2.25 2.25 0 1 0 1 3.25ZM4.25 11a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM11.5 1a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z" />
-                            </svg>
-                            {project.githubForks}
-                          </span>
-                        )}
-                        <div className="flex-1" />
-                        {project.sourceUrl && (
-                          <a
-                            href={project.sourceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-medium text-pink-500 hover:text-pink-600 transition-colors"
-                          >
-                            Source
-                          </a>
-                        )}
-                        {project.liveUrl && (
-                          <a
-                            href={project.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="rounded-full bg-linear-to-r from-pink-500 to-orange-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:shadow-md transition-shadow"
-                          >
-                            Live Demo
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {hasProfiles && (
-        <section id="profiles" className="scroll-mt-24 bg-white">
-          <div className="mx-auto max-w-6xl px-6 py-20">
-            <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-              Profiles
-            </h2>
-            <div className="rounded-3xl border border-gray-100 bg-gray-50 p-6 md:p-8">
-              <ProfileLinksSection
-                portfolio={portfolio}
-                profiles={socialProfiles}
-                chipClassName="rounded-full border border-white bg-white px-3 py-1.5 text-sm text-gray-500"
-                pillClassName="rounded-full border border-white bg-white px-3 py-1.5 text-sm text-gray-600 transition-colors hover:text-pink-500"
-                titleClassName="text-gray-900"
-                textClassName="text-gray-500"
-              />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Education & Certifications */}
-      {(educations.length > 0 || certifications.length > 0) && (
-        <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
-            <div className="grid gap-16 md:grid-cols-2">
-              {/* Education */}
-              {educations.length > 0 && (
-                <div>
-                  <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-                    Education
-                  </h2>
-                  <div className="space-y-6">
-                    {educations.map((edu) => (
-                      <div key={edu.id}>
-                        <h3 className="font-bold text-gray-900">
-                          {edu.degree}
-                          {edu.field && (
-                            <span className="font-normal text-gray-500"> in {edu.field}</span>
-                          )}
-                        </h3>
-                        <p className="mt-1 text-sm text-gray-500">{edu.institution}</p>
-                        <p className="mt-0.5 text-xs text-gray-400">
-                          {formatDateRange(edu.startDate, edu.endDate)}
-                          {edu.gpa && ` | GPA: ${edu.gpa}`}
-                        </p>
                       </div>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
 
-              {/* Certifications */}
+              {educations.length > 0 && (
+                <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
+                  <SectionHeading accent="rose">Education</SectionHeading>
+                  <div className="space-y-4">
+                    {educations.map((edu) => (
+                      <article
+                        key={edu.id}
+                        className="rounded-[1.55rem] border border-rose-100/80 bg-[#fffaf7] p-5"
+                      >
+                        <h3 className="text-lg font-semibold text-stone-950">
+                          {edu.degree}
+                          {edu.field && <span className="text-stone-500"> in {edu.field}</span>}
+                        </h3>
+                        <p className="mt-2 text-sm text-stone-600">{edu.institution}</p>
+                        <p className="mt-2 text-xs uppercase tracking-[0.22em] text-stone-400">
+                          {formatDateRange(edu.startDate, edu.endDate)}
+                        </p>
+                        {edu.gpa && <p className="mt-3 text-xs text-stone-500">GPA: {edu.gpa}</p>}
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               {certifications.length > 0 && (
-                <div>
-                  <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-                    Certifications
-                  </h2>
+                <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
+                  <SectionHeading accent="orange">Certifications</SectionHeading>
                   <div className="space-y-4">
                     {certifications.map((cert) => (
-                      <div
+                      <article
                         key={cert.id}
-                        className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3"
+                        className="rounded-[1.55rem] border border-orange-100/80 bg-[#fffaf7] p-5"
                       >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-pink-400 to-orange-400">
-                          <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                          </svg>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {cert.url ? (
-                              <a
-                                href={cert.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-pink-500 hover:text-pink-600 transition-colors"
-                              >
-                                {cert.name}
-                              </a>
-                            ) : (
-                              cert.name
-                            )}
+                        <h3 className="text-base font-semibold text-stone-950">
+                          {cert.url ? (
+                            <a
+                              href={cert.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="transition-colors hover:text-rose-500"
+                            >
+                              {cert.name}
+                            </a>
+                          ) : (
+                            cert.name
+                          )}
+                        </h3>
+                        <p className="mt-1 text-sm text-stone-500">{cert.issuer}</p>
+                        {cert.issueDate && (
+                          <p className="mt-2 text-xs uppercase tracking-[0.22em] text-stone-400">
+                            {formatDate(cert.issueDate)}
                           </p>
-                          <p className="text-xs text-gray-400">
-                            {cert.issuer}
-                            {cert.issueDate && ` | ${formatDate(cert.issueDate)}`}
-                          </p>
-                        </div>
-                      </div>
+                        )}
+                      </article>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
-            </div>
-          </div>
-        </section>
-      )}
 
-      {/* Achievements */}
-      {achievements.length > 0 && (
-        <section className="bg-linear-to-br from-gray-50 to-white">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
-            <h2 className="mb-10 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-              Achievements
-            </h2>
-            <div className="space-y-4">
-              {achievements.map((ach) => (
-                <div
-                  key={ach.id}
-                  className="flex items-start gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-200"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-pink-400 to-orange-400">
-                    <Trophy className="h-5 w-5 text-white" />
+              {achievements.length > 0 && (
+                <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
+                  <SectionHeading accent="amber">Achievements</SectionHeading>
+                  <div className="space-y-3">
+                    {achievements.map((ach) => (
+                      <article
+                        key={ach.id}
+                        className="flex items-start gap-3 rounded-[1.55rem] border border-orange-100/80 bg-[#fffaf7] p-5"
+                      >
+                        <Trophy className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm leading-relaxed text-stone-900">{ach.title}</p>
+                          {ach.date && (
+                            <p className="mt-1 text-xs text-stone-500">
+                              {new Date(ach.date).toLocaleDateString("en-US", {
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </p>
+                          )}
+                        </div>
+                      </article>
+                    ))}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900 leading-relaxed">{ach.title}</p>
-                    {ach.date && (
-                      <p className="mt-1 text-xs text-gray-500">
-                        {new Date(ach.date).toLocaleDateString("en-US", {
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {contributionCalendar && (
-        <section className="bg-white">
-          <div className="mx-auto max-w-6xl px-5 py-16 sm:px-6 md:py-20">
-            <h2 className="mb-8 text-sm font-semibold uppercase tracking-[0.15em] text-pink-500">
-              GitHub Activity
-            </h2>
-            <div className="rounded-3xl border border-pink-100 bg-gray-50 p-6 md:p-8">
-              <GitHubContributionHeatmap
-                calendar={contributionCalendar}
-                profileUrl={githubProfile?.url}
-                username={githubProfile?.username}
-                variant="creative"
-                label="GitHub Contribution Calendar"
-              />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Contact CTA Footer */}
-      <footer className="relative overflow-hidden bg-gray-950">
-        {/* Decorative gradient blobs */}
-        <div className="pointer-events-none absolute -left-40 -top-40 h-80 w-80 rounded-full bg-pink-500/10 blur-3xl" />
-        <div className="pointer-events-none absolute -right-40 -bottom-40 h-80 w-80 rounded-full bg-orange-500/10 blur-3xl" />
-
-        <div className="relative mx-auto max-w-6xl px-5 py-16 text-center sm:px-6 md:py-20">
-          <h2 className="text-3xl font-extrabold text-white md:text-4xl">
-            Let&apos;s create something{" "}
-            <span className="bg-linear-to-r from-pink-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-              amazing
-            </span>{" "}
-            together.
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-gray-400">
-            Got a project in mind? I&apos;d love to hear about it.
-          </p>
-
-          {portfolio.contactEmail && (
-            <a
-              href={`mailto:${portfolio.contactEmail}`}
-              className="mt-8 inline-block rounded-full bg-linear-to-r from-pink-500 via-orange-500 to-yellow-500 px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white shadow-lg shadow-pink-500/25 hover:shadow-xl hover:shadow-pink-500/30 transition-shadow"
-            >
-              Get in Touch
-            </a>
-          )}
-
-          {/* Social links */}
-          {socialProfiles.length > 0 && (
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-6">
-              {socialProfiles.map((profile) => (
-                <a
-                  key={profile.platform}
-                  href={profile.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-gray-500 hover:text-pink-400 transition-colors"
-                >
-                  {getPlatformIcon(profile.platform)}
-                </a>
-              ))}
-              {portfolio.websiteUrl && (
-                <a
-                  href={portfolio.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-gray-500 hover:text-pink-400 transition-colors"
-                >
-                  Website
-                </a>
+                </section>
               )}
-            </div>
-          )}
 
-          {portfolio.phone && (
-            <p className="mt-6 text-sm text-gray-600">
-              <a
-                href={`tel:${portfolio.phone}`}
-                className="hover:text-gray-400 transition-colors"
-              >
-                {portfolio.phone}
-              </a>
-            </p>
+              {hasProfiles && (
+                <section
+                  id="profiles"
+                  className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
+                >
+                  <SectionHeading accent="fuchsia">Profiles</SectionHeading>
+                  <ProfileLinksSection
+                    portfolio={portfolio}
+                    profiles={socialProfiles}
+                    chipClassName="rounded-full border border-rose-100 bg-rose-50/80 px-3 py-1.5 text-sm text-stone-500"
+                    pillClassName="rounded-full border border-rose-100 bg-white px-3 py-1.5 text-sm text-stone-600 transition-colors hover:border-rose-200 hover:text-stone-900"
+                    titleClassName="text-stone-950"
+                    textClassName="text-stone-500"
+                  />
+                </section>
+              )}
+            </aside>
+          </div>
+
+          {contributionCalendar && (
+            <section className="mt-8 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
+              <SectionHeading accent="rose">GitHub Activity</SectionHeading>
+              <div className="rounded-[1.5rem] border border-rose-100/80 bg-[#fffaf7] p-4 md:p-6">
+                <GitHubContributionHeatmap
+                  calendar={contributionCalendar}
+                  profileUrl={githubProfile?.url}
+                  username={githubProfile?.username}
+                  variant="creative"
+                  label="GitHub Contribution Calendar"
+                />
+              </div>
+            </section>
           )}
         </div>
-      </footer>
+      </div>
     </div>
+  );
+}
+
+function SectionHeading({
+  children,
+  accent,
+}: {
+  children: React.ReactNode;
+  accent: "rose" | "orange" | "amber" | "fuchsia";
+}) {
+  const accents = {
+    rose: "bg-rose-300",
+    orange: "bg-orange-300",
+    amber: "bg-amber-300",
+    fuchsia: "bg-fuchsia-300",
+  };
+
+  return (
+    <h2 className="mb-5 flex items-center gap-3 text-2xl font-semibold tracking-tight text-stone-950 md:mb-6 md:text-3xl">
+      <span className={`h-px w-8 ${accents[accent]}`} />
+      {children}
+    </h2>
   );
 }

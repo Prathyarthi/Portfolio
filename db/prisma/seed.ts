@@ -45,6 +45,14 @@ const templates = [
     previewUrl: "/templates/corporate-preview.png",
     category: "corporate",
   },
+  {
+    id: "kiranbusari",
+    name: "Kiran Busari",
+    description:
+      "Mint background, Made Tommy typography, and yellow accent links (kiranbusari.vercel.app)",
+    previewUrl: "/templates/modern-preview.png",
+    category: "developer",
+  },
 ];
 
 async function main() {

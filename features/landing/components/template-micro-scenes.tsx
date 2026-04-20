@@ -3,7 +3,13 @@
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
-export type TemplateSceneId = "minimal" | "modern" | "developer" | "creative";
+export type TemplateSceneId =
+  | "minimal"
+  | "modern"
+  | "developer"
+  | "creative"
+  | "corporate"
+  | "kiranbusari";
 
 const easeSoft = [0.22, 1, 0.36, 1] as const;
 
@@ -27,6 +33,10 @@ export function TemplateMicroScene({ id, reduced }: { id: TemplateSceneId; reduc
       return <DeveloperScene />;
     case "creative":
       return <CreativeScene />;
+    case "corporate":
+      return <CorporateScene />;
+    case "kiranbusari":
+      return <KiranbusariScene />;
     default:
       return null;
   }
@@ -186,6 +196,54 @@ function CreativeScene() {
   );
 }
 
+/**
+ * Corporate template: deep navy, bright paper cards, and disciplined hierarchy.
+ * @see features/templates/corporate/corporate-template.tsx
+ */
+function CorporateScene() {
+  return (
+    <div className={cn(frame, "border-slate-200/10 bg-[#0f172a]")} aria-hidden>
+      <div className="absolute inset-0 bg-linear-to-br from-sky-400/10 via-transparent to-white/[0.03]" />
+      <div className="absolute left-4 top-4 h-2 w-16 rounded-full bg-sky-300/45" />
+      <div className="absolute left-4 top-9 h-1.5 w-24 rounded-full bg-white/25" />
+      <div className="absolute left-4 top-14 h-1.5 w-20 rounded-full bg-white/16" />
+      <motion.div
+        className="absolute bottom-3 left-4 right-4 rounded-xl border border-white/10 bg-white/[0.07] p-2"
+        animate={{ y: [0, -1.5, 0], opacity: [0.72, 0.92, 0.72] }}
+        transition={{ duration: 5.6, repeat: Infinity, ease: easeSoft }}
+      >
+        <div className="grid grid-cols-3 gap-2">
+          <div className="h-8 rounded-lg bg-white/[0.08]" />
+          <div className="h-8 rounded-lg bg-white/[0.06]" />
+          <div className="h-8 rounded-lg bg-white/[0.08]" />
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/**
+ * Kiran Busari template: #fbfffe mint canvas, gray-950 type, #fc3 accent (live site).
+ * @see features/templates/kiranbusari/kiranbusari-template.tsx
+ */
+function KiranbusariScene() {
+  return (
+    <div className={cn(frame, "border-gray-100 bg-[#fbfffe]")} aria-hidden>
+      <div className="absolute left-3 top-3 h-1.5 w-16 rounded-full bg-gray-950/80" />
+      <div className="absolute left-3 top-6 h-1 w-24 rounded-full bg-gray-950/20" />
+      <motion.div
+        className="absolute left-3 top-[38%] h-1 w-12 rounded-full bg-[#fc3]"
+        animate={{ opacity: [0.65, 1, 0.65] }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: easeSoft }}
+      />
+      <div className="absolute bottom-2.5 left-3 right-3 space-y-1.5">
+        <div className="h-2 rounded-sm bg-gray-100" />
+        <div className="h-2 w-[80%] rounded-sm bg-gray-100" />
+      </div>
+    </div>
+  );
+}
+
 function StaticScene({ id }: { id: TemplateSceneId }) {
   return (
     <div className={frame} aria-hidden>
@@ -229,6 +287,32 @@ function StaticScene({ id }: { id: TemplateSceneId }) {
         <div className={cn(frame, "border-pink-200/10 bg-gray-50/[0.04]")}>
           <div className="absolute left-[14%] top-[30%] h-6 w-16 rounded-2xl bg-gradient-to-r from-pink-500/35 to-orange-400/25" />
           <div className="absolute bottom-[24%] right-[12%] h-7 w-7 rounded-full bg-gradient-to-br from-orange-400/35 to-yellow-300/25" />
+        </div>
+      ) : null}
+      {id === "corporate" ? (
+        <div className={cn(frame, "border-slate-200/10 bg-[#0f172a]")}>
+          <div className="absolute inset-0 bg-linear-to-br from-sky-400/10 via-transparent to-white/[0.03]" />
+          <div className="absolute left-4 top-4 h-2 w-16 rounded-full bg-sky-300/45" />
+          <div className="absolute left-4 top-9 h-1.5 w-24 rounded-full bg-white/25" />
+          <div className="absolute left-4 top-14 h-1.5 w-20 rounded-full bg-white/16" />
+          <div className="absolute bottom-3 left-4 right-4 rounded-xl border border-white/10 bg-white/[0.07] p-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="h-8 rounded-lg bg-white/[0.08]" />
+              <div className="h-8 rounded-lg bg-white/[0.06]" />
+              <div className="h-8 rounded-lg bg-white/[0.08]" />
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {id === "kiranbusari" ? (
+        <div className={cn(frame, "border-gray-100 bg-[#fbfffe]")}>
+          <div className="absolute left-3 top-3 h-1.5 w-16 rounded-full bg-gray-950/80" />
+          <div className="absolute left-3 top-6 h-1 w-24 rounded-full bg-gray-950/20" />
+          <div className="absolute left-3 top-[38%] h-1 w-12 rounded-full bg-[#fc3]" />
+          <div className="absolute bottom-2.5 left-3 right-3 space-y-1.5">
+            <div className="h-2 rounded-sm bg-gray-100" />
+            <div className="h-2 w-[80%] rounded-sm bg-gray-100" />
+          </div>
         </div>
       ) : null}
     </div>
