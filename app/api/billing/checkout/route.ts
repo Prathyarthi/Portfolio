@@ -4,6 +4,39 @@ import Razorpay from "razorpay";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth-options";
 import { prisma } from "@/lib/prisma";
 
+type RazorpayFailure = {
+  statusCode?: number;
+  message?: string;
+  error?: {
+    code?: string;
+    description?: string;
+    reason?: string;
+    field?: string;
+  };
+};
+
+function getCheckoutError(error: unknown) {
+  const failure = error as RazorpayFailure;
+  const message =
+    failure.error?.description ||
+    failure.message ||
+    "Failed to create Razorpay subscription checkout.";
+  const status =
+    typeof failure.statusCode === "number" &&
+    failure.statusCode >= 400 &&
+    failure.statusCode < 500
+      ? failure.statusCode
+      : 500;
+
+  return {
+    status,
+    message,
+    code: failure.error?.code,
+    reason: failure.error?.reason,
+    field: failure.error?.field,
+  };
+}
+
 /**
  * Creates a recurring Razorpay subscription checkout.
  * Pro access is granted when webhook marks `User.subscriptionStatus` as `active`.
@@ -28,9 +61,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const origin = req.headers.get("origin") ?? process.env.NEXTAUTH_URL ?? "";
-  const redirectBase = origin.replace(/\/$/, "");
-
   try {
     const razorpay = new Razorpay({
       key_id: keyId,
@@ -41,9 +71,6 @@ export async function POST(req: Request) {
       plan_id: planId,
       customer_notify: 1,
       total_count: 120,
-      ...(redirectBase
-        ? { callback_url: `${redirectBase}/pricing`, callback_method: "get" }
-        : {}),
       notes: {
         userId: session.user.id,
         plan: "pro",
@@ -67,14 +94,27 @@ export async function POST(req: Request) {
       subscriptionId: subscription.id,
     });
   } catch (error) {
+    const checkoutError = getCheckoutError(error);
+    console.error("[billing.checkout] failed", {
+      status: checkoutError.status,
+      message: checkoutError.message,
+      code: checkoutError.code,
+      reason: checkoutError.reason,
+      field: checkoutError.field,
+      userId: session.user.id,
+      hasKeyId: Boolean(keyId),
+      hasKeySecret: Boolean(keySecret),
+      hasPlanId: Boolean(planId),
+    });
+
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to create Razorpay subscription checkout.",
+        error: checkoutError.message,
+        code: checkoutError.code,
+        reason: checkoutError.reason,
+        field: checkoutError.field,
       },
-      { status: 500 }
+      { status: checkoutError.status }
     );
   }
 }

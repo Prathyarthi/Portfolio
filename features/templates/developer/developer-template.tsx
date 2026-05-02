@@ -199,9 +199,11 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                         <span className="text-yellow-500/80 text-xs">
                           commit {hash}
                         </span>
-                        <span className="text-gray-600 text-xs">
-                          {formatDateRange(exp.startDate, exp.endDate)}
-                        </span>
+                        {(exp.startDate || exp.endDate) && (
+                          <span className="text-gray-600 text-xs">
+                            {formatDateRange(exp.startDate, exp.endDate)}
+                          </span>
+                        )}
                       </div>
                       <h3 className="mt-2 text-lg font-semibold text-green-300">
                         {exp.role}
@@ -455,10 +457,14 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                   </div>
                   <p className="mt-1 text-sm text-gray-500">
                     {edu.institution}
-                    <span className="text-gray-700"> | </span>
-                    <span className="text-gray-600">
-                      {formatDateRange(edu.startDate, edu.endDate)}
-                    </span>
+                    {(edu.startDate || edu.endDate) && (
+                      <>
+                        <span className="text-gray-700"> | </span>
+                        <span className="text-gray-600">
+                          {formatDateRange(edu.startDate, edu.endDate)}
+                        </span>
+                      </>
+                    )}
                   </p>
                 </div>
               ))}

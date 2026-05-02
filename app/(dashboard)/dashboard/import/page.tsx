@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { ResumeUploader } from "@/features/resume/components/resume-uploader";
 import { GitHubImporter } from "@/features/profile/components/github-importer";
 import { LeetCodeImporter } from "@/features/profile/components/leetcode-importer";
-import { FileText, Trophy } from "lucide-react";
+import { MediumImporter } from "@/features/profile/components/medium-importer";
+import { FileText, Trophy, BookOpen } from "lucide-react";
 import { GithubIcon as Github } from "@/components/icons";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 
@@ -57,7 +58,7 @@ export default function ImportPage() {
           </p>
           <p className="mt-2 text-amber-100/90">
             After the trial, you can still edit and publish on the Minimal
-            template—upgrade to import from resume, GitHub, or LeetCode again.
+            template—upgrade to import from resume, GitHub, Medium, or LeetCode again.
           </p>
           <Button asChild className="mt-4" variant="secondary">
             <Link href="/pricing">View pricing</Link>
@@ -66,7 +67,7 @@ export default function ImportPage() {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
           <TabsTrigger
             value="resume"
             className="flex items-center gap-2"
@@ -82,6 +83,14 @@ export default function ImportPage() {
           >
             <Github className="h-4 w-4" />
             GitHub
+          </TabsTrigger>
+          <TabsTrigger
+            value="medium"
+            className="flex items-center gap-2"
+            disabled={!canUseImports}
+          >
+            <BookOpen className="h-4 w-4" />
+            Medium
           </TabsTrigger>
           <TabsTrigger
             value="leetcode"
@@ -111,6 +120,17 @@ export default function ImportPage() {
             <p className="text-sm text-muted-foreground">
               GitHub import is locked. Upgrade to Pro to fetch and import
               repositories.
+            </p>
+          )}
+        </TabsContent>
+
+        <TabsContent value="medium" className="mt-6">
+          {canUseImports ? (
+            <MediumImporter />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Medium import is locked. Upgrade to Pro to fetch and import
+              articles.
             </p>
           )}
         </TabsContent>

@@ -173,9 +173,11 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                             <p className="mt-1 text-sm text-slate-500">{exp.location}</p>
                           )}
                         </div>
-                        <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                          {formatDateRange(exp.startDate, exp.endDate)}
-                        </p>
+                        {(exp.startDate || exp.endDate) && (
+                          <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                            {formatDateRange(exp.startDate, exp.endDate)}
+                          </p>
+                        )}
                       </div>
                       {exp.description && (
                         <DescriptionBlock
@@ -320,9 +322,11 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                         {edu.field && <span className="text-slate-500"> in {edu.field}</span>}
                       </h3>
                       <p className="mt-2 text-sm text-slate-600">{edu.institution}</p>
-                      <p className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-400">
-                        {formatDateRange(edu.startDate, edu.endDate)}
-                      </p>
+                      {(edu.startDate || edu.endDate) && (
+                        <p className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-400">
+                          {formatDateRange(edu.startDate, edu.endDate)}
+                        </p>
+                      )}
                       {edu.gpa && <p className="mt-3 text-xs text-slate-500">GPA: {edu.gpa}</p>}
                     </article>
                   ))}

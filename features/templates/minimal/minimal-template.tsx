@@ -263,9 +263,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                             {exp.location ? ` · ${exp.location}` : ""}
                           </p>
                         </div>
-                        <p className="text-xs uppercase tracking-[0.22em] text-stone-400">
-                          {formatDateRange(exp.startDate, exp.endDate)}
-                        </p>
+                        {(exp.startDate || exp.endDate) && (
+                          <p className="text-xs uppercase tracking-[0.22em] text-stone-400">
+                            {formatDateRange(exp.startDate, exp.endDate)}
+                          </p>
+                        )}
                       </div>
                       {exp.description && (
                         <DescriptionBlock
@@ -321,9 +323,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                         {edu.field && <span className="text-stone-500"> in {edu.field}</span>}
                       </h3>
                       <p className="mt-2 text-sm text-stone-500">{edu.institution}</p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-stone-400">
-                        {formatDateRange(edu.startDate, edu.endDate)}
-                      </p>
+                      {(edu.startDate || edu.endDate) && (
+                        <p className="mt-1 text-xs uppercase tracking-[0.2em] text-stone-400">
+                          {formatDateRange(edu.startDate, edu.endDate)}
+                        </p>
+                      )}
                       {edu.gpa && <p className="mt-3 text-xs text-stone-500">GPA: {edu.gpa}</p>}
                     </article>
                   ))}

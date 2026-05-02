@@ -7,6 +7,7 @@ import {
   fetchGitHubProfile,
 } from "@/lib/github";
 import { fetchLeetCodeStats } from "@/lib/leetcode";
+import { fetchMediumArticles } from "@/lib/medium";
 import { getPlanLimitMessage, resolveAccessForUser } from "@/lib/entitlements";
 
 async function requireImportEntitlement(request: Request) {
@@ -271,6 +272,105 @@ export const profile = new Elysia({ prefix: "/profile" })
         easySolved: t.Number(),
         mediumSolved: t.Number(),
         hardSolved: t.Number(),
+      }),
+    }
+  )
+
+  // ── Medium ──────────────────────────────────────────────
+  .post(
+    "/medium/fetch",
+    async (ctx) => {
+      const gate = await requireImportEntitlement(ctx.request);
+      if (!gate.ok) {
+        ctx.set.status = gate.status;
+        return gate.body;
+      }
+
+      try {
+        const data = await fetchMediumArticles(ctx.body.username);
+        return { success: true, data };
+      } catch (error: unknown) {
+        ctx.set.status = 400;
+        const message =
+          error instanceof Error ? error.message : "Failed to fetch Medium articles";
+        return { error: message };
+      }
+    },
+    {
+      body: t.Object({
+        username: t.String({ minLength: 1 }),
+      }),
+    }
+  )
+
+  .post(
+    "/medium/import",
+    async (ctx) => {
+      const gate = await requireImportEntitlement(ctx.request);
+      if (!gate.ok) {
+        ctx.set.status = gate.status;
+        return gate.body;
+      }
+
+      const portfolio = await prisma.portfolio.findUnique({
+        where: { userId: gate.session.userId },
+      });
+      if (!portfolio) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
+      }
+
+      const existingCount = await prisma.project.count({
+        where: { portfolioId: portfolio.id },
+      });
+
+      const projects = ctx.body.articles.map((article, index) => ({
+        portfolioId: portfolio.id,
+        title: article.title,
+        description: article.description || "",
+        liveUrl: article.url,
+        techStack: article.tags,
+        sortOrder: existingCount + index,
+      }));
+
+      const result = await prisma.project.createMany({ data: projects });
+
+      if (ctx.body.username) {
+        await prisma.socialProfile.upsert({
+          where: {
+            portfolioId_platform: {
+              portfolioId: portfolio.id,
+              platform: "medium",
+            },
+          },
+          update: {
+            url: `https://medium.com/@${ctx.body.username}`,
+            username: ctx.body.username,
+          },
+          create: {
+            portfolioId: portfolio.id,
+            platform: "medium",
+            url: `https://medium.com/@${ctx.body.username}`,
+            username: ctx.body.username,
+          },
+        });
+      }
+
+      return { success: true, imported: result.count };
+    },
+    {
+      body: t.Object({
+        username: t.String(),
+        articles: t.Array(
+          t.Object({
+            title: t.String(),
+            description: t.String(),
+            url: t.String(),
+            publishedAt: t.String(),
+            tags: t.Array(t.String()),
+            readTime: t.Optional(t.Number()),
+          })
+        ),
       }),
     }
   );

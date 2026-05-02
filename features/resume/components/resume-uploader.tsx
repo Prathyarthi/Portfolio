@@ -413,9 +413,11 @@ export function ResumeUploader() {
                       {exp.company}
                       {exp.location ? ` - ${exp.location}` : ""}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {exp.startDate || "Date not provided"} - {exp.endDate ?? "Present"}
-                    </p>
+                    {(exp.startDate || exp.endDate) && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {exp.startDate || ""}{exp.startDate && exp.endDate ? " - " : ""}{exp.endDate || (exp.startDate ? "Present" : "")}
+                      </p>
+                    )}
                   </div>
                 ))}
               </CardContent>
