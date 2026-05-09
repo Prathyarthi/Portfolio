@@ -1,90 +1,181 @@
-import { Card, CardContent } from "@/components/ui/card";
+"use client";
+
+import Link from "next/link";
+import { motion, useReducedMotion } from "motion/react";
+import { cn } from "@/lib/utils";
+import { ArrowUpRight } from "lucide-react";
+import { landingSurfaceInteractive, landingFocusRing } from "@/features/landing/surface";
+import {
+  landingGridContainerVariants,
+  landingGridItemVariants,
+  landingSectionHeaderProps,
+} from "@/features/landing/motion-presets";
+import {
+  TemplateMicroScene,
+  type TemplateSceneId,
+} from "@/features/landing/components/template-micro-scenes";
 
 const templates = [
   {
+    id: "minimal",
     name: "Minimal",
-    accent: "from-zinc-200/40 to-white/5",
-    description: "Whitespace-heavy and calm for clean personal branding.",
+    tagline: "Quiet structure",
+    description: "Generous space and restrained type for a confident, calm read.",
+    barClass: "bg-zinc-400/80",
   },
   {
+    id: "modern",
     name: "Modern",
-    accent: "from-violet-400/30 to-cyan-300/20",
-    description: "Bold contrast, richer cards, and a contemporary product feel.",
+    tagline: "Product depth",
+    description: "Layered surfaces and contrast that feel current without shouting.",
+    barClass: "bg-violet-400/85",
   },
   {
+    id: "developer",
     name: "Developer",
-    accent: "from-emerald-400/25 to-cyan-300/10",
-    description: "Monospace-forward presentation for technical credibility.",
+    tagline: "Technical tone",
+    description: "Monospace cues and grid logic that match how engineers present work.",
+    barClass: "bg-emerald-400/82",
   },
   {
+    id: "creative",
     name: "Creative",
-    accent: "from-pink-400/30 to-orange-300/20",
-    description: "More expressive layout for designers and multidisciplinary work.",
+    tagline: "Expressive rhythm",
+    description: "Warmer motion and asymmetry for portfolios that lead with craft.",
+    barClass: "bg-rose-400/80",
   },
   {
+    id: "corporate",
     name: "Corporate",
-    accent: "from-sky-400/20 to-zinc-200/10",
-    description: "Structured, recruiter-friendly layout with professional tone.",
+    tagline: "Executive clarity",
+    description: "Sharper hierarchy and restrained polish for a more premium professional tone.",
+    barClass: "bg-sky-400/80",
   },
-];
+  {
+    id: "kiranbusari",
+    name: "Spotlight",
+    tagline: "Portfolio site",
+    description:
+      "Dark typography-led layout inspired by a stacked project and achievements flow.",
+    barClass: "bg-[#fc3]/90",
+  },
+] as const;
+
+function TemplateTile({
+  template,
+  index,
+  variants,
+  reducedMotion,
+}: {
+  template: (typeof templates)[number];
+  index: number;
+  variants: ReturnType<typeof landingGridItemVariants>;
+  reducedMotion: boolean | null;
+}) {
+  const idx = String(index + 1).padStart(2, "0");
+
+  return (
+    <motion.div variants={variants} className="min-h-0">
+      <Link
+        href="/sign-up"
+        className={cn(
+          landingSurfaceInteractive,
+          landingFocusRing,
+          "group block h-full p-5 md:p-6"
+        )}
+      >
+        <motion.div
+          className="flex h-full w-full flex-col"
+          whileHover={reducedMotion ? undefined : { y: -2 }}
+          transition={{ type: "spring", stiffness: 440, damping: 30 }}
+        >
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <span className="font-mono text-[10px] tabular-nums tracking-widest text-zinc-600">
+              {idx}
+            </span>
+            <div
+              className={cn(
+                "h-[3px] origin-left rounded-full transition-[width,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                "w-11 opacity-60 group-hover:w-[4.25rem] group-hover:opacity-100",
+                template.barClass
+              )}
+            />
+          </div>
+
+          <TemplateMicroScene
+            id={template.id as TemplateSceneId}
+            reduced={Boolean(reducedMotion)}
+          />
+
+          <div className="flex flex-1 flex-col">
+            <h3 className="text-lg font-medium tracking-tight text-zinc-100 md:text-xl">
+              {template.name}
+            </h3>
+            <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-600">
+              {template.tagline}
+            </p>
+            <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-500 md:text-[15px]">
+              {template.description}
+            </p>
+
+            <div className="mt-5 flex items-center gap-1 text-xs font-medium text-zinc-600 transition-colors group-hover:text-zinc-400">
+              <span>Start with this look</span>
+              <ArrowUpRight
+                className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                aria-hidden
+              />
+            </div>
+          </div>
+        </motion.div>
+      </Link>
+    </motion.div>
+  );
+}
 
 export function TemplateShowcase() {
+  const reducedMotion = useReducedMotion();
+  const reduce = Boolean(reducedMotion);
+
+  const containerVariants = landingGridContainerVariants(reduce);
+  const tileVariants = landingGridItemVariants(reduce);
+  const headerMotion = landingSectionHeaderProps(reduce);
+
   return (
-    <section id="showcase" className="px-4 py-24 md:px-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
-          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-            Template Showcase
+    <section id="showcase" className="px-4 py-20 md:px-6 md:py-28">
+      <div className="mx-auto max-w-5xl">
+        <motion.div
+          className="mx-auto mb-14 max-w-2xl text-center md:mb-16"
+          {...headerMotion}
+        >
+          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+            Templates
           </p>
-          <h2 className="mb-4 text-3xl font-bold md:text-5xl">
-            Pick a style that fits your <span className="gradient-text">public identity</span>
+          <h2 className="mb-3 text-2xl font-semibold tracking-tight text-balance md:text-3xl">
+            Same story. <span className="gradient-text">Different first impression.</span>
           </h2>
-          <p className="mx-auto max-w-3xl text-lg text-muted-foreground">
-            Every template is built for the same content model, so switching feels
-            like changing your visual system rather than rebuilding your site.
+          <p className="text-sm leading-relaxed text-zinc-500 md:text-[15px]">
+            Your sections stay put and only the presentation changes. Six layouts
+            ship in the app, each tuned for a distinct public-facing tone.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid gap-4 lg:grid-cols-5">
-          {templates.map((t) => (
-            <Card
-              key={t.name}
-              className="glass-card overflow-hidden rounded-[1.75rem] border-white/8 bg-white/3 transition-transform duration-200 hover:-translate-y-1"
-            >
-              <CardContent className="p-4">
-                <div
-                  className={`mb-4 rounded-[1.25rem] border border-white/8 bg-gradient-to-br ${t.accent} p-4`}
-                >
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-300">
-                      {t.name}
-                    </span>
-                    <span className="rounded-full border border-white/10 px-2 py-1 text-[10px] text-zinc-400">
-                      Live
-                    </span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-3 w-2/3 rounded-full bg-white/35" />
-                    <div className="h-2 w-full rounded-full bg-white/18" />
-                    <div className="h-2 w-5/6 rounded-full bg-white/18" />
-                    <div className="grid grid-cols-3 gap-2 pt-2">
-                      <div className="h-12 rounded-xl border border-white/10 bg-black/15" />
-                      <div className="h-12 rounded-xl border border-white/10 bg-black/10" />
-                      <div className="h-12 rounded-xl border border-white/10 bg-black/10" />
-                    </div>
-                  </div>
-                </div>
-
-                <h3 className="mb-2 text-lg font-semibold text-zinc-100">
-                  {t.name}
-                </h3>
-                <p className="text-sm leading-relaxed text-zinc-400">
-                  {t.description}
-                </p>
-              </CardContent>
-            </Card>
+        <motion.div
+          className="grid gap-3 sm:grid-cols-2 sm:gap-4"
+          variants={containerVariants}
+          initial={reduce ? false : "hidden"}
+          whileInView={reduce ? undefined : "show"}
+          viewport={{ once: true, margin: "-40px", amount: 0.12 }}
+        >
+          {templates.map((t, i) => (
+            <TemplateTile
+              key={t.id}
+              template={t}
+              index={i}
+              variants={tileVariants}
+              reducedMotion={reducedMotion}
+            />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

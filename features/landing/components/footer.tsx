@@ -10,11 +10,14 @@ export function Footer() {
             Build a portfolio site that feels like a product, not a placeholder.
           </p>
         </div>
-        <div className="flex items-center gap-3 text-sm text-zinc-500">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-zinc-500 md:justify-end">
           <span>
             &copy; {new Date().getFullYear()}
           </span>
           <span className="hidden h-1 w-1 rounded-full bg-zinc-700 md:block" />
+          <Link href="/pricing" className="transition-colors hover:text-zinc-200">
+            Pricing
+          </Link>
           <Link href="/sign-in" className="transition-colors hover:text-zinc-200">
             Sign In
           </Link>

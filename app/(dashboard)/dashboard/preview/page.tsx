@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +16,41 @@ export default function PreviewPage() {
   const { data: portfolio, isLoading } = usePortfolio();
   const createPortfolio = useCreatePortfolio();
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
+  const [allowedTemplateIds, setAllowedTemplateIds] = useState<string[] | null>(
+    null
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadAccess = async () => {
+      try {
+        const res = await fetch("/api/billing/me", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as {
+          access?: { allowedTemplateIds?: string[] };
+        };
+        if (cancelled) return;
+        setAllowedTemplateIds(data.access?.allowedTemplateIds ?? null);
+      } catch {
+        if (cancelled) return;
+        setAllowedTemplateIds(null);
+      }
+    };
+    loadAccess();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      previewTemplate &&
+      allowedTemplateIds &&
+      !allowedTemplateIds.includes(previewTemplate)
+    ) {
+      setPreviewTemplate("minimal");
+    }
+  }, [allowedTemplateIds, previewTemplate]);
 
   const handleCreatePortfolio = async () => {
     try {
@@ -25,6 +60,14 @@ export default function PreviewPage() {
       toast.error("Failed to create portfolio");
     }
   };
+
+  const templateOptions = useMemo(
+    () =>
+      Object.values(templateRegistry).filter((templateInfo) =>
+        allowedTemplateIds ? allowedTemplateIds.includes(templateInfo.id) : true
+      ),
+    [allowedTemplateIds]
+  );
 
   if (isLoading) {
     return (
@@ -62,7 +105,11 @@ export default function PreviewPage() {
     );
   }
 
-  const templateId = previewTemplate ?? portfolio.templateId ?? "minimal";
+  const effectiveTemplate = previewTemplate ?? portfolio.templateId ?? "minimal";
+  const templateId =
+    allowedTemplateIds && !allowedTemplateIds.includes(effectiveTemplate)
+      ? "minimal"
+      : effectiveTemplate;
   const template = getTemplate(templateId);
   const TemplateComponent = template.component;
   const data = portfolioToTemplateData(portfolio);
@@ -79,7 +126,7 @@ export default function PreviewPage() {
             <SelectValue placeholder="Template" />
           </SelectTrigger>
           <SelectContent>
-            {Object.values(templateRegistry).map((t) => (
+            {templateOptions.map((t) => (
               <SelectItem key={t.id} value={t.id}>
                 {t.name}
               </SelectItem>

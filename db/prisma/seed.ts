@@ -45,6 +45,14 @@ const templates = [
     previewUrl: "/templates/corporate-preview.png",
     category: "corporate",
   },
+  {
+    id: "kiranbusari",
+    name: "Spotlight",
+    description:
+      "Mint background, Made Tommy typography, and yellow accent interactions.",
+    previewUrl: "/templates/modern-preview.png",
+    category: "developer",
+  },
 ];
 
 async function main() {

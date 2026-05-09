@@ -1,4 +1,8 @@
 import type { PortfolioData } from "../types";
+import {
+  GitHubContributionHeatmap,
+  parseContributionCalendar,
+} from "../github-contribution-heatmap";
 import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
@@ -8,7 +12,6 @@ import {
   ProfileLinksSection,
   ProjectActions,
   SocialPills,
-  StatStrip,
   TemplateNavbar,
 } from "../shared";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -25,20 +28,32 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     achievements,
   } = data;
   const skillsByCategory = groupSkillsByCategory(skills);
+  const githubProfile = socialProfiles.find(
+    (profile) => profile.platform.toLowerCase() === "github"
+  );
+  const githubStats = githubProfile?.cachedStats as Record<string, unknown> | null;
+  const contributionCalendar = parseContributionCalendar(
+    githubStats?.contributionCalendar
+  );
   const featuredProjects = projects.filter((project) => project.featured);
   const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 4);
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
+  const quickFacts = [
+    { label: "Projects", value: visibleProjects.length },
+    { label: "Roles", value: experiences.length },
+    { label: "Skills", value: skills.length },
+  ].filter((item) => item.value > 0);
 
   return (
-    <div className="min-h-screen bg-[#eef2f7] text-slate-900 antialiased">
-      <div className="mx-auto max-w-6xl px-6 py-10 md:px-10 md:py-14">
-        <header className="overflow-hidden rounded-[2rem] bg-[#0f172a] text-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
+    <div className="min-h-screen bg-[#f3f6fb] text-slate-900 antialiased">
+      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 md:px-10 md:py-12">
+        <header className="overflow-hidden rounded-[2.2rem] border border-slate-200/40 bg-[#0f172a] text-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
           <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="p-8 md:p-12">
+            <div className="p-6 md:p-10">
               <p className="text-xs uppercase tracking-[0.3em] text-sky-300/70">
                 Executive Portfolio
               </p>
-              <h1 className="mt-4 text-5xl font-semibold tracking-tight md:text-6xl">
+              <h1 className="mt-4 max-w-3xl text-5xl font-semibold tracking-tight md:text-6xl">
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
@@ -50,14 +65,14 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
               <div className="mt-6">
                 <ContactChips
                   portfolio={portfolio}
-                  chipClassName="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-sm text-slate-300"
+                  chipClassName="rounded-full border border-white/10 bg-white/6 px-3.5 py-1.5 text-sm text-slate-300"
                 />
               </div>
 
               <div className="mt-4">
                 <HeroProfileButtons
                   profiles={socialProfiles}
-                  className="rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-slate-100 transition-colors hover:bg-white/12"
+                  className="rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-slate-100 transition-colors hover:bg-white/14"
                 />
               </div>
 
@@ -66,22 +81,44 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                   <SocialPills
                     profiles={socialProfiles}
                     showUsername
-                    className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:bg-white/10"
+                      className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:bg-white/12"
                   />
                 </div>
               )}
             </div>
 
-            <div className="border-t border-white/10 bg-gradient-to-br from-sky-500/20 via-transparent to-white/5 p-8 lg:border-l lg:border-t-0 md:p-12">
-              {portfolio.avatarUrl ? (
-                <img
-                  src={portfolio.avatarUrl}
-                  alt={portfolio.title}
-                  className="h-72 w-full rounded-[1.75rem] object-cover"
-                />
-              ) : (
-                <div className="h-72 rounded-[1.75rem] bg-gradient-to-br from-sky-400/30 to-slate-700/40" />
-              )}
+            <div className="border-t border-white/10 bg-linear-to-br from-sky-500/18 via-transparent to-white/5 p-6 lg:border-l lg:border-t-0 md:p-10">
+              <div className="grid gap-4">
+                {portfolio.avatarUrl && (
+                  <div className="rounded-[1.9rem] border border-white/10 bg-white/5 p-3">
+                    <img
+                      src={portfolio.avatarUrl}
+                      alt={portfolio.title}
+                      className="h-72 w-full rounded-[1.5rem] object-cover"
+                    />
+                  </div>
+                )}
+                {quickFacts.length > 0 && (
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-sm">
+                    <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
+                      Snapshot
+                    </p>
+                    <div className="mt-4 grid grid-cols-3 gap-3">
+                      {quickFacts.map((fact) => (
+                        <div
+                          key={fact.label}
+                          className="rounded-[1rem] border border-white/10 bg-white/6 px-3 py-3"
+                        >
+                          <p className="text-lg font-semibold text-white">{fact.value}</p>
+                          <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-slate-400">
+                            {fact.label}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </header>
@@ -90,42 +127,19 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
           <div className="mt-6">
             <TemplateNavbar
               items={sections}
-              className="rounded-full border-slate-200 bg-white/90"
-              linkClassName="rounded-full px-4 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              className="rounded-full border-white bg-white/90 shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
+              linkClassName="rounded-full px-4 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-900 hover:text-white"
             />
           </div>
         )}
 
-        <div className="mt-8">
-          <StatStrip
-            items={[
-              {
-                label: "Experience",
-                value: experiences.length > 0 ? `${experiences.length} roles` : null,
-              },
-              {
-                label: "Projects",
-                value: projects.length > 0 ? `${projects.length} launches` : null,
-              },
-              {
-                label: "Skills",
-                value: skills.length > 0 ? `${skills.length} listed` : null,
-              },
-              {
-                label: "Certifications",
-                value: certifications.length > 0 ? `${certifications.length}` : null,
-              },
-            ]}
-            className="lg:grid-cols-4"
-            valueClassName="text-2xl font-semibold text-slate-900"
-            labelClassName="mt-1 text-xs uppercase tracking-[0.22em] text-slate-500"
-          />
-        </div>
-
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <main className="space-y-8">
+        <div className="mt-6 grid gap-6 md:mt-8 md:gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          <main className="space-y-6 md:space-y-8">
             {portfolio.summary && (
-              <section id="about" className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm">
+              <section
+                id="about"
+                className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
+              >
                 <SectionHeading>Professional Summary</SectionHeading>
                 <DescriptionBlock
                   text={portfolio.summary}
@@ -138,14 +152,14 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             {experiences.length > 0 && (
               <section
                 id="experience"
-                className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm"
+                className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
                 <SectionHeading>Experience</SectionHeading>
                 <div className="space-y-5">
                   {experiences.map((exp) => (
                     <article
                       key={exp.id}
-                      className="rounded-[1.4rem] border border-slate-200 p-5"
+                      className="rounded-[1.5rem] border border-slate-200 bg-slate-50/60 p-5"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -159,9 +173,11 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                             <p className="mt-1 text-sm text-slate-500">{exp.location}</p>
                           )}
                         </div>
-                        <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                          {formatDateRange(exp.startDate, exp.endDate)}
-                        </p>
+                        {(exp.startDate || exp.endDate) && (
+                          <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                            {formatDateRange(exp.startDate, exp.endDate)}
+                          </p>
+                        )}
                       </div>
                       {exp.description && (
                         <DescriptionBlock
@@ -177,13 +193,16 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {visibleProjects.length > 0 && (
-              <section id="work" className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm">
-                <SectionHeading>Selected Work</SectionHeading>
+              <section
+                id="work"
+                className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
+              >
+                <SectionHeading>Work</SectionHeading>
                 <div className="grid gap-5 sm:grid-cols-2">
                   {visibleProjects.map((project) => (
                     <article
                       key={project.id}
-                      className="overflow-hidden rounded-[1.4rem] border border-slate-200 bg-slate-50"
+                      className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
                     >
                       {project.imageUrl && (
                         <img
@@ -252,7 +271,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                             liveUrl={project.liveUrl}
                             sourceUrl={project.sourceUrl}
                             liveClassName="rounded-full bg-sky-700 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-sky-800"
-                            sourceClassName="rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                            sourceClassName="rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
                           />
                         </div>
                       </div>
@@ -263,9 +282,9 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
           </main>
 
-          <aside className="space-y-8">
+          <aside className="space-y-6 md:space-y-8">
             {skills.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+              <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Capabilities</SectionHeading>
                 <div className="space-y-6">
                   {Object.entries(skillsByCategory).map(([category, names]) => (
@@ -290,19 +309,24 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {educations.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+              <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Education</SectionHeading>
                 <div className="space-y-4">
                   {educations.map((edu) => (
-                    <article key={edu.id} className="rounded-[1.4rem] border border-slate-200 p-5">
+                    <article
+                      key={edu.id}
+                      className="rounded-[1.5rem] border border-slate-200 bg-slate-50/60 p-5"
+                    >
                       <h3 className="text-lg font-semibold text-slate-900">
                         {edu.degree}
                         {edu.field && <span className="text-slate-500"> in {edu.field}</span>}
                       </h3>
                       <p className="mt-2 text-sm text-slate-600">{edu.institution}</p>
-                      <p className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-400">
-                        {formatDateRange(edu.startDate, edu.endDate)}
-                      </p>
+                      {(edu.startDate || edu.endDate) && (
+                        <p className="mt-2 text-xs uppercase tracking-[0.22em] text-slate-400">
+                          {formatDateRange(edu.startDate, edu.endDate)}
+                        </p>
+                      )}
                       {edu.gpa && <p className="mt-3 text-xs text-slate-500">GPA: {edu.gpa}</p>}
                     </article>
                   ))}
@@ -311,11 +335,14 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {certifications.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+              <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Certifications</SectionHeading>
                 <div className="space-y-4">
                   {certifications.map((cert) => (
-                    <article key={cert.id} className="rounded-[1.4rem] border border-slate-200 p-5">
+                    <article
+                      key={cert.id}
+                      className="rounded-[1.5rem] border border-slate-200 bg-slate-50/60 p-5"
+                    >
                       <h3 className="text-base font-semibold text-slate-900">
                         {cert.url ? (
                           <a
@@ -346,11 +373,14 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
 
             {achievements.length > 0 && (
-              <section className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+              <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Achievements</SectionHeading>
                 <div className="space-y-3">
                   {achievements.map((ach) => (
-                    <article key={ach.id} className="flex items-start gap-3 rounded-[1.4rem] border border-slate-200 p-5">
+                    <article
+                      key={ach.id}
+                      className="flex items-start gap-3 rounded-[1.5rem] border border-slate-200 bg-slate-50/60 p-5"
+                    >
                       <Trophy className="h-4 w-4 text-sky-600 mt-0.5 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-slate-900 leading-relaxed">{ach.title}</p>
@@ -369,24 +399,37 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
               </section>
             )}
 
-              {hasProfiles && (
-                <section
-                  id="profiles"
-                  className="scroll-mt-24 rounded-[1.75rem] bg-white p-8 shadow-sm"
-                >
-                  <SectionHeading>Profiles</SectionHeading>
-                  <ProfileLinksSection
-                    portfolio={portfolio}
-                    profiles={socialProfiles}
-                    chipClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600"
-                    pillClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900"
-                    titleClassName="text-slate-900"
-                    textClassName="text-slate-500"
-                  />
-                </section>
-              )}
+            {hasProfiles && (
+              <section
+                id="profiles"
+                className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
+              >
+                <SectionHeading>Profiles</SectionHeading>
+                <ProfileLinksSection
+                  portfolio={portfolio}
+                  profiles={socialProfiles}
+                  chipClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600"
+                  pillClassName="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900"
+                  titleClassName="text-slate-900"
+                  textClassName="text-slate-500"
+                />
+              </section>
+            )}
           </aside>
         </div>
+
+        {contributionCalendar && (
+          <section className="mt-6 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:mt-8 md:p-8">
+            <SectionHeading>GitHub Activity</SectionHeading>
+            <GitHubContributionHeatmap
+              calendar={contributionCalendar}
+              profileUrl={githubProfile?.url}
+              username={githubProfile?.username}
+              variant="corporate"
+              label="GitHub Contribution Calendar"
+            />
+          </section>
+        )}
       </div>
     </div>
   );

@@ -127,7 +127,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-2xl pb-6">
+    <div className="space-y-8 max-w-2xl pb-6 mx-auto w-full h-screen">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="mt-1 text-muted-foreground">Manage your account and portfolio settings.</p>

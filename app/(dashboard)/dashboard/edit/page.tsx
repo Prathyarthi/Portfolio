@@ -3,7 +3,19 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Eye, Share2, User, Briefcase, GraduationCap, Wrench, FolderKanban, Globe, Trophy } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  Plus,
+  Eye,
+  Share2,
+  User,
+  Briefcase,
+  GraduationCap,
+  Wrench,
+  FolderKanban,
+  Globe,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,16 +35,21 @@ import { PublishButton } from "@/features/portfolio/components/publish-button";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
 import { SkillsEditor } from "@/features/portfolio/components/skills-editor";
 
-const STEPS = [
-  { value: "basic", label: "Basic Info", short: "Basic", icon: User },
-  { value: "experience", label: "Experience", short: "Exp", icon: Briefcase },
-  { value: "education", label: "Education", short: "Edu", icon: GraduationCap },
-  { value: "skills", label: "Skills", short: "Skills", icon: Wrench },
-  { value: "projects", label: "Projects", short: "Projects", icon: FolderKanban },
-  { value: "social", label: "Social Links", short: "Social", icon: Globe },
-] as const;
+type StepValue = "basic" | "experience" | "education" | "skills" | "projects" | "social";
 
-type StepValue = (typeof STEPS)[number]["value"];
+const STEPS: ReadonlyArray<{
+  value: StepValue;
+  label: string;
+  short: string;
+  icon: LucideIcon;
+}> = [
+    { value: "basic", label: "Basic Info", short: "Basic", icon: User },
+    { value: "experience", label: "Experience", short: "Exp", icon: Briefcase },
+    { value: "education", label: "Education", short: "Edu", icon: GraduationCap },
+    { value: "skills", label: "Skills", short: "Skills", icon: Wrench },
+    { value: "projects", label: "Projects", short: "Projects", icon: FolderKanban },
+    { value: "social", label: "Social Links", short: "Social", icon: Globe },
+  ];
 
 export default function EditPortfolioPage() {
   const router = useRouter();
@@ -110,10 +127,11 @@ export default function EditPortfolioPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Edit Portfolio</h1>
           <p className="mt-1 text-muted-foreground">
-            Build your professional portfolio by filling in each section below.
+            Build your portfolio here, or scan a PDF resume on Import to pre-fill
+            sections.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {portfolio.isPublished ? (
             <Badge variant="default" className="bg-green-600 hover:bg-green-700">
               Published
@@ -121,6 +139,12 @@ export default function EditPortfolioPage() {
           ) : (
             <Badge variant="secondary">Draft</Badge>
           )}
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard/import">
+              <FileText className="mr-2 h-4 w-4" />
+              Import resume (PDF)
+            </Link>
+          </Button>
           {portfolio.slug && (
             <ShareDialog slug={portfolio.slug} isPublished={portfolio.isPublished ?? false}>
               <Button variant="outline" size="sm">

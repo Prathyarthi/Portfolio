@@ -333,12 +333,14 @@ export function ExperienceForm() {
                         </>
                       )}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
-                      <Calendar className="h-3 w-3" />
-                      {exp.startDate ? exp.startDate.substring(0, 10) : "Date not provided"}
-                      {" -- "}
-                      {exp.endDate ? exp.endDate.substring(0, 10) : "Present"}
-                    </p>
+                    {(exp.startDate || exp.endDate) && (
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+                        <Calendar className="h-3 w-3" />
+                        {exp.startDate ? exp.startDate.substring(0, 10) : ""}
+                        {exp.startDate && exp.endDate && " -- "}
+                        {exp.endDate ? exp.endDate.substring(0, 10) : (exp.startDate ? "Present" : "")}
+                      </p>
+                    )}
                     {exp.description && (
                       <>
                         <Separator className="my-3" />

@@ -3,13 +3,15 @@ import { ModernTemplate } from "./modern/modern-template";
 import DeveloperTemplate from "./developer/developer-template";
 import CreativeTemplate from "./creative/creative-template";
 import { CorporateTemplate } from "./corporate/corporate-template";
+import { SpotlightTemplate } from "./kiranbusari/kiranbusari-template";
 import type { TemplateComponent } from "./types";
 
 export const templateRegistry: Record<string, TemplateComponent> = {
   minimal: {
     id: "minimal",
     name: "Minimal",
-    description: "Editorial, quiet, and typography-led for a refined personal brand",
+    description:
+      "Editorial, quiet, and typography-led for a refined personal brand",
     previewImage: "/templates/minimal-preview.png",
     category: "general",
     component: MinimalTemplate,
@@ -17,7 +19,8 @@ export const templateRegistry: Record<string, TemplateComponent> = {
   modern: {
     id: "modern",
     name: "Modern",
-    description: "Dark premium presentation with glass cards and product-style composition",
+    description:
+      "Dark premium presentation with glass cards and product-style composition",
     previewImage: "/templates/modern-preview.png",
     category: "general",
     component: ModernTemplate,
@@ -48,6 +51,15 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     previewImage: "/templates/corporate-preview.png",
     category: "corporate",
     component: CorporateTemplate,
+  },
+  kiranbusari: {
+    id: "kiranbusari",
+    name: "Spotlight",
+    description:
+      "Mint canvas (#fbfffe), Made Tommy type, and yellow-accent interactions.",
+    previewImage: "/templates/modern-preview.png",
+    category: "developer",
+    component: SpotlightTemplate,
   },
 };
 

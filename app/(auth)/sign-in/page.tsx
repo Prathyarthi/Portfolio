@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, type SignInOptions, type SignInResponse } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -15,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { GithubIcon as Github } from "@/components/icons";
 
@@ -39,11 +37,11 @@ export default function SignInPage() {
     setError("");
     setLoading(true);
 
-    const result = await signIn("credentials", {
+    const result = (await signIn("credentials", {
+      redirect: false,
       email,
       password,
-      redirect: false,
-    });
+    } as SignInOptions)) as SignInResponse | undefined;
 
     setLoading(false);
 
@@ -72,7 +70,7 @@ export default function SignInPage() {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <Separator className="w-full" />
+            <div className="h-px w-full bg-border" aria-hidden />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="bg-card px-2 text-muted-foreground">or</span>
@@ -81,7 +79,12 @@ export default function SignInPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <label
+              htmlFor="email"
+              className="text-sm font-medium leading-none select-none"
+            >
+              Email
+            </label>
             <Input
               id="email"
               type="email"
@@ -92,7 +95,12 @@ export default function SignInPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <label
+              htmlFor="password"
+              className="text-sm font-medium leading-none select-none"
+            >
+              Password
+            </label>
             <Input
               id="password"
               type="password"
