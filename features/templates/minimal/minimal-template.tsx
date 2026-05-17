@@ -7,6 +7,7 @@ import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
   ProfileLinksSection,
@@ -26,6 +27,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
     socialProfiles,
     certifications,
     achievements,
+    customSections,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -399,6 +401,18 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                 </div>
               </section>
             )}
+
+            {customSections.map((cs) => (
+              <section key={cs.id} className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+                <SectionHeading>{cs.label}</SectionHeading>
+                <CustomSectionItems
+                  items={cs.items}
+                  titleClassName="font-medium text-stone-900"
+                  textClassName="text-sm text-stone-500"
+                  chipClassName="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-xs text-stone-500"
+                />
+              </section>
+            ))}
 
             {hasProfiles && (
               <section

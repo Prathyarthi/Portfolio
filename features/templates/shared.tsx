@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Layers } from "lucide-react";
 import type {
   PortfolioCustomization,
   PortfolioData,
@@ -251,6 +252,85 @@ export function ProjectActions({
           Source
         </a>
       )}
+    </div>
+  );
+}
+
+/** Renders a single custom section's items generically. */
+function CustomSectionItemValue({ value }: { value: unknown }) {
+  if (value == null || value === "") return null;
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return <>{String(value)}</>;
+  }
+  if (Array.isArray(value)) {
+    return <>{value.map(String).join(", ")}</>;
+  }
+  return <>{JSON.stringify(value)}</>;
+}
+
+const HIDDEN_ITEM_KEYS = new Set(["id", "sortOrder"]);
+
+export function CustomSectionItems({
+  items,
+  titleClassName,
+  textClassName,
+  chipClassName,
+}: {
+  items: Record<string, unknown>[];
+  titleClassName?: string;
+  textClassName?: string;
+  chipClassName?: string;
+}) {
+  if (items.length === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      {items.map((item, i) => {
+        const title = item.title ?? item.name ?? item.label;
+        const description = item.description ?? item.details ?? item.summary;
+        const date = item.date ?? item.startDate ?? item.year;
+        const url = item.url ?? item.link;
+        const otherKeys = Object.keys(item).filter(
+          (k) =>
+            !HIDDEN_ITEM_KEYS.has(k) &&
+            !["title", "name", "label", "description", "details", "summary", "date", "startDate", "year", "url", "link"].includes(k)
+        );
+
+        return (
+          <div key={i} className="space-y-1">
+            {title != null && (
+              <p className={titleClassName}>
+                {url ? (
+                  <a href={String(url)} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted hover:decoration-solid">
+                    <CustomSectionItemValue value={title} />
+                  </a>
+                ) : (
+                  <CustomSectionItemValue value={title} />
+                )}
+                {date != null && (
+                  <span className={textClassName}> ({String(date)})</span>
+                )}
+              </p>
+            )}
+            {description != null && String(description).trim() !== "" && (
+              <p className={textClassName}><CustomSectionItemValue value={description} /></p>
+            )}
+            {otherKeys.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {otherKeys.map((k) => {
+                  const v = item[k];
+                  if (v == null || v === "") return null;
+                  return (
+                    <span key={k} className={chipClassName}>
+                      {k}: <CustomSectionItemValue value={v} />
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

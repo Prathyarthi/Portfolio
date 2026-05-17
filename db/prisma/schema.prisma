@@ -67,6 +67,7 @@ model Portfolio {
   socialProfiles SocialProfile[]
   certifications Certification[]
   achievements   Achievement[]
+  customSections CustomSection[]
 
   @@index([slug])
   @@map("portfolios")
@@ -181,6 +182,20 @@ model Achievement {
   portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 
   @@map("achievements")
+}
+
+model CustomSection {
+  id          String @id @default(uuid())
+  portfolioId String
+  sectionType String
+  label       String
+  items       Json   @default("[]")
+  sortOrder   Int    @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, sectionType])
+  @@map("custom_sections")
 }
 
 // ============================================================

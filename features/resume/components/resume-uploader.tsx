@@ -40,8 +40,9 @@ import {
   Trophy,
   Check,
   Trash2,
+  Layers,
 } from "lucide-react";
-import type { ParsedResume } from "@/lib/gemini";
+import type { ParsedResume, ParsedCustomSection } from "@/lib/gemini";
 
 async function assertApiOk(res: Response, context: string) {
   if (res.ok) return;
@@ -96,6 +97,7 @@ export function ResumeUploader() {
           console.log("Projects found:", data.projects.length);
           console.log("Achievements found:", data.achievements.length);
           console.log("Certifications found:", data.certifications.length);
+          console.log("Custom sections found:", data.customSections?.length ?? 0);
           console.log("==========================================");
           setParsedData(data);
           toast.success("Resume parsed successfully");
@@ -202,6 +204,24 @@ export function ResumeUploader() {
         console.log(`✓ Achievement ${i + 1} imported successfully`);
       }
       console.log("✅ All achievements imported");
+
+      // Import custom sections
+      if (parsedData.customSections && parsedData.customSections.length > 0) {
+        console.log("About to import", parsedData.customSections.length, "custom sections");
+        for (const section of parsedData.customSections) {
+          const res = await fetch("/api/portfolio/custom-section", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sectionType: section.sectionType,
+              label: section.label,
+              items: section.items,
+            }),
+          });
+          await assertApiOk(res, "Custom Section");
+        }
+        console.log("✅ All custom sections imported");
+      }
 
       await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
       await queryClient.refetchQueries({ queryKey: ["portfolio"] });
@@ -530,6 +550,37 @@ export function ResumeUploader() {
               </CardContent>
             </Card>
           )}
+
+          {/* Custom Sections */}
+          {parsedData.customSections && parsedData.customSections.length > 0 &&
+            parsedData.customSections.map((section, si) => (
+              <Card key={si}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    {section.label} ({section.items.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {section.items.map((item, ii) => {
+                    const title = item.title ?? item.name ?? item.label;
+                    const desc = item.description ?? item.details;
+                    return (
+                      <div key={ii} className="border-b last:border-0 pb-3 last:pb-0">
+                        {title != null && (
+                          <p className="font-medium text-sm">{String(title)}</p>
+                        )}
+                        {desc != null && (
+                          <p className="text-sm text-muted-foreground">
+                            {String(desc)}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            ))}
 
           {/* Certifications */}
           {parsedData.certifications.length > 0 && (

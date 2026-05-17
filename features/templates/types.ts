@@ -79,6 +79,12 @@ export interface PortfolioData {
     title: string;
     date: string | null;
   }>;
+  customSections: Array<{
+    id: string;
+    sectionType: string;
+    label: string;
+    items: Record<string, unknown>[];
+  }>;
 }
 
 export interface TemplateComponent {

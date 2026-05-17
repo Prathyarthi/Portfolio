@@ -16,6 +16,8 @@ export const publicPortfolio = new Elysia({ prefix: "/public" })
         projects: { orderBy: { sortOrder: "asc" } },
         socialProfiles: true,
         certifications: { orderBy: { sortOrder: "asc" } },
+        achievements: { orderBy: { sortOrder: "asc" } },
+        customSections: { orderBy: { sortOrder: "asc" } },
       },
     });
 

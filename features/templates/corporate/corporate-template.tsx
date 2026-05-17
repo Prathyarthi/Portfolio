@@ -7,6 +7,7 @@ import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
   ProfileLinksSection,
@@ -26,6 +27,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     socialProfiles,
     certifications,
     achievements,
+    customSections,
   } = data;
   const skillsByCategory = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -398,6 +400,18 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 </div>
               </section>
             )}
+
+            {customSections.map((cs) => (
+              <section key={cs.id} className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+                <SectionHeading>{cs.label}</SectionHeading>
+                <CustomSectionItems
+                  items={cs.items}
+                  titleClassName="font-medium text-slate-900"
+                  textClassName="text-sm text-slate-500"
+                  chipClassName="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-500"
+                />
+              </section>
+            ))}
 
             {hasProfiles && (
               <section

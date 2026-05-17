@@ -10,6 +10,12 @@ function getAiClient() {
   return new GoogleGenAI({ apiKey });
 }
 
+export interface ParsedCustomSection {
+  sectionType: string;
+  label: string;
+  items: Record<string, unknown>[];
+}
+
 export interface ParsedResume {
   name: string;
   headline: string;
@@ -48,6 +54,7 @@ export interface ParsedResume {
     issueDate: string | null;
     url: string | null;
   }[];
+  customSections: ParsedCustomSection[];
 }
 
 function asRecord(v: unknown): Record<string, unknown> | null {
@@ -93,6 +100,7 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
       name: "",
       headline: "",
       summary: "",
+      customSections: [],
       experiences: [],
       education: [],
       skills: [],
@@ -114,7 +122,6 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
       o.jobHistory;
     if (Array.isArray(alt)) experienceRaw = alt;
   }
-  console.log("Raw experience entries found:", experienceRaw.length);
 
   const experiences: ParsedResume["experiences"] = [];
   for (const item of experienceRaw) {
@@ -123,13 +130,8 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
     const role = normalizeString(e.role ?? e.title ?? e.position ?? e.jobTitle);
     const startDate = normalizeString(e.startDate ?? e.start ?? e.from).trim();
 
-    console.log("Processing experience entry:", JSON.stringify({ company, role, startDate, hasDescription: !!e.description }));
-    if (!company || !role) {
-      console.log("❌ SKIPPED - Missing company or role");
-      continue;
-    }
+    if (!company || !role) continue;
 
-    console.log("✓ Added to experiences array");
     experiences.push({
       company,
       role,
@@ -144,7 +146,6 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
           : normalizeString(e.location),
     });
   }
-  console.log("✅ Total experiences after normalization:", experiences.length);
 
   let educationRaw: unknown[] = Array.isArray(o.education) ? o.education : [];
   if (educationRaw.length === 0) {
@@ -257,6 +258,32 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
     });
   }
 
+  // Normalize custom sections
+  const customSectionsRaw: unknown[] = Array.isArray(o.customSections)
+    ? o.customSections
+    : [];
+  const customSections: ParsedCustomSection[] = [];
+  for (const item of customSectionsRaw) {
+    const s = asRecord(item);
+    if (!s) continue;
+    const sectionType = normalizeString(s.sectionType ?? s.section_type ?? s.type);
+    const label = normalizeString(s.label ?? s.title ?? s.name);
+    if (!sectionType || !label) continue;
+    const items: Record<string, unknown>[] = [];
+    const rawItems = Array.isArray(s.items) ? s.items : [];
+    for (const entry of rawItems) {
+      if (typeof entry === "string") {
+        items.push({ title: entry });
+      } else {
+        const rec = asRecord(entry);
+        if (rec) items.push(rec as Record<string, unknown>);
+      }
+    }
+    if (items.length > 0) {
+      customSections.push({ sectionType, label, items });
+    }
+  }
+
   return {
     name: normalizeString(o.name),
     headline: normalizeString(o.headline),
@@ -267,32 +294,22 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
     projects,
     achievements,
     certifications,
+    customSections,
   };
 }
 
-export async function parseResume(pdfBuffer: Buffer): Promise<ParsedResume> {
-  const ai = getAiClient();
-  const base64Pdf = pdfBuffer.toString("base64");
+function buildPrompt(rawText: string): string {
+  return `You are a resume parser. Below is raw text extracted from a resume PDF. Structure ALL of it into JSON.
 
-  const response = await ai.models.generateContent({
-    model: process.env.GEMINI_CHAT_PRIMARY_MODEL!,
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            inlineData: {
-              mimeType: "application/pdf",
-              data: base64Pdf,
-            },
-          },
-          {
-            text: `Parse this resume PDF and extract ALL structured data. Return ONLY valid JSON with no markdown formatting, no code fences, and no extra text. 
+CRITICAL RULES:
+- Do NOT skip any information. Every piece of data in the resume must appear in your output.
+- For well-known sections, use the schemas below.
+- For ANY information that does NOT fit the well-known schemas, put it in "customSections". This includes: contact info, social profiles, links, volunteer work, publications, languages, interests, hobbies, references, awards, honors, courses, trainings, or anything else.
+- Extract dates if available. For month/year only (e.g. "Jan 2023"), use "2023-01-01". If no date, use null.
+- Do NOT invent data. If a field isn't in the resume, use null (or "" for required strings like headline/summary, or skip the entry if a REQUIRED field is missing). Never guess company names, dates, GPAs, or any other facts.
+- Return ONLY valid JSON, no markdown, no code fences.
 
-CRITICAL: Extract ALL work experience entries from the resume. Look for job titles, company names, employment history, work experience section, or professional experience section.
-
-Use this exact schema:
-
+Schema:
 {
   "name": "Full Name",
   "headline": "Professional headline / job title",
@@ -302,7 +319,7 @@ Use this exact schema:
       "company": "Company Name (REQUIRED)",
       "role": "Job Title (REQUIRED)",
       "description": "Description of responsibilities and achievements (or empty string)",
-      "startDate": "YYYY-MM-DD (extract if available, otherwise null)",
+      "startDate": "YYYY-MM-DD or null",
       "endDate": "YYYY-MM-DD or null if current position",
       "location": "City, State or null"
     }
@@ -310,18 +327,15 @@ Use this exact schema:
   "education": [
     {
       "institution": "University Name (REQUIRED)",
-      "degree": "Degree Type (REQUIRED, e.g. Bachelor of Science)",
+      "degree": "Degree Type (REQUIRED)",
       "field": "Field of Study or null",
-      "startDate": "YYYY-MM-DD (extract if available, otherwise null)",
+      "startDate": "YYYY-MM-DD or null",
       "endDate": "YYYY-MM-DD or null",
       "gpa": "GPA value or null"
     }
   ],
   "skills": [
-    {
-      "name": "Skill Name",
-      "category": "Category (e.g. Programming Languages, Frameworks, Tools, Soft Skills)"
-    }
+    { "name": "Skill Name", "category": "Category (e.g. Programming Languages, Frameworks, Tools)" }
   ],
   "projects": [
     {
@@ -332,26 +346,40 @@ Use this exact schema:
       "sourceUrl": "URL or null"
     }
   ],
-  "achievements": [
-    "Achievement or award description (string)",
-    "Another achievement"
-  ],
+  "achievements": ["Achievement description string"],
   "certifications": [
+    { "name": "Certification Name", "issuer": "Issuing Organization", "issueDate": "YYYY-MM-DD or null", "url": "URL or null" }
+  ],
+  "customSections": [
     {
-      "name": "Certification Name",
-      "issuer": "Issuing Organization",
-      "issueDate": "YYYY-MM-DD or null",
-      "url": "URL or null"
+      "sectionType": "snake_case_key (e.g. contact_info, social_profiles, volunteer_work)",
+      "label": "Human-readable label (e.g. Contact Information, Social Profiles, Volunteer Work)",
+      "items": [
+        { "title": "Item title", "description": "Item description", "date": "date or null", ...any other relevant fields }
+      ]
     }
   ]
 }
 
-IMPORTANT RULES:
-- Extract dates if available. For month/year only (e.g. "Jan 2023"), use "2023-01-01"
-- If dates are not present in the resume, use null - DO NOT invent dates
-- Extract ALL experience entries, even if dates are missing
-- If a section has no data, return an empty array []
-- Return ONLY the JSON object, nothing else`,
+If a section has no data, return an empty array [].
+
+RESUME TEXT:
+${rawText}`;
+}
+
+export async function structureResumeWithAi(
+  rawText: string,
+): Promise<ParsedResume> {
+  const ai = getAiClient();
+
+  const response = await ai.models.generateContent({
+    model: process.env.GEMINI_CHAT_PRIMARY_MODEL!,
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: buildPrompt(rawText),
           },
         ],
       },

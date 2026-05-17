@@ -12,12 +12,13 @@ import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  CustomSectionItems,
   HeroProfileButtons,
   TemplateNavbar,
 } from "@/features/templates/shared";
 
 export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements } =
+  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections } =
     data;
   const skillsByCategory = groupSkillsByCategory(skills);
 
@@ -510,6 +511,26 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
           </div>
         </section>
       )}
+
+      {/* Custom Sections */}
+      {customSections.map((cs) => (
+        <section key={cs.id} className="border-b border-green-900/30">
+          <div className="mx-auto max-w-5xl px-6 py-16">
+            <p className="mb-6 text-sm text-gray-600">
+              guest@portfolio:~$ cat ~/{cs.sectionType}.txt
+            </p>
+            <div className="rounded-lg border border-green-900/40 bg-gray-900/50 p-5">
+              <p className="text-sm text-green-300 mb-4">{cs.label}</p>
+              <CustomSectionItems
+                items={cs.items}
+                titleClassName="font-semibold text-green-300"
+                textClassName="text-sm text-gray-400"
+                chipClassName="rounded bg-green-900/20 px-2 py-0.5 text-[11px] text-green-500/80 border border-green-900/30"
+              />
+            </div>
+          </div>
+        </section>
+      ))}
 
       {/* Achievements */}
       {achievements.length > 0 && (

@@ -21,10 +21,11 @@ export function portfolioToTemplateData(portfolio: any): PortfolioData {
       company: e.company,
       role: e.role,
       description: e.description,
-      startDate:
-        typeof e.startDate === "string"
+      startDate: e.startDate
+        ? typeof e.startDate === "string"
           ? e.startDate
-          : new Date(e.startDate).toISOString(),
+          : new Date(e.startDate).toISOString()
+        : null,
       endDate: e.endDate
         ? typeof e.endDate === "string"
           ? e.endDate
@@ -37,10 +38,11 @@ export function portfolioToTemplateData(portfolio: any): PortfolioData {
       institution: e.institution,
       degree: e.degree,
       field: e.field ?? null,
-      startDate:
-        typeof e.startDate === "string"
+      startDate: e.startDate
+        ? typeof e.startDate === "string"
           ? e.startDate
-          : new Date(e.startDate).toISOString(),
+          : new Date(e.startDate).toISOString()
+        : null,
       endDate: e.endDate
         ? typeof e.endDate === "string"
           ? e.endDate
@@ -92,6 +94,12 @@ export function portfolioToTemplateData(portfolio: any): PortfolioData {
           ? a.date
           : new Date(a.date).toISOString()
         : null,
+    })),
+    customSections: (portfolio.customSections ?? []).map((cs: any) => ({
+      id: cs.id,
+      sectionType: cs.sectionType,
+      label: cs.label,
+      items: Array.isArray(cs.items) ? cs.items : [],
     })),
   };
 }
