@@ -140,7 +140,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <div className="mt-6 grid gap-6 md:mt-8 md:gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="mt-6 grid gap-6 md:mt-8 md:gap-8">
           <main className="space-y-6 md:space-y-8">
             {portfolio.summary && (
               <section
@@ -358,17 +358,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
               </section>
             )}
 
-            {customSections.map((cs) => (
-              <section key={cs.id} className="rounded-[1.75rem] bg-white p-8 shadow-sm">
-                <SectionHeading>{cs.label}</SectionHeading>
-                <CustomSectionItems
-                  items={cs.items}
-                  titleClassName="font-medium text-slate-900"
-                  textClassName="text-sm text-slate-500"
-                  chipClassName="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-500"
-                />
-              </section>
-            ))}
           </main>
 
           <aside className="space-y-6 md:space-y-8">
@@ -521,6 +510,22 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
           </aside>
         </div>
+
+        {customSections.length > 0 && (
+          <div className="mt-6 grid gap-6 md:mt-8 md:gap-8 md:grid-cols-2">
+            {customSections.map((cs) => (
+              <section key={cs.id} className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+                <SectionHeading>{cs.label}</SectionHeading>
+                <CustomSectionItems
+                  items={cs.items}
+                  titleClassName="font-medium text-slate-900"
+                  textClassName="text-sm text-slate-500"
+                  chipClassName="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-500"
+                />
+              </section>
+            ))}
+          </div>
+        )}
 
         {contributionCalendar && (
           <section className="mt-6 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:mt-8 md:p-8">

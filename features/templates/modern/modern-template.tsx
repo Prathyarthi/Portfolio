@@ -148,7 +148,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
             </div>
           )}
 
-          <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="mt-8 grid gap-8 md:mt-10 md:gap-10">
             <main className="space-y-8 md:space-y-10">
               {portfolio.summary && (
                 <section
@@ -358,17 +358,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                 </section>
               )}
 
-              {customSections.map((cs) => (
-                <section key={cs.id} className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
-                  <SectionHeading>{cs.label}</SectionHeading>
-                  <CustomSectionItems
-                    items={cs.items}
-                    titleClassName="font-medium text-white"
-                    textClassName="text-sm text-zinc-400"
-                    chipClassName="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-zinc-400"
-                  />
-                </section>
-              ))}
             </main>
 
             <aside className="space-y-8 md:space-y-10">
@@ -521,6 +510,22 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
             </aside>
           </div>
+
+          {customSections.length > 0 && (
+            <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 md:grid-cols-2">
+              {customSections.map((cs) => (
+                <section key={cs.id} className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
+                  <SectionHeading>{cs.label}</SectionHeading>
+                  <CustomSectionItems
+                    items={cs.items}
+                    titleClassName="font-medium text-white"
+                    textClassName="text-sm text-zinc-400"
+                    chipClassName="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-zinc-400"
+                  />
+                </section>
+              ))}
+            </div>
+          )}
 
           {contributionCalendar && (
             <section className="mt-8 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:mt-10 md:p-8">
