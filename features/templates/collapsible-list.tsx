@@ -8,14 +8,14 @@ export function CollapsibleList({
   initial = 4,
   wrapperClassName,
   buttonClassName,
-  showLabel,
+  showLabel = "Show {n} more",
   hideLabel = "Show less",
 }: {
   children: ReactNode;
   initial?: number;
   wrapperClassName?: string;
   buttonClassName?: string;
-  showLabel?: (hidden: number) => string;
+  showLabel?: string;
   hideLabel?: string;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -33,11 +33,7 @@ export function CollapsibleList({
           onClick={() => setExpanded((v) => !v)}
           className={cn("inline-flex items-center justify-center", buttonClassName)}
         >
-          {expanded
-            ? hideLabel
-            : showLabel
-              ? showLabel(hidden)
-              : `Show ${hidden} more`}
+          {expanded ? hideLabel : showLabel.replace("{n}", String(hidden))}
         </button>
       )}
     </>

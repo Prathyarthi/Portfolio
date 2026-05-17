@@ -43,6 +43,7 @@ import {
   Layers,
 } from "lucide-react";
 import type { ParsedResume, ParsedCustomSection } from "@/lib/gemini";
+import { normalizeUrl } from "@/lib/url-utils";
 
 async function assertApiOk(res: Response, context: string) {
   if (res.ok) return;
@@ -124,7 +125,7 @@ export function ResumeUploader() {
         summary: parsedData.summary,
         contactEmail: parsedData.contact?.email ?? null,
         phone: parsedData.contact?.phone ?? null,
-        websiteUrl: parsedData.contact?.websiteUrl ?? null,
+        websiteUrl: normalizeUrl(parsedData.contact?.websiteUrl),
         location: parsedData.contact?.location ?? null,
       });
 
@@ -177,8 +178,8 @@ export function ResumeUploader() {
             title: project.title,
             description: project.description || "",
             techStack: project.techStack ?? [],
-            liveUrl: project.liveUrl ?? null,
-            sourceUrl: project.sourceUrl ?? null,
+            liveUrl: normalizeUrl(project.liveUrl),
+            sourceUrl: normalizeUrl(project.sourceUrl),
           }),
         });
         await assertApiOk(res, "Project");
@@ -189,7 +190,10 @@ export function ResumeUploader() {
         const res = await fetch("/api/portfolio/certification", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cert),
+          body: JSON.stringify({
+            ...cert,
+            url: normalizeUrl(cert.url),
+          }),
         });
         await assertApiOk(res, "Certification");
       }
@@ -203,7 +207,7 @@ export function ResumeUploader() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               platform: social.platform || "unknown",
-              url: social.url ?? social.username ?? "",
+              url: normalizeUrl(social.url ?? social.username ?? ""),
               username: social.username ?? null,
             }),
           });

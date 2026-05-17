@@ -165,7 +165,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-5"
-                  showLabel={(hidden) => `Show ${hidden} more`}
                   buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
                 >
                   {experiences.map((exp) => (
@@ -213,7 +212,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="grid gap-5 sm:grid-cols-2"
-                  showLabel={(hidden) => `Show ${hidden} more`}
                   buttonClassName="col-span-full mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
                 >
                   {visibleProjects.map((project) => (
@@ -307,7 +305,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
-                  showLabel={(hidden) => `Show ${hidden} more`}
                   buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
                 >
                   {articles.map((article) => (
@@ -392,7 +389,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
-                  showLabel={(hidden) => `Show ${hidden} more`}
                   buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
                 >
                   {educations.map((edu) => (
@@ -423,7 +419,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
-                  showLabel={(hidden) => `Show ${hidden} more`}
                   buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
                 >
                   {certifications.map((cert) => (
@@ -466,7 +461,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-3"
-                  showLabel={(hidden) => `Show ${hidden} more`}
                   buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
                 >
                   {achievements.map((ach) => (

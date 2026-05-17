@@ -52,7 +52,7 @@ const templates = [
     barClass: "bg-sky-400/80",
   },
   {
-    id: "kiranbusari",
+    id: "spotlight",
     name: "Spotlight",
     tagline: "Portfolio site",
     description:

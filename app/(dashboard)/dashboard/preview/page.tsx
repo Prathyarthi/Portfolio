@@ -2,19 +2,27 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Share2, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useCreatePortfolio, usePortfolio } from "@/features/portfolio/api/use-portfolio";
+import {
+  useCreatePortfolio,
+  usePortfolio,
+  usePublishPortfolio,
+  useUpdateTemplate,
+} from "@/features/portfolio/api/use-portfolio";
+import { ShareDialog } from "@/features/portfolio/components/share-dialog";
 import { getTemplate, templateRegistry } from "@/features/templates/registry";
 import { portfolioToTemplateData } from "@/features/templates/transform";
 
 export default function PreviewPage() {
   const { data: portfolio, isLoading } = usePortfolio();
   const createPortfolio = useCreatePortfolio();
+  const updateTemplate = useUpdateTemplate();
+  const publishPortfolio = usePublishPortfolio();
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
   const [allowedTemplateIds, setAllowedTemplateIds] = useState<string[] | null>(
     null
@@ -58,6 +66,26 @@ export default function PreviewPage() {
       toast.success("Portfolio created");
     } catch {
       toast.error("Failed to create portfolio");
+    }
+  };
+
+  const handleTemplateChange = async (next: string) => {
+    setPreviewTemplate(next);
+    if (next === portfolio?.templateId) return;
+    try {
+      await updateTemplate.mutateAsync(next);
+      toast.success("Template updated");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update template");
+    }
+  };
+
+  const handlePublishToggle = async (next: boolean) => {
+    try {
+      await publishPortfolio.mutateAsync(next);
+      toast.success(next ? "Portfolio published" : "Portfolio unpublished");
+    } catch {
+      toast.error("Failed to update publish status");
     }
   };
 
@@ -114,6 +142,9 @@ export default function PreviewPage() {
   const TemplateComponent = template.component;
   const data = portfolioToTemplateData(portfolio);
 
+  const isPublished = portfolio.isPublished ?? false;
+  const slug = portfolio.slug ?? "";
+
   return (
     <div className="space-y-4">
       <div className="glass-card flex flex-col gap-4 rounded-[2rem] border border-white/8 p-5 lg:flex-row lg:items-center lg:justify-between">
@@ -121,18 +152,47 @@ export default function PreviewPage() {
           <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">Preview</p>
           <h1 className="mt-2 text-3xl font-bold">Review your public page</h1>
         </div>
-        <Select value={templateId} onValueChange={setPreviewTemplate}>
-          <SelectTrigger className="w-48 rounded-full border-white/8 bg-white/4">
-            <SelectValue placeholder="Template" />
-          </SelectTrigger>
-          <SelectContent>
-            {templateOptions.map((t) => (
-              <SelectItem key={t.id} value={t.id}>
-                {t.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap items-center gap-3">
+          <Select value={templateId} onValueChange={handleTemplateChange}>
+            <SelectTrigger className="w-48 rounded-full border-white/8 bg-white/4">
+              <SelectValue placeholder="Template" />
+            </SelectTrigger>
+            <SelectContent>
+              {templateOptions.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  {t.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            type="button"
+            size="sm"
+            variant={isPublished ? "outline" : "default"}
+            onClick={() => handlePublishToggle(!isPublished)}
+            disabled={publishPortfolio.isPending}
+            className={
+              isPublished
+                ? "rounded-full border-white/8 bg-white/4 text-zinc-200"
+                : "rounded-full bg-emerald-500 text-white hover:bg-emerald-600"
+            }
+          >
+            {publishPortfolio.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Globe className="mr-2 h-4 w-4" />
+            )}
+            {isPublished ? "Unpublish" : "Publish"}
+          </Button>
+          {slug && (
+            <ShareDialog slug={slug} isPublished={isPublished}>
+              <Button variant="outline" size="sm" className="rounded-full border-white/8 bg-white/4">
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
+              </Button>
+            </ShareDialog>
+          )}
+        </div>
       </div>
       <div className="overflow-hidden rounded-[1.75rem] border border-white/8 bg-black/10 shadow-2xl">
         <TemplateComponent data={data} />

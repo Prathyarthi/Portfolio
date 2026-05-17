@@ -7,6 +7,7 @@ import { ExternalLink, Menu, X } from "lucide-react";
 import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { CollapsibleList } from "../collapsible-list";
+import { DescriptionBlock } from "../shared";
 
 const MADE_TOMMY_LINK_ID = "made-tommy-spotlight-font";
 
@@ -23,7 +24,7 @@ type Filter = (typeof FILTERS)[number] | "All";
  * Spotlight-inspired layout with sticky nav, hero, filter pills, project cards,
  * and a timeline section.
  * from the shipped bundle (sticky nav, hero, filter pills, project cards, timeline).
- * Content maps from portfolio fields; optional `customization.kiranProjectCategories`
+ * Content maps from portfolio fields; optional `customization.spotlightProjectCategories`
  * maps project id → string[] for filters; else `language` may be comma-separated tags.
  */
 export function SpotlightTemplate({ data }: { data: PortfolioData }) {
@@ -40,10 +41,10 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
       : {};
 
   const projectCategoryMap =
-    custom.kiranProjectCategories &&
-    typeof custom.kiranProjectCategories === "object" &&
-    !Array.isArray(custom.kiranProjectCategories)
-      ? (custom.kiranProjectCategories as Record<string, string[]>)
+    custom.spotlightProjectCategories &&
+    typeof custom.spotlightProjectCategories === "object" &&
+    !Array.isArray(custom.spotlightProjectCategories)
+      ? (custom.spotlightProjectCategories as Record<string, string[]>)
       : null;
 
   useEffect(() => {
@@ -266,7 +267,6 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                 key={filter}
                 initial={4}
                 wrapperClassName="mb-16 grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2"
-                showLabel={(hidden) => `Show ${hidden} more`}
                 buttonClassName="md:col-span-2 rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
               >
                 {filteredProjects.map((project) => (
@@ -287,7 +287,6 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
               <CollapsibleList
                 initial={4}
                 wrapperClassName="grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2"
-                showLabel={(hidden) => `Show ${hidden} more`}
                 buttonClassName="md:col-span-2 rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
               >
                 {articles.map((article) => (
@@ -345,7 +344,6 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                 <div className="absolute left-4 h-full w-0.5 bg-[hsl(45,100%,60%)] md:left-1/2" />
                 <CollapsibleList
                   initial={4}
-                  showLabel={(hidden) => `Show ${hidden} more`}
                   buttonClassName="mx-auto mt-4 block rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
                 >
                   {milestones.map((m, t) => (
@@ -452,9 +450,11 @@ function ProjectCard({ project }: { project: PortfolioData["projects"][number] }
           ) : null}
         </div>
 
-        <p className="text-sm leading-relaxed text-gray-600">
-          {project.description || "A private project with implementation details available on request."}
-        </p>
+        <DescriptionBlock
+          text={project.description || "A private project with implementation details available on request."}
+          paragraphClassName="text-sm leading-relaxed text-gray-600"
+          listClassName="space-y-2 pl-5 text-sm leading-relaxed text-gray-600 marker:text-gray-300"
+        />
 
         {project.techStack.length > 0 ? (
           <div className="flex flex-wrap gap-2">

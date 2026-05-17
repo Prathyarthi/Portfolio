@@ -38,8 +38,11 @@ export default async function PortfolioPage({ params }: Props) {
       educations: { orderBy: { sortOrder: "asc" } },
       skills: { orderBy: { sortOrder: "asc" } },
       projects: { orderBy: { sortOrder: "asc" } },
+      articles: { orderBy: { sortOrder: "asc" } },
       socialProfiles: true,
       certifications: { orderBy: { sortOrder: "asc" } },
+      achievements: { orderBy: { sortOrder: "asc" } },
+      customSections: { orderBy: { sortOrder: "asc" } },
     },
   });
 

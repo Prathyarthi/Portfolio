@@ -173,7 +173,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="grid gap-5"
-                    showLabel={(hidden) => `Show ${hidden} more`}
                     buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
                   >
                     {leadProjects.map((project) => (
@@ -263,7 +262,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-5"
-                    showLabel={(hidden) => `Show ${hidden} more`}
                     buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
                   >
                     {experiences.map((exp) => (
@@ -307,7 +305,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
-                    showLabel={(hidden) => `Show ${hidden} more`}
                     buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
                   >
                     {articles.map((article) => (
@@ -392,7 +389,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
-                    showLabel={(hidden) => `Show ${hidden} more`}
                     buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
                   >
                     {educations.map((edu) => (
@@ -423,7 +419,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
-                    showLabel={(hidden) => `Show ${hidden} more`}
                     buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
                   >
                     {certifications.map((cert) => (
@@ -466,7 +461,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-3"
-                    showLabel={(hidden) => `Show ${hidden} more`}
                     buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
                   >
                     {achievements.map((ach) => (

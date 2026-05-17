@@ -349,6 +349,7 @@ function buildPrompt(rawText: string): string {
 
 CRITICAL RULES:
 - Do NOT skip any information. Every piece of data in the resume must appear in your output.
+- PRESERVE BULLET POINTS: If the resume has bullet points in descriptions (for experiences, projects, etc.), either return them as an array of strings OR join them with newline characters (\\n). DO NOT merge them into one continuous paragraph.
 - For well-known sections, use the schemas below.
 - For ANY information that does NOT fit the well-known schemas, put it in "customSections". This includes: volunteer work, publications, languages, interests, hobbies, references, awards, honors, courses, trainings, or anything else NOT covered by the schemas. Do NOT use customSections for contact info or social profiles — those have their own fields.
 - DO NOT duplicate. If a piece of information fits a well-known schema field (e.g. a school percentage fits "gpa", a project description fits "projects[].description", an email fits "contact.email", a LinkedIn URL fits "socialProfiles"), put it there ONLY. Never repeat the same fact in customSections.
@@ -376,7 +377,7 @@ Schema:
     {
       "company": "Company Name (REQUIRED)",
       "role": "Job Title (REQUIRED)",
-      "description": "Description of responsibilities and achievements (or empty string)",
+      "description": "Description of responsibilities and achievements. If the resume has bullet points, join them with newlines (\\n) to preserve formatting. Can also be an array of strings (or empty string)",
       "startDate": "YYYY-MM-DD or null",
       "endDate": "YYYY-MM-DD or null if current position",
       "location": "City, State or null"
@@ -398,7 +399,7 @@ Schema:
   "projects": [
     {
       "title": "Project Name",
-      "description": "Project description",
+      "description": "Project description. If the resume has bullet points, join them with newlines (\\n) to preserve formatting. Can also be an array of strings",
       "techStack": ["Tech1", "Tech2"],
       "liveUrl": "URL or null",
       "sourceUrl": "URL or null"

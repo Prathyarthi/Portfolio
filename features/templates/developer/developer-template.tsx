@@ -13,6 +13,7 @@ import {
   buildTemplateSections,
   ContactChips,
   CustomSectionItems,
+  DescriptionBlock,
   HeroProfileButtons,
   TemplateNavbar,
 } from "@/features/templates/shared";
@@ -217,9 +218,11 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                         )}
                       </p>
                       {exp.description && (
-                        <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-                          {exp.description}
-                        </p>
+                        <DescriptionBlock
+                          text={exp.description}
+                          paragraphClassName="mt-3 text-sm text-gray-400 leading-relaxed"
+                          listClassName="mt-3 space-y-2 pl-5 text-sm text-gray-400 leading-relaxed marker:text-green-900"
+                        />
                       )}
                     </div>
                   </div>
@@ -297,7 +300,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
             <CollapsibleList
               initial={4}
               wrapperClassName="grid gap-5 md:grid-cols-2 md:gap-6"
-              showLabel={(hidden) => `cat ./more (${hidden})`}
+              showLabel="cat ./more ({n})"
               hideLabel="collapse"
               buttonClassName="md:col-span-2 mt-2 rounded border border-green-900/40 bg-gray-900/50 px-4 py-2 font-mono text-xs text-green-500 hover:border-green-700/60 hover:text-green-300 transition-colors"
             >
@@ -355,9 +358,11 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                     </div>
                   </div>
 
-                  <p className="mt-3 text-sm text-gray-400 leading-relaxed line-clamp-3">
-                    {project.description}
-                  </p>
+                  <DescriptionBlock
+                    text={project.description}
+                    paragraphClassName="mt-3 text-sm text-gray-400 leading-relaxed line-clamp-3"
+                    listClassName="mt-3 space-y-2 pl-5 text-sm text-gray-400 leading-relaxed marker:text-green-900"
+                  />
 
                   {project.techStack.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">

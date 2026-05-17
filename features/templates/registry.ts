@@ -3,7 +3,7 @@ import { ModernTemplate } from "./modern/modern-template";
 import DeveloperTemplate from "./developer/developer-template";
 import CreativeTemplate from "./creative/creative-template";
 import { CorporateTemplate } from "./corporate/corporate-template";
-import { SpotlightTemplate } from "./kiranbusari/kiranbusari-template";
+import { SpotlightTemplate } from "./spotlight/spotlight-template";
 import type { TemplateComponent } from "./types";
 
 export const templateRegistry: Record<string, TemplateComponent> = {
@@ -52,8 +52,8 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     category: "corporate",
     component: CorporateTemplate,
   },
-  kiranbusari: {
-    id: "kiranbusari",
+  spotlight: {
+    id: "spotlight",
     name: "Spotlight",
     description:
       "Mint canvas (#fbfffe), Made Tommy type, and yellow-accent interactions.",

@@ -23,10 +23,10 @@ export function getTemplateNavbarCustomization(
 ): TemplateNavbarCustomization {
   const navbar =
     customization &&
-    typeof customization === "object" &&
-    "navbar" in customization &&
-    customization.navbar &&
-    typeof customization.navbar === "object"
+      typeof customization === "object" &&
+      "navbar" in customization &&
+      customization.navbar &&
+      typeof customization.navbar === "object"
       ? (customization.navbar as TemplateNavbarCustomization)
       : {};
 
@@ -45,9 +45,9 @@ export function buildTemplateSections(data: PortfolioData) {
     data.socialProfiles.length > 0 ||
     Boolean(
       data.portfolio.contactEmail ||
-        data.portfolio.phone ||
-        data.portfolio.websiteUrl ||
-        data.portfolio.location
+      data.portfolio.phone ||
+      data.portfolio.websiteUrl ||
+      data.portfolio.location
     );
 
   const availableSections: TemplateSectionId[] = [
@@ -290,7 +290,6 @@ export function CustomSectionItems({
     <CollapsibleList
       initial={4}
       wrapperClassName="space-y-3"
-      showLabel={(hidden) => `Show ${hidden} more`}
       buttonClassName={
         buttonClassName ??
         "mt-2 text-xs uppercase tracking-[0.18em] text-current/70 hover:text-current"
@@ -392,9 +391,9 @@ export function ProfileLinksSection({
     profiles.length > 0 ||
     Boolean(
       portfolio.contactEmail ||
-        portfolio.phone ||
-        portfolio.websiteUrl ||
-        portfolio.location
+      portfolio.phone ||
+      portfolio.websiteUrl ||
+      portfolio.location
     );
 
   if (!hasProfiles) return null;
