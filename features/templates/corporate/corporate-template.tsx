@@ -25,6 +25,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     educations,
     skills,
     projects,
+    articles,
     socialProfiles,
     certifications,
     achievements,
@@ -161,7 +162,12 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
                 <SectionHeading>Experience</SectionHeading>
-                <div className="space-y-5">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-5"
+                  showLabel={(hidden) => `Show ${hidden} more`}
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {experiences.map((exp) => (
                     <article
                       key={exp.id}
@@ -194,7 +200,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       )}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
@@ -291,6 +297,78 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 </CollapsibleList>
               </section>
             )}
+
+            {articles.length > 0 && (
+              <section
+                id="writing"
+                className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
+              >
+                <SectionHeading>Writing</SectionHeading>
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-4"
+                  showLabel={(hidden) => `Show ${hidden} more`}
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
+                  {articles.map((article) => (
+                    <article
+                      key={article.id}
+                      className="rounded-[1.5rem] border border-slate-200 bg-slate-50/60 p-5"
+                    >
+                      <h3 className="text-base font-semibold text-slate-900">
+                        <a
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-colors hover:text-sky-700"
+                        >
+                          {article.title}
+                        </a>
+                      </h3>
+                      {article.description && (
+                        <p className="mt-2 text-sm leading-7 text-slate-600">{article.description}</p>
+                      )}
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        {article.publishedAt && (
+                          <span>
+                            {new Date(article.publishedAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </span>
+                        )}
+                        {article.readTime != null && <span>{article.readTime} min read</span>}
+                      </div>
+                      {article.tags.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {article.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="rounded-full bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </CollapsibleList>
+              </section>
+            )}
+
+            {customSections.map((cs) => (
+              <section key={cs.id} className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+                <SectionHeading>{cs.label}</SectionHeading>
+                <CustomSectionItems
+                  items={cs.items}
+                  titleClassName="font-medium text-slate-900"
+                  textClassName="text-sm text-slate-500"
+                  chipClassName="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-500"
+                />
+              </section>
+            ))}
           </main>
 
           <aside className="space-y-6 md:space-y-8">
@@ -322,7 +400,12 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             {educations.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Education</SectionHeading>
-                <div className="space-y-4">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-4"
+                  showLabel={(hidden) => `Show ${hidden} more`}
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {educations.map((edu) => (
                     <article
                       key={edu.id}
@@ -341,14 +424,19 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       {edu.gpa && <p className="mt-3 text-xs text-slate-500">GPA: {edu.gpa}</p>}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
             {certifications.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Certifications</SectionHeading>
-                <div className="space-y-4">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-4"
+                  showLabel={(hidden) => `Show ${hidden} more`}
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {certifications.map((cert) => (
                     <article
                       key={cert.id}
@@ -379,14 +467,19 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       )}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
             {achievements.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Achievements</SectionHeading>
-                <div className="space-y-3">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-3"
+                  showLabel={(hidden) => `Show ${hidden} more`}
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {achievements.map((ach) => (
                     <article
                       key={ach.id}
@@ -406,21 +499,9 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
-
-            {customSections.map((cs) => (
-              <section key={cs.id} className="rounded-[1.75rem] bg-white p-8 shadow-sm">
-                <SectionHeading>{cs.label}</SectionHeading>
-                <CustomSectionItems
-                  items={cs.items}
-                  titleClassName="font-medium text-slate-900"
-                  textClassName="text-sm text-slate-500"
-                  chipClassName="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-500"
-                />
-              </section>
-            ))}
 
             {hasProfiles && (
               <section

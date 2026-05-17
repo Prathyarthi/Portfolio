@@ -73,6 +73,7 @@ const portfolioInclude = {
   educations: { orderBy: { sortOrder: "asc" } },
   skills: { orderBy: { sortOrder: "asc" } },
   projects: { orderBy: { sortOrder: "asc" } },
+  articles: { orderBy: { sortOrder: "asc" } },
   socialProfiles: true,
   certifications: { orderBy: { sortOrder: "asc" } },
   achievements: { orderBy: { sortOrder: "asc" } },
@@ -402,9 +403,11 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       prisma.education.deleteMany({ where: { portfolioId: p.id } }),
       prisma.skill.deleteMany({ where: { portfolioId: p.id } }),
       prisma.project.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.article.deleteMany({ where: { portfolioId: p.id } }),
       prisma.certification.deleteMany({ where: { portfolioId: p.id } }),
       prisma.achievement.deleteMany({ where: { portfolioId: p.id } }),
       prisma.customSection.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.socialProfile.deleteMany({ where: { portfolioId: p.id } }),
     ]);
 
     return { success: true };

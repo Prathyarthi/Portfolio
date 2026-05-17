@@ -69,6 +69,19 @@ export function portfolioToTemplateData(portfolio: any): PortfolioData {
       githubForks: p.githubForks ?? null,
       language: p.language ?? null,
     })),
+    articles: (portfolio.articles ?? []).map((a: any) => ({
+      id: a.id,
+      title: a.title,
+      description: a.description,
+      url: a.url,
+      tags: a.tags ?? [],
+      publishedAt: a.publishedAt
+        ? typeof a.publishedAt === "string"
+          ? a.publishedAt
+          : new Date(a.publishedAt).toISOString()
+        : null,
+      readTime: a.readTime ?? null,
+    })),
     socialProfiles: (portfolio.socialProfiles ?? []).map((s: any) => ({
       platform: s.platform,
       url: s.url,

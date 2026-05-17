@@ -27,7 +27,7 @@ type Filter = (typeof FILTERS)[number] | "All";
  * maps project id → string[] for filters; else `language` may be comma-separated tags.
  */
 export function SpotlightTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, projects, socialProfiles, certifications, achievements } = data;
+  const { portfolio, projects, articles, socialProfiles, certifications, achievements } = data;
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("All");
   const [logoFailed, setLogoFailed] = useState(false);
@@ -276,6 +276,62 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
             </section>
           )}
 
+          {articles.length > 0 && (
+            <section className="container mx-auto mb-16 px-0" id="writing">
+              <div className="mb-12">
+                <h2 className="text-5xl font-medium tracking-wide">
+                  Writing
+                  <span className="text-[hsl(45,100%,60%)]">.</span>
+                </h2>
+              </div>
+              <CollapsibleList
+                initial={4}
+                wrapperClassName="grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2"
+                showLabel={(hidden) => `Show ${hidden} more`}
+                buttonClassName="md:col-span-2 rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
+              >
+                {articles.map((article) => (
+                  <a
+                    key={article.id}
+                    href={article.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded-lg border border-gray-200 bg-white p-6 transition-colors hover:border-[hsl(45,100%,60%)]"
+                  >
+                    <h3 className="text-xl font-bold text-gray-950">{article.title}</h3>
+                    {article.description && (
+                      <p className="mt-2 text-sm text-gray-500">{article.description}</p>
+                    )}
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                      {article.publishedAt && (
+                        <span>
+                          {new Date(article.publishedAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </span>
+                      )}
+                      {article.readTime != null && <span>{article.readTime} min read</span>}
+                    </div>
+                    {article.tags.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {article.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full bg-[hsl(45,100%,60%)]/20 px-2.5 py-1 text-xs capitalize text-gray-950"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </a>
+                ))}
+              </CollapsibleList>
+            </section>
+          )}
+
           {milestones.length > 0 && (
             <section className="min-h-auto w-full pb-24 pt-28 text-gray-950" id="achievements">
               <div className="mb-12">
@@ -287,33 +343,39 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
               <div className="relative">
                 <div className="absolute left-4 h-full w-0.5 bg-[hsl(45,100%,60%)] md:left-1/2" />
-                {milestones.map((m, t) => (
-                  <motion.div
-                    key={m.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: t * 0.1 }}
-                    className={cn(
-                      "relative mb-12 flex flex-col gap-8 md:flex-row",
-                      t % 2 === 0 ? "md:flex-row-reverse" : ""
-                    )}
-                  >
-                    <div className="absolute left-4 mt-1.5 h-4 w-4 -translate-x-2 rounded-full bg-[hsl(45,100%,60%)] md:left-1/2" />
-                    <div className="ml-12 p-4 md:ml-0 md:w-1/2">
-                      <div className="rounded-lg border border-[hsl(45,100%,60%)] bg-[#fbfffe] p-6 shadow-lg">
-                        <span className="font-bold text-[hsl(45,100%,60%)]">{m.year}</span>
-                        <h3 className="mt-2 text-xl font-bold text-gray-950">{m.title}</h3>
-                        {m.body ? (
-                          <p className="mt-2 text-gray-500">{m.body}</p>
-                        ) : null}
-                        <span className="mt-3 inline-block rounded-full bg-[hsl(45,100%,60%)]/20 px-3 py-1 text-sm capitalize text-gray-950">
-                          {m.kind}
-                        </span>
+                <CollapsibleList
+                  initial={4}
+                  showLabel={(hidden) => `Show ${hidden} more`}
+                  buttonClassName="mx-auto mt-4 block rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
+                >
+                  {milestones.map((m, t) => (
+                    <motion.div
+                      key={m.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: t * 0.1 }}
+                      className={cn(
+                        "relative mb-12 flex flex-col gap-8 md:flex-row",
+                        t % 2 === 0 ? "md:flex-row-reverse" : ""
+                      )}
+                    >
+                      <div className="absolute left-4 mt-1.5 h-4 w-4 -translate-x-2 rounded-full bg-[hsl(45,100%,60%)] md:left-1/2" />
+                      <div className="ml-12 p-4 md:ml-0 md:w-1/2">
+                        <div className="rounded-lg border border-[hsl(45,100%,60%)] bg-[#fbfffe] p-6 shadow-lg">
+                          <span className="font-bold text-[hsl(45,100%,60%)]">{m.year}</span>
+                          <h3 className="mt-2 text-xl font-bold text-gray-950">{m.title}</h3>
+                          {m.body ? (
+                            <p className="mt-2 text-gray-500">{m.body}</p>
+                          ) : null}
+                          <span className="mt-3 inline-block rounded-full bg-[hsl(45,100%,60%)]/20 px-3 py-1 text-sm capitalize text-gray-950">
+                            {m.kind}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))}
+                </CollapsibleList>
               </div>
             </section>
           )}

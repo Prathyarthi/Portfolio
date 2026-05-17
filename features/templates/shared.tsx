@@ -7,6 +7,7 @@ import type {
   TemplateSectionId,
 } from "./types";
 import { getPlatformIcon } from "./utils";
+import { CollapsibleList } from "./collapsible-list";
 
 const TEMPLATE_SECTION_LABELS: Record<TemplateSectionId, string> = {
   about: "About",
@@ -275,16 +276,26 @@ export function CustomSectionItems({
   titleClassName,
   textClassName,
   chipClassName,
+  buttonClassName,
 }: {
   items: Record<string, unknown>[];
   titleClassName?: string;
   textClassName?: string;
   chipClassName?: string;
+  buttonClassName?: string;
 }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="space-y-3">
+    <CollapsibleList
+      initial={4}
+      wrapperClassName="space-y-3"
+      showLabel={(hidden) => `Show ${hidden} more`}
+      buttonClassName={
+        buttonClassName ??
+        "mt-2 text-xs uppercase tracking-[0.18em] text-current/70 hover:text-current"
+      }
+    >
       {items.map((item, i) => {
         const title = item.title ?? item.name ?? item.label;
         const description = item.description ?? item.details ?? item.summary;
@@ -331,7 +342,7 @@ export function CustomSectionItems({
           </div>
         );
       })}
-    </div>
+    </CollapsibleList>
   );
 }
 

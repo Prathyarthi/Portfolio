@@ -19,7 +19,7 @@ import { formatDate, formatDateRange, groupSkillsByCategory } from "@/features/t
 import { Trophy } from "lucide-react";
 
 export default function CreativeTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections } =
+  const { portfolio, experiences, educations, skills, projects, articles, socialProfiles, certifications, achievements, customSections } =
     data;
   const skillsByCategory = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -240,7 +240,12 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
                 >
                   <SectionHeading accent="amber">Experience</SectionHeading>
-                  <div className="space-y-5">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-5"
+                    showLabel={(hidden) => `Show ${hidden} more`}
+                    buttonClassName="mt-2 rounded-full border border-rose-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.22em] text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
+                  >
                     {experiences.map((exp) => (
                       <article
                         key={exp.id}
@@ -269,9 +274,81 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         )}
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
+
+              {articles.length > 0 && (
+                <section
+                  id="writing"
+                  className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
+                >
+                  <SectionHeading accent="fuchsia">Writing</SectionHeading>
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-4"
+                    showLabel={(hidden) => `Show ${hidden} more`}
+                    buttonClassName="mt-2 rounded-full border border-rose-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.22em] text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
+                  >
+                    {articles.map((article) => (
+                      <article
+                        key={article.id}
+                        className="rounded-[1.55rem] border border-rose-100/80 bg-[#fffaf7] p-5"
+                      >
+                        <h3 className="text-lg font-semibold text-stone-950">
+                          <a
+                            href={article.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition-colors hover:text-rose-500"
+                          >
+                            {article.title}
+                          </a>
+                        </h3>
+                        {article.description && (
+                          <p className="mt-2 text-sm leading-7 text-stone-600">{article.description}</p>
+                        )}
+                        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-stone-500">
+                          {article.publishedAt && (
+                            <span>
+                              {new Date(article.publishedAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </span>
+                          )}
+                          {article.readTime != null && <span>{article.readTime} min read</span>}
+                        </div>
+                        {article.tags.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {article.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="rounded-full border border-rose-100 bg-white px-3 py-1 text-xs text-stone-500"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </article>
+                    ))}
+                  </CollapsibleList>
+                </section>
+              )}
+
+              {customSections.map((cs) => (
+                <section key={cs.id} className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
+                  <SectionHeading accent="fuchsia">{cs.label}</SectionHeading>
+                  <CustomSectionItems
+                    items={cs.items}
+                    titleClassName="font-medium text-stone-900"
+                    textClassName="text-sm text-stone-500"
+                    chipClassName="rounded-full border border-rose-100 bg-rose-50/80 px-2.5 py-1 text-xs text-stone-500"
+                  />
+                </section>
+              ))}
             </main>
 
             <aside className="space-y-8">
@@ -303,7 +380,12 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
               {educations.length > 0 && (
                 <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
                   <SectionHeading accent="rose">Education</SectionHeading>
-                  <div className="space-y-4">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-4"
+                    showLabel={(hidden) => `Show ${hidden} more`}
+                    buttonClassName="mt-2 rounded-full border border-rose-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.22em] text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
+                  >
                     {educations.map((edu) => (
                       <article
                         key={edu.id}
@@ -322,14 +404,19 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         {edu.gpa && <p className="mt-3 text-xs text-stone-500">GPA: {edu.gpa}</p>}
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
 
               {certifications.length > 0 && (
                 <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
                   <SectionHeading accent="orange">Certifications</SectionHeading>
-                  <div className="space-y-4">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-4"
+                    showLabel={(hidden) => `Show ${hidden} more`}
+                    buttonClassName="mt-2 rounded-full border border-rose-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.22em] text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
+                  >
                     {certifications.map((cert) => (
                       <article
                         key={cert.id}
@@ -357,26 +444,19 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         )}
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
-
-              {customSections.map((cs) => (
-                <section key={cs.id} className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
-                  <SectionHeading accent="fuchsia">{cs.label}</SectionHeading>
-                  <CustomSectionItems
-                    items={cs.items}
-                    titleClassName="font-medium text-stone-900"
-                    textClassName="text-sm text-stone-500"
-                    chipClassName="rounded-full border border-rose-100 bg-rose-50/80 px-2.5 py-1 text-xs text-stone-500"
-                  />
-                </section>
-              ))}
 
               {achievements.length > 0 && (
                 <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
                   <SectionHeading accent="amber">Achievements</SectionHeading>
-                  <div className="space-y-3">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-3"
+                    showLabel={(hidden) => `Show ${hidden} more`}
+                    buttonClassName="mt-2 rounded-full border border-rose-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.22em] text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
+                  >
                     {achievements.map((ach) => (
                       <article
                         key={ach.id}
@@ -396,7 +476,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         </div>
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
 

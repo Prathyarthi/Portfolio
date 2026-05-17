@@ -61,6 +61,15 @@ export interface PortfolioData {
     githubForks: number | null;
     language: string | null;
   }>;
+  articles: Array<{
+    id: string;
+    title: string;
+    description: string;
+    url: string;
+    tags: string[];
+    publishedAt: string | null;
+    readTime: number | null;
+  }>;
   socialProfiles: Array<{
     platform: string;
     url: string;

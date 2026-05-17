@@ -122,6 +122,10 @@ export function ResumeUploader() {
         title: parsedData.name,
         headline: parsedData.headline,
         summary: parsedData.summary,
+        contactEmail: parsedData.contact?.email ?? null,
+        phone: parsedData.contact?.phone ?? null,
+        websiteUrl: parsedData.contact?.websiteUrl ?? null,
+        location: parsedData.contact?.location ?? null,
       });
 
       if (clearBeforeImport) {
@@ -188,6 +192,23 @@ export function ResumeUploader() {
           body: JSON.stringify(cert),
         });
         await assertApiOk(res, "Certification");
+      }
+
+      // Import social profiles
+      if (parsedData.socialProfiles && parsedData.socialProfiles.length > 0) {
+        for (const social of parsedData.socialProfiles) {
+          if (!social.url && !social.username) continue;
+          const res = await fetch("/api/portfolio/social", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              platform: social.platform || "unknown",
+              url: social.url ?? social.username ?? "",
+              username: social.username ?? null,
+            }),
+          });
+          await assertApiOk(res, "Social profile");
+        }
       }
 
       // Import achievements
