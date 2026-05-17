@@ -64,6 +64,7 @@ model Portfolio {
   educations     Education[]
   skills         Skill[]
   projects       Project[]
+  articles       Article[]
   socialProfiles SocialProfile[]
   certifications Certification[]
   achievements   Achievement[]
@@ -139,6 +140,22 @@ model Project {
   portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 
   @@map("projects")
+}
+
+model Article {
+  id          String    @id @default(uuid())
+  portfolioId String
+  title       String
+  description String    @db.Text
+  url         String
+  tags        String[]
+  publishedAt DateTime?
+  readTime    Int?
+  sortOrder   Int       @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("articles")
 }
 
 model SocialProfile {
