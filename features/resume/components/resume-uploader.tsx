@@ -564,9 +564,20 @@ export function ResumeUploader() {
                 <CardContent className="space-y-3">
                   {section.items.map((item, ii) => {
                     const title = item.title ?? item.name ?? item.label;
-                    const desc = item.description ?? item.details;
+                    const desc = item.description ?? item.details ?? item.summary;
+                    const knownKeys = new Set([
+                      "title",
+                      "name",
+                      "label",
+                      "description",
+                      "details",
+                      "summary",
+                    ]);
+                    const otherEntries = Object.entries(item).filter(
+                      ([k, v]) => !knownKeys.has(k) && v != null && v !== ""
+                    );
                     return (
-                      <div key={ii} className="border-b last:border-0 pb-3 last:pb-0">
+                      <div key={ii} className="border-b last:border-0 pb-3 last:pb-0 space-y-1">
                         {title != null && (
                           <p className="font-medium text-sm">{String(title)}</p>
                         )}
@@ -574,6 +585,19 @@ export function ResumeUploader() {
                           <p className="text-sm text-muted-foreground">
                             {String(desc)}
                           </p>
+                        )}
+                        {otherEntries.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-0.5">
+                            {otherEntries.map(([k, v]) => (
+                              <span
+                                key={k}
+                                className="text-xs bg-muted px-2 py-0.5 rounded"
+                              >
+                                <span className="text-muted-foreground">{k}:</span>{" "}
+                                {String(v)}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
                     );

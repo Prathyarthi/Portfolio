@@ -305,6 +305,7 @@ CRITICAL RULES:
 - Do NOT skip any information. Every piece of data in the resume must appear in your output.
 - For well-known sections, use the schemas below.
 - For ANY information that does NOT fit the well-known schemas, put it in "customSections". This includes: contact info, social profiles, links, volunteer work, publications, languages, interests, hobbies, references, awards, honors, courses, trainings, or anything else.
+- DO NOT duplicate. If a piece of information fits a well-known schema field (e.g. a school percentage fits "gpa", a project description fits "projects[].description"), put it there ONLY. Never repeat the same fact in customSections.
 - Extract dates if available. For month/year only (e.g. "Jan 2023"), use "2023-01-01". If no date, use null.
 - Do NOT invent data. If a field isn't in the resume, use null (or "" for required strings like headline/summary, or skip the entry if a REQUIRED field is missing). Never guess company names, dates, GPAs, or any other facts.
 - Return ONLY valid JSON, no markdown, no code fences.
