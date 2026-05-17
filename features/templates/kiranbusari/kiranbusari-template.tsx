@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { ExternalLink, Menu, X } from "lucide-react";
 import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
+import { CollapsibleList } from "../collapsible-list";
 
 const MADE_TOMMY_LINK_ID = "made-tommy-spotlight-font";
 
@@ -261,11 +262,17 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                 ))}
               </div>
 
-              <div className="mb-16 grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2">
+              <CollapsibleList
+                key={filter}
+                initial={4}
+                wrapperClassName="mb-16 grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2"
+                showLabel={(hidden) => `Show ${hidden} more`}
+                buttonClassName="md:col-span-2 rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
+              >
                 {filteredProjects.map((project) => (
                   <ProjectCard key={project.id} project={project} />
                 ))}
-              </div>
+              </CollapsibleList>
             </section>
           )}
 

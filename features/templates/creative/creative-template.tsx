@@ -13,6 +13,7 @@ import {
   SocialPills,
   TemplateNavbar,
 } from "@/features/templates/shared";
+import { CollapsibleList } from "@/features/templates/collapsible-list";
 import type { PortfolioData } from "@/features/templates/types";
 import { formatDate, formatDateRange, groupSkillsByCategory } from "@/features/templates/utils";
 import { Trophy } from "lucide-react";
@@ -29,7 +30,10 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
     githubStats?.contributionCalendar
   );
   const featuredProjects = projects.filter((project) => project.featured);
-  const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects;
+  const visibleProjects =
+    featuredProjects.length > 0
+      ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
+      : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
   const quickFacts = [
     { label: "Projects", value: visibleProjects.length },
@@ -145,7 +149,12 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
                 >
                   <SectionHeading accent="orange">Selected Work</SectionHeading>
-                  <div className="grid gap-5">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="grid gap-5"
+                    showLabel={(hidden) => `Show ${hidden} more`}
+                    buttonClassName="mt-2 rounded-full border border-rose-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.22em] text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
+                  >
                     {visibleProjects.map((project, index) => (
                       <article
                         key={project.id}
@@ -221,7 +230,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         </div>
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
 

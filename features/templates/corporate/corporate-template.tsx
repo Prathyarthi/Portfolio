@@ -15,6 +15,7 @@ import {
   SocialPills,
   TemplateNavbar,
 } from "../shared";
+import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 
 export function CorporateTemplate({ data }: { data: PortfolioData }) {
@@ -38,7 +39,10 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     githubStats?.contributionCalendar
   );
   const featuredProjects = projects.filter((project) => project.featured);
-  const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 4);
+  const visibleProjects =
+    featuredProjects.length > 0
+      ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
+      : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
   const quickFacts = [
     { label: "Projects", value: visibleProjects.length },
@@ -200,7 +204,12 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
                 <SectionHeading>Work</SectionHeading>
-                <div className="grid gap-5 sm:grid-cols-2">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="grid gap-5 sm:grid-cols-2"
+                  showLabel={(hidden) => `Show ${hidden} more`}
+                  buttonClassName="col-span-full mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {visibleProjects.map((project) => (
                     <article
                       key={project.id}
@@ -279,7 +288,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
           </main>

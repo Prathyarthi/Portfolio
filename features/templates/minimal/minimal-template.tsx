@@ -15,6 +15,7 @@ import {
   SocialPills,
   TemplateNavbar,
 } from "../shared";
+import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 
 export function MinimalTemplate({ data }: { data: PortfolioData }) {
@@ -38,7 +39,10 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
     githubStats?.contributionCalendar
   );
   const featuredProjects = projects.filter((project) => project.featured);
-  const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects;
+  const visibleProjects =
+    featuredProjects.length > 0
+      ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
+      : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
   const quickFacts = [
     { label: "Projects", value: visibleProjects.length },
@@ -165,7 +169,12 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                 className="scroll-mt-24 rounded-[1.9rem] border border-white/80 bg-white/72 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
               >
                 <SectionHeading>Work</SectionHeading>
-                <div className="grid gap-5">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="grid gap-5"
+                  showLabel={(hidden) => `Show ${hidden} more`}
+                  buttonClassName="mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
+                >
                   {visibleProjects.map((project) => (
                     <article
                       key={project.id}
@@ -239,7 +248,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 

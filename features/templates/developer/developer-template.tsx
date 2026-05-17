@@ -16,6 +16,7 @@ import {
   HeroProfileButtons,
   TemplateNavbar,
 } from "@/features/templates/shared";
+import { CollapsibleList } from "@/features/templates/collapsible-list";
 
 export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections } =
@@ -293,7 +294,13 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
             <p className="mb-8 text-sm text-gray-600">
               guest@portfolio:~$ ls -la ~/projects/
             </p>
-            <div className="grid gap-5 md:grid-cols-2 md:gap-6">
+            <CollapsibleList
+              initial={4}
+              wrapperClassName="grid gap-5 md:grid-cols-2 md:gap-6"
+              showLabel={(hidden) => `cat ./more (${hidden})`}
+              hideLabel="collapse"
+              buttonClassName="md:col-span-2 mt-2 rounded border border-green-900/40 bg-gray-900/50 px-4 py-2 font-mono text-xs text-green-500 hover:border-green-700/60 hover:text-green-300 transition-colors"
+            >
               {projects.map((project) => (
                 <div
                   key={project.id}
@@ -389,7 +396,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                   </div>
                 </div>
               ))}
-            </div>
+            </CollapsibleList>
           </div>
         </section>
       )}
