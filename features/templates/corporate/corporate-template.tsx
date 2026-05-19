@@ -17,6 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
+import { getPreviewImage } from "@/lib/link-preview-code";
 
 export function CorporateTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -219,12 +220,23 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       key={project.id}
                       className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
                     >
-                      {project.imageUrl && (
-                        <img
-                          src={project.imageUrl}
-                          alt={project.title}
-                          className="h-44 w-full object-cover"
-                        />
+                      {project.liveUrl ? (
+                        <div className="relative h-auto w-full overflow-hidden bg-stone-100">
+                          <img
+                            src={getPreviewImage(project.liveUrl)}
+                            alt={project.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                            onError={(e) => {
+                              e.currentTarget.src =
+                                'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-3/5 w-full bg-white/4.5 flex items-center justify-center">
+                          <span className="text-sm text-stone-900 border-slate-200 bg-slate-50 tracking-widest uppercase">no preview</span>
+                        </div>
                       )}
                       <div className="p-5">
                         <div className="flex items-start justify-between gap-3">
