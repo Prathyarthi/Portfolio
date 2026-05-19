@@ -17,6 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
+import { getPreviewImage } from "@/lib/link-preview-code";
 
 export function MinimalTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -53,7 +54,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.14),transparent_34%),linear-gradient(180deg,#f8f7f4_0%,#efede6_100%)] text-stone-800">
-      <div className="mx-auto max-w-6xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
+      <div className="mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
         <header className="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl md:p-10">
           <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-stone-300/70 to-transparent" />
           <div className="grid gap-8 md:gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
@@ -174,17 +175,29 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                   wrapperClassName="grid gap-5"
                   buttonClassName="mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
                 >
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 object-cover">
                   {visibleProjects.map((project) => (
                     <article
                       key={project.id}
                       className="overflow-hidden rounded-[1.6rem] border border-stone-200/80 bg-[#fffdf9] shadow-[0_14px_40px_rgba(28,25,23,0.05)] transition-transform duration-300 hover:-translate-y-1"
                     >
-                      {project.imageUrl && (
-                        <img
-                          src={project.imageUrl}
-                          alt={project.title}
-                          className="h-52 w-full object-cover"
-                        />
+                      {project.liveUrl ? (
+                        <div className="relative h-auto w-full overflow-hidden bg-stone-100">
+                          <img
+                            src={getPreviewImage(project.liveUrl)}
+                            alt={project.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                            onError={(e) => {
+                              e.currentTarget.src =
+                                'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-3/5 w-full bg-stone-100 flex items-center justify-center">
+                          <span className="text-sm text-stone-400 tracking-widest uppercase">no preview</span>
+                        </div>
                       )}
                       <div className="p-6">
                         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -247,6 +260,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     </article>
                   ))}
+                  </div>
                 </CollapsibleList>
               </section>
             )}
