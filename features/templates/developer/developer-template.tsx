@@ -19,6 +19,8 @@ import {
 } from "@/features/templates/shared";
 import { CollapsibleList } from "@/features/templates/collapsible-list";
 
+import { getPreviewImage } from "@/lib/link-preview-code";
+
 export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections } =
     data;
@@ -293,7 +295,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Projects */}
       {projects.length > 0 && (
         <section id="work" className="scroll-mt-24 border-b border-green-900/30">
-          <div className="mx-auto max-w-5xl px-6 py-16">
+          <div className="mx-auto max-w-7xl px-6 py-16">
             <p className="mb-8 text-sm text-gray-600">
               guest@portfolio:~$ ls -la ~/projects/
             </p>
@@ -309,7 +311,16 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                   key={project.id}
                   className="group rounded-lg border border-green-900/40 bg-gray-900/50 p-5 hover:border-green-700/60 hover:bg-gray-900/80 transition-all duration-300"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <img
+                  src={project.liveUrl ? getPreviewImage(project.liveUrl) : 'https://placehold.co/1440x900/111827/374151?text=No+Preview'}
+                  alt={`${project.title} preview`}
+                  loading="lazy"
+                  className="h-auto w-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://placehold.co/1440x900/111827/374151?text=No+Preview';
+                  }}
+                />
+                  <div className="flex items-start pt-2 justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-base font-semibold text-green-300 group-hover:text-green-200 transition-colors truncate">
