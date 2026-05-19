@@ -17,6 +17,7 @@ import { CollapsibleList } from "@/features/templates/collapsible-list";
 import type { PortfolioData } from "@/features/templates/types";
 import { formatDate, formatDateRange, groupSkillsByCategory } from "@/features/templates/utils";
 import { Trophy } from "lucide-react";
+import { getPreviewImage } from "@/lib/link-preview-code";
 
 export default function CreativeTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, experiences, educations, skills, projects, articles, socialProfiles, certifications, achievements, customSections } =
@@ -154,19 +155,29 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                     wrapperClassName="grid gap-5"
                     buttonClassName="mt-2 rounded-full border border-rose-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.22em] text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
                   >
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 object-cover">
                     {visibleProjects.map((project, index) => (
                       <article
                         key={project.id}
                         className="overflow-hidden rounded-[1.6rem] border border-rose-100/80 bg-[#fffaf7] shadow-[0_14px_40px_rgba(190,24,93,0.05)]"
                       >
-                        {project.imageUrl && (
-                          <img
-                            src={project.imageUrl}
-                            alt={project.title}
-                            className={`w-full object-cover ${
-                              index % 3 === 0 ? "h-72" : "h-56"
-                            }`}
-                          />
+                        {project.liveUrl ? (
+                          <div className="relative h-auto w-full overflow-hidden bg-stone-100">
+                            <img
+                              src={getPreviewImage(project.liveUrl)}
+                              alt={project.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-3/5 w-full bg-white/4.5 flex items-center justify-center">
+                            <span className="text-sm border-rose-100/80 bg-[#fffaf7] tracking-widest uppercase">no preview</span>
+                          </div>
                         )}
                         <div className="p-6">
                           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -229,6 +240,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         </div>
                       </article>
                     ))}
+                    </div>
                   </CollapsibleList>
                 </section>
               )}
