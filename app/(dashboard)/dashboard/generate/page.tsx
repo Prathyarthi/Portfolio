@@ -1,0 +1,342 @@
+"use client";
+
+import { useCallback, useRef, useState } from "react";
+import { Loader2, Sparkles, RefreshCw, FileText, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { GeneratedUI } from "getsyntux/client";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { PortfolioData } from "@/features/templates/types";
+import type { ParsedResume } from "@/lib/gemini";
+
+const EXAMPLE_PROMPTS = [
+  "Full-stack engineer with 5 years experience in React and Node.js, worked at startups building SaaS products, passionate about developer tooling",
+  "UX designer specializing in mobile apps, worked at Google and two fintech startups, focus on accessibility and design systems",
+  "Data scientist at a healthcare company, expertise in Python and ML, published researcher, recently completed Stanford ML certification",
+];
+
+function parsedResumeToPortfolioData(r: ParsedResume): PortfolioData {
+  return {
+    portfolio: {
+      title: r.name,
+      headline: r.headline,
+      summary: r.summary,
+      avatarUrl: null,
+      contactEmail: r.contact?.email ?? null,
+      phone: r.contact?.phone ?? null,
+      location: r.contact?.location ?? null,
+      websiteUrl: r.contact?.websiteUrl ?? null,
+      customization: {},
+    },
+    experiences: r.experiences.map((e, i) => ({
+      id: `exp_${i}`,
+      company: e.company,
+      role: e.role,
+      description: e.description,
+      startDate: e.startDate,
+      endDate: e.endDate,
+      location: e.location ?? null,
+    })),
+    educations: r.education.map((e, i) => ({
+      id: `edu_${i}`,
+      institution: e.institution,
+      degree: e.degree,
+      field: e.field ?? null,
+      startDate: e.startDate,
+      endDate: e.endDate,
+      gpa: e.gpa ?? null,
+    })),
+    skills: r.skills.map((s, i) => ({
+      id: `skill_${i}`,
+      name: s.name,
+      category: s.category,
+      level: null,
+    })),
+    projects: r.projects.map((p, i) => ({
+      id: `proj_${i}`,
+      title: p.title,
+      description: p.description,
+      imageUrl: null,
+      liveUrl: p.liveUrl ?? null,
+      sourceUrl: p.sourceUrl ?? null,
+      techStack: p.techStack,
+      featured: i === 0,
+      githubStars: null,
+      githubForks: null,
+      language: null,
+    })),
+    articles: [],
+    socialProfiles: (r.socialProfiles ?? [])
+      .filter((s) => s.url)
+      .map((s) => ({
+        platform: s.platform,
+        url: s.url!,
+        username: s.username ?? null,
+        cachedStats: null,
+      })),
+    certifications: r.certifications.map((c, i) => ({
+      id: `cert_${i}`,
+      name: c.name,
+      issuer: c.issuer,
+      issueDate: c.issueDate ?? null,
+      url: c.url ?? null,
+    })),
+    achievements: r.achievements.map((a, i) => ({
+      id: `ach_${i}`,
+      title: a,
+      date: null,
+    })),
+    customSections: (r.customSections ?? []).map((s, i) => ({
+      id: `cs_${i}`,
+      sectionType: s.sectionType,
+      label: s.label,
+      items: s.items,
+    })),
+  };
+}
+
+function PromptTab({
+  onData,
+}: {
+  onData: (data: PortfolioData) => void;
+}) {
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      toast.error("Describe yourself first");
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      const res = await fetch("/api/generate-portfolio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const json = (await res.json()) as { data?: PortfolioData; error?: string };
+      if (!res.ok || json.error) throw new Error(json.error ?? "Generation failed");
+      onData(json.data!);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Generation failed");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <Textarea
+        placeholder="Describe yourself — your role, experience, technologies you use, notable projects..."
+        className="min-h-[120px] resize-none rounded-2xl border-white/10 bg-white/4 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-white/20"
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        disabled={isGenerating}
+      />
+
+      <div className="flex flex-wrap gap-2">
+        {EXAMPLE_PROMPTS.map((p, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setPrompt(p)}
+            className="rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-200"
+          >
+            Example {i + 1}
+          </button>
+        ))}
+      </div>
+
+      <Button
+        onClick={handleGenerate}
+        disabled={isGenerating || !prompt.trim()}
+        className="gap-2"
+      >
+        {isGenerating ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Generating...
+          </>
+        ) : (
+          <>
+            <Sparkles className="h-4 w-4" />
+            Generate Portfolio
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
+function ResumeTab({ onData }: { onData: (data: PortfolioData) => void }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isParsing, setIsParsing] = useState(false);
+
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (file.type !== "application/pdf") {
+        toast.error("Please upload a PDF file");
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("File size must be less than 10MB");
+        return;
+      }
+
+      setIsParsing(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/resume/parse", {
+          method: "POST",
+          body: formData,
+        });
+        const json = (await res.json()) as { data?: ParsedResume; error?: string; details?: string };
+        if (!res.ok) throw new Error(json.details ?? json.error ?? "Parse failed");
+        onData(parsedResumeToPortfolioData(json.data!));
+        toast.success("Resume parsed — preview ready");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Failed to parse resume");
+      } finally {
+        setIsParsing(false);
+      }
+    },
+    [onData]
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    },
+    [handleFile]
+  );
+
+  return (
+    <div className="space-y-4">
+      <div
+        onDrop={handleDrop}
+        onDragOver={(e) => e.preventDefault()}
+        onClick={() => !isParsing && fileInputRef.current?.click()}
+        className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/10 p-12 transition-colors hover:border-white/20"
+      >
+        {isParsing ? (
+          <>
+            <Loader2 className="h-10 w-10 animate-spin text-zinc-500" />
+            <p className="text-sm text-zinc-400">Parsing your resume with AI...</p>
+          </>
+        ) : (
+          <>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/4">
+              <FileText className="h-6 w-6 text-zinc-400" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-zinc-200">
+                Drop your resume here or click to upload
+              </p>
+              <p className="mt-1 text-xs text-zinc-500">PDF only · up to 10MB</p>
+            </div>
+            <Button variant="outline" size="sm" className="gap-2 pointer-events-none">
+              <Upload className="h-3.5 w-3.5" />
+              Choose PDF
+            </Button>
+          </>
+        )}
+      </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+          e.target.value = "";
+        }}
+      />
+    </div>
+  );
+}
+
+export default function GeneratePage() {
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
+  const [activeTab, setActiveTab] = useState("describe");
+
+  return (
+    <div className="space-y-8 pb-10">
+      <div className="glass-card rounded-[2rem] border border-white/8 p-6">
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
+          AI Generator
+        </p>
+        <h1 className="mt-3 text-3xl font-bold">Generate your portfolio</h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground">
+          Describe yourself or upload your resume — AI builds the portfolio JSON,
+          Syntux renders it as a live UI.
+        </p>
+      </div>
+
+      <div className="glass-card rounded-[2rem] border border-white/8 p-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6 rounded-xl bg-white/4">
+            <TabsTrigger value="describe" className="rounded-lg data-[state=active]:bg-white/10">
+              <Sparkles className="mr-2 h-3.5 w-3.5" />
+              Describe yourself
+            </TabsTrigger>
+            <TabsTrigger value="resume" className="rounded-lg data-[state=active]:bg-white/10">
+              <FileText className="mr-2 h-3.5 w-3.5" />
+              Upload resume
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="describe">
+            <PromptTab onData={(data) => { setPortfolioData(data); }} />
+          </TabsContent>
+
+          <TabsContent value="resume">
+            <ResumeTab onData={(data) => { setPortfolioData(data); }} />
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {portfolioData && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
+                Preview
+              </p>
+              <p className="mt-1 text-sm text-zinc-400">
+                Live UI rendered by Syntux from the generated JSON
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setPortfolioData(null)}
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Reset
+            </Button>
+          </div>
+
+          <div className="glass-card overflow-hidden rounded-[2rem] border border-white/8 p-6">
+            <GeneratedUI
+              endpoint="/api/syntux"
+              value={portfolioData}
+              hint="Display this portfolio data as a beautiful, modern portfolio preview. Show the person's name and headline prominently, then sections for experience, education, skills (as badges), and projects (as cards). Use a clean professional layout."
+              placeholder={
+                <div className="flex h-64 items-center justify-center">
+                  <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                </div>
+              }
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
