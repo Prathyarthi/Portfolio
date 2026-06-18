@@ -114,5 +114,8 @@ export function portfolioToTemplateData(portfolio: any): PortfolioData {
       label: cs.label,
       items: Array.isArray(cs.items) ? cs.items : [],
     })),
+    livePreviewProjectIds: Array.isArray(portfolio.livePreviewProjectIds)
+      ? portfolio.livePreviewProjectIds
+      : [],
   };
 }
