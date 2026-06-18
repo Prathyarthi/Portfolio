@@ -45,6 +45,29 @@ export function useUpdatePortfolio() {
   });
 }
 
+export function useUpdateLivePreview() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (projectIds: string[]) => {
+      const res = await fetch("/api/portfolio/live-preview", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectIds }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          typeof data.error === "string"
+            ? data.error
+            : "Failed to update live preview preferences"
+        );
+      }
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
 /** Deletes experiences, education, skills, projects, certifications, and achievements for the current portfolio. */
 export function useClearImportableContent() {
   const qc = useQueryClient();
