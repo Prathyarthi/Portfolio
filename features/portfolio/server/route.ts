@@ -7,6 +7,10 @@ import {
   getPlanLimitMessage,
   resolveAccessForUser,
 } from "@/lib/entitlements";
+import {
+  getMaxLivePreviews,
+  sanitizeLivePreviewProjectIds,
+} from "@/lib/live-preview";
 
 function toDateOrThrow(value: string) {
   const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -73,9 +77,11 @@ const portfolioInclude = {
   educations: { orderBy: { sortOrder: "asc" } },
   skills: { orderBy: { sortOrder: "asc" } },
   projects: { orderBy: { sortOrder: "asc" } },
+  articles: { orderBy: { sortOrder: "asc" } },
   socialProfiles: true,
   certifications: { orderBy: { sortOrder: "asc" } },
   achievements: { orderBy: { sortOrder: "asc" } },
+  customSections: { orderBy: { sortOrder: "asc" } },
 } as const;
 
 export const portfolio = new Elysia({ prefix: "/portfolio" })
@@ -89,15 +95,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
 
     const existing = await prisma.portfolio.findUnique({
       where: { userId: session.userId },
-      include: {
-        experiences: { orderBy: { sortOrder: "asc" } },
-        educations: { orderBy: { sortOrder: "asc" } },
-        skills: { orderBy: { sortOrder: "asc" } },
-        projects: { orderBy: { sortOrder: "asc" } },
-        socialProfiles: true,
-        certifications: { orderBy: { sortOrder: "asc" } },
-        achievements: { orderBy: { sortOrder: "asc" } },
-      },
+      include: portfolioInclude,
     });
 
     if (!existing) {
@@ -409,8 +407,15 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       prisma.education.deleteMany({ where: { portfolioId: p.id } }),
       prisma.skill.deleteMany({ where: { portfolioId: p.id } }),
       prisma.project.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.article.deleteMany({ where: { portfolioId: p.id } }),
       prisma.certification.deleteMany({ where: { portfolioId: p.id } }),
       prisma.achievement.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.customSection.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.socialProfile.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.portfolio.update({
+        where: { id: p.id },
+        data: { livePreviewProjectIds: [] },
+      }),
     ]);
 
     return { success: true };
@@ -1039,4 +1044,147 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     }
     await prisma.achievement.delete({ where: { id: ctx.params.id } });
     return { success: true };
-  });
+  })
+
+  // === CUSTOM SECTIONS CRUD ===
+  .post(
+    "/custom-section",
+    async (ctx) => {
+      const session = await getSession(ctx.request);
+      if (!session) {
+        ctx.set.status = 401;
+        return { error: "Unauthorized" };
+      }
+      const p = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+      });
+      if (!p) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
+      }
+
+      const count = await prisma.customSection.count({
+        where: { portfolioId: p.id },
+      });
+
+      return prisma.customSection.upsert({
+        where: {
+          portfolioId_sectionType: {
+            portfolioId: p.id,
+            sectionType: ctx.body.sectionType,
+          },
+        },
+        update: {
+          label: ctx.body.label,
+          items: (ctx.body.items ?? []) as any,
+        },
+        create: {
+          portfolioId: p.id,
+          sectionType: ctx.body.sectionType,
+          label: ctx.body.label,
+          items: (ctx.body.items ?? []) as any,
+          sortOrder: count,
+        },
+      });
+    },
+    {
+      body: t.Object({
+        sectionType: t.String(),
+        label: t.String(),
+        items: t.Optional(t.Array(t.Record(t.String(), t.Unknown()))),
+      }),
+    },
+  )
+  .patch(
+    "/custom-section/:id",
+    async (ctx) => {
+      const session = await getSession(ctx.request);
+      if (!session) {
+        ctx.set.status = 401;
+        return { error: "Unauthorized" };
+      }
+      const { items, ...rest } = ctx.body;
+      return prisma.customSection.update({
+        where: { id: ctx.params.id },
+        data: {
+          ...rest,
+          ...(items !== undefined ? { items: items as any } : {}),
+        },
+      });
+    },
+    {
+      body: t.Partial(
+        t.Object({
+          label: t.String(),
+          items: t.Array(t.Record(t.String(), t.Unknown())),
+          sortOrder: t.Number(),
+        }),
+      ),
+    },
+  )
+  .delete("/custom-section/:id", async (ctx) => {
+    const session = await getSession(ctx.request);
+    if (!session) {
+      ctx.set.status = 401;
+      return { error: "Unauthorized" };
+    }
+    await prisma.customSection.delete({ where: { id: ctx.params.id } });
+    return { success: true };
+  })
+  .patch(
+    "/live-preview",
+    async (ctx) => {
+      const session = await getSession(ctx.request);
+      if (!session) {
+        ctx.set.status = 401;
+        return { error: "Unauthorized" };
+      }
+
+      const portfolio = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+        include: {
+          projects: {
+            select: { id: true, liveUrl: true },
+            orderBy: { sortOrder: "asc" },
+          },
+        },
+      });
+      if (!portfolio) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { subscriptionStatus: true },
+      });
+      if (!user) {
+        ctx.set.status = 404;
+        return { error: "User not found" };
+      }
+
+      const maxAllowed = getMaxLivePreviews(user.subscriptionStatus);
+      const requestedIds = Array.isArray(ctx.body.projectIds)
+        ? ctx.body.projectIds.filter((id): id is string => typeof id === "string")
+        : [];
+
+      const livePreviewProjectIds = sanitizeLivePreviewProjectIds(
+        requestedIds,
+        portfolio.projects,
+        maxAllowed
+      );
+
+      const updated = await prisma.portfolio.update({
+        where: { id: portfolio.id },
+        data: { livePreviewProjectIds },
+        include: portfolioInclude,
+      });
+
+      return updated;
+    },
+    {
+      body: t.Object({
+        projectIds: t.Array(t.String()),
+      }),
+    },
+  );

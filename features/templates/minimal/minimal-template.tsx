@@ -7,6 +7,7 @@ import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
   ProfileLinksSection,
@@ -14,7 +15,11 @@ import {
   SocialPills,
   TemplateNavbar,
 } from "../shared";
+import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
+// import { getPreviewImage } from "@/lib/link-preview-code";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function MinimalTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -23,9 +28,12 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
     educations,
     skills,
     projects,
+    articles,
     socialProfiles,
     certifications,
     achievements,
+    customSections,
+    livePreviewProjectIds,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -36,7 +44,10 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
     githubStats?.contributionCalendar
   );
   const featuredProjects = projects.filter((project) => project.featured);
-  const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects;
+  const visibleProjects =
+    featuredProjects.length > 0
+      ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
+      : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
   const quickFacts = [
     { label: "Projects", value: visibleProjects.length },
@@ -46,7 +57,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.14),transparent_34%),linear-gradient(180deg,#f8f7f4_0%,#efede6_100%)] text-stone-800">
-      <div className="mx-auto max-w-6xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
+      <div className="mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
         <header className="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl md:p-10">
           <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-stone-300/70 to-transparent" />
           <div className="grid gap-8 md:gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
@@ -98,35 +109,34 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                   />
                 </div>
               )}
-              <div className="rounded-[1.6rem] border border-stone-200/80 bg-stone-50/85 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-[0.24em] text-stone-400">
-                    Focus
-                  </p>
-                  <span className="rounded-full border border-stone-200 bg-white/80 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-stone-500">
-                    Refined
-                  </span>
+              {(portfolio.summary || quickFacts.length > 0) && (
+                <div className="rounded-[1.6rem] border border-stone-200/80 bg-stone-50/85 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+                  {portfolio.summary && (
+                    <p className="text-sm leading-relaxed text-stone-600">
+                      {portfolio.summary}
+                    </p>
+                  )}
+                  {quickFacts.length > 0 && (
+                    <div
+                      className={`grid grid-cols-3 gap-3 ${
+                        portfolio.summary ? "mt-5" : ""
+                      }`}
+                    >
+                      {quickFacts.map((fact) => (
+                        <div
+                          key={fact.label}
+                          className="rounded-[1.1rem] border border-stone-200/80 bg-white/90 px-3 py-3"
+                        >
+                          <p className="text-lg font-semibold text-stone-900">{fact.value}</p>
+                          <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-stone-400">
+                            {fact.label}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-stone-600">
-                  A quieter portfolio system with cleaner contrast, sharper spacing,
-                  and more intentional emphasis on the work itself.
-                </p>
-                {quickFacts.length > 0 && (
-                  <div className="mt-5 grid grid-cols-3 gap-3">
-                    {quickFacts.map((fact) => (
-                      <div
-                        key={fact.label}
-                        className="rounded-[1.1rem] border border-stone-200/80 bg-white/90 px-3 py-3"
-                      >
-                        <p className="text-lg font-semibold text-stone-900">{fact.value}</p>
-                        <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-stone-400">
-                          {fact.label}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </header>
@@ -141,7 +151,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="mt-8 grid gap-8 md:mt-10 md:gap-10">
           <main className="space-y-8 md:space-y-10">
             {portfolio.summary && (
               <section
@@ -163,18 +173,45 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                 className="scroll-mt-24 rounded-[1.9rem] border border-white/80 bg-white/72 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
               >
                 <SectionHeading>Work</SectionHeading>
-                <div className="grid gap-5">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="grid gap-5"
+                  buttonClassName="mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
+                >
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2 object-cover">
                   {visibleProjects.map((project) => (
                     <article
                       key={project.id}
                       className="overflow-hidden rounded-[1.6rem] border border-stone-200/80 bg-[#fffdf9] shadow-[0_14px_40px_rgba(28,25,23,0.05)] transition-transform duration-300 hover:-translate-y-1"
                     >
-                      {project.imageUrl && (
-                        <img
-                          src={project.imageUrl}
-                          alt={project.title}
-                          className="h-52 w-full object-cover"
-                        />
+                      {project.liveUrl ? (
+                        <div className="relative h-auto w-full overflow-hidden bg-stone-100">
+                          {/* <img
+                            src={getPreviewImage(project.liveUrl)}
+                            alt={project.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                            onError={(e) => {
+                              e.currentTarget.src =
+                                'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
+                            }}
+                          /> */}
+                          <LivePreviewImage
+                            liveUrl={project.liveUrl}
+                            enabled={isLivePreviewEnabledForProject(
+                              project.id,
+                              livePreviewProjectIds
+                            )}
+                            alt={project.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                            fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-3/5 w-full bg-stone-100 flex items-center justify-center">
+                          <span className="text-sm text-stone-400 tracking-widest uppercase">no preview</span>
+                        </div>
                       )}
                       <div className="p-6">
                         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -237,7 +274,8 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     </article>
                   ))}
-                </div>
+                  </div>
+                </CollapsibleList>
               </section>
             )}
 
@@ -247,7 +285,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                 className="scroll-mt-24 rounded-[1.9rem] border border-white/80 bg-white/72 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
               >
                 <SectionHeading>Experience</SectionHeading>
-                <div className="space-y-6">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-6"
+                  buttonClassName="mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
+                >
                   {experiences.map((exp) => (
                     <article
                       key={exp.id}
@@ -278,9 +320,69 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                       )}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
+
+            {articles.length > 0 && (
+              <section
+                id="writing"
+                className="scroll-mt-24 rounded-[1.9rem] border border-white/80 bg-white/72 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
+              >
+                <SectionHeading>Writing</SectionHeading>
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-4"
+                  buttonClassName="mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
+                >
+                  {articles.map((article) => (
+                    <article
+                      key={article.id}
+                      className="rounded-[1.6rem] border border-stone-200/80 bg-[#fffdf9] p-5 shadow-[0_10px_30px_rgba(28,25,23,0.04)]"
+                    >
+                      <h3 className="font-serif text-lg font-semibold text-stone-900">
+                        <a
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-colors hover:text-stone-600"
+                        >
+                          {article.title}
+                        </a>
+                      </h3>
+                      {article.description && (
+                        <p className="mt-2 text-sm leading-7 text-stone-600">{article.description}</p>
+                      )}
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-stone-500">
+                        {article.publishedAt && (
+                          <span>
+                            {new Date(article.publishedAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </span>
+                        )}
+                        {article.readTime != null && <span>{article.readTime} min read</span>}
+                      </div>
+                      {article.tags.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {article.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-500"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </CollapsibleList>
+              </section>
+            )}
+
           </main>
 
           <aside className="space-y-8 md:space-y-10">
@@ -312,7 +414,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             {educations.length > 0 && (
               <section className="rounded-[1.9rem] border border-white/80 bg-white/72 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
                 <SectionHeading>Education</SectionHeading>
-                <div className="space-y-5">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-5"
+                  buttonClassName="mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
+                >
                   {educations.map((edu) => (
                     <article
                       key={edu.id}
@@ -331,14 +437,18 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                       {edu.gpa && <p className="mt-3 text-xs text-stone-500">GPA: {edu.gpa}</p>}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
             {certifications.length > 0 && (
               <section className="rounded-[1.9rem] border border-white/80 bg-white/72 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
                 <SectionHeading>Certifications</SectionHeading>
-                <div className="space-y-4">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-4"
+                  buttonClassName="mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
+                >
                   {certifications.map((cert) => (
                     <article
                       key={cert.id}
@@ -369,14 +479,18 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                       )}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
             {achievements.length > 0 && (
               <section className="rounded-[1.9rem] border border-white/80 bg-white/72 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
                 <SectionHeading>Achievements</SectionHeading>
-                <div className="space-y-3">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-3"
+                  buttonClassName="mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
+                >
                   {achievements.map((ach) => (
                     <article
                       key={ach.id}
@@ -396,7 +510,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
@@ -418,6 +532,22 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             )}
           </aside>
         </div>
+
+        {customSections.length > 0 && (
+          <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 md:grid-cols-2">
+            {customSections.map((cs) => (
+              <section key={cs.id} className="rounded-[1.75rem] border border-stone-200/80 bg-white/70 p-8">
+                <SectionHeading>{cs.label}</SectionHeading>
+                <CustomSectionItems
+                  items={cs.items}
+                  titleClassName="font-medium text-stone-900"
+                  textClassName="text-sm text-stone-500"
+                  chipClassName="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-xs text-stone-500"
+                />
+              </section>
+            ))}
+          </div>
+        )}
 
         {contributionCalendar && (
           <section className="mt-8 rounded-[1.9rem] border border-white/80 bg-white/72 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:mt-10 md:p-8">

@@ -1,6 +1,7 @@
 import Elysia from "elysia";
 import { getSession } from "@/lib/session";
-import { parseResume } from "@/lib/gemini";
+import { extractTextFromPdf } from "@/lib/pdf-extract";
+import { structureResumeWithAi } from "@/lib/gemini";
 import { prisma } from "@/lib/prisma";
 import { getPlanLimitMessage, resolveAccessForUser } from "@/lib/entitlements";
 
@@ -52,7 +53,16 @@ export const resume = new Elysia({ prefix: "/resume" })
     try {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      const parsed = await parseResume(buffer);
+
+      const rawText = await extractTextFromPdf(buffer);
+
+      if (!rawText.trim()) {
+        ctx.set.status = 400;
+        return { error: "Could not extract text from PDF. The file may be image-based or empty." };
+      }
+
+      const parsed = await structureResumeWithAi(rawText);
+
       return { success: true, data: parsed };
     } catch (error: any) {
       ctx.set.status = 500;

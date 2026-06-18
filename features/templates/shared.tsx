@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Layers } from "lucide-react";
 import type {
   PortfolioCustomization,
   PortfolioData,
@@ -6,6 +7,7 @@ import type {
   TemplateSectionId,
 } from "./types";
 import { getPlatformIcon } from "./utils";
+import { CollapsibleList } from "./collapsible-list";
 
 const TEMPLATE_SECTION_LABELS: Record<TemplateSectionId, string> = {
   about: "About",
@@ -21,10 +23,10 @@ export function getTemplateNavbarCustomization(
 ): TemplateNavbarCustomization {
   const navbar =
     customization &&
-    typeof customization === "object" &&
-    "navbar" in customization &&
-    customization.navbar &&
-    typeof customization.navbar === "object"
+      typeof customization === "object" &&
+      "navbar" in customization &&
+      customization.navbar &&
+      typeof customization.navbar === "object"
       ? (customization.navbar as TemplateNavbarCustomization)
       : {};
 
@@ -43,9 +45,9 @@ export function buildTemplateSections(data: PortfolioData) {
     data.socialProfiles.length > 0 ||
     Boolean(
       data.portfolio.contactEmail ||
-        data.portfolio.phone ||
-        data.portfolio.websiteUrl ||
-        data.portfolio.location
+      data.portfolio.phone ||
+      data.portfolio.websiteUrl ||
+      data.portfolio.location
     );
 
   const availableSections: TemplateSectionId[] = [
@@ -255,6 +257,94 @@ export function ProjectActions({
   );
 }
 
+/** Renders a single custom section's items generically. */
+function CustomSectionItemValue({ value }: { value: unknown }) {
+  if (value == null || value === "") return null;
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return <>{String(value)}</>;
+  }
+  if (Array.isArray(value)) {
+    return <>{value.map(String).join(", ")}</>;
+  }
+  return <>{JSON.stringify(value)}</>;
+}
+
+const HIDDEN_ITEM_KEYS = new Set(["id", "sortOrder"]);
+
+export function CustomSectionItems({
+  items,
+  titleClassName,
+  textClassName,
+  chipClassName,
+  buttonClassName,
+}: {
+  items: Record<string, unknown>[];
+  titleClassName?: string;
+  textClassName?: string;
+  chipClassName?: string;
+  buttonClassName?: string;
+}) {
+  if (items.length === 0) return null;
+
+  return (
+    <CollapsibleList
+      initial={4}
+      wrapperClassName="space-y-3"
+      buttonClassName={
+        buttonClassName ??
+        "mt-2 text-xs uppercase tracking-[0.18em] text-current/70 hover:text-current"
+      }
+    >
+      {items.map((item, i) => {
+        const title = item.title ?? item.name ?? item.label;
+        const description = item.description ?? item.details ?? item.summary;
+        const date = item.date ?? item.startDate ?? item.year;
+        const url = item.url ?? item.link;
+        const otherKeys = Object.keys(item).filter(
+          (k) =>
+            !HIDDEN_ITEM_KEYS.has(k) &&
+            !["title", "name", "label", "description", "details", "summary", "date", "startDate", "year", "url", "link"].includes(k)
+        );
+
+        return (
+          <div key={i} className="space-y-1">
+            {title != null && (
+              <p className={titleClassName}>
+                {url ? (
+                  <a href={String(url)} target="_blank" rel="noopener noreferrer" className="underline decoration-dotted hover:decoration-solid">
+                    <CustomSectionItemValue value={title} />
+                  </a>
+                ) : (
+                  <CustomSectionItemValue value={title} />
+                )}
+                {date != null && (
+                  <span className={textClassName}> ({String(date)})</span>
+                )}
+              </p>
+            )}
+            {description != null && String(description).trim() !== "" && (
+              <p className={textClassName}><CustomSectionItemValue value={description} /></p>
+            )}
+            {otherKeys.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {otherKeys.map((k) => {
+                  const v = item[k];
+                  if (v == null || v === "") return null;
+                  return (
+                    <span key={k} className={chipClassName}>
+                      {k}: <CustomSectionItemValue value={v} />
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </CollapsibleList>
+  );
+}
+
 export function StatStrip({
   items,
   className,
@@ -301,9 +391,9 @@ export function ProfileLinksSection({
     profiles.length > 0 ||
     Boolean(
       portfolio.contactEmail ||
-        portfolio.phone ||
-        portfolio.websiteUrl ||
-        portfolio.location
+      portfolio.phone ||
+      portfolio.websiteUrl ||
+      portfolio.location
     );
 
   if (!hasProfiles) return null;

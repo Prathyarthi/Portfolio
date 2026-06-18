@@ -320,20 +320,29 @@ export const profile = new Elysia({ prefix: "/profile" })
         return { error: "Portfolio not found" };
       }
 
-      const existingCount = await prisma.project.count({
+      const existingCount = await prisma.article.count({
         where: { portfolioId: portfolio.id },
       });
 
-      const projects = ctx.body.articles.map((article, index) => ({
-        portfolioId: portfolio.id,
-        title: article.title,
-        description: article.description || "",
-        liveUrl: article.url,
-        techStack: article.tags,
-        sortOrder: existingCount + index,
-      }));
+      const articles = ctx.body.articles.map((article, index) => {
+        let publishedAt: Date | null = null;
+        if (article.publishedAt) {
+          const parsed = new Date(article.publishedAt);
+          if (!Number.isNaN(parsed.getTime())) publishedAt = parsed;
+        }
+        return {
+          portfolioId: portfolio.id,
+          title: article.title,
+          description: article.description || "",
+          url: article.url,
+          tags: article.tags,
+          publishedAt,
+          readTime: article.readTime ?? null,
+          sortOrder: existingCount + index,
+        };
+      });
 
-      const result = await prisma.project.createMany({ data: projects });
+      const result = await prisma.article.createMany({ data: articles });
 
       if (ctx.body.username) {
         await prisma.socialProfile.upsert({

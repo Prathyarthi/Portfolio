@@ -7,6 +7,7 @@ import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
   ProfileLinksSection,
@@ -14,8 +15,11 @@ import {
   SocialPills,
   TemplateNavbar,
 } from "../shared";
+import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { log } from "node:console";
+// import { getPreviewImage } from "@/lib/link-preview-code";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function ModernTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -24,9 +28,12 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
     educations,
     skills,
     projects,
+    articles,
     socialProfiles,
     certifications,
     achievements,
+    customSections,
+    livePreviewProjectIds,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -37,7 +44,10 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
     githubStats?.contributionCalendar
   );
   const featuredProjects = projects.filter((project) => project.featured);
-  const leadProjects = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 4);
+  const leadProjects =
+    featuredProjects.length > 0
+      ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
+      : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
   const quickFacts = [
     { label: "Projects", value: leadProjects.length },
@@ -142,7 +152,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
             </div>
           )}
 
-          <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="mt-8 grid gap-8 md:mt-10 md:gap-10">
             <main className="space-y-8 md:space-y-10">
               {portfolio.summary && (
                 <section
@@ -164,18 +174,45 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
                 >
                   <SectionHeading>Selected Projects</SectionHeading>
-                  <div className="grid gap-5">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="grid gap-5"
+                    buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
+                  >
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 object-cover">
                     {leadProjects.map((project) => (
                       <article
                         key={project.id}
                         className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-black/20 shadow-[0_16px_50px_rgba(2,6,23,0.36)] transition-transform duration-300 hover:-translate-y-1"
                       >
-                        {project.imageUrl && (
-                          <img
-                            src={project.imageUrl}
-                            alt={project.title}
-                            className="h-52 w-full object-cover"
-                          />
+                        {project.liveUrl ? (
+                          <div className="relative h-auto w-full overflow-hidden bg-stone-100">
+                            {/* <img
+                              src={getPreviewImage(project.liveUrl)}
+                              alt={project.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
+                              }}
+                            /> */}
+                            <LivePreviewImage
+                              liveUrl={project.liveUrl}
+                              enabled={isLivePreviewEnabledForProject(
+                                project.id,
+                                livePreviewProjectIds
+                              )}
+                              alt={project.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                              fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-3/5 w-full bg-white/4.5 flex items-center justify-center">
+                            <span className="text-sm text-stone-100 tracking-widest uppercase">no preview</span>
+                          </div>
                         )}
 
                         <div className="p-5 md:p-6">
@@ -239,7 +276,8 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                         </div>
                       </article>
                     ))}
-                  </div>
+                    </div>
+                  </CollapsibleList>
                 </section>
               )}
 
@@ -249,7 +287,11 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
                 >
                   <SectionHeading>Experience</SectionHeading>
-                  <div className="space-y-5">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-5"
+                    buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
+                  >
                     {experiences.map((exp) => (
                       <article
                         key={exp.id}
@@ -278,9 +320,69 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                         )}
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
+
+              {articles.length > 0 && (
+                <section
+                  id="writing"
+                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
+                >
+                  <SectionHeading>Writing</SectionHeading>
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-4"
+                    buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
+                  >
+                    {articles.map((article) => (
+                      <article
+                        key={article.id}
+                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 shadow-[0_12px_36px_rgba(2,6,23,0.28)]"
+                      >
+                        <h3 className="text-lg font-semibold text-white">
+                          <a
+                            href={article.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition-colors hover:text-cyan-300"
+                          >
+                            {article.title}
+                          </a>
+                        </h3>
+                        {article.description && (
+                          <p className="mt-2 text-sm leading-7 text-zinc-300">{article.description}</p>
+                        )}
+                        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+                          {article.publishedAt && (
+                            <span>
+                              {new Date(article.publishedAt).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </span>
+                          )}
+                          {article.readTime != null && <span>{article.readTime} min read</span>}
+                        </div>
+                        {article.tags.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {article.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-zinc-400"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </article>
+                    ))}
+                  </CollapsibleList>
+                </section>
+              )}
+
             </main>
 
             <aside className="space-y-8 md:space-y-10">
@@ -312,7 +414,11 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {educations.length > 0 && (
                 <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
                   <SectionHeading>Education</SectionHeading>
-                  <div className="space-y-4">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-4"
+                    buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
+                  >
                     {educations.map((edu) => (
                       <article
                         key={edu.id}
@@ -331,14 +437,18 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                         {edu.gpa && <p className="mt-3 text-xs text-zinc-400">GPA: {edu.gpa}</p>}
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
 
               {certifications.length > 0 && (
                 <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
                   <SectionHeading>Certifications</SectionHeading>
-                  <div className="space-y-4">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-4"
+                    buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
+                  >
                     {certifications.map((cert) => (
                       <article
                         key={cert.id}
@@ -369,14 +479,18 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                         )}
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
 
               {achievements.length > 0 && (
                 <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
                   <SectionHeading>Achievements</SectionHeading>
-                  <div className="space-y-3">
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-3"
+                    buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
+                  >
                     {achievements.map((ach) => (
                       <article
                         key={ach.id}
@@ -396,7 +510,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                         </div>
                       </article>
                     ))}
-                  </div>
+                  </CollapsibleList>
                 </section>
               )}
 
@@ -418,6 +532,22 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
             </aside>
           </div>
+
+          {customSections.length > 0 && (
+            <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 md:grid-cols-2">
+              {customSections.map((cs) => (
+                <section key={cs.id} className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
+                  <SectionHeading>{cs.label}</SectionHeading>
+                  <CustomSectionItems
+                    items={cs.items}
+                    titleClassName="font-medium text-white"
+                    textClassName="text-sm text-zinc-400"
+                    chipClassName="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-zinc-400"
+                  />
+                </section>
+              ))}
+            </div>
+          )}
 
           {contributionCalendar && (
             <section className="mt-8 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:mt-10 md:p-8">

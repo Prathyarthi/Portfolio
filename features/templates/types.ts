@@ -61,6 +61,15 @@ export interface PortfolioData {
     githubForks: number | null;
     language: string | null;
   }>;
+  articles: Array<{
+    id: string;
+    title: string;
+    description: string;
+    url: string;
+    tags: string[];
+    publishedAt: string | null;
+    readTime: number | null;
+  }>;
   socialProfiles: Array<{
     platform: string;
     url: string;
@@ -79,6 +88,14 @@ export interface PortfolioData {
     title: string;
     date: string | null;
   }>;
+  customSections: Array<{
+    id: string;
+    sectionType: string;
+    label: string;
+    items: Record<string, unknown>[];
+  }>;
+  /** Project IDs stored in DB for Microlink live previews. */
+  livePreviewProjectIds: string[];
 }
 
 export interface TemplateComponent {

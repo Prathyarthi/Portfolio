@@ -56,6 +56,9 @@ model Portfolio {
 
   customization Json @default("{}")
 
+  /// Project IDs selected for Microlink live previews (compact; resolve liveUrl at render time).
+  livePreviewProjectIds String[] @default([])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -64,9 +67,11 @@ model Portfolio {
   educations     Education[]
   skills         Skill[]
   projects       Project[]
+  articles       Article[]
   socialProfiles SocialProfile[]
   certifications Certification[]
   achievements   Achievement[]
+  customSections CustomSection[]
 
   @@index([slug])
   @@map("portfolios")
@@ -140,6 +145,22 @@ model Project {
   @@map("projects")
 }
 
+model Article {
+  id          String    @id @default(uuid())
+  portfolioId String
+  title       String
+  description String    @db.Text
+  url         String
+  tags        String[]
+  publishedAt DateTime?
+  readTime    Int?
+  sortOrder   Int       @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("articles")
+}
+
 model SocialProfile {
   id          String @id @default(uuid())
   portfolioId String
@@ -181,6 +202,20 @@ model Achievement {
   portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 
   @@map("achievements")
+}
+
+model CustomSection {
+  id          String @id @default(uuid())
+  portfolioId String
+  sectionType String
+  label       String
+  items       Json   @default("[]")
+  sortOrder   Int    @default(0)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, sectionType])
+  @@map("custom_sections")
 }
 
 // ============================================================

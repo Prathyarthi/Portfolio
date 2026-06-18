@@ -7,6 +7,7 @@ import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
   ProfileLinksSection,
@@ -14,7 +15,11 @@ import {
   SocialPills,
   TemplateNavbar,
 } from "../shared";
+import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { GenerativeProjectCover } from "./generativeprojectcover";
 
 export function CorporateTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -23,9 +28,12 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     educations,
     skills,
     projects,
+    articles,
     socialProfiles,
     certifications,
     achievements,
+    customSections,
+    livePreviewProjectIds,
   } = data;
   const skillsByCategory = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -36,7 +44,10 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     githubStats?.contributionCalendar
   );
   const featuredProjects = projects.filter((project) => project.featured);
-  const visibleProjects = featuredProjects.length > 0 ? featuredProjects : projects.slice(0, 4);
+  const visibleProjects =
+    featuredProjects.length > 0
+      ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
+      : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
   const quickFacts = [
     { label: "Projects", value: visibleProjects.length },
@@ -133,7 +144,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <div className="mt-6 grid gap-6 md:mt-8 md:gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="mt-6 grid gap-6 md:mt-8 md:gap-8">
           <main className="space-y-6 md:space-y-8">
             {portfolio.summary && (
               <section
@@ -155,7 +166,11 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
                 <SectionHeading>Experience</SectionHeading>
-                <div className="space-y-5">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-5"
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {experiences.map((exp) => (
                     <article
                       key={exp.id}
@@ -188,7 +203,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       )}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
@@ -198,18 +213,30 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
                 <SectionHeading>Work</SectionHeading>
-                <div className="grid gap-5 sm:grid-cols-2">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="grid gap-5 sm:grid-cols-2"
+                  buttonClassName="col-span-full mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {visibleProjects.map((project) => (
                     <article
                       key={project.id}
                       className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
                     >
-                      {project.imageUrl && (
-                        <img
-                          src={project.imageUrl}
+                      {project.liveUrl ? (
+                        <LivePreviewImage
+                          liveUrl={project.liveUrl}
+                          enabled={isLivePreviewEnabledForProject(
+                            project.id,
+                            livePreviewProjectIds
+                          )}
                           alt={project.title}
-                          className="h-44 w-full object-cover"
+                          loading="lazy"
+                          className="transition-transform duration-500 group-hover:scale-105"
+                          fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
                         />
+                      ) : (
+                        <GenerativeProjectCover seed={project.id} />
                       )}
                       <div className="p-5">
                         <div className="flex items-start justify-between gap-3">
@@ -277,9 +304,69 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
+
+            {articles.length > 0 && (
+              <section
+                id="writing"
+                className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
+              >
+                <SectionHeading>Writing</SectionHeading>
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-4"
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
+                  {articles.map((article) => (
+                    <article
+                      key={article.id}
+                      className="rounded-[1.5rem] border border-slate-200 bg-slate-50/60 p-5"
+                    >
+                      <h3 className="text-base font-semibold text-slate-900">
+                        <a
+                          href={article.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-colors hover:text-sky-700"
+                        >
+                          {article.title}
+                        </a>
+                      </h3>
+                      {article.description && (
+                        <p className="mt-2 text-sm leading-7 text-slate-600">{article.description}</p>
+                      )}
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        {article.publishedAt && (
+                          <span>
+                            {new Date(article.publishedAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </span>
+                        )}
+                        {article.readTime != null && <span>{article.readTime} min read</span>}
+                      </div>
+                      {article.tags.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {article.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="rounded-full bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </CollapsibleList>
+              </section>
+            )}
+
           </main>
 
           <aside className="space-y-6 md:space-y-8">
@@ -311,7 +398,11 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             {educations.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Education</SectionHeading>
-                <div className="space-y-4">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-4"
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {educations.map((edu) => (
                     <article
                       key={edu.id}
@@ -330,14 +421,18 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       {edu.gpa && <p className="mt-3 text-xs text-slate-500">GPA: {edu.gpa}</p>}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
             {certifications.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Certifications</SectionHeading>
-                <div className="space-y-4">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-4"
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {certifications.map((cert) => (
                     <article
                       key={cert.id}
@@ -368,14 +463,18 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       )}
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
             {achievements.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
                 <SectionHeading>Achievements</SectionHeading>
-                <div className="space-y-3">
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-3"
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
                   {achievements.map((ach) => (
                     <article
                       key={ach.id}
@@ -395,7 +494,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       </div>
                     </article>
                   ))}
-                </div>
+                </CollapsibleList>
               </section>
             )}
 
@@ -417,6 +516,22 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
             )}
           </aside>
         </div>
+
+        {customSections.length > 0 && (
+          <div className="mt-6 grid gap-6 md:mt-8 md:gap-8 md:grid-cols-2">
+            {customSections.map((cs) => (
+              <section key={cs.id} className="rounded-[1.75rem] bg-white p-8 shadow-sm">
+                <SectionHeading>{cs.label}</SectionHeading>
+                <CustomSectionItems
+                  items={cs.items}
+                  titleClassName="font-medium text-slate-900"
+                  textClassName="text-sm text-slate-500"
+                  chipClassName="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-500"
+                />
+              </section>
+            ))}
+          </div>
+        )}
 
         {contributionCalendar && (
           <section className="mt-6 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:mt-8 md:p-8">

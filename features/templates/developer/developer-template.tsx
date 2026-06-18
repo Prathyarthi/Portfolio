@@ -12,12 +12,19 @@ import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  CustomSectionItems,
+  DescriptionBlock,
   HeroProfileButtons,
   TemplateNavbar,
 } from "@/features/templates/shared";
+import { CollapsibleList } from "@/features/templates/collapsible-list";
+
+// import { getPreviewImage } from "@/lib/link-preview-code";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements } =
+  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections, livePreviewProjectIds } =
     data;
   const skillsByCategory = groupSkillsByCategory(skills);
 
@@ -215,9 +222,11 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                         )}
                       </p>
                       {exp.description && (
-                        <p className="mt-3 text-sm text-gray-400 leading-relaxed">
-                          {exp.description}
-                        </p>
+                        <DescriptionBlock
+                          text={exp.description}
+                          paragraphClassName="mt-3 text-sm text-gray-400 leading-relaxed"
+                          listClassName="mt-3 space-y-2 pl-5 text-sm text-gray-400 leading-relaxed marker:text-green-900"
+                        />
                       )}
                     </div>
                   </div>
@@ -288,17 +297,52 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Projects */}
       {projects.length > 0 && (
         <section id="work" className="scroll-mt-24 border-b border-green-900/30">
-          <div className="mx-auto max-w-5xl px-6 py-16">
+          <div className="mx-auto max-w-7xl px-6 py-16">
             <p className="mb-8 text-sm text-gray-600">
               guest@portfolio:~$ ls -la ~/projects/
             </p>
-            <div className="grid gap-5 md:grid-cols-2 md:gap-6">
+            <CollapsibleList
+              initial={4}
+              wrapperClassName="grid gap-5 md:grid-cols-2 md:gap-6"
+              showLabel="cat ./more ({n})"
+              hideLabel="collapse"
+              buttonClassName="md:col-span-2 mt-2 rounded border border-green-900/40 bg-gray-900/50 px-4 py-2 font-mono text-xs text-green-500 hover:border-green-700/60 hover:text-green-300 transition-colors"
+            >
               {projects.map((project) => (
                 <div
                   key={project.id}
                   className="group rounded-lg border border-green-900/40 bg-gray-900/50 p-5 hover:border-green-700/60 hover:bg-gray-900/80 transition-all duration-300"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  {project.liveUrl ? (
+                    <LivePreviewImage
+                      liveUrl={project.liveUrl}
+                      enabled={isLivePreviewEnabledForProject(
+                        project.id,
+                        livePreviewProjectIds
+                      )}
+                      alt={`${project.title} preview`}
+                      loading="lazy"
+                      className="h-auto w-full object-cover"
+                      fallbackSrc="https://placehold.co/1440x900/111827/374151?text=No+Preview"
+                    />
+                  ) : (
+                    <img
+                      src="https://placehold.co/1440x900/111827/374151?text=No+Preview"
+                      alt={`${project.title} preview`}
+                      loading="lazy"
+                      className="h-auto w-full object-cover"
+                    />
+                  )}
+                  {/* <img
+                  src={project.liveUrl ? getPreviewImage(project.liveUrl) : 'https://placehold.co/1440x900/111827/374151?text=No+Preview'}
+                  alt={`${project.title} preview`}
+                  loading="lazy"
+                  className="h-auto w-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://placehold.co/1440x900/111827/374151?text=No+Preview';
+                  }}
+                /> */}
+                  <div className="flex items-start pt-2 justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="text-base font-semibold text-green-300 group-hover:text-green-200 transition-colors truncate">
@@ -347,9 +391,11 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                     </div>
                   </div>
 
-                  <p className="mt-3 text-sm text-gray-400 leading-relaxed line-clamp-3">
-                    {project.description}
-                  </p>
+                  <DescriptionBlock
+                    text={project.description}
+                    paragraphClassName="mt-3 text-sm text-gray-400 leading-relaxed line-clamp-3"
+                    listClassName="mt-3 space-y-2 pl-5 text-sm text-gray-400 leading-relaxed marker:text-green-900"
+                  />
 
                   {project.techStack.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -388,7 +434,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                   </div>
                 </div>
               ))}
-            </div>
+            </CollapsibleList>
           </div>
         </section>
       )}
@@ -510,6 +556,26 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
           </div>
         </section>
       )}
+
+      {/* Custom Sections */}
+      {customSections.map((cs) => (
+        <section key={cs.id} className="border-b border-green-900/30">
+          <div className="mx-auto max-w-5xl px-6 py-16">
+            <p className="mb-6 text-sm text-gray-600">
+              guest@portfolio:~$ cat ~/{cs.sectionType}.txt
+            </p>
+            <div className="rounded-lg border border-green-900/40 bg-gray-900/50 p-5">
+              <p className="text-sm text-green-300 mb-4">{cs.label}</p>
+              <CustomSectionItems
+                items={cs.items}
+                titleClassName="font-semibold text-green-300"
+                textClassName="text-sm text-gray-400"
+                chipClassName="rounded bg-green-900/20 px-2 py-0.5 text-[11px] text-green-500/80 border border-green-900/30"
+              />
+            </div>
+          </div>
+        </section>
+      ))}
 
       {/* Achievements */}
       {achievements.length > 0 && (

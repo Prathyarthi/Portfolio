@@ -19,7 +19,7 @@ function TemplatePreview({ templateId }: { templateId: string }) {
     developer: "from-green-500/40 to-emerald-400/30",
     creative: "from-pink-500/40 to-orange-400/30",
     corporate: "from-sky-500/40 to-slate-300/30",
-    kiranbusari: "from-[#fc3]/50 to-[#fbfffe]",
+    spotlight: "from-[#fc3]/50 to-[#fbfffe]",
   };
 
   return (
@@ -237,7 +237,7 @@ function TemplatePreview({ templateId }: { templateId: string }) {
     developer: "from-green-500/40 to-emerald-400/30",
     creative: "from-pink-500/40 to-orange-400/30",
     corporate: "from-sky-500/40 to-slate-300/30",
-    kiranbusari: "from-[#fc3]/50 to-[#fbfffe]",
+    spotlight: "from-[#fc3]/50 to-[#fbfffe]",
   };
 
   return (

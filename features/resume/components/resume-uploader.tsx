@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useParseResume } from "@/features/resume/api/use-resume";
 import {
   useClearImportableContent,
   useCreatePortfolio,
+  usePortfolio,
   useUpdatePortfolio,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
@@ -40,8 +41,14 @@ import {
   Trophy,
   Check,
   Trash2,
+  Layers,
 } from "lucide-react";
-import type { ParsedResume } from "@/lib/gemini";
+import type { ParsedResume, ParsedCustomSection } from "@/lib/gemini";
+import { normalizeUrl } from "@/lib/url-utils";
+import {
+  LivePreviewSelectionDialog,
+  type LivePreviewCandidate,
+} from "@/features/resume/components/live-preview-selection-dialog";
 
 async function assertApiOk(res: Response, context: string) {
   if (res.ok) return;
@@ -65,11 +72,61 @@ export function ResumeUploader() {
   const [importing, setImporting] = useState(false);
   const [clearBeforeImport, setClearBeforeImport] = useState(true);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(
+    null
+  );
 
   const parseResume = useParseResume();
   const createPortfolio = useCreatePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const clearImportable = useClearImportableContent();
+  const { data: portfolio } = usePortfolio();
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadBilling = async () => {
+      try {
+        const res = await fetch("/api/billing/me", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as {
+          subscription?: { status?: string | null } | null;
+        };
+        if (cancelled) return;
+        const status = data.subscription?.status ?? null;
+        setSubscriptionStatus(
+          status?.toLowerCase() === "active" ? "active" : "none"
+        );
+      } catch {
+        if (cancelled) return;
+        setSubscriptionStatus("none");
+      }
+    };
+    loadBilling();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const livePreviewCandidates = useMemo<LivePreviewCandidate[]>(() => {
+    return (
+      portfolio?.projects
+        ?.filter((project: { liveUrl?: string | null }) => project.liveUrl)
+        .map((project: { id: string; title: string; liveUrl: string }) => ({
+          id: project.id,
+          title: project.title,
+          liveUrl: project.liveUrl,
+        })) ?? []
+    );
+  }, [portfolio?.projects]);
+
+  const selectedLivePreviewProjectIds = useMemo(
+    () =>
+      Array.isArray(portfolio?.livePreviewProjectIds)
+        ? portfolio.livePreviewProjectIds
+        : [],
+    [portfolio?.livePreviewProjectIds]
+  );
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,6 +153,7 @@ export function ResumeUploader() {
           console.log("Projects found:", data.projects.length);
           console.log("Achievements found:", data.achievements.length);
           console.log("Certifications found:", data.certifications.length);
+          console.log("Custom sections found:", data.customSections?.length ?? 0);
           console.log("==========================================");
           setParsedData(data);
           toast.success("Resume parsed successfully");
@@ -120,6 +178,10 @@ export function ResumeUploader() {
         title: parsedData.name,
         headline: parsedData.headline,
         summary: parsedData.summary,
+        contactEmail: parsedData.contact?.email ?? null,
+        phone: parsedData.contact?.phone ?? null,
+        websiteUrl: normalizeUrl(parsedData.contact?.websiteUrl),
+        location: parsedData.contact?.location ?? null,
       });
 
       if (clearBeforeImport) {
@@ -171,8 +233,8 @@ export function ResumeUploader() {
             title: project.title,
             description: project.description || "",
             techStack: project.techStack ?? [],
-            liveUrl: project.liveUrl ?? null,
-            sourceUrl: project.sourceUrl ?? null,
+            liveUrl: normalizeUrl(project.liveUrl),
+            sourceUrl: normalizeUrl(project.sourceUrl),
           }),
         });
         await assertApiOk(res, "Project");
@@ -183,9 +245,29 @@ export function ResumeUploader() {
         const res = await fetch("/api/portfolio/certification", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(cert),
+          body: JSON.stringify({
+            ...cert,
+            url: normalizeUrl(cert.url),
+          }),
         });
         await assertApiOk(res, "Certification");
+      }
+
+      // Import social profiles
+      if (parsedData.socialProfiles && parsedData.socialProfiles.length > 0) {
+        for (const social of parsedData.socialProfiles) {
+          if (!social.url && !social.username) continue;
+          const res = await fetch("/api/portfolio/social", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              platform: social.platform || "unknown",
+              url: normalizeUrl(social.url ?? social.username ?? ""),
+              username: social.username ?? null,
+            }),
+          });
+          await assertApiOk(res, "Social profile");
+        }
       }
 
       // Import achievements
@@ -203,10 +285,46 @@ export function ResumeUploader() {
       }
       console.log("✅ All achievements imported");
 
+      // Import custom sections
+      if (parsedData.customSections && parsedData.customSections.length > 0) {
+        console.log("About to import", parsedData.customSections.length, "custom sections");
+        for (const section of parsedData.customSections) {
+          const res = await fetch("/api/portfolio/custom-section", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sectionType: section.sectionType,
+              label: section.label,
+              items: section.items,
+            }),
+          });
+          await assertApiOk(res, "Custom Section");
+        }
+        console.log("✅ All custom sections imported");
+      }
+
       await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
-      await queryClient.refetchQueries({ queryKey: ["portfolio"] });
+      const refreshedPortfolio = await queryClient.fetchQuery({
+        queryKey: ["portfolio"],
+        queryFn: async () => {
+          const res = await fetch("/api/portfolio", { cache: "no-store" });
+          if (res.status === 404) return null;
+          if (!res.ok) throw new Error("Failed to fetch portfolio");
+          return res.json();
+        },
+      });
 
       toast.success("Resume data imported to your portfolio");
+
+      const importedLiveProjects =
+        refreshedPortfolio?.projects?.some(
+          (project: { liveUrl?: string | null }) => project.liveUrl
+        ) ?? false;
+
+      if (importedLiveProjects) {
+        setPreviewDialogOpen(true);
+      }
+
       setParsedData(null);
     } catch (error: any) {
       toast.error(error.message || "Failed to import data");
@@ -358,6 +476,17 @@ export function ResumeUploader() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <LivePreviewSelectionDialog
+        open={previewDialogOpen}
+        onOpenChange={setPreviewDialogOpen}
+        candidates={livePreviewCandidates}
+        selectedProjectIds={selectedLivePreviewProjectIds}
+        subscriptionStatus={subscriptionStatus}
+        onSaved={() => {
+          toast.success("Live preview selection saved");
+        }}
+      />
 
       {/* Parsed results */}
       {parsedData && (
@@ -530,6 +659,61 @@ export function ResumeUploader() {
               </CardContent>
             </Card>
           )}
+
+          {/* Custom Sections */}
+          {parsedData.customSections && parsedData.customSections.length > 0 &&
+            parsedData.customSections.map((section, si) => (
+              <Card key={si}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Layers className="h-4 w-4" />
+                    {section.label} ({section.items.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {section.items.map((item, ii) => {
+                    const title = item.title ?? item.name ?? item.label;
+                    const desc = item.description ?? item.details ?? item.summary;
+                    const knownKeys = new Set([
+                      "title",
+                      "name",
+                      "label",
+                      "description",
+                      "details",
+                      "summary",
+                    ]);
+                    const otherEntries = Object.entries(item).filter(
+                      ([k, v]) => !knownKeys.has(k) && v != null && v !== ""
+                    );
+                    return (
+                      <div key={ii} className="border-b last:border-0 pb-3 last:pb-0 space-y-1">
+                        {title != null && (
+                          <p className="font-medium text-sm">{String(title)}</p>
+                        )}
+                        {desc != null && (
+                          <p className="text-sm text-muted-foreground">
+                            {String(desc)}
+                          </p>
+                        )}
+                        {otherEntries.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-0.5">
+                            {otherEntries.map(([k, v]) => (
+                              <span
+                                key={k}
+                                className="text-xs bg-muted px-2 py-0.5 rounded"
+                              >
+                                <span className="text-muted-foreground">{k}:</span>{" "}
+                                {String(v)}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            ))}
 
           {/* Certifications */}
           {parsedData.certifications.length > 0 && (

@@ -46,7 +46,7 @@ const templates = [
     category: "corporate",
   },
   {
-    id: "kiranbusari",
+    id: "spotlight",
     name: "Spotlight",
     description:
       "Mint background, Made Tommy typography, and yellow accent interactions.",

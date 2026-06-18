@@ -6,7 +6,7 @@ const PREMIUM_TEMPLATE_IDS = [
   "developer",
   "creative",
   "corporate",
-  "kiranbusari",
+  "spotlight",
 ] as const;
 
 export type AccessTier = "free" | "trial" | "pro";

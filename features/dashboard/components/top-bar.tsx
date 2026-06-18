@@ -31,13 +31,13 @@ import {
 const primaryNav = [
   { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { title: "Edit", href: "/dashboard/edit", icon: Pencil },
+  { title: "Import", href: "/dashboard/import", icon: Download },
   { title: "Preview", href: "/dashboard/preview", icon: Eye },
+  { title: "Pricing", href: "/pricing", icon: CreditCard },
 ] as const;
 
 const moreNav = [
   { title: "Templates", href: "/dashboard/templates", icon: Palette },
-  { title: "Import", href: "/dashboard/import", icon: Download },
-  { title: "Pricing", href: "/pricing", icon: CreditCard },
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ] as const;
 

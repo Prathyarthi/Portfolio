@@ -9,7 +9,7 @@ export type TemplateSceneId =
   | "developer"
   | "creative"
   | "corporate"
-  | "kiranbusari";
+  | "spotlight";
 
 const easeSoft = [0.22, 1, 0.36, 1] as const;
 
@@ -35,7 +35,7 @@ export function TemplateMicroScene({ id, reduced }: { id: TemplateSceneId; reduc
       return <CreativeScene />;
     case "corporate":
       return <CorporateScene />;
-    case "kiranbusari":
+    case "spotlight":
       return <SpotlightScene />;
     default:
       return null;
@@ -224,7 +224,7 @@ function CorporateScene() {
 
 /**
  * Spotlight template: #fbfffe mint canvas, gray-950 type, #fc3 accent.
- * @see features/templates/kiranbusari/kiranbusari-template.tsx
+ * @see features/templates/spotlight/spotlight-template.tsx
  */
 function SpotlightScene() {
   return (
@@ -304,7 +304,7 @@ function StaticScene({ id }: { id: TemplateSceneId }) {
           </div>
         </div>
       ) : null}
-      {id === "kiranbusari" ? (
+      {id === "spotlight" ? (
         <div className={cn(frame, "border-gray-100 bg-[#fbfffe]")}>
           <div className="absolute left-3 top-3 h-1.5 w-16 rounded-full bg-gray-950/80" />
           <div className="absolute left-3 top-6 h-1 w-24 rounded-full bg-gray-950/20" />

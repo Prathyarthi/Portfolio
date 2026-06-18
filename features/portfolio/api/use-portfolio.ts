@@ -45,6 +45,29 @@ export function useUpdatePortfolio() {
   });
 }
 
+export function useUpdateLivePreview() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (projectIds: string[]) => {
+      const res = await fetch("/api/portfolio/live-preview", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectIds }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          typeof data.error === "string"
+            ? data.error
+            : "Failed to update live preview preferences"
+        );
+      }
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
 /** Deletes experiences, education, skills, projects, certifications, and achievements for the current portfolio. */
 export function useClearImportableContent() {
   const qc = useQueryClient();
@@ -341,6 +364,57 @@ export function useDeleteCertification() {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete certification");
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
+// Custom Sections
+export function useUpsertCustomSection() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      sectionType: string;
+      label: string;
+      items?: Record<string, unknown>[];
+    }) => {
+      const res = await fetch("/api/portfolio/custom-section", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to save custom section");
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
+export function useUpdateCustomSection() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: any) => {
+      const res = await fetch(`/api/portfolio/custom-section/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update custom section");
+      return res.json();
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
+  });
+}
+
+export function useDeleteCustomSection() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/portfolio/custom-section/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete custom section");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
