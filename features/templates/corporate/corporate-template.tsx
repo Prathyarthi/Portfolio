@@ -45,11 +45,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
       ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
       : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
-  const quickFacts = [
-    { label: "Projects", value: visibleProjects.length },
-    { label: "Roles", value: experiences.length },
-    { label: "Skills", value: skills.length },
-  ].filter((item) => item.value > 0);
 
   return (
     <div className="min-h-screen bg-[#f3f6fb] text-slate-900 antialiased">
@@ -103,26 +98,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       alt={portfolio.title}
                       className="h-72 w-full rounded-[1.5rem] object-cover"
                     />
-                  </div>
-                )}
-                {quickFacts.length > 0 && (
-                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5 backdrop-blur-sm">
-                    <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
-                      Snapshot
-                    </p>
-                    <div className="mt-4 grid grid-cols-3 gap-3">
-                      {quickFacts.map((fact) => (
-                        <div
-                          key={fact.label}
-                          className="rounded-[1rem] border border-white/10 bg-white/6 px-3 py-3"
-                        >
-                          <p className="text-lg font-semibold text-white">{fact.value}</p>
-                          <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-slate-400">
-                            {fact.label}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>

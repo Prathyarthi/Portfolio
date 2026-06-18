@@ -1,12 +1,13 @@
 import Elysia, { t } from "elysia";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import { generateSlug, ensureUniqueSlug } from "@/lib/slug";
+import { isSlugTaken, validatePortfolioSlug } from "@/lib/slug";
 import {
   canUseTemplate,
   getPlanLimitMessage,
   resolveAccessForUser,
 } from "@/lib/entitlements";
+import { bulkImportPortfolioData } from "./bulk-import";
 
 function toDateOrThrow(value: string) {
   const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -103,40 +104,64 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
   })
 
   // Create portfolio for current user
-  .post("/", async (ctx) => {
-    const session = await getSession(ctx.request);
-    if (!session) {
-      ctx.set.status = 401;
-      return { error: "Unauthorized" };
-    }
+  .post(
+    "/",
+    async (ctx) => {
+      const session = await getSession(ctx.request);
+      if (!session) {
+        ctx.set.status = 401;
+        return { error: "Unauthorized" };
+      }
 
-    const existing = await prisma.portfolio.findUnique({
-      where: { userId: session.userId },
-      include: portfolioInclude,
-    });
+      const existing = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+        include: portfolioInclude,
+      });
 
-    if (existing) return existing;
+      if (existing) return existing;
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.userId },
-    });
-    const slug = await ensureUniqueSlug(
-      generateSlug(user?.name ?? "portfolio"),
-    );
+      const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+      });
 
-    const created = await prisma.portfolio.create({
-      data: {
-        userId: session.userId,
-        slug,
-        title: user?.name ?? "",
-        contactEmail: user?.email ?? "",
-        avatarUrl: user?.avatar ?? undefined,
-      },
-      include: portfolioInclude,
-    });
+      const requestedSlug = ctx.body?.slug;
+      if (typeof requestedSlug !== "string" || !requestedSlug.trim()) {
+        ctx.set.status = 400;
+        return { error: "Subdomain is required" };
+      }
 
-    return created;
-  })
+      const validatedSlug = validatePortfolioSlug(requestedSlug);
+      if (!validatedSlug) {
+        ctx.set.status = 400;
+        return { error: "Invalid or reserved subdomain" };
+      }
+
+      if (await isSlugTaken(validatedSlug)) {
+        ctx.set.status = 409;
+        return { error: "Subdomain already taken" };
+      }
+
+      const slug = validatedSlug;
+
+      const created = await prisma.portfolio.create({
+        data: {
+          userId: session.userId,
+          slug,
+          title: user?.name ?? "",
+          contactEmail: user?.email ?? "",
+          avatarUrl: user?.avatar ?? undefined,
+        },
+        include: portfolioInclude,
+      });
+
+      return created;
+    },
+    {
+      body: t.Object({
+        slug: t.String({ minLength: 2 }),
+      }),
+    },
+  )
 
   // Update portfolio fields
   .patch(
@@ -152,9 +177,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       const { customization, headline, summary, templateId, ...rest } = body;
       const existingCustomization = customization
         ? await prisma.portfolio.findUnique({
-            where: { userId: session.userId },
-            select: { customization: true },
-          })
+          where: { userId: session.userId },
+          select: { customization: true },
+        })
         : null;
       let resolvedTemplateId: string | undefined;
       if (templateId !== undefined) {
@@ -208,15 +233,15 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           ...portfolioFields,
           ...(customization
             ? {
-                customization: {
-                  ...(existingCustomization?.customization &&
+              customization: {
+                ...(existingCustomization?.customization &&
                   typeof existingCustomization.customization === "object" &&
                   !Array.isArray(existingCustomization.customization)
-                    ? existingCustomization.customization
-                    : {}),
-                  ...customization,
-                },
-              }
+                  ? existingCustomization.customization
+                  : {}),
+                ...customization,
+              },
+            }
             : {}),
         },
       });
@@ -342,8 +367,13 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
   .post(
     "/slug/check",
     async (ctx) => {
+      const validated = validatePortfolioSlug(ctx.body.slug);
+      if (!validated) {
+        return { available: false, reason: "invalid" as const };
+      }
+
       const existing = await prisma.portfolio.findUnique({
-        where: { slug: ctx.body.slug },
+        where: { slug: validated },
       });
       return { available: !existing };
     },
@@ -362,8 +392,14 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
 
+      const validated = validatePortfolioSlug(ctx.body.slug);
+      if (!validated) {
+        ctx.set.status = 400;
+        return { error: "Invalid or reserved subdomain" };
+      }
+
       const existing = await prisma.portfolio.findUnique({
-        where: { slug: ctx.body.slug },
+        where: { slug: validated },
       });
       if (existing && existing.userId !== session.userId) {
         ctx.set.status = 409;
@@ -372,7 +408,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
 
       const updated = await prisma.portfolio.update({
         where: { userId: session.userId },
-        data: { slug: ctx.body.slug },
+        data: { slug: validated },
       });
 
       return updated;
@@ -437,7 +473,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       try {
         const description =
           ctx.body.description != null &&
-          String(ctx.body.description).trim() !== ""
+            String(ctx.body.description).trim() !== ""
             ? String(ctx.body.description)
             : "";
 
@@ -1122,4 +1158,22 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     }
     await prisma.customSection.delete({ where: { id: ctx.params.id } });
     return { success: true };
+  })
+
+  // Bulk import generated portfolio data
+  .post("/bulk-import", async (ctx) => {
+    const session = await getSession(ctx.request);
+    if (!session) {
+      ctx.set.status = 401;
+      return { error: "Unauthorized" };
+    }
+
+    try {
+      const result = await bulkImportPortfolioData(session.userId, ctx.body as any);
+      return { success: true, portfolio: result };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Bulk import failed";
+      ctx.set.status = 500;
+      return { error: message };
+    }
   });

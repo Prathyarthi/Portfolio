@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Check, Loader2, Plus, X } from "lucide-react";
+import { Check, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,11 +13,16 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 import {
-  useCreatePortfolio,
+  getPortfolioPublicUrl,
+  getPortfolioRootDomain,
+  sanitizePortfolioSlug,
+} from "@/lib/domain";
+import {
   usePortfolio,
   useUpdatePortfolio,
   useUpdateSlug,
 } from "@/features/portfolio/api/use-portfolio";
+import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import type { PortfolioCustomization, TemplateSectionId } from "@/features/templates/types";
 
 const defaultNavbarSettings: {
@@ -36,7 +41,6 @@ const defaultNavbarSettings: {
 export default function SettingsPage() {
   const { data: session } = useSession();
   const { data: portfolio } = usePortfolio();
-  const createPortfolio = useCreatePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const updateSlug = useUpdateSlug();
   const [slug, setSlug] = useState("");
@@ -117,14 +121,10 @@ export default function SettingsPage() {
     );
   };
 
-  const handleCreatePortfolio = async () => {
-    try {
-      await createPortfolio.mutateAsync();
-      toast.success("Portfolio created");
-    } catch {
-      toast.error("Failed to create portfolio");
-    }
-  };
+  const rootDomain = getPortfolioRootDomain();
+  const portfolioUrl = slug
+    ? getPortfolioPublicUrl(slug)
+    : `https://your-name.${rootDomain}`;
 
   return (
     <div className="space-y-8 max-w-2xl pb-6 mx-auto w-full h-screen">
@@ -141,11 +141,8 @@ export default function SettingsPage() {
               Settings are available after a portfolio has been created.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Button onClick={handleCreatePortfolio} disabled={createPortfolio.isPending}>
-              <Plus className="mr-2 h-4 w-4" />
-              {createPortfolio.isPending ? "Creating..." : "Create Portfolio"}
-            </Button>
+          <CardContent className="space-y-4">
+            <CreatePortfolioPrompt />
             <Button variant="outline" asChild>
               <Link href="/dashboard">Go to Overview</Link>
             </Button>
@@ -174,26 +171,38 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Portfolio URL</CardTitle>
           <CardDescription>
-            Your portfolio will be available at {typeof window !== "undefined" ? window.location.origin : ""}/p/{slug || "your-slug"}
+            Your portfolio will be available at {portfolioUrl}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Slug</Label>
+            <Label>Subdomain</Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Input
-                  value={slug}
-                  onChange={(e) => {
-                    const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
-                    setSlug(value);
-                    checkSlug(value);
-                  }}
-                  placeholder="your-portfolio-slug"
-                />
-                {checking && <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-muted-foreground" />}
-                {!checking && slugAvailable === true && <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-500" />}
-                {!checking && slugAvailable === false && <X className="absolute right-3 top-2.5 h-4 w-4 text-destructive" />}
+                <div className="flex h-10 items-center rounded-md border border-input bg-transparent px-3 shadow-xs">
+                  <Input
+                    value={slug}
+                    onChange={(e) => {
+                      const value = sanitizePortfolioSlug(e.target.value);
+                      setSlug(value);
+                      checkSlug(value);
+                    }}
+                    placeholder="your-name"
+                    className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                  />
+                  <span className="ml-1 shrink-0 text-sm text-muted-foreground">
+                    .{rootDomain}
+                  </span>
+                </div>
+                {checking && (
+                  <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+                {!checking && slugAvailable === true && (
+                  <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-500" />
+                )}
+                {!checking && slugAvailable === false && (
+                  <X className="absolute right-3 top-2.5 h-4 w-4 text-destructive" />
+                )}
               </div>
               <Button onClick={handleSlugSave} disabled={updateSlug.isPending || slug === portfolio?.slug || slugAvailable === false}>
                 {updateSlug.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}

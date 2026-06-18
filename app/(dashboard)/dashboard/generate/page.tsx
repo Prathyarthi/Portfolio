@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { Loader2, Sparkles, RefreshCw, FileText, Upload } from "lucide-react";
+import { Loader2, Sparkles, RefreshCw, FileText, Upload, Check } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { GeneratedUI } from "getsyntux/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -264,6 +265,33 @@ function ResumeTab({ onData }: { onData: (data: PortfolioData) => void }) {
 export default function GeneratePage() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [activeTab, setActiveTab] = useState("describe");
+  const [isPublishing, setIsPublishing] = useState(false);
+  const router = useRouter();
+
+  const handlePublish = async () => {
+    if (!portfolioData) return;
+
+    setIsPublishing(true);
+    try {
+      const res = await fetch("/api/portfolio/bulk-import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(portfolioData),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || "Failed to publish portfolio");
+      }
+
+      toast.success("Portfolio published successfully!");
+      router.push("/dashboard");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to publish");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
 
   return (
     <div className="space-y-8 pb-10">
@@ -312,15 +340,36 @@ export default function GeneratePage() {
                 Live UI rendered by Syntux from the generated JSON
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={() => setPortfolioData(null)}
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              Reset
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => setPortfolioData(null)}
+                disabled={isPublishing}
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Reset
+              </Button>
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={handlePublish}
+                disabled={isPublishing}
+              >
+                {isPublishing ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    Publish to Portfolio
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="glass-card overflow-hidden rounded-[2rem] border border-white/8 p-6">

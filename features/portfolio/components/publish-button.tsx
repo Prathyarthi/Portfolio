@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   usePortfolio,
   usePublishPortfolio,
+  useUpdateSlug,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,6 +19,11 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
+import {
+  getPortfolioPublicUrl,
+  getPortfolioRootDomain,
+  sanitizePortfolioSlug,
+} from "@/lib/domain";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -28,6 +36,11 @@ import {
 export function PublishButton() {
   const { data: portfolio, isLoading } = usePortfolio();
   const publishPortfolio = usePublishPortfolio();
+  const updateSlug = useUpdateSlug();
+  const rootDomain = getPortfolioRootDomain();
+  const [candidateSlug, setCandidateSlug] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
 
   async function handleToggle(checked: boolean) {
     try {
@@ -48,6 +61,51 @@ export function PublishButton() {
 
   const isPublished = portfolio?.isPublished ?? false;
   const slug = portfolio?.slug ?? "";
+
+  useEffect(() => {
+    if (!slug) return;
+    setCandidateSlug(slug);
+    setSlugAvailable(null);
+  }, [slug]);
+
+  async function checkDomainAvailability(nextSlug: string) {
+    if (!nextSlug || nextSlug === slug) {
+      setSlugAvailable(null);
+      return;
+    }
+
+    setChecking(true);
+    try {
+      const res = await fetch("/api/portfolio/slug/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: nextSlug }),
+      });
+      const data = await res.json();
+      setSlugAvailable(Boolean(data.available));
+    } catch {
+      setSlugAvailable(null);
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  async function connectDomain() {
+    if (!candidateSlug) {
+      toast.error("Enter a subdomain first");
+      return;
+    }
+
+    try {
+      await updateSlug.mutateAsync(candidateSlug);
+      toast.success("Domain connected");
+      setSlugAvailable(null);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to connect domain";
+      toast.error(message);
+    }
+  }
 
   return (
     <Card>
@@ -104,13 +162,59 @@ export function PublishButton() {
           />
         </div>
 
+        <div className="space-y-3 rounded-lg border p-4">
+          <div className="space-y-1">
+            <p className="text-sm font-medium">Connect your domain</p>
+            <p className="text-xs text-muted-foreground">
+              Choose your public address before publishing.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Input
+              value={candidateSlug}
+              onChange={(e) => {
+                const value = sanitizePortfolioSlug(e.target.value);
+                setCandidateSlug(value);
+                void checkDomainAvailability(value);
+              }}
+              placeholder="your-name"
+              className="font-mono"
+            />
+            <span className="text-xs text-muted-foreground">.{rootDomain}</span>
+          </div>
+
+          {checking && (
+            <p className="text-xs text-muted-foreground">Checking availability...</p>
+          )}
+          {!checking && slugAvailable === true && (
+            <p className="text-xs text-emerald-600">Available</p>
+          )}
+          {!checking && slugAvailable === false && (
+            <p className="text-xs text-destructive">Already taken or invalid</p>
+          )}
+
+          <Button
+            variant="outline"
+            onClick={connectDomain}
+            disabled={
+              updateSlug.isPending ||
+              !candidateSlug ||
+              candidateSlug === slug ||
+              slugAvailable === false
+            }
+          >
+            {updateSlug.isPending ? "Connecting..." : "Connect domain"}
+          </Button>
+        </div>
+
         {/* Share */}
         {slug && (
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
               <p className="text-sm font-medium">Share your portfolio</p>
               <p className="text-xs text-muted-foreground font-mono">
-                /p/{slug}
+                {getPortfolioPublicUrl(slug)}
               </p>
             </div>
             <ShareDialog slug={slug} isPublished={isPublished}>

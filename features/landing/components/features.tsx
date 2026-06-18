@@ -10,8 +10,10 @@ import {
   landingGridItemVariants,
   landingSectionHeaderProps,
 } from "@/features/landing/motion-presets";
+import { getPortfolioRootDomain } from "@/lib/domain";
 
-const features = [
+const featureItems = (rootDomain: string) =>
+  [
   {
     icon: GithubIcon,
     label: "GitHub import",
@@ -37,14 +39,15 @@ const features = [
     icon: Globe,
     label: "Public URL",
     tagline: "Shareable site",
-    blurb: "A shareable `/p/slug` page that feels intentional, not like an export.",
+    blurb: `A shareable subdomain like you.${rootDomain} that feels intentional, not like an export.`,
     barClass: "bg-cyan-400/78",
   },
-] as const;
+  ] as const;
 
 export function Features() {
   const reducedMotion = useReducedMotion();
   const reduce = Boolean(reducedMotion);
+  const features = featureItems(getPortfolioRootDomain());
 
   const containerVariants = landingGridContainerVariants(reduce);
   const tileVariants = landingGridItemVariants(reduce);

@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-import { useCreatePortfolio, usePortfolio, useUpdateTemplate } from "@/features/portfolio/api/use-portfolio";
+import { usePortfolio, useUpdateTemplate } from "@/features/portfolio/api/use-portfolio";
+import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import { templateRegistry } from "@/features/templates/registry";
 
 function TemplatePreview({ templateId }: { templateId: string }) {
@@ -39,7 +40,6 @@ function TemplatePreview({ templateId }: { templateId: string }) {
 export default function TemplatesPage() {
   const router = useRouter();
   const { data: portfolio, isLoading } = usePortfolio();
-  const createPortfolio = useCreatePortfolio();
   const updateTemplate = useUpdateTemplate();
   const [allowedTemplateIds, setAllowedTemplateIds] = useState<string[] | null>(
     null
@@ -91,15 +91,6 @@ export default function TemplatesPage() {
     });
   };
 
-  const handleCreatePortfolio = async () => {
-    try {
-      await createPortfolio.mutateAsync();
-      toast.success("Portfolio created");
-    } catch {
-      toast.error("Failed to create portfolio");
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -115,14 +106,11 @@ export default function TemplatesPage() {
           <CardHeader>
             <CardTitle className="text-zinc-100">Create your portfolio before choosing a template</CardTitle>
             <CardDescription className="text-zinc-400">
-              The template controls the look and feel of your portfolio. Create the portfolio first so the selection can be saved.
+              Choose a subdomain first so your template selection can be saved.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Button onClick={handleCreatePortfolio} disabled={createPortfolio.isPending}>
-              <Plus className="mr-2 h-4 w-4" />
-              {createPortfolio.isPending ? "Creating..." : "Create Portfolio"}
-            </Button>
+          <CardContent className="space-y-4">
+            <CreatePortfolioPrompt />
             <Button variant="outline" asChild>
               <Link href="/dashboard/edit">Back to Edit</Link>
             </Button>
@@ -227,7 +215,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-import { useCreatePortfolio, usePortfolio, useUpdateTemplate } from "@/features/portfolio/api/use-portfolio";
+import { usePortfolio, useUpdateTemplate } from "@/features/portfolio/api/use-portfolio";
+import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import { templateRegistry } from "@/features/templates/registry";
 
 function TemplatePreview({ templateId }: { templateId: string }) {

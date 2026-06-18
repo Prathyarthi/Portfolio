@@ -1,11 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
+import { generateOpenRouterText } from "@/lib/openrouter";
 import { NextResponse } from "next/server";
-
-function getAiClient() {
-  const apiKey = process.env.GOOGLE_API_KEY;
-  if (!apiKey) throw new Error("GOOGLE_API_KEY is not configured");
-  return new GoogleGenAI({ apiKey });
-}
 
 const SYSTEM_PROMPT = `You are a portfolio content generator. Given a user's description, generate a complete, realistic portfolio JSON object.
 
@@ -81,25 +75,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    const ai = getAiClient();
-    const response = await ai.models.generateContent({
-      model: process.env.GEMINI_CHAT_PRIMARY_MODEL!,
-      contents: [
+    const text = await generateOpenRouterText({
+      messages: [
         {
           role: "user",
-          parts: [
-            {
-              text: `${SYSTEM_PROMPT}\n\nUser description:\n${prompt}`,
-            },
-          ],
+          content: `${SYSTEM_PROMPT}\n\nUser description:\n${prompt}`,
         },
       ],
+      temperature: 0.5,
     });
-
-    const text = response.text?.trim() ?? "";
-    if (!text) {
-      return NextResponse.json({ error: "AI returned empty response" }, { status: 500 });
-    }
 
     const cleaned = text
       .replace(/^```(?:json)?\s*\n?/i, "")

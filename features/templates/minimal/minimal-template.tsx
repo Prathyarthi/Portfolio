@@ -45,11 +45,6 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
       ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
       : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
-  const quickFacts = [
-    { label: "Projects", value: visibleProjects.length },
-    { label: "Roles", value: experiences.length },
-    { label: "Skills", value: skills.length },
-  ].filter((item) => item.value > 0);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.14),transparent_34%),linear-gradient(180deg,#f8f7f4_0%,#efede6_100%)] text-stone-800">
@@ -105,32 +100,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                   />
                 </div>
               )}
-              {(portfolio.summary || quickFacts.length > 0) && (
+              {portfolio.summary && (
                 <div className="rounded-[1.6rem] border border-stone-200/80 bg-stone-50/85 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                  {portfolio.summary && (
-                    <p className="text-sm leading-relaxed text-stone-600">
-                      {portfolio.summary}
-                    </p>
-                  )}
-                  {quickFacts.length > 0 && (
-                    <div
-                      className={`grid grid-cols-3 gap-3 ${
-                        portfolio.summary ? "mt-5" : ""
-                      }`}
-                    >
-                      {quickFacts.map((fact) => (
-                        <div
-                          key={fact.label}
-                          className="rounded-[1.1rem] border border-stone-200/80 bg-white/90 px-3 py-3"
-                        >
-                          <p className="text-lg font-semibold text-stone-900">{fact.value}</p>
-                          <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-stone-400">
-                            {fact.label}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <p className="text-sm leading-relaxed text-stone-600">
+                    {portfolio.summary}
+                  </p>
                 </div>
               )}
             </div>

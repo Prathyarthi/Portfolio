@@ -2,10 +2,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Globe, Layers3, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getPortfolioRootDomain } from "@/lib/domain";
 import { landingSurfaceMuted } from "@/features/landing/surface";
 import { HeroPreviewShell } from "@/features/landing/components/hero-preview-shell";
 
 export function Hero() {
+  const rootDomain = getPortfolioRootDomain();
   return (
     <section className="relative overflow-hidden px-4 pb-16 pt-12 md:px-6 md:pb-24 md:pt-20">
       <div className="absolute inset-0 -z-10">
@@ -67,7 +69,7 @@ export function Hero() {
               <div className="relative rounded-[1.35rem] border border-white/[0.05] bg-black/30 p-5 md:p-6">
                 <div className="mb-5 flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2 font-mono text-[11px] text-zinc-500">
                   <Globe className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
-                  <span className="truncate">foliofy.app/p/your-handle</span>
+                  <span className="truncate">your-name.{rootDomain}</span>
                 </div>
 
                 <div className="space-y-4">

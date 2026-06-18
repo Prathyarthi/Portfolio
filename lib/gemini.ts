@@ -1,14 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
-
-function getAiClient() {
-  const apiKey = process.env.GOOGLE_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("GOOGLE_API_KEY is not configured");
-  }
-
-  return new GoogleGenAI({ apiKey });
-}
+import { generateOpenRouterText } from "@/lib/openrouter";
 
 export interface ParsedCustomSection {
   sectionType: string;
@@ -102,7 +92,7 @@ function normalizeEndDateField(v: unknown): string | null {
 
 /**
  * Coerce model output into ParsedResume: alternate keys, null descriptions,
- * and non-array sections from Gemini are common reasons imports silently fail validation.
+ * and non-array sections from AI output are common reasons imports silently fail validation.
  */
 export function normalizeParsedResume(raw: unknown): ParsedResume {
   const o = asRecord(raw);
@@ -225,7 +215,7 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
     });
   }
 
-  let achievementsRaw: unknown = o.achievements ?? o.accomplishments ?? o.awards;
+  const achievementsRaw: unknown = o.achievements ?? o.accomplishments ?? o.awards;
   let achievements: string[] = [];
   if (Array.isArray(achievementsRaw)) {
     achievements = achievementsRaw
@@ -429,27 +419,14 @@ ${rawText}`;
 export async function structureResumeWithAi(
   rawText: string,
 ): Promise<ParsedResume> {
-  const ai = getAiClient();
-
-  const response = await ai.models.generateContent({
-    model: process.env.GEMINI_CHAT_PRIMARY_MODEL!,
-    contents: [
+  const text = await generateOpenRouterText({
+    messages: [
       {
         role: "user",
-        parts: [
-          {
-            text: buildPrompt(rawText),
-          },
-        ],
+        content: buildPrompt(rawText),
       },
     ],
   });
-
-  const text = response.text?.trim() ?? "";
-
-  if (!text) {
-    throw new Error("Gemini returned an empty response");
-  }
 
   // Strip potential markdown code fences
   const cleaned = text
@@ -461,7 +438,7 @@ export async function structureResumeWithAi(
     cleaned.match(/\{[\s\S]*\}/)?.[0]?.trim() ?? cleaned;
 
   if (!jsonCandidate) {
-    throw new Error("Gemini response did not contain JSON");
+    throw new Error("OpenRouter response did not contain JSON");
   }
 
   try {
@@ -473,6 +450,6 @@ export async function structureResumeWithAi(
         ? `${jsonCandidate.slice(0, 300)}...`
         : jsonCandidate;
 
-    throw new Error(`Failed to parse Gemini response as JSON: ${preview}`);
+    throw new Error(`Failed to parse OpenRouter response as JSON: ${preview}`);
   }
 }

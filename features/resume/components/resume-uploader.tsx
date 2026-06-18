@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useParseResume } from "@/features/resume/api/use-resume";
 import {
   useClearImportableContent,
-  useCreatePortfolio,
+  usePortfolio,
   useUpdatePortfolio,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
@@ -69,7 +69,7 @@ export function ResumeUploader() {
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
   const parseResume = useParseResume();
-  const createPortfolio = useCreatePortfolio();
+  const { data: portfolio } = usePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const clearImportable = useClearImportableContent();
 
@@ -116,9 +116,13 @@ export function ResumeUploader() {
     if (!parsedData) return;
     setImporting(true);
 
-    try {
-      await createPortfolio.mutateAsync();
+    if (!portfolio) {
+      toast.error("Create your portfolio with a subdomain from the dashboard first.");
+      setImporting(false);
+      return;
+    }
 
+    try {
       await updatePortfolio.mutateAsync({
         title: parsedData.name,
         headline: parsedData.headline,

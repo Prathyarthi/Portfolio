@@ -32,7 +32,7 @@ import {
 const primaryNav = [
   { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { title: "Edit", href: "/dashboard/edit", icon: Pencil },
-  { title: "Generate", href: "/dashboard/generate", icon: Sparkles },
+  // { title: "Generate", href: "/dashboard/generate", icon: Sparkles }, // Temporarily disabled
   { title: "Import", href: "/dashboard/import", icon: Download },
   { title: "Preview", href: "/dashboard/preview", icon: Eye },
   { title: "Pricing", href: "/pricing", icon: CreditCard },
