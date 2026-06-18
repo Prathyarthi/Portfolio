@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useParseResume } from "@/features/resume/api/use-resume";
 import {
   useClearImportableContent,
   useCreatePortfolio,
+  usePortfolio,
   useUpdatePortfolio,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,10 @@ import {
 } from "lucide-react";
 import type { ParsedResume, ParsedCustomSection } from "@/lib/gemini";
 import { normalizeUrl } from "@/lib/url-utils";
+import {
+  LivePreviewSelectionDialog,
+  type LivePreviewCandidate,
+} from "@/features/resume/components/live-preview-selection-dialog";
 
 async function assertApiOk(res: Response, context: string) {
   if (res.ok) return;
@@ -67,11 +72,61 @@ export function ResumeUploader() {
   const [importing, setImporting] = useState(false);
   const [clearBeforeImport, setClearBeforeImport] = useState(true);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(
+    null
+  );
 
   const parseResume = useParseResume();
   const createPortfolio = useCreatePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const clearImportable = useClearImportableContent();
+  const { data: portfolio } = usePortfolio();
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadBilling = async () => {
+      try {
+        const res = await fetch("/api/billing/me", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as {
+          subscription?: { status?: string | null } | null;
+        };
+        if (cancelled) return;
+        const status = data.subscription?.status ?? null;
+        setSubscriptionStatus(
+          status?.toLowerCase() === "active" ? "active" : "none"
+        );
+      } catch {
+        if (cancelled) return;
+        setSubscriptionStatus("none");
+      }
+    };
+    loadBilling();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const livePreviewCandidates = useMemo<LivePreviewCandidate[]>(() => {
+    return (
+      portfolio?.projects
+        ?.filter((project: { liveUrl?: string | null }) => project.liveUrl)
+        .map((project: { id: string; title: string; liveUrl: string }) => ({
+          id: project.id,
+          title: project.title,
+          liveUrl: project.liveUrl,
+        })) ?? []
+    );
+  }, [portfolio?.projects]);
+
+  const selectedLivePreviewProjectIds = useMemo(
+    () =>
+      Array.isArray(portfolio?.livePreviewProjectIds)
+        ? portfolio.livePreviewProjectIds
+        : [],
+    [portfolio?.livePreviewProjectIds]
+  );
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -249,9 +304,27 @@ export function ResumeUploader() {
       }
 
       await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
-      await queryClient.refetchQueries({ queryKey: ["portfolio"] });
+      const refreshedPortfolio = await queryClient.fetchQuery({
+        queryKey: ["portfolio"],
+        queryFn: async () => {
+          const res = await fetch("/api/portfolio", { cache: "no-store" });
+          if (res.status === 404) return null;
+          if (!res.ok) throw new Error("Failed to fetch portfolio");
+          return res.json();
+        },
+      });
 
       toast.success("Resume data imported to your portfolio");
+
+      const importedLiveProjects =
+        refreshedPortfolio?.projects?.some(
+          (project: { liveUrl?: string | null }) => project.liveUrl
+        ) ?? false;
+
+      if (importedLiveProjects) {
+        setPreviewDialogOpen(true);
+      }
+
       setParsedData(null);
     } catch (error: any) {
       toast.error(error.message || "Failed to import data");
@@ -403,6 +476,17 @@ export function ResumeUploader() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <LivePreviewSelectionDialog
+        open={previewDialogOpen}
+        onOpenChange={setPreviewDialogOpen}
+        candidates={livePreviewCandidates}
+        selectedProjectIds={selectedLivePreviewProjectIds}
+        subscriptionStatus={subscriptionStatus}
+        onSaved={() => {
+          toast.success("Live preview selection saved");
+        }}
+      />
 
       {/* Parsed results */}
       {parsedData && (
