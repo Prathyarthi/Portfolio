@@ -17,12 +17,21 @@ export function usePortfolio() {
 export function useCreatePortfolio() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (slug: string) => {
       const res = await fetch("/api/portfolio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug }),
       });
-      if (!res.ok) throw new Error("Failed to create portfolio");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          typeof data.error === "string"
+            ? data.error
+            : "Failed to create portfolio",
+        );
+      }
+
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),

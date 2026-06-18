@@ -1,0 +1,128 @@
+const DEFAULT_ROOT_DOMAIN = "aventro.in";
+
+/** Subdomains reserved for the platform — not assignable to portfolios. */
+export const RESERVED_SUBDOMAINS = new Set([
+  "www",
+  "app",
+  "api",
+  "admin",
+  "dashboard",
+  "mail",
+  "ftp",
+  "staging",
+  "dev",
+  "test",
+  "status",
+  "blog",
+  "docs",
+  "support",
+  "help",
+  "cdn",
+  "static",
+  "assets",
+  "auth",
+  "billing",
+  "pricing",
+]);
+
+export function getPortfolioRootDomain(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_PORTFOLIO_ROOT_DOMAIN?.trim();
+  return fromEnv && fromEnv.length > 0 ? fromEnv : DEFAULT_ROOT_DOMAIN;
+}
+
+export function getAppOrigin(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (fromEnv) return fromEnv.replace(/\/$/, "");
+
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+
+  const rootDomain = getPortfolioRootDomain();
+  const protocol =
+    process.env.NODE_ENV === "development" ? "http" : "https";
+  return `${protocol}://${rootDomain}`;
+}
+
+export function sanitizePortfolioSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60);
+}
+
+export function isReservedSubdomain(slug: string): boolean {
+  return RESERVED_SUBDOMAINS.has(slug.toLowerCase());
+}
+
+export function isValidPortfolioSlug(slug: string): boolean {
+  if (!slug || slug.length < 2) return false;
+  if (!/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(slug)) return false;
+  return !isReservedSubdomain(slug);
+}
+
+/** Strip port from host header (e.g. localhost:3000 → localhost). */
+export function normalizeHost(host: string): string {
+  return host.split(":")[0]?.toLowerCase() ?? "";
+}
+
+/**
+ * Returns the portfolio slug when the request host is `{slug}.{rootDomain}`.
+ * Returns null for apex, www, reserved subdomains, and localhost (unless root domain is localhost).
+ */
+export function extractPortfolioSubdomain(host: string): string | null {
+  const hostname = normalizeHost(host);
+  const rootDomain = getPortfolioRootDomain().toLowerCase();
+
+  if (!hostname || hostname === rootDomain) return null;
+  if (hostname === `www.${rootDomain}`) return null;
+
+  const suffix = `.${rootDomain}`;
+  if (!hostname.endsWith(suffix)) return null;
+
+  const subdomain = hostname.slice(0, -suffix.length);
+  if (!subdomain || subdomain.includes(".")) return null;
+  if (isReservedSubdomain(subdomain)) return null;
+  if (!isValidPortfolioSlug(subdomain)) return null;
+
+  return subdomain;
+}
+
+export function getPortfolioSubdomainHost(slug: string): string {
+  return `${slug}.${getPortfolioRootDomain()}`;
+}
+
+/**
+ * Public portfolio URL. Uses subdomain in production; path-based URL on localhost.
+ */
+export function getPortfolioPublicUrl(slug: string): string {
+  const rootDomain = getPortfolioRootDomain();
+
+  if (typeof window !== "undefined") {
+    const hostname = normalizeHost(window.location.host);
+    if (hostname === "localhost" || hostname.endsWith(".localhost")) {
+      return `${window.location.origin}/p/${slug}`;
+    }
+  }
+
+  if (rootDomain === "localhost") {
+    const origin = getAppOrigin();
+    return `${origin}/p/${slug}`;
+  }
+
+  const protocol =
+    process.env.NODE_ENV === "development" ? "http" : "https";
+  return `${protocol}://${slug}.${rootDomain}`;
+}
+
+/** App routes that should not be served from portfolio subdomains. */
+export const APP_ROUTE_PREFIXES = [
+  "/api",
+  "/dashboard",
+  "/sign-in",
+  "/sign-up",
+  "/pricing",
+  "/_next",
+] as const;

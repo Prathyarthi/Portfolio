@@ -20,6 +20,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Loader2, Save, Globe, Mail, Phone, MapPin, Link2 } from "lucide-react";
+import {
+  getPortfolioRootDomain,
+  sanitizePortfolioSlug,
+} from "@/lib/domain";
 
 export function PortfolioForm() {
   const { data: portfolio, isLoading } = usePortfolio();
@@ -76,16 +80,14 @@ export function PortfolioForm() {
     }
   }
 
+  const rootDomain = getPortfolioRootDomain();
+
   async function handleSlugSave() {
     if (!slug.trim()) {
-      toast.error("Slug cannot be empty");
+      toast.error("Subdomain cannot be empty");
       return;
     }
-    const sanitized = slug
-      .toLowerCase()
-      .replace(/[^a-z0-9-]/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
+    const sanitized = sanitizePortfolioSlug(slug);
     try {
       await updateSlug.mutateAsync(sanitized);
       setSlug(sanitized);
@@ -119,18 +121,16 @@ export function PortfolioForm() {
         <CardContent>
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <Label htmlFor="slug">Slug</Label>
+              <Label htmlFor="slug">Subdomain</Label>
               <div className="mt-1.5 flex items-center gap-1">
-                <span className="text-sm text-muted-foreground">
-                  {typeof window !== "undefined" ? window.location.origin : ""}/p/
-                </span>
                 <Input
                   id="slug"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
+                  onChange={(e) => setSlug(sanitizePortfolioSlug(e.target.value))}
                   placeholder="your-name"
                   className="max-w-xs"
                 />
+                <span className="text-sm text-muted-foreground">.{rootDomain}</span>
               </div>
             </div>
             <Button

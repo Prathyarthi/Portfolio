@@ -49,11 +49,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
       ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
       : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
-  const quickFacts = [
-    { label: "Projects", value: leadProjects.length },
-    { label: "Roles", value: experiences.length },
-    { label: "Skills", value: skills.length },
-  ].filter((item) => item.value > 0);
 
   return (
     <div className="min-h-screen bg-[#060816] text-zinc-100">
@@ -111,31 +106,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                       alt={portfolio.title}
                       className="h-72 w-full rounded-[1.4rem] object-cover"
                     />
-                  </div>
-                )}
-                {quickFacts.length > 0 && (
-                  <div className="rounded-[1.55rem] border border-white/10 bg-black/20 p-5 backdrop-blur-xl">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-                        Snapshot
-                      </p>
-                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-zinc-400">
-                        Current
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      {quickFacts.map((fact) => (
-                        <div
-                          key={fact.label}
-                          className="rounded-[1rem] border border-white/10 bg-white/[0.05] px-3 py-3"
-                        >
-                          <p className="text-lg font-semibold text-white">{fact.value}</p>
-                          <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-zinc-500">
-                            {fact.label}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>

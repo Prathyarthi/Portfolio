@@ -4,12 +4,13 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Pencil, Plus } from "lucide-react";
-import { useCreatePortfolio, usePortfolio } from "@/features/portfolio/api/use-portfolio";
+import { ExternalLink, Pencil } from "lucide-react";
+import { usePortfolio } from "@/features/portfolio/api/use-portfolio";
+import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { landingSurfaceInteractiveLg } from "@/features/landing/surface";
+import { getPortfolioPublicUrl } from "@/lib/domain";
 
 const secondaryLinks = [
   { href: "/dashboard/preview", label: "Preview" },
@@ -21,19 +22,8 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const { data: portfolio, isLoading } = usePortfolio();
-  const createPortfolio = useCreatePortfolio();
 
   const firstName = session?.user?.name?.split(" ")[0] ?? "there";
-
-  async function handleCreatePortfolio() {
-    try {
-      await createPortfolio.mutateAsync();
-      toast.success("Portfolio created");
-      router.push("/dashboard/edit");
-    } catch {
-      toast.error("Failed to create portfolio");
-    }
-  }
 
   return (
     <div className="mx-auto max-w-lg space-y-10 py-2 md:py-6">
@@ -61,18 +51,12 @@ export default function DashboardPage() {
         {!portfolio && !isLoading ? (
           <div className="flex flex-col items-center gap-5 py-4 text-center">
             <p className="max-w-xs text-sm leading-relaxed text-zinc-500">
-              You do not have a portfolio yet. One tap creates it and opens the
-              editor.
+              Pick a subdomain for your public portfolio, then start editing.
             </p>
-            <Button
-              size="lg"
-              className="rounded-full px-8"
-              onClick={handleCreatePortfolio}
-              disabled={createPortfolio.isPending}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              {createPortfolio.isPending ? "Creating…" : "Create portfolio"}
-            </Button>
+            <CreatePortfolioPrompt
+              onCreated={() => router.push("/dashboard/edit")}
+              buttonClassName="rounded-full px-8"
+            />
           </div>
         ) : isLoading ? (
           <div className="py-10 text-center text-sm text-zinc-500">Loading…</div>
@@ -84,7 +68,7 @@ export default function DashboardPage() {
                   Your link
                 </p>
                 <p className="truncate font-mono text-sm text-zinc-300">
-                  /p/{portfolio.slug}
+                  {getPortfolioPublicUrl(portfolio.slug)}
                 </p>
               </div>
               <span
@@ -113,7 +97,11 @@ export default function DashboardPage() {
                   className="w-full rounded-full border-white/10 bg-transparent sm:w-auto"
                   asChild
                 >
-                  <Link href={`/p/${portfolio.slug}`} target="_blank" rel="noreferrer">
+                  <Link
+                    href={getPortfolioPublicUrl(portfolio.slug)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     View live site
                   </Link>

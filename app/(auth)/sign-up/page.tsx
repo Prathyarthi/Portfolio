@@ -59,9 +59,7 @@ export default function SignUpPage() {
     <Card>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">Create your account</CardTitle>
-        <CardDescription>
-          Start building your portfolio in minutes
-        </CardDescription>
+        <CardDescription>Start building your portfolio in minutes</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Button

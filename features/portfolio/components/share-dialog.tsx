@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Copy, Check, ExternalLink, Share2 } from "lucide-react";
+import { getPortfolioPublicUrl } from "@/lib/domain";
 
 interface ShareDialogProps {
   slug: string;
@@ -25,10 +26,7 @@ interface ShareDialogProps {
 export function ShareDialog({ slug, isPublished, trigger, children }: ShareDialogProps) {
   const [copied, setCopied] = useState(false);
 
-  const publicUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/p/${slug}`
-      : `/p/${slug}`;
+  const publicUrl = getPortfolioPublicUrl(slug);
 
   async function handleCopy() {
     try {

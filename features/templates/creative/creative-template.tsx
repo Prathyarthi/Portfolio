@@ -38,11 +38,6 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
       ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
       : projects;
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
-  const quickFacts = [
-    { label: "Projects", value: visibleProjects.length },
-    { label: "Roles", value: experiences.length },
-    { label: "Skills", value: skills.length },
-  ].filter((item) => item.value > 0);
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf7_0%,#fff7fb_45%,#ffffff_100%)] text-stone-900 selection:bg-rose-200/50">
@@ -102,20 +97,6 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                     />
                   </div>
                 )}
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {quickFacts.map((fact) => (
-                    <div
-                      key={fact.label}
-                      className="rounded-[1.2rem] border border-rose-100/80 bg-white/85 px-4 py-4"
-                    >
-                      <p className="text-xl font-semibold text-stone-950">{fact.value}</p>
-                      <p className="mt-1 text-[11px] uppercase tracking-[0.22em] text-stone-400">
-                        {fact.label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </header>

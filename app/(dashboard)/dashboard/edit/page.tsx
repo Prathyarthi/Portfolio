@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Eye, Share2, User, Briefcase, GraduationCap, Wrench, FolderKanban, Globe, Trophy, Layers, FileText } from "lucide-react";
+import { Eye, Share2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,39 +12,19 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-import { useCreatePortfolio, usePortfolio } from "@/features/portfolio/api/use-portfolio";
-import { EducationForm } from "@/features/portfolio/components/education-form";
-import { ExperienceForm } from "@/features/portfolio/components/experience-form";
-import { PortfolioForm } from "@/features/portfolio/components/portfolio-form";
-import { ProjectForm } from "@/features/portfolio/components/project-form";
-import { SocialLinksEditor } from "@/features/portfolio/components/social-links-editor";
-import { AchievementForm } from "@/features/portfolio/components/achievement-form";
-import { PublishButton } from "@/features/portfolio/components/publish-button";
+import { usePortfolio } from "@/features/portfolio/api/use-portfolio";
+import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
+import { EditStepContent } from "@/features/portfolio/components/edit-step-content";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
-import { SkillsEditor } from "@/features/portfolio/components/skills-editor";
-import { CustomSectionEditor } from "@/features/portfolio/components/custom-section-editor";
-
-const STEPS = [
-  { value: "basic", label: "Basic Info", short: "Basic", icon: User },
-  { value: "experience", label: "Experience", short: "Exp", icon: Briefcase },
-  { value: "education", label: "Education", short: "Edu", icon: GraduationCap },
-  { value: "skills", label: "Skills", short: "Skills", icon: Wrench },
-  { value: "projects", label: "Projects", short: "Projects", icon: FolderKanban },
-  { value: "achievements", label: "Achievements", short: "Awards", icon: Trophy },
-  { value: "custom", label: "Custom Sections", short: "Custom", icon: Layers },
-  { value: "social", label: "Social Links", short: "Social", icon: Globe },
-] as const;
-
-type StepValue = (typeof STEPS)[number]["value"];
+import { EDIT_STEPS, type EditStepValue } from "@/features/portfolio/constants/edit-steps";
 
 export default function EditPortfolioPage() {
   const router = useRouter();
   const { data: portfolio, isLoading } = usePortfolio();
-  const createPortfolio = useCreatePortfolio();
-  const [activeStep, setActiveStep] = useState<StepValue>("basic");
+  const [activeStep, setActiveStep] = useState<EditStepValue>("basic");
 
   const activeIndex = useMemo(
-    () => STEPS.findIndex((step) => step.value === activeStep),
+    () => EDIT_STEPS.findIndex((step) => step.value === activeStep),
     [activeStep]
   );
 
@@ -53,24 +33,15 @@ export default function EditPortfolioPage() {
       router.push("/dashboard");
       return;
     }
-    setActiveStep(STEPS[activeIndex - 1].value);
+    setActiveStep(EDIT_STEPS[activeIndex - 1].value);
   };
 
   const goNext = () => {
-    if (activeIndex < STEPS.length - 1) {
-      setActiveStep(STEPS[activeIndex + 1].value);
+    if (activeIndex < EDIT_STEPS.length - 1) {
+      setActiveStep(EDIT_STEPS[activeIndex + 1].value);
       return;
     }
     router.push("/dashboard/templates");
-  };
-
-  const handleCreatePortfolio = async () => {
-    try {
-      await createPortfolio.mutateAsync();
-      toast.success("Portfolio created");
-    } catch {
-      toast.error("Failed to create portfolio");
-    }
   };
 
   if (isLoading) {
@@ -90,14 +61,11 @@ export default function EditPortfolioPage() {
           <CardHeader>
             <CardTitle className="text-zinc-100">Create your portfolio first</CardTitle>
             <CardDescription className="text-zinc-400">
-              A portfolio needs to exist before you can edit sections, choose a template, or preview it.
+              Choose a subdomain, then you can edit sections, pick a template, and preview.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Button onClick={handleCreatePortfolio} disabled={createPortfolio.isPending}>
-              <Plus className="mr-2 h-4 w-4" />
-              {createPortfolio.isPending ? "Creating..." : "Create Portfolio"}
-            </Button>
+          <CardContent className="space-y-4">
+            <CreatePortfolioPrompt />
             <Button variant="outline" asChild>
               <Link href="/dashboard">Back to Overview</Link>
             </Button>
@@ -150,9 +118,9 @@ export default function EditPortfolioPage() {
 
       <Separator />
 
-      <Tabs value={activeStep} onValueChange={(value) => setActiveStep(value as StepValue)} className="space-y-6">
+      <Tabs value={activeStep} onValueChange={(value) => setActiveStep(value as EditStepValue)} className="space-y-6">
         <TabsList className="w-full justify-start overflow-x-auto">
-          {STEPS.map((step) => {
+          {EDIT_STEPS.map((step) => {
             const Icon = step.icon;
             return (
               <TabsTrigger key={step.value} value={step.value} className="gap-1.5">
@@ -164,39 +132,11 @@ export default function EditPortfolioPage() {
           })}
         </TabsList>
 
-        <TabsContent value="basic" className="space-y-6">
-          <PortfolioForm />
-          <Separator />
-          <PublishButton />
-        </TabsContent>
-
-        <TabsContent value="experience">
-          <ExperienceForm />
-        </TabsContent>
-
-        <TabsContent value="education">
-          <EducationForm />
-        </TabsContent>
-
-        <TabsContent value="skills">
-          <SkillsEditor />
-        </TabsContent>
-
-        <TabsContent value="projects">
-          <ProjectForm />
-        </TabsContent>
-
-        <TabsContent value="social">
-          <SocialLinksEditor />
-        </TabsContent>
-
-        <TabsContent value="achievements">
-          <AchievementForm />
-        </TabsContent>
-
-        <TabsContent value="custom">
-          <CustomSectionEditor />
-        </TabsContent>
+        {EDIT_STEPS.map((step) => (
+          <TabsContent key={step.value} value={step.value} className="space-y-6">
+            <EditStepContent step={step.value} />
+          </TabsContent>
+        ))}
       </Tabs>
 
       <FlowFooter
@@ -206,7 +146,7 @@ export default function EditPortfolioPage() {
             : { label: "Previous", onClick: goPrevious }
         }
         next={{
-          label: activeIndex === STEPS.length - 1 ? "Next: Templates" : "Next",
+          label: activeIndex === EDIT_STEPS.length - 1 ? "Next: Templates" : "Next",
           onClick: goNext,
         }}
       />
