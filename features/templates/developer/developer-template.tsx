@@ -19,10 +19,12 @@ import {
 } from "@/features/templates/shared";
 import { CollapsibleList } from "@/features/templates/collapsible-list";
 
-import { getPreviewImage } from "@/lib/link-preview-code";
+// import { getPreviewImage } from "@/lib/link-preview-code";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections } =
+  const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections, livePreviewProjectIds } =
     data;
   const skillsByCategory = groupSkillsByCategory(skills);
 
@@ -311,7 +313,27 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                   key={project.id}
                   className="group rounded-lg border border-green-900/40 bg-gray-900/50 p-5 hover:border-green-700/60 hover:bg-gray-900/80 transition-all duration-300"
                 >
-                  <img
+                  {project.liveUrl ? (
+                    <LivePreviewImage
+                      liveUrl={project.liveUrl}
+                      enabled={isLivePreviewEnabledForProject(
+                        project.id,
+                        livePreviewProjectIds
+                      )}
+                      alt={`${project.title} preview`}
+                      loading="lazy"
+                      className="h-auto w-full object-cover"
+                      fallbackSrc="https://placehold.co/1440x900/111827/374151?text=No+Preview"
+                    />
+                  ) : (
+                    <img
+                      src="https://placehold.co/1440x900/111827/374151?text=No+Preview"
+                      alt={`${project.title} preview`}
+                      loading="lazy"
+                      className="h-auto w-full object-cover"
+                    />
+                  )}
+                  {/* <img
                   src={project.liveUrl ? getPreviewImage(project.liveUrl) : 'https://placehold.co/1440x900/111827/374151?text=No+Preview'}
                   alt={`${project.title} preview`}
                   loading="lazy"
@@ -319,7 +341,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                   onError={(e) => {
                     e.currentTarget.src = 'https://placehold.co/1440x900/111827/374151?text=No+Preview';
                   }}
-                />
+                /> */}
                   <div className="flex items-start pt-2 justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">

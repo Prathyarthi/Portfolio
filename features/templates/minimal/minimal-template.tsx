@@ -17,7 +17,9 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { getPreviewImage } from "@/lib/link-preview-code";
+// import { getPreviewImage } from "@/lib/link-preview-code";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function MinimalTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -31,6 +33,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
     certifications,
     achievements,
     customSections,
+    livePreviewProjectIds,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -183,7 +186,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                     >
                       {project.liveUrl ? (
                         <div className="relative h-auto w-full overflow-hidden bg-stone-100">
-                          <img
+                          {/* <img
                             src={getPreviewImage(project.liveUrl)}
                             alt={project.title}
                             loading="lazy"
@@ -192,6 +195,17 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                               e.currentTarget.src =
                                 'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
                             }}
+                          /> */}
+                          <LivePreviewImage
+                            liveUrl={project.liveUrl}
+                            enabled={isLivePreviewEnabledForProject(
+                              project.id,
+                              livePreviewProjectIds
+                            )}
+                            alt={project.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                            fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
                           />
                         </div>
                       ) : (
