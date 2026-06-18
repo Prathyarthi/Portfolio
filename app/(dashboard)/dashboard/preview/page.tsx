@@ -71,6 +71,10 @@ export default function PreviewPage() {
   }, [allowedTemplateIds, previewTemplate]);
 
   const handleTemplateChange = async (next: string) => {
+    if (allowedTemplateIds && !allowedTemplateIds.includes(next)) {
+      toast.error("Your free month has ended. Upgrade to Pro to unlock this template.");
+      return;
+    }
     setPreviewTemplate(next);
     if (next === portfolio?.templateId) return;
     try {
@@ -90,13 +94,10 @@ export default function PreviewPage() {
     }
   };
 
-  const templateOptions = useMemo(
-    () =>
-      Object.values(templateRegistry).filter((templateInfo) =>
-        allowedTemplateIds ? allowedTemplateIds.includes(templateInfo.id) : true
-      ),
-    [allowedTemplateIds]
-  );
+  const templateOptions = useMemo(() => Object.values(templateRegistry), []);
+
+  const isTemplateLocked = (templateId: string) =>
+    allowedTemplateIds ? !allowedTemplateIds.includes(templateId) : false;
 
   if (isLoading) {
     return (
@@ -159,8 +160,13 @@ export default function PreviewPage() {
               </SelectTrigger>
               <SelectContent>
                 {templateOptions.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
+                  <SelectItem
+                    key={t.id}
+                    value={t.id}
+                    disabled={isTemplateLocked(t.id)}
+                  >
                     {t.name}
+                    {isTemplateLocked(t.id) ? " (Pro)" : ""}
                   </SelectItem>
                 ))}
               </SelectContent>

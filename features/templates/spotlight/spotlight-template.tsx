@@ -146,7 +146,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
               </button>
 
               {menuOpen ? (
-                <div className="fixed left-0 top-[72px] z-30 flex w-full md:hidden">
+                <div className="absolute left-0 top-[72px] z-30 flex w-full md:hidden">
                   <div className="absolute mt-2 flex h-48 w-full flex-col items-end text-start">
                     <div className="space-y-5 rounded-lg bg-[#fbfffe] p-6 pr-5 text-[20px] font-semibold shadow-lg">
                       {NAV.map((item) => (
@@ -386,7 +386,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
           )}
 
           {showFloatSocial && socialProfiles.length > 0 && (
-            <div className="fixed right-0 top-[290px] z-20 hidden lg:block">
+            <div className="absolute right-0 top-[290px] z-20 hidden lg:block">
               <div className="relative -z-10 mb-4 justify-center">
                 <div className="rounded-lg bg-[#fbfffe] px-3 py-6 shadow-2xl drop-shadow-2xl">
                   <div className="flex flex-col gap-3">
