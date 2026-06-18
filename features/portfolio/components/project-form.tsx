@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   usePortfolio,
   useAddProject,
   useUpdateProject,
   useDeleteProject,
+  useUpdateLivePreview,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,8 +33,14 @@ import {
   X,
   Check,
   Star,
+  ImageIcon,
 } from "lucide-react";
 import { GithubIcon as Github } from "@/components/icons";
+import { ProjectLivePreviewControls } from "@/features/portfolio/components/project-live-preview-controls";
+import {
+  getMaxLivePreviews,
+  isLivePreviewEnabledForProject,
+} from "@/lib/live-preview";
 
 interface ProjectEntry {
   id?: string;
@@ -59,11 +66,46 @@ export function ProjectForm() {
   const addProject = useAddProject();
   const updateProject = useUpdateProject();
   const deleteProject = useDeleteProject();
+  const updateLivePreview = useUpdateLivePreview();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<ProjectEntry>(emptyEntry);
   const [techInput, setTechInput] = useState("");
+  const [enableLivePreviewOnSave, setEnableLivePreviewOnSave] = useState(false);
+  const [editLivePreviewEnabled, setEditLivePreviewEnabled] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(
+    null
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadBilling = async () => {
+      try {
+        const res = await fetch("/api/billing/me", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json().catch(() => ({}))) as {
+          subscription?: { status?: string | null } | null;
+        };
+        if (cancelled) return;
+        const status = data.subscription?.status ?? null;
+        setSubscriptionStatus(
+          status?.toLowerCase() === "active" ? "active" : "none"
+        );
+      } catch {
+        if (cancelled) return;
+        setSubscriptionStatus("none");
+      }
+    };
+    loadBilling();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const livePreviewProjectIds = Array.isArray(portfolio?.livePreviewProjectIds)
+    ? portfolio.livePreviewProjectIds
+    : [];
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -74,6 +116,10 @@ export function ProjectForm() {
   function startEditing(project: any) {
     setEditingId(project.id);
     setIsAdding(false);
+    setEnableLivePreviewOnSave(false);
+    setEditLivePreviewEnabled(
+      isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)
+    );
     setForm({
       id: project.id,
       title: project.title ?? "",
@@ -91,6 +137,16 @@ export function ProjectForm() {
     setIsAdding(false);
     setForm(emptyEntry);
     setTechInput("");
+    setEnableLivePreviewOnSave(false);
+    setEditLivePreviewEnabled(false);
+  }
+
+  function startAdding() {
+    setIsAdding(true);
+    setEditingId(null);
+    setForm(emptyEntry);
+    setTechInput("");
+    setEnableLivePreviewOnSave(false);
   }
 
   function addTechTag() {
@@ -118,6 +174,46 @@ export function ProjectForm() {
     }
   }
 
+  async function syncLivePreviewIds(nextIds: string[]) {
+    await updateLivePreview.mutateAsync(nextIds);
+  }
+
+  function handleEditLivePreviewChange(enabled: boolean) {
+    if (!editingId) return;
+    if (enabled && !form.liveUrl.trim()) {
+      toast.error("Add a live URL before enabling live preview");
+      return;
+    }
+
+    const maxAllowed = getMaxLivePreviews(subscriptionStatus);
+    const alreadySaved = livePreviewProjectIds.includes(editingId);
+    if (
+      enabled &&
+      !alreadySaved &&
+      livePreviewProjectIds.length >= maxAllowed
+    ) {
+      toast.error("Please upgrade the plan for more preview links");
+      return;
+    }
+
+    setEditLivePreviewEnabled(enabled);
+  }
+
+  function buildEditLivePreviewIds(): string[] {
+    if (!editingId) return livePreviewProjectIds;
+
+    if (!form.liveUrl.trim() || !editLivePreviewEnabled) {
+      return livePreviewProjectIds.filter((id: string) => id !== editingId);
+    }
+
+    if (livePreviewProjectIds.includes(editingId)) {
+      return livePreviewProjectIds;
+    }
+
+    const maxAllowed = getMaxLivePreviews(subscriptionStatus);
+    return [...livePreviewProjectIds, editingId].slice(0, maxAllowed);
+  }
+
   async function handleAdd() {
     if (!form.title.trim()) {
       toast.error("Project title is required");
@@ -128,7 +224,7 @@ export function ProjectForm() {
       return;
     }
     try {
-      await addProject.mutateAsync({
+      const created = await addProject.mutateAsync({
         title: form.title,
         description: form.description,
         liveUrl: form.liveUrl || null,
@@ -136,6 +232,23 @@ export function ProjectForm() {
         techStack: form.techStack,
         featured: form.featured,
       });
+
+      if (
+        enableLivePreviewOnSave &&
+        form.liveUrl.trim() &&
+        created?.id
+      ) {
+        const maxAllowed = getMaxLivePreviews(subscriptionStatus);
+        const current = [...livePreviewProjectIds];
+        if (!current.includes(created.id) && current.length < maxAllowed) {
+          await syncLivePreviewIds([...current, created.id]);
+        } else if (current.length >= maxAllowed) {
+          toast.error(
+            "Project added, but live preview limit reached. Upgrade for more links."
+          );
+        }
+      }
+
       toast.success("Project added");
       cancelEditing();
     } catch {
@@ -150,6 +263,19 @@ export function ProjectForm() {
       return;
     }
     try {
+      const wantPreview = editLivePreviewEnabled && Boolean(form.liveUrl.trim());
+      const alreadySaved = livePreviewProjectIds.includes(editingId);
+      const maxAllowed = getMaxLivePreviews(subscriptionStatus);
+
+      if (
+        wantPreview &&
+        !alreadySaved &&
+        livePreviewProjectIds.length >= maxAllowed
+      ) {
+        toast.error("Please upgrade the plan for more preview links");
+        return;
+      }
+
       await updateProject.mutateAsync({
         id: editingId,
         title: form.title,
@@ -159,6 +285,16 @@ export function ProjectForm() {
         techStack: form.techStack,
         featured: form.featured,
       });
+
+      const nextIds = buildEditLivePreviewIds();
+      const idsChanged =
+        nextIds.length !== livePreviewProjectIds.length ||
+        nextIds.some((id) => !livePreviewProjectIds.includes(id));
+
+      if (idsChanged) {
+        await syncLivePreviewIds(nextIds);
+      }
+
       toast.success("Project updated");
       cancelEditing();
     } catch {
@@ -169,6 +305,11 @@ export function ProjectForm() {
   async function handleDelete(id: string) {
     try {
       await deleteProject.mutateAsync(id);
+      if (livePreviewProjectIds.includes(id)) {
+        await syncLivePreviewIds(
+          livePreviewProjectIds.filter((projectId: string) => projectId !== id)
+        );
+      }
       toast.success("Project deleted");
       if (editingId === id) cancelEditing();
     } catch {
@@ -188,7 +329,8 @@ export function ProjectForm() {
   const isMutating =
     addProject.isPending ||
     updateProject.isPending ||
-    deleteProject.isPending;
+    deleteProject.isPending ||
+    updateLivePreview.isPending;
 
   return (
     <div className="space-y-6">
@@ -203,13 +345,7 @@ export function ProjectForm() {
           </p>
         </div>
         {!isAdding && !editingId && (
-          <Button
-            onClick={() => {
-              setIsAdding(true);
-              setForm(emptyEntry);
-              setTechInput("");
-            }}
-          >
+          <Button onClick={startAdding}>
             <Plus className="mr-2 h-4 w-4" />
             Add Project
           </Button>
@@ -301,6 +437,33 @@ export function ProjectForm() {
                 />
               </div>
             </div>
+
+            {isAdding ? (
+              <ProjectLivePreviewControls
+                mode="add"
+                liveUrl={form.liveUrl}
+                livePreviewProjectIds={livePreviewProjectIds}
+                subscriptionStatus={subscriptionStatus}
+                enableOnSave={enableLivePreviewOnSave}
+                onEnableOnSaveChange={setEnableLivePreviewOnSave}
+                isSaving={isMutating}
+              />
+            ) : (
+              <ProjectLivePreviewControls
+                mode="edit"
+                liveUrl={form.liveUrl}
+                projectId={editingId ?? undefined}
+                livePreviewProjectIds={livePreviewProjectIds}
+                subscriptionStatus={subscriptionStatus}
+                editEnabled={editLivePreviewEnabled}
+                savedEnabled={isLivePreviewEnabledForProject(
+                  editingId ?? "",
+                  livePreviewProjectIds
+                )}
+                onEditEnabledChange={handleEditLivePreviewChange}
+                isSaving={isMutating}
+              />
+            )}
 
             {/* Tech Stack Tags */}
             <div className="space-y-2">
@@ -398,6 +561,16 @@ export function ProjectForm() {
                           Featured
                         </Badge>
                       )}
+                      {project.liveUrl &&
+                        isLivePreviewEnabledForProject(
+                          project.id,
+                          livePreviewProjectIds
+                        ) && (
+                          <Badge variant="outline" className="text-xs gap-1">
+                            <ImageIcon className="h-3 w-3" />
+                            Live preview
+                          </Badge>
+                        )}
                     </div>
 
                     {(project.liveUrl || project.sourceUrl) && (

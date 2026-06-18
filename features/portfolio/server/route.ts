@@ -8,6 +8,10 @@ import {
   resolveAccessForUser,
 } from "@/lib/entitlements";
 import { bulkImportPortfolioData } from "./bulk-import";
+import {
+  getMaxLivePreviews,
+  sanitizeLivePreviewProjectIds,
+} from "@/lib/live-preview";
 
 function toDateOrThrow(value: string) {
   const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -444,6 +448,10 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       prisma.achievement.deleteMany({ where: { portfolioId: p.id } }),
       prisma.customSection.deleteMany({ where: { portfolioId: p.id } }),
       prisma.socialProfile.deleteMany({ where: { portfolioId: p.id } }),
+      prisma.portfolio.update({
+        where: { id: p.id },
+        data: { livePreviewProjectIds: [] },
+      }),
     ]);
 
     return { success: true };
@@ -1176,4 +1184,61 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 500;
       return { error: message };
     }
-  });
+  })
+  .patch(
+    "/live-preview",
+    async (ctx) => {
+      const session = await getSession(ctx.request);
+      if (!session) {
+        ctx.set.status = 401;
+        return { error: "Unauthorized" };
+      }
+
+      const portfolio = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+        include: {
+          projects: {
+            select: { id: true, liveUrl: true },
+            orderBy: { sortOrder: "asc" },
+          },
+        },
+      });
+      if (!portfolio) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+        select: { subscriptionStatus: true },
+      });
+      if (!user) {
+        ctx.set.status = 404;
+        return { error: "User not found" };
+      }
+
+      const maxAllowed = getMaxLivePreviews(user.subscriptionStatus);
+      const requestedIds = Array.isArray(ctx.body.projectIds)
+        ? ctx.body.projectIds.filter((id): id is string => typeof id === "string")
+        : [];
+
+      const livePreviewProjectIds = sanitizeLivePreviewProjectIds(
+        requestedIds,
+        portfolio.projects,
+        maxAllowed
+      );
+
+      const updated = await prisma.portfolio.update({
+        where: { id: portfolio.id },
+        data: { livePreviewProjectIds },
+        include: portfolioInclude,
+      });
+
+      return updated;
+    },
+    {
+      body: t.Object({
+        projectIds: t.Array(t.String()),
+      }),
+    },
+  );

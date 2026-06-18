@@ -94,6 +94,8 @@ export interface PortfolioData {
     label: string;
     items: Record<string, unknown>[];
   }>;
+  /** Project IDs stored in DB for Microlink live previews. */
+  livePreviewProjectIds: string[];
 }
 
 export interface TemplateComponent {

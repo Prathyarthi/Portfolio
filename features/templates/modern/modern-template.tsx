@@ -17,6 +17,9 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
+// import { getPreviewImage } from "@/lib/link-preview-code";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function ModernTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -30,6 +33,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
     certifications,
     achievements,
     customSections,
+    livePreviewProjectIds,
   } = data;
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -145,17 +149,40 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                     wrapperClassName="grid gap-5"
                     buttonClassName="mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
                   >
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 object-cover">
                     {leadProjects.map((project) => (
                       <article
                         key={project.id}
                         className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-black/20 shadow-[0_16px_50px_rgba(2,6,23,0.36)] transition-transform duration-300 hover:-translate-y-1"
                       >
-                        {project.imageUrl && (
-                          <img
-                            src={project.imageUrl}
-                            alt={project.title}
-                            className="h-52 w-full object-cover"
-                          />
+                        {project.liveUrl ? (
+                          <div className="relative h-auto w-full overflow-hidden bg-stone-100">
+                            {/* <img
+                              src={getPreviewImage(project.liveUrl)}
+                              alt={project.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                              onError={(e) => {
+                                e.currentTarget.src =
+                                  'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
+                              }}
+                            /> */}
+                            <LivePreviewImage
+                              liveUrl={project.liveUrl}
+                              enabled={isLivePreviewEnabledForProject(
+                                project.id,
+                                livePreviewProjectIds
+                              )}
+                              alt={project.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                              fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-3/5 w-full bg-white/4.5 flex items-center justify-center">
+                            <span className="text-sm text-stone-100 tracking-widest uppercase">no preview</span>
+                          </div>
                         )}
 
                         <div className="p-5 md:p-6">
@@ -219,6 +246,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                         </div>
                       </article>
                     ))}
+                    </div>
                   </CollapsibleList>
                 </section>
               )}

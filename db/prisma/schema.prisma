@@ -56,6 +56,9 @@ model Portfolio {
 
   customization Json @default("{}")
 
+  /// Project IDs selected for Microlink live previews (compact; resolve liveUrl at render time).
+  livePreviewProjectIds String[] @default([])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

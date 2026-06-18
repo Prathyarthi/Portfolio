@@ -8,6 +8,9 @@ import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { CollapsibleList } from "../collapsible-list";
 import { DescriptionBlock } from "../shared";
+// import { getPreviewImage } from "@/lib/link-preview-code";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 const MADE_TOMMY_LINK_ID = "made-tommy-spotlight-font";
 
@@ -28,7 +31,7 @@ type Filter = (typeof FILTERS)[number] | "All";
  * maps project id → string[] for filters; else `language` may be comma-separated tags.
  */
 export function SpotlightTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, projects, articles, socialProfiles, certifications, achievements } = data;
+  const { portfolio, projects, articles, socialProfiles, certifications, achievements, livePreviewProjectIds } = data;
   const [menuOpen, setMenuOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>("All");
   const [logoFailed, setLogoFailed] = useState(false);
@@ -270,7 +273,11 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                 buttonClassName="md:col-span-2 rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
               >
                 {filteredProjects.map((project) => (
-                  <ProjectCard key={project.id} project={project} />
+                  <ProjectCard
+                    key={project.id}
+                    project={project}
+                    livePreviewProjectIds={livePreviewProjectIds}
+                  />
                 ))}
               </CollapsibleList>
             </section>
@@ -435,7 +442,13 @@ function HeroSocialRow({ profiles }: { profiles: PortfolioData["socialProfiles"]
   );
 }
 
-function ProjectCard({ project }: { project: PortfolioData["projects"][number] }) {
+function ProjectCard({
+  project,
+  livePreviewProjectIds,
+}: {
+  project: PortfolioData["projects"][number];
+  livePreviewProjectIds: string[];
+}) {
   const hasLinks = Boolean(project.liveUrl || project.sourceUrl);
 
   return (
@@ -443,6 +456,35 @@ function ProjectCard({ project }: { project: PortfolioData["projects"][number] }
       <div className="h-1 w-full bg-[hsl(45,100%,60%)]/70" />
 
       <div className="flex flex-1 flex-col gap-4 p-5">
+        {project.liveUrl ? (
+          <div className="relative h-auto w-full overflow-hidden bg-stone-100">
+            {/* <img
+              src={getPreviewImage(project.liveUrl)}
+              alt={project.title}
+              loading="lazy"
+              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => {
+                e.currentTarget.src =
+                  'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
+              }}
+            /> */}
+            <LivePreviewImage
+              liveUrl={project.liveUrl}
+              enabled={isLivePreviewEnabledForProject(
+                project.id,
+                livePreviewProjectIds
+              )}
+              alt={project.title}
+              loading="lazy"
+              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+              fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
+            />
+          </div>
+        ) : (
+          <div className="h-3/5 w-full bg-white/4.5 flex items-center justify-center">
+            <span className="text-sm text-gray-600 border-gray-200 bg-white tracking-widest uppercase">no preview</span>
+          </div>
+        )}
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-lg font-semibold tracking-tight text-gray-950">{project.title}</h3>
           {hasLinks ? (
