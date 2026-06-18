@@ -17,10 +17,12 @@ import { CollapsibleList } from "@/features/templates/collapsible-list";
 import type { PortfolioData } from "@/features/templates/types";
 import { formatDate, formatDateRange, groupSkillsByCategory } from "@/features/templates/utils";
 import { Trophy } from "lucide-react";
-import { getPreviewImage } from "@/lib/link-preview-code";
+// import { getPreviewImage } from "@/lib/link-preview-code";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export default function CreativeTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, experiences, educations, skills, projects, articles, socialProfiles, certifications, achievements, customSections } =
+  const { portfolio, experiences, educations, skills, projects, articles, socialProfiles, certifications, achievements, customSections, livePreviewProjectIds } =
     data;
   const skillsByCategory = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
@@ -162,16 +164,17 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                         className="overflow-hidden rounded-[1.6rem] border border-rose-100/80 bg-[#fffaf7] shadow-[0_14px_40px_rgba(190,24,93,0.05)]"
                       >
                         {project.liveUrl ? (
-                          <div className="relative h-auto w-full overflow-hidden bg-stone-100">
-                            <img
-                              src={getPreviewImage(project.liveUrl)}
+                          <div className="relative h-auto w-full overflow-hidden bg-stone-100">fc
+                            <LivePreviewImage
+                              liveUrl={project.liveUrl}
+                              enabled={isLivePreviewEnabledForProject(
+                                project.id,
+                                livePreviewProjectIds
+                              )}
                               alt={project.title}
                               loading="lazy"
                               className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                              onError={(e) => {
-                                e.currentTarget.src =
-                                  'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
-                              }}
+                              fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
                             />
                           </div>
                         ) : (
