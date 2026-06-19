@@ -17,11 +17,11 @@ export function usePortfolio() {
 export function useCreatePortfolio() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (slug: string) => {
+    mutationFn: async () => {
       const res = await fetch("/api/portfolio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug }),
+        body: JSON.stringify({}),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -145,8 +145,15 @@ export function usePublishPortfolio() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublished }),
       });
-      if (!res.ok) throw new Error("Failed to update publish status");
-      return res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          typeof data.error === "string"
+            ? data.error
+            : "Failed to update publish status",
+        );
+      }
+      return data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
   });

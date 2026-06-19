@@ -43,11 +43,18 @@ export function PublishButton() {
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
 
   async function handleToggle(checked: boolean) {
+    if (checked && !slug) {
+      toast.error("Choose a subdomain before publishing");
+      return;
+    }
+
     try {
       await publishPortfolio.mutateAsync(checked);
       toast.success(checked ? "Portfolio published" : "Portfolio unpublished");
-    } catch {
-      toast.error("Failed to update publish status");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update publish status",
+      );
     }
   }
 
@@ -151,22 +158,24 @@ export function PublishButton() {
             <p className="text-sm text-muted-foreground">
               {isPublished
                 ? "Visitors can view your portfolio at the public URL."
-                : "Only you can see your portfolio right now."}
+                : slug
+                  ? "Turn on publishing when you are ready to go live."
+                  : "Choose your subdomain below before publishing."}
             </p>
           </div>
           <Switch
             id="publish-toggle"
             checked={isPublished}
             onCheckedChange={handleToggle}
-            disabled={publishPortfolio.isPending}
+            disabled={publishPortfolio.isPending || (!isPublished && !slug)}
           />
         </div>
 
         <div className="space-y-3 rounded-lg border p-4">
           <div className="space-y-1">
-            <p className="text-sm font-medium">Connect your domain</p>
+            <p className="text-sm font-medium">Choose your subdomain</p>
             <p className="text-xs text-muted-foreground">
-              Choose your public address before publishing.
+              This becomes your public portfolio address when you publish.
             </p>
           </div>
 
@@ -204,7 +213,7 @@ export function PublishButton() {
               slugAvailable === false
             }
           >
-            {updateSlug.isPending ? "Connecting..." : "Connect domain"}
+            {updateSlug.isPending ? "Saving..." : slug ? "Update subdomain" : "Save subdomain"}
           </Button>
         </div>
 

@@ -191,7 +191,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
           </section>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 border-t border-black pt-12">
+        <div className="flex flex-col gap-16 lg:gap-24 border-t border-black pt-12">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
               <SectionHeading className="mb-12">Experience</SectionHeading>
@@ -275,7 +275,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
 
         {/* Certifications and Achievements */}
         {(certifications.length > 0 || achievements.length > 0) && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 border-t border-black pt-12">
+          <div className="flex flex-col gap-16 lg:gap-24 border-t border-black pt-12">
             {certifications.length > 0 && (
               <section>
                 <SectionHeading className="mb-12">Certifications</SectionHeading>

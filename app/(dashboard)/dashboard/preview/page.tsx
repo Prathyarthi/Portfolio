@@ -86,11 +86,18 @@ export default function PreviewPage() {
   };
 
   const handlePublishToggle = async (next: boolean) => {
+    if (next && !portfolio?.slug) {
+      toast.error("Choose a subdomain in the Publish step before going live");
+      return;
+    }
+
     try {
       await publishPortfolio.mutateAsync(next);
       toast.success(next ? "Portfolio published" : "Portfolio unpublished");
-    } catch {
-      toast.error("Failed to update publish status");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update publish status",
+      );
     }
   };
 
@@ -176,7 +183,7 @@ export default function PreviewPage() {
               size="sm"
               variant={isPublished ? "outline" : "default"}
               onClick={() => handlePublishToggle(!isPublished)}
-              disabled={publishPortfolio.isPending}
+              disabled={publishPortfolio.isPending || (!isPublished && !slug)}
               className={
                 isPublished
                   ? "rounded-full border-white/8 bg-white/4 text-zinc-200"

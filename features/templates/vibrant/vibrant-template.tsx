@@ -206,7 +206,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
             </section>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="flex flex-col gap-8 lg:gap-12">
             {experiences.length > 0 && (
               <section id="experience" className="scroll-mt-32">
                 <SectionHeading>Experience</SectionHeading>
@@ -313,7 +313,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
 
           {/* Certifications and Achievements */}
           {(certifications.length > 0 || achievements.length > 0) && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <div className="flex flex-col gap-8 lg:gap-12">
               {certifications.length > 0 && (
                 <section>
                   <SectionHeading>Certifications</SectionHeading>

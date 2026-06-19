@@ -217,7 +217,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
           </section>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="flex flex-col gap-12">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-24">
               <SectionHeading>Load.Experience()</SectionHeading>

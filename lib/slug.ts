@@ -14,6 +14,6 @@ export function validatePortfolioSlug(slug: string): string | null {
 }
 
 export async function isSlugTaken(slug: string): Promise<boolean> {
-  const existing = await prisma.portfolio.findUnique({ where: { slug } });
+  const existing = await prisma.portfolio.findFirst({ where: { slug } });
   return Boolean(existing);
 }

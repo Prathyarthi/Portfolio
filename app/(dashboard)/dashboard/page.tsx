@@ -51,7 +51,7 @@ export default function DashboardPage() {
         {!portfolio && !isLoading ? (
           <div className="flex flex-col items-center gap-5 py-4 text-center">
             <p className="max-w-xs text-sm leading-relaxed text-zinc-500">
-              Pick a subdomain for your public portfolio, then start editing.
+              Create your portfolio to unlock the editor, imports, and preview.
             </p>
             <CreatePortfolioPrompt
               onCreated={() => router.push("/dashboard/edit")}
@@ -64,12 +64,25 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] pb-5">
               <div className="min-w-0 space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wider text-zinc-600">
-                  Your link
-                </p>
-                <p className="truncate font-mono text-sm text-zinc-300">
-                  {getPortfolioPublicUrl(portfolio.slug)}
-                </p>
+                {portfolio.isPublished && portfolio.slug ? (
+                  <>
+                    <p className="text-xs font-medium uppercase tracking-wider text-zinc-600">
+                      Your link
+                    </p>
+                    <p className="truncate font-mono text-sm text-zinc-300">
+                      {getPortfolioPublicUrl(portfolio.slug)}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs font-medium uppercase tracking-wider text-zinc-600">
+                      Status
+                    </p>
+                    <p className="text-sm text-zinc-400">
+                      Choose your subdomain when you publish.
+                    </p>
+                  </>
+                )}
               </div>
               <span
                 className={cn(
@@ -90,7 +103,7 @@ export default function DashboardPage() {
                   Open editor
                 </Link>
               </Button>
-              {portfolio.isPublished ? (
+              {portfolio.isPublished && portfolio.slug ? (
                 <Button
                   size="lg"
                   variant="outline"

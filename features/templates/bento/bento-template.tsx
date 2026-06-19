@@ -376,7 +376,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Certifications and Achievements */}
           {(certifications.length > 0 || achievements.length > 0) && (
-             <div className="col-span-1 md:col-span-3 lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div className="col-span-1 md:col-span-3 lg:col-span-4 flex flex-col gap-4">
                 {certifications.length > 0 && (
                   <section className="rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
                     <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">

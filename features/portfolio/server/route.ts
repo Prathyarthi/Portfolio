@@ -1,6 +1,7 @@
 import Elysia, { t } from "elysia";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { ensureUserPortfolio } from "@/lib/ensure-portfolio";
 import { isSlugTaken, validatePortfolioSlug } from "@/lib/slug";
 import {
   canUseTemplate,
@@ -128,42 +129,12 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         where: { id: session.userId },
       });
 
-      const requestedSlug = ctx.body?.slug;
-      if (typeof requestedSlug !== "string" || !requestedSlug.trim()) {
-        ctx.set.status = 400;
-        return { error: "Subdomain is required" };
-      }
+      const created = await ensureUserPortfolio(session.userId, user);
 
-      const validatedSlug = validatePortfolioSlug(requestedSlug);
-      if (!validatedSlug) {
-        ctx.set.status = 400;
-        return { error: "Invalid or reserved subdomain" };
-      }
-
-      if (await isSlugTaken(validatedSlug)) {
-        ctx.set.status = 409;
-        return { error: "Subdomain already taken" };
-      }
-
-      const slug = validatedSlug;
-
-      const created = await prisma.portfolio.create({
-        data: {
-          userId: session.userId,
-          slug,
-          title: user?.name ?? "",
-          contactEmail: user?.email ?? "",
-          avatarUrl: user?.avatar ?? undefined,
-        },
+      return prisma.portfolio.findUniqueOrThrow({
+        where: { id: created.id },
         include: portfolioInclude,
       });
-
-      return created;
-    },
-    {
-      body: t.Object({
-        slug: t.String({ minLength: 2 }),
-      }),
     },
   )
 
@@ -353,6 +324,20 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       if (!session) {
         ctx.set.status = 401;
         return { error: "Unauthorized" };
+      }
+
+      const portfolio = await prisma.portfolio.findUnique({
+        where: { userId: session.userId },
+      });
+
+      if (!portfolio) {
+        ctx.set.status = 404;
+        return { error: "Portfolio not found" };
+      }
+
+      if (ctx.body.isPublished && !portfolio.slug) {
+        ctx.set.status = 400;
+        return { error: "Choose a subdomain before publishing" };
       }
 
       const updated = await prisma.portfolio.update({

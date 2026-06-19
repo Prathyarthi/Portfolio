@@ -118,7 +118,7 @@ export default function TemplatesPage() {
           <CardHeader>
             <CardTitle className="text-zinc-100">Create your portfolio before choosing a template</CardTitle>
             <CardDescription className="text-zinc-400">
-              Choose a subdomain first so your template selection can be saved.
+              Create your portfolio first so your template selection can be saved.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

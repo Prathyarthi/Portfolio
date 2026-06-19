@@ -61,7 +61,7 @@ export default function EditPortfolioPage() {
           <CardHeader>
             <CardTitle className="text-zinc-100">Create your portfolio first</CardTitle>
             <CardDescription className="text-zinc-400">
-              Choose a subdomain, then you can edit sections, pick a template, and preview.
+              Create your portfolio first, then you can edit sections, pick a template, and preview.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

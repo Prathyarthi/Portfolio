@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useParseResume } from "@/features/resume/api/use-resume";
 import {
   useClearImportableContent,
+  useCreatePortfolio,
   usePortfolio,
   useUpdatePortfolio,
 } from "@/features/portfolio/api/use-portfolio";
@@ -78,6 +79,7 @@ export function ResumeUploader() {
 
   const parseResume = useParseResume();
   const { data: portfolio } = usePortfolio();
+  const createPortfolio = useCreatePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const clearImportable = useClearImportableContent();
 
@@ -169,10 +171,18 @@ export function ResumeUploader() {
     if (!parsedData) return;
     setImporting(true);
 
-    if (!portfolio) {
-      toast.error("Create your portfolio with a subdomain from the dashboard first.");
-      setImporting(false);
-      return;
+    let activePortfolio = portfolio;
+
+    if (!activePortfolio) {
+      try {
+        activePortfolio = await createPortfolio.mutateAsync();
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to create portfolio",
+        );
+        setImporting(false);
+        return;
+      }
     }
 
     try {

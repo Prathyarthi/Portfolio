@@ -181,7 +181,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
           </section>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
+        <div className="flex flex-col gap-12 md:gap-16">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-12">
               <SectionHeading>Experience</SectionHeading>
@@ -260,7 +260,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
 
           {/* Certifications and Achievements */}
           {(certifications.length > 0 || achievements.length > 0) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
+            <div className="flex flex-col gap-12 md:gap-16">
               {certifications.length > 0 && (
                 <section>
                   <SectionHeading>Certifications</SectionHeading>

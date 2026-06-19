@@ -9,6 +9,7 @@ import {
 import { fetchLeetCodeStats } from "@/lib/leetcode";
 import { fetchMediumArticles } from "@/lib/medium";
 import { getPlanLimitMessage, resolveAccessForUser } from "@/lib/entitlements";
+import { ensureUserPortfolio } from "@/lib/ensure-portfolio";
 
 async function requireImportEntitlement(request: Request) {
   const session = await getSession(request);
@@ -92,13 +93,7 @@ export const profile = new Elysia({ prefix: "/profile" })
         return gate.body;
       }
 
-      const portfolio = await prisma.portfolio.findUnique({
-        where: { userId: gate.session.userId },
-      });
-      if (!portfolio) {
-        ctx.set.status = 404;
-        return { error: "Portfolio not found" };
-      }
+      const portfolio = await ensureUserPortfolio(gate.session.userId);
 
       const existingCount = await prisma.project.count({
         where: { portfolioId: portfolio.id },
@@ -219,13 +214,7 @@ export const profile = new Elysia({ prefix: "/profile" })
         return gate.body;
       }
 
-      const portfolio = await prisma.portfolio.findUnique({
-        where: { userId: gate.session.userId },
-      });
-      if (!portfolio) {
-        ctx.set.status = 404;
-        return { error: "Portfolio not found" };
-      }
+      const portfolio = await ensureUserPortfolio(gate.session.userId);
 
       const result = await prisma.socialProfile.upsert({
         where: {
@@ -312,13 +301,7 @@ export const profile = new Elysia({ prefix: "/profile" })
         return gate.body;
       }
 
-      const portfolio = await prisma.portfolio.findUnique({
-        where: { userId: gate.session.userId },
-      });
-      if (!portfolio) {
-        ctx.set.status = 404;
-        return { error: "Portfolio not found" };
-      }
+      const portfolio = await ensureUserPortfolio(gate.session.userId);
 
       const existingCount = await prisma.article.count({
         where: { portfolioId: portfolio.id },

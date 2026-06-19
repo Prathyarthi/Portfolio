@@ -214,7 +214,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
           </section>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="flex flex-col gap-16">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
               <SectionHeading className="mb-10">Experience</SectionHeading>

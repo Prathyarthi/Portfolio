@@ -123,7 +123,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1.5fr_1fr]">
+        <div className="mt-10 flex flex-col gap-10">
           <main className="space-y-10">
             {portfolio.summary && (
               <section
@@ -147,7 +147,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                 <SectionHeading>Work</SectionHeading>
                 <CollapsibleList
                   initial={4}
-                  wrapperClassName="grid grid-cols-1 gap-6"
+                  wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-6"
                   buttonClassName="mt-4 border-4 border-black bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
                 >
                     {visibleProjects.map((project) => (

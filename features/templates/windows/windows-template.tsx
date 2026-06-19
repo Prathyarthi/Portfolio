@@ -158,7 +158,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
           </Window>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="flex flex-col gap-8">
           {/* Experience Window */}
           {experiences.length > 0 && (
             <Window id="experience" title="Task Manager - Experience">
