@@ -512,14 +512,6 @@ export function ResumeUploader() {
                 </p>
               )}
             </div>
-            <Button onClick={handleImport} disabled={importing}>
-              {importing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Check className="mr-2 h-4 w-4" />
-              )}
-              Import All to Portfolio
-            </Button>
           </div>
 
           {/* Basic Info */}
@@ -748,6 +740,17 @@ export function ResumeUploader() {
               </CardContent>
             </Card>
           )}
+
+          <div className="flex justify-end pt-4">
+            <Button onClick={handleImport} disabled={importing} size="lg">
+              {importing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="mr-2 h-4 w-4" />
+              )}
+              Import All to Portfolio
+            </Button>
+          </div>
         </div>
       )}
     </div>
