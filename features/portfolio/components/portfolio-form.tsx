@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import {
   usePortfolio,
   useUpdatePortfolio,
-  useUpdateSlug,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,16 +18,11 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Loader2, Save, Globe, Mail, Phone, MapPin, Link2 } from "lucide-react";
-import {
-  getPortfolioRootDomain,
-  sanitizePortfolioSlug,
-} from "@/lib/domain";
+import { Loader2, Save, Mail, Phone, MapPin, Link2 } from "lucide-react";
 
 export function PortfolioForm() {
   const { data: portfolio, isLoading } = usePortfolio();
   const updatePortfolio = useUpdatePortfolio();
-  const updateSlug = useUpdateSlug();
 
   const [form, setForm] = useState({
     title: "",
@@ -39,8 +33,6 @@ export function PortfolioForm() {
     location: "",
     websiteUrl: "",
   });
-
-  const [slug, setSlug] = useState("");
 
   useEffect(() => {
     if (portfolio) {
@@ -53,7 +45,6 @@ export function PortfolioForm() {
         location: portfolio.location ?? "",
         websiteUrl: portfolio.websiteUrl ?? "",
       });
-      setSlug(portfolio.slug ?? "");
     }
   }, [portfolio]);
 
@@ -80,23 +71,6 @@ export function PortfolioForm() {
     }
   }
 
-  const rootDomain = getPortfolioRootDomain();
-
-  async function handleSlugSave() {
-    if (!slug.trim()) {
-      toast.error("Subdomain cannot be empty");
-      return;
-    }
-    const sanitized = sanitizePortfolioSlug(slug);
-    try {
-      await updateSlug.mutateAsync(sanitized);
-      setSlug(sanitized);
-      toast.success("URL slug updated");
-    } catch (err: any) {
-      toast.error(err.message ?? "Failed to update slug");
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -107,47 +81,6 @@ export function PortfolioForm() {
 
   return (
     <div className="space-y-6">
-      {/* URL Slug */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Portfolio URL
-          </CardTitle>
-          <CardDescription>
-            Choose a custom URL for your public portfolio page.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
-              <Label htmlFor="slug">Subdomain</Label>
-              <div className="mt-1.5 flex items-center gap-1">
-                <Input
-                  id="slug"
-                  value={slug}
-                  onChange={(e) => setSlug(sanitizePortfolioSlug(e.target.value))}
-                  placeholder="your-name"
-                  className="max-w-xs"
-                />
-                <span className="text-sm text-muted-foreground">.{rootDomain}</span>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleSlugSave}
-              disabled={updateSlug.isPending}
-            >
-              {updateSlug.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Update URL
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Basic Info */}
       <Card>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
@@ -190,7 +123,6 @@ export function PortfolioForm() {
         </CardContent>
       </Card>
 
-      {/* Contact Info */}
       <Card>
         <CardHeader>
           <CardTitle>Contact Information</CardTitle>
@@ -264,7 +196,6 @@ export function PortfolioForm() {
         </CardContent>
       </Card>
 
-      {/* Save Button */}
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={updatePortfolio.isPending}>
           {updatePortfolio.isPending ? (

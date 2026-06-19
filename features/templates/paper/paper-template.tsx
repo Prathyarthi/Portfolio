@@ -1,0 +1,406 @@
+import type { PortfolioData } from "../types";
+import {
+  GitHubContributionHeatmap,
+  parseContributionCalendar,
+} from "../github-contribution-heatmap";
+import {
+  buildTemplateSections,
+  ContactChips,
+  CustomSectionItems,
+  DescriptionBlock,
+  HeroProfileButtons,
+  ProfileLinksSection,
+  ProjectActions,
+  SocialPills,
+  TemplateNavbar,
+} from "../shared";
+import { CollapsibleList } from "../collapsible-list";
+import { formatDateRange, groupSkillsByCategory } from "../utils";
+import { LivePreviewImage } from "@/components/live-preview-image";
+import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+
+export function PaperTemplate({ data }: { data: PortfolioData }) {
+  const {
+    portfolio,
+    experiences,
+    educations,
+    skills,
+    projects,
+    articles,
+    socialProfiles,
+    certifications,
+    achievements,
+    customSections,
+    livePreviewProjectIds,
+  } = data;
+  const groupedSkills = groupSkillsByCategory(skills);
+  const githubProfile = socialProfiles.find(
+    (profile) => profile.platform.toLowerCase() === "github"
+  );
+  const githubStats = githubProfile?.cachedStats as Record<string, unknown> | null;
+  const contributionCalendar = parseContributionCalendar(
+    githubStats?.contributionCalendar
+  );
+  const featuredProjects = projects.filter((project) => project.featured);
+  const visibleProjects =
+    featuredProjects.length > 0
+      ? [...featuredProjects, ...projects.filter((p) => !p.featured)]
+      : projects;
+  const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
+
+  return (
+    <div className="min-h-screen bg-[#f4f1ea] text-[#2c2c2c] font-serif selection:bg-[#2c2c2c] selection:text-[#f4f1ea]">
+      <div className="mx-auto max-w-4xl px-6 py-12 md:py-20 space-y-16">
+        
+        {navbarEnabled && (
+          <div className="flex justify-center border-b-2 border-[#2c2c2c] pb-4 mb-12">
+            <TemplateNavbar
+              items={sections}
+              className="flex gap-6"
+              linkClassName="text-sm font-bold uppercase tracking-widest text-[#2c2c2c] hover:underline underline-offset-4"
+            />
+          </div>
+        )}
+
+        <header className="text-center space-y-6">
+          <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-widest leading-tight">
+            {portfolio.title}
+          </h1>
+          {portfolio.headline && (
+            <p className="text-xl italic text-[#555] max-w-2xl mx-auto">
+              {portfolio.headline}
+            </p>
+          )}
+          
+          {portfolio.avatarUrl && (
+            <div className="mt-8 flex justify-center">
+              <img
+                src={portfolio.avatarUrl}
+                alt={portfolio.title}
+                className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-full border border-[#2c2c2c] p-1"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-col items-center gap-4 mt-8 pt-8 border-t border-[#2c2c2c]/30">
+            <ContactChips
+              portfolio={portfolio}
+              chipClassName="text-sm font-sans tracking-wider uppercase border border-[#2c2c2c] px-4 py-2 hover:bg-[#2c2c2c] hover:text-[#f4f1ea] transition-colors"
+            />
+            <HeroProfileButtons
+              profiles={socialProfiles}
+              className="text-sm font-sans tracking-wider uppercase bg-[#2c2c2c] text-[#f4f1ea] px-6 py-2 hover:bg-black transition-colors"
+            />
+          </div>
+
+          {socialProfiles.length > 0 && (
+            <div className="mt-6 flex justify-center">
+              <SocialPills
+                profiles={socialProfiles}
+                showUsername
+                className="text-xs font-sans tracking-wider uppercase text-[#555] hover:text-[#2c2c2c]"
+              />
+            </div>
+          )}
+        </header>
+
+        {portfolio.summary && (
+          <section id="about" className="scroll-mt-12">
+            <SectionHeading>Abstract</SectionHeading>
+            <div className="text-lg leading-relaxed text-[#444] first-letter:text-5xl first-letter:font-bold first-letter:mr-1 first-letter:float-left">
+              <DescriptionBlock
+                text={portfolio.summary}
+                paragraphClassName="mb-4"
+                listClassName="list-disc pl-6 mb-4 space-y-2"
+              />
+            </div>
+          </section>
+        )}
+
+        {visibleProjects.length > 0 && (
+          <section id="work" className="scroll-mt-12">
+            <SectionHeading>Selected Works</SectionHeading>
+            <CollapsibleList
+              initial={4}
+              wrapperClassName="space-y-12"
+              buttonClassName="mt-8 mx-auto block border border-[#2c2c2c] bg-transparent px-8 py-3 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
+            >
+              {visibleProjects.map((project) => (
+                <article key={project.id} className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+                  <div className="md:col-span-5">
+                    {project.liveUrl ? (
+                      <div className="border border-[#2c2c2c] p-1 bg-white">
+                        <LivePreviewImage
+                          liveUrl={project.liveUrl}
+                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
+                          alt={project.title}
+                          loading="lazy"
+                          className="w-full aspect-4/3 object-cover filter grayscale hover:grayscale-0 transition-all duration-500"
+                          fallbackSrc="https://placehold.co/800x600/f4f1ea/2c2c2c?text=Figure+1"
+                        />
+                      </div>
+                    ) : (
+                      <div className="border border-[#2c2c2c] p-1 bg-white aspect-4/3 flex items-center justify-center">
+                        <span className="text-xs font-sans uppercase tracking-widest text-[#888]">Figure Unavailable</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="md:col-span-7 space-y-4">
+                    <div className="flex items-baseline justify-between">
+                      <h3 className="text-2xl font-bold leading-tight">{project.title}</h3>
+                      {project.featured && (
+                        <span className="text-[10px] font-sans uppercase tracking-widest border border-[#2c2c2c] px-2 py-1 ml-4 shrink-0">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                    {project.description && (
+                      <p className="text-[#555] leading-relaxed">
+                        {project.description}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {project.techStack.map((tech) => (
+                        <span key={tech} className="text-xs font-sans uppercase tracking-wider text-[#666] bg-[#e8e4db] px-2 py-1">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="pt-4">
+                      <ProjectActions
+                        liveUrl={project.liveUrl}
+                        sourceUrl={project.sourceUrl}
+                        liveClassName="text-xs font-sans uppercase tracking-widest border-b border-[#2c2c2c] pb-1 hover:text-[#888] hover:border-[#888] transition-colors mr-6"
+                        sourceClassName="text-xs font-sans uppercase tracking-widest border-b border-[#2c2c2c] pb-1 hover:text-[#888] hover:border-[#888] transition-colors"
+                      />
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </CollapsibleList>
+          </section>
+        )}
+
+        <div className="flex flex-col gap-12 md:gap-16">
+          {experiences.length > 0 && (
+            <section id="experience" className="scroll-mt-12">
+              <SectionHeading>Experience</SectionHeading>
+              <CollapsibleList
+                initial={4}
+                wrapperClassName="space-y-8"
+                buttonClassName="mt-6 border border-[#2c2c2c] bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
+              >
+                {experiences.map((exp) => (
+                  <article key={exp.id} className="relative pl-6 border-l border-[#2c2c2c]/30">
+                    <div className="absolute w-2 h-2 bg-[#2c2c2c] rounded-full left-[-4.5px] top-2" />
+                    <h3 className="text-xl font-bold">{exp.role}</h3>
+                    <p className="text-lg italic text-[#555] mt-1">{exp.company}</p>
+                    {(exp.startDate || exp.endDate) && (
+                      <p className="text-xs font-sans uppercase tracking-widest text-[#888] mt-2">
+                        {formatDateRange(exp.startDate, exp.endDate)}
+                      </p>
+                    )}
+                    {exp.description && (
+                      <div className="mt-3 text-[#444] text-sm leading-relaxed">
+                        <DescriptionBlock
+                          text={exp.description}
+                          paragraphClassName="mb-2"
+                          listClassName="list-disc pl-4 space-y-1"
+                        />
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </CollapsibleList>
+            </section>
+          )}
+
+          <div className="space-y-16">
+            {educations.length > 0 && (
+              <section>
+                <SectionHeading>Education</SectionHeading>
+                <CollapsibleList
+                  initial={3}
+                  wrapperClassName="space-y-6"
+                  buttonClassName="mt-6 border border-[#2c2c2c] bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
+                >
+                  {educations.map((edu) => (
+                    <article key={edu.id}>
+                      <h3 className="text-lg font-bold">{edu.degree}</h3>
+                      <p className="text-[#555] italic mt-1">{edu.institution}</p>
+                      <div className="flex justify-between items-center mt-2 text-xs font-sans uppercase tracking-widest text-[#888]">
+                        {(edu.startDate || edu.endDate) && (
+                          <span>{formatDateRange(edu.startDate, edu.endDate)}</span>
+                        )}
+                        {edu.gpa && <span>GPA {edu.gpa}</span>}
+                      </div>
+                    </article>
+                  ))}
+                </CollapsibleList>
+              </section>
+            )}
+
+            {skills.length > 0 && (
+              <section>
+                <SectionHeading>Proficiencies</SectionHeading>
+                <div className="space-y-6">
+                  {Object.entries(groupedSkills).map(([category, names]) => (
+                    <div key={category}>
+                      <h3 className="text-sm font-bold uppercase tracking-widest mb-3">{category}</h3>
+                      <p className="text-[#444] leading-relaxed">
+                        {names.join(", ")}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
+
+          {/* Certifications and Achievements */}
+          {(certifications.length > 0 || achievements.length > 0) && (
+            <div className="flex flex-col gap-12 md:gap-16">
+              {certifications.length > 0 && (
+                <section>
+                  <SectionHeading>Certifications</SectionHeading>
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-6"
+                    buttonClassName="mt-6 border border-[#2c2c2c] bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
+                  >
+                    {certifications.map((cert) => (
+                      <article key={cert.id} className="border-b border-[#2c2c2c]/30 pb-4">
+                        <h3 className="text-lg font-bold">
+                          {cert.url ? (
+                            <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4">
+                              {cert.name}
+                            </a>
+                          ) : (
+                            cert.name
+                          )}
+                        </h3>
+                        <p className="text-[#555] italic mt-1">{cert.issuer}</p>
+                        {cert.issueDate && (
+                          <div className="mt-2 text-xs font-sans uppercase tracking-widest text-[#888]">
+                            {new Date(cert.issueDate).getFullYear()}
+                          </div>
+                        )}
+                      </article>
+                    ))}
+                  </CollapsibleList>
+                </section>
+              )}
+
+              {achievements.length > 0 && (
+                <section>
+                  <SectionHeading>Honors & Awards</SectionHeading>
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-6"
+                    buttonClassName="mt-6 border border-[#2c2c2c] bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
+                  >
+                    {achievements.map((ach) => (
+                      <article key={ach.id} className="border-b border-[#2c2c2c]/30 pb-4">
+                        <h3 className="text-lg font-bold">{ach.title}</h3>
+                        {ach.date && (
+                          <div className="mt-2 text-xs font-sans uppercase tracking-widest text-[#888]">
+                            {new Date(ach.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                          </div>
+                        )}
+                      </article>
+                    ))}
+                  </CollapsibleList>
+                </section>
+              )}
+            </div>
+          )}
+
+          {/* Custom Sections */}
+          {customSections.length > 0 && customSections.map((cs) => (
+            <section key={cs.id} className="scroll-mt-12">
+              <SectionHeading>{cs.label}</SectionHeading>
+              <div className="border border-[#2c2c2c] p-8 bg-white">
+                <CustomSectionItems
+                  items={cs.items}
+                  titleClassName="text-xl font-bold mb-2"
+                  textClassName="text-[#555] leading-relaxed"
+                  chipClassName="text-xs font-sans uppercase tracking-wider text-[#666] bg-[#e8e4db] px-2 py-1"
+                />
+              </div>
+            </section>
+          ))}
+
+        {articles.length > 0 && (
+          <section id="writing" className="scroll-mt-12">
+            <SectionHeading>Publications</SectionHeading>
+            <CollapsibleList
+              initial={4}
+              wrapperClassName="grid grid-cols-1 sm:grid-cols-2 gap-8"
+              buttonClassName="col-span-full mt-8 mx-auto block border border-[#2c2c2c] bg-transparent px-8 py-3 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
+            >
+              {articles.map((article) => (
+                <article key={article.id} className="border-t border-[#2c2c2c] pt-4">
+                  <h3 className="text-xl font-bold mb-2 hover:underline underline-offset-4">
+                    <a href={article.url} target="_blank" rel="noopener noreferrer">
+                      {article.title}
+                    </a>
+                  </h3>
+                  {article.description && (
+                    <p className="text-[#555] text-sm leading-relaxed mb-4">
+                      {article.description}
+                    </p>
+                  )}
+                  <div className="text-xs font-sans uppercase tracking-widest text-[#888] flex gap-4">
+                    {article.publishedAt && (
+                      <span>{new Date(article.publishedAt).toLocaleDateString()}</span>
+                    )}
+                    {article.readTime != null && <span>{article.readTime} min read</span>}
+                  </div>
+                </article>
+              ))}
+            </CollapsibleList>
+          </section>
+        )}
+
+        {contributionCalendar && (
+          <section className="scroll-mt-12">
+            <SectionHeading>Open Source</SectionHeading>
+            <div className="border border-[#2c2c2c] p-6 bg-white overflow-x-auto custom-scrollbar">
+              <GitHubContributionHeatmap
+                calendar={contributionCalendar}
+                profileUrl={githubProfile?.url}
+                username={githubProfile?.username}
+                variant="minimal"
+                label="GitHub Contributions"
+              />
+            </div>
+          </section>
+        )}
+        {hasProfiles && (
+          <section id="profiles" className="scroll-mt-12">
+            <SectionHeading>Directory</SectionHeading>
+            <div className="border border-[#2c2c2c] p-8 bg-white">
+              <ProfileLinksSection
+                portfolio={portfolio}
+                profiles={socialProfiles}
+                chipClassName="text-xs font-sans tracking-wider uppercase border border-[#2c2c2c] px-4 py-2 hover:bg-[#2c2c2c] hover:text-[#f4f1ea] transition-colors"
+                pillClassName="text-xs font-sans tracking-wider uppercase border border-[#2c2c2c] px-4 py-2 hover:bg-[#2c2c2c] hover:text-[#f4f1ea] transition-colors"
+                titleClassName="text-lg font-bold"
+                textClassName="text-[#555]"
+              />
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-3xl font-bold uppercase tracking-widest border-b-2 border-[#2c2c2c] pb-4 mb-8 text-center">
+      {children}
+    </h2>
+  );
+}

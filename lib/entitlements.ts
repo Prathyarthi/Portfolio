@@ -1,13 +1,11 @@
+import { templateRegistry } from "@/features/templates/registry";
+
 const FREE_TRIAL_DAYS = 30;
 
 const FREE_TEMPLATE_IDS = ["minimal"] as const;
-const PREMIUM_TEMPLATE_IDS = [
-  "modern",
-  "developer",
-  "creative",
-  "corporate",
-  "spotlight",
-] as const;
+const PREMIUM_TEMPLATE_IDS = Object.keys(templateRegistry).filter(
+  (id) => id !== "minimal"
+);
 
 export type AccessTier = "free" | "trial" | "pro";
 

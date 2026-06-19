@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Check, Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,14 +13,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 import {
-  getPortfolioPublicUrl,
-  getPortfolioRootDomain,
-  sanitizePortfolioSlug,
-} from "@/lib/domain";
-import {
   usePortfolio,
   useUpdatePortfolio,
-  useUpdateSlug,
 } from "@/features/portfolio/api/use-portfolio";
 import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import type { PortfolioCustomization, TemplateSectionId } from "@/features/templates/types";
@@ -42,17 +36,7 @@ export default function SettingsPage() {
   const { data: session } = useSession();
   const { data: portfolio } = usePortfolio();
   const updatePortfolio = useUpdatePortfolio();
-  const updateSlug = useUpdateSlug();
-  const [slug, setSlug] = useState("");
-  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
-  const [checking, setChecking] = useState(false);
   const [navbarSettings, setNavbarSettings] = useState(defaultNavbarSettings);
-
-  useEffect(() => {
-    if (portfolio?.slug) {
-      setSlug(portfolio.slug);
-    }
-  }, [portfolio?.slug]);
 
   useEffect(() => {
     const customization =
@@ -75,35 +59,6 @@ export default function SettingsPage() {
     });
   }, [portfolio?.customization]);
 
-  const checkSlug = async (value: string) => {
-    if (!value || value === portfolio?.slug) {
-      setSlugAvailable(null);
-      return;
-    }
-
-    setChecking(true);
-    try {
-      const res = await fetch("/api/portfolio/slug/check", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: value }),
-      });
-      const data = await res.json();
-      setSlugAvailable(data.available);
-    } catch {
-      setSlugAvailable(null);
-    } finally {
-      setChecking(false);
-    }
-  };
-
-  const handleSlugSave = () => {
-    updateSlug.mutate(slug, {
-      onSuccess: () => toast.success("Slug updated"),
-      onError: (error) => toast.error(error.message),
-    });
-  };
-
   const handleNavbarSave = () => {
     updatePortfolio.mutate(
       {
@@ -120,11 +75,6 @@ export default function SettingsPage() {
       }
     );
   };
-
-  const rootDomain = getPortfolioRootDomain();
-  const portfolioUrl = slug
-    ? getPortfolioPublicUrl(slug)
-    : `https://your-name.${rootDomain}`;
 
   return (
     <div className="space-y-8 max-w-2xl pb-6 mx-auto w-full h-screen">
@@ -167,52 +117,8 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Portfolio URL</CardTitle>
-          <CardDescription>
-            Your portfolio will be available at {portfolioUrl}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Subdomain</Label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <div className="flex h-10 items-center rounded-md border border-input bg-transparent px-3 shadow-xs">
-                  <Input
-                    value={slug}
-                    onChange={(e) => {
-                      const value = sanitizePortfolioSlug(e.target.value);
-                      setSlug(value);
-                      checkSlug(value);
-                    }}
-                    placeholder="your-name"
-                    className="border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-                  />
-                  <span className="ml-1 shrink-0 text-sm text-muted-foreground">
-                    .{rootDomain}
-                  </span>
-                </div>
-                {checking && (
-                  <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-muted-foreground" />
-                )}
-                {!checking && slugAvailable === true && (
-                  <Check className="absolute right-3 top-2.5 h-4 w-4 text-green-500" />
-                )}
-                {!checking && slugAvailable === false && (
-                  <X className="absolute right-3 top-2.5 h-4 w-4 text-destructive" />
-                )}
-              </div>
-              <Button onClick={handleSlugSave} disabled={updateSlug.isPending || slug === portfolio?.slug || slugAvailable === false}>
-                {updateSlug.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
+      {portfolio ? (
+        <Card>
         <CardHeader>
           <CardTitle>Portfolio Navbar</CardTitle>
           <CardDescription>
@@ -286,6 +192,7 @@ export default function SettingsPage() {
           </Button>
         </CardContent>
       </Card>
+      ) : null}
 
       <Separator />
 

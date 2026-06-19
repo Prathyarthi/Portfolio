@@ -21,6 +21,18 @@ function TemplatePreview({ templateId }: { templateId: string }) {
     creative: "from-pink-500/40 to-orange-400/30",
     corporate: "from-sky-500/40 to-slate-300/30",
     spotlight: "from-[#fc3]/50 to-[#fbfffe]",
+    retro: "from-[#ff90e8]/80 to-[#ffc900]/80",
+    bento: "from-zinc-100 to-zinc-200",
+    vibrant: "from-fuchsia-600/60 to-cyan-500/60",
+    space: "from-[#030014] to-[#0B0F19]",
+    windows: "from-[#3a6ea5] to-[#3a6ea5]",
+    paper: "from-[#f4f1ea] to-[#e8e4db]",
+    cyberpunk: "from-[#050505] to-[#050505]",
+    pastel: "from-[#fff5f8] to-[#ffdfba]",
+    monochrome: "from-white to-gray-100",
+    synthwave: "from-[#120458] to-[#000000]",
+    artdeco: "from-[#0b132b] to-[#111c3d]",
+    blueprint: "from-[#003366] to-[#002244]",
   };
 
   return (
@@ -106,7 +118,7 @@ export default function TemplatesPage() {
           <CardHeader>
             <CardTitle className="text-zinc-100">Create your portfolio before choosing a template</CardTitle>
             <CardDescription className="text-zinc-400">
-              Choose a subdomain first so your template selection can be saved.
+              Create your portfolio first so your template selection can be saved.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -227,6 +239,18 @@ function TemplatePreview({ templateId }: { templateId: string }) {
     creative: "from-pink-500/40 to-orange-400/30",
     corporate: "from-sky-500/40 to-slate-300/30",
     spotlight: "from-[#fc3]/50 to-[#fbfffe]",
+    retro: "from-[#ff90e8]/80 to-[#ffc900]/80",
+    bento: "from-zinc-100 to-zinc-200",
+    vibrant: "from-fuchsia-600/60 to-cyan-500/60",
+    space: "from-[#030014] to-[#0B0F19]",
+    windows: "from-[#3a6ea5] to-[#3a6ea5]",
+    paper: "from-[#f4f1ea] to-[#e8e4db]",
+    cyberpunk: "from-[#050505] to-[#050505]",
+    pastel: "from-[#fff5f8] to-[#ffdfba]",
+    monochrome: "from-white to-gray-100",
+    synthwave: "from-[#120458] to-[#000000]",
+    artdeco: "from-[#0b132b] to-[#111c3d]",
+    blueprint: "from-[#003366] to-[#002244]",
   };
 
   return (

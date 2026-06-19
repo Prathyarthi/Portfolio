@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   usePortfolio,
   usePublishPortfolio,
@@ -71,6 +70,10 @@ export default function PreviewPage() {
   }, [allowedTemplateIds, previewTemplate]);
 
   const handleTemplateChange = async (next: string) => {
+    if (allowedTemplateIds && !allowedTemplateIds.includes(next)) {
+      toast.error("Your free month has ended. Upgrade to Pro to unlock this template.");
+      return;
+    }
     setPreviewTemplate(next);
     if (next === portfolio?.templateId) return;
     try {
@@ -82,21 +85,25 @@ export default function PreviewPage() {
   };
 
   const handlePublishToggle = async (next: boolean) => {
+    if (next && !portfolio?.slug) {
+      toast.error("Choose a subdomain in the Publish step before going live");
+      return;
+    }
+
     try {
       await publishPortfolio.mutateAsync(next);
       toast.success(next ? "Portfolio published" : "Portfolio unpublished");
-    } catch {
-      toast.error("Failed to update publish status");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update publish status",
+      );
     }
   };
 
-  const templateOptions = useMemo(
-    () =>
-      Object.values(templateRegistry).filter((templateInfo) =>
-        allowedTemplateIds ? allowedTemplateIds.includes(templateInfo.id) : true
-      ),
-    [allowedTemplateIds]
-  );
+  const templateOptions = useMemo(() => Object.values(templateRegistry), []);
+
+  const isTemplateLocked = (templateId: string) =>
+    allowedTemplateIds ? !allowedTemplateIds.includes(templateId) : false;
 
   if (isLoading) {
     return (
@@ -146,48 +153,36 @@ export default function PreviewPage() {
   return (
     <div className="flex gap-0">
       <div className="min-w-0 flex-1 space-y-4">
-        <div className="glass-card flex flex-col gap-4 rounded-[2rem] border border-white/8 p-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">Preview</p>
-            <h1 className="mt-2 text-3xl font-bold">Review your public page</h1>
+        <div className="glass-card flex flex-col gap-4 rounded-2xl border border-white/8 p-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-2 px-2">
+            <div className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="text-sm font-medium">Portfolio Builder</span>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <PreviewEditToggle open={editOpen} onOpenChange={setEditOpen} />
-            <Select value={templateId} onValueChange={handleTemplateChange}>
-              <SelectTrigger className="w-48 rounded-full border-white/8 bg-white/4">
-                <SelectValue placeholder="Template" />
-              </SelectTrigger>
-              <SelectContent>
-                {templateOptions.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>
-                    {t.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Button
               type="button"
               size="sm"
               variant={isPublished ? "outline" : "default"}
               onClick={() => handlePublishToggle(!isPublished)}
-              disabled={publishPortfolio.isPending}
+              disabled={publishPortfolio.isPending || (!isPublished && !slug)}
               className={
                 isPublished
-                  ? "rounded-full border-white/8 bg-white/4 text-zinc-200"
-                  : "rounded-full bg-emerald-500 text-white hover:bg-emerald-600"
+                  ? "rounded-full border-white/8 bg-white/4 text-zinc-200 h-8 text-xs"
+                  : "rounded-full bg-emerald-500 text-white hover:bg-emerald-600 h-8 text-xs"
               }
             >
               {publishPortfolio.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
               ) : (
-                <Globe className="mr-2 h-4 w-4" />
+                <Globe className="mr-2 h-3 w-3" />
               )}
               {isPublished ? "Unpublish" : "Publish"}
             </Button>
             {slug && (
               <ShareDialog slug={slug} isPublished={isPublished}>
-                <Button variant="outline" size="sm" className="rounded-full border-white/8 bg-white/4">
-                  <Share2 className="mr-2 h-4 w-4" />
+                <Button variant="outline" size="sm" className="rounded-full border-white/8 bg-white/4 h-8 text-xs">
+                  <Share2 className="mr-2 h-3 w-3" />
                   Share
                 </Button>
               </ShareDialog>
@@ -203,7 +198,14 @@ export default function PreviewPage() {
         />
       </div>
 
-      <PreviewEditSidebar open={editOpen} onOpenChange={setEditOpen} />
+      <PreviewEditSidebar 
+        open={editOpen} 
+        onOpenChange={setEditOpen} 
+        templateId={templateId}
+        onTemplateChange={handleTemplateChange}
+        templateOptions={templateOptions}
+        isTemplateLocked={isTemplateLocked}
+      />
     </div>
   );
 }

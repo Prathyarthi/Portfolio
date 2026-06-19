@@ -35,7 +35,7 @@ model User {
 model Portfolio {
   id     String @id @default(uuid())
   userId String @unique
-  slug   String @unique
+  slug   String? @unique
 
   title    String @default("")
   headline String @default("")
