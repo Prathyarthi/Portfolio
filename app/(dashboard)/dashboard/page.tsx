@@ -16,6 +16,7 @@ const secondaryLinks = [
   { href: "/dashboard/preview", label: "Preview" },
   { href: "/dashboard/templates", label: "Templates" },
   { href: "/dashboard/import", label: "Import" },
+  { href: "/dashboard/billing", label: "Billing" },
 ] as const;
 
 export default function DashboardPage() {

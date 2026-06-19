@@ -89,8 +89,13 @@ export async function POST(req: Request) {
       );
     }
 
+    const baseUrl =
+      process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
+    const callbackUrl = `${baseUrl}/dashboard/billing?payment_status=success`;
+    const checkoutUrl = `${subscription.short_url}?callback_url=${encodeURIComponent(callbackUrl)}`;
+
     return NextResponse.json({
-      checkoutUrl: subscription.short_url,
+      checkoutUrl,
       subscriptionId: subscription.id,
     });
   } catch (error) {

@@ -71,8 +71,8 @@ export function ProjectLivePreviewControls({
               Live preview on portfolio
             </Label>
             <p className="text-sm text-muted-foreground">
-              Preference is saved when you add this project ({enabledCount}/
-              {maxAllowed} used).
+              Shows a live screenshot of your project URL on your portfolio.{" "}
+              {enabledCount}/{maxAllowed} used{!isPro ? " (free limit)" : ""}.
             </p>
           </div>
           <Switch
@@ -85,14 +85,15 @@ export function ProjectLivePreviewControls({
         </div>
         {blocked && (
           <p className="text-xs text-destructive">
-            Please upgrade the plan for more preview links.{" "}
-            <Link href="/pricing" className="underline">
-              View pricing
-            </Link>
+            You have used all {maxAllowed} free live preview slots.{" "}
+            <Link href="/dashboard/billing" className="underline">
+              Upgrade to Pro
+            </Link>{" "}
+            for unlimited slots.
           </p>
         )}
         <p className="text-xs text-muted-foreground">
-          Plan: {isPro ? "Pro" : "Free trial"}
+          {isPro ? "Pro — unlimited slots" : `Free — ${maxAllowed} slots included`}
         </p>
       </div>
     );
@@ -140,14 +141,17 @@ export function ProjectLivePreviewControls({
       </div>
       {!editEnabled && atLimit && !savedEnabled && (
         <p className="text-xs text-destructive">
-          Please upgrade the plan for more preview links.{" "}
-          <Link href="/pricing" className="underline">
-            View pricing
-          </Link>
+          You have used all {maxAllowed} free live preview slots.{" "}
+          <Link href="/dashboard/billing" className="underline">
+            Upgrade to Pro
+          </Link>{" "}
+          for unlimited slots.
         </p>
       )}
       <p className="text-xs text-muted-foreground">
-        Plan: {isPro ? "Pro" : "Free trial"} · saves when you click Save
+        {isPro
+          ? "Pro — unlimited slots · saves when you click Save"
+          : `Free — ${maxAllowed} slots included · saves when you click Save`}
       </p>
     </div>
   );

@@ -16,6 +16,10 @@ import { MonochromeTemplate } from "./monochrome/monochrome-template";
 import { SynthwaveTemplate } from "./synthwave/synthwave-template";
 import { ArtDecoTemplate } from "./artdeco/artdeco-template";
 import { BlueprintTemplate } from "./blueprint/blueprint-template";
+import { AiryTemplate } from "./airy/airy-template";
+import { TerracottaTemplate } from "./terracotta/terracotta-template";
+import { CitrusTemplate } from "./citrus/citrus-template";
+import { ParchmentTemplate } from "./parchment/parchment-template";
 import type { TemplateComponent } from "./types";
 
 export const templateRegistry: Record<string, TemplateComponent> = {
@@ -180,6 +184,38 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     previewImage: "/templates/developer-preview.png",
     category: "developer",
     component: BlueprintTemplate,
+  },
+  airy: {
+    id: "airy",
+    name: "Airy",
+    description: "Cloud-like, clean, soft shadows and sky blue accents.",
+    previewImage: "/templates/minimal-preview.png",
+    category: "general",
+    component: AiryTemplate,
+  },
+  terracotta: {
+    id: "terracotta",
+    name: "Terracotta",
+    description: "Warm Mediterranean style with elegant serif fonts.",
+    previewImage: "/templates/creative-preview.png",
+    category: "designer",
+    component: TerracottaTemplate,
+  },
+  citrus: {
+    id: "citrus",
+    name: "Citrus",
+    description: "Energetic and fresh with vibrant orange and yellow accents.",
+    previewImage: "/templates/creative-preview.png",
+    category: "designer",
+    component: CitrusTemplate,
+  },
+  parchment: {
+    id: "parchment",
+    name: "Parchment",
+    description: "Academic, historical layout with classic red accents.",
+    previewImage: "/templates/corporate-preview.png",
+    category: "corporate",
+    component: ParchmentTemplate,
   },
 };
 
