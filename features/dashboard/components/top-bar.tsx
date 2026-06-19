@@ -35,7 +35,7 @@ const primaryNav = [
   // { title: "Generate", href: "/dashboard/generate", icon: Sparkles }, // Temporarily disabled
   { title: "Import", href: "/dashboard/import", icon: Download },
   { title: "Preview", href: "/dashboard/preview", icon: Eye },
-  { title: "Pricing", href: "/pricing", icon: CreditCard },
+  { title: "Billing", href: "/dashboard/billing", icon: CreditCard },
 ] as const;
 
 const moreNav = [

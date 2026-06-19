@@ -29,7 +29,7 @@ const navItems = [
   { title: "Templates", href: "/dashboard/templates", icon: Palette },
   { title: "Import Data", href: "/dashboard/import", icon: Download },
   { title: "Preview", href: "/dashboard/preview", icon: Eye },
-  { title: "Pricing", href: "/pricing", icon: CreditCard },
+  { title: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

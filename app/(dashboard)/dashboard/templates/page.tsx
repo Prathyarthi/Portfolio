@@ -3,13 +3,22 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Check, Loader2, Plus } from "lucide-react";
+import { Check, Lock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-import { usePortfolio, useUpdateTemplate } from "@/features/portfolio/api/use-portfolio";
+import {
+  usePortfolio,
+  useUpdateTemplate,
+} from "@/features/portfolio/api/use-portfolio";
 import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import { templateRegistry } from "@/features/templates/registry";
 
@@ -36,7 +45,9 @@ function TemplatePreview({ templateId }: { templateId: string }) {
   };
 
   return (
-    <div className={`aspect-4/3 rounded-3xl bg-linear-to-br ${theme[templateId] ?? theme.minimal} p-4`}>
+    <div
+      className={`aspect-4/3 rounded-3xl bg-linear-to-br ${theme[templateId] ?? theme.minimal} p-4`}
+    >
       <div className="h-full rounded-2xl border border-white/20 bg-black/10 p-4">
         <div className="h-3 w-24 rounded-full bg-white/40" />
         <div className="mt-4 h-16 rounded-2xl bg-white/15" />
@@ -56,9 +67,9 @@ export default function TemplatesPage() {
   const [allowedTemplateIds, setAllowedTemplateIds] = useState<string[] | null>(
     null
   );
-  const [accessTier, setAccessTier] = useState<"free" | "trial" | "pro" | null>(
-    null
-  );
+  const [accessTier, setAccessTier] = useState<
+    "free" | "trial" | "pro" | null
+  >(null);
   const [trialDaysRemaining, setTrialDaysRemaining] = useState<number>(0);
   const currentTemplate = portfolio?.templateId ?? "minimal";
 
@@ -92,14 +103,21 @@ export default function TemplatesPage() {
 
   const handleSelect = (templateId: string) => {
     if (allowedTemplateIds && !allowedTemplateIds.includes(templateId)) {
-      toast.error("Your free month has ended. Upgrade to Pro to unlock this template.");
+      toast.error("Upgrade to Pro to unlock this template.", {
+        action: {
+          label: "View Billing",
+          onClick: () => router.push("/dashboard/billing"),
+        },
+      });
       return;
     }
 
     updateTemplate.mutate(templateId, {
       onSuccess: () => toast.success(`Template changed to ${templateId}`),
       onError: (error) =>
-        toast.error(error instanceof Error ? error.message : "Failed to change template"),
+        toast.error(
+          error instanceof Error ? error.message : "Failed to change template"
+        ),
     });
   };
 
@@ -116,9 +134,12 @@ export default function TemplatesPage() {
       <div className="space-y-6">
         <Card className="glass-card rounded-[2rem] border border-white/8 bg-white/3">
           <CardHeader>
-            <CardTitle className="text-zinc-100">Create your portfolio before choosing a template</CardTitle>
+            <CardTitle className="text-zinc-100">
+              Create your portfolio before choosing a template
+            </CardTitle>
             <CardDescription className="text-zinc-400">
-              Create your portfolio first so your template selection can be saved.
+              Create your portfolio first so your template selection can be
+              saved.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -131,7 +152,10 @@ export default function TemplatesPage() {
 
         <FlowFooter
           previous={{ href: "/dashboard/edit", label: "Back to Edit" }}
-          next={{ label: "Next: Import Data", onClick: () => router.push("/dashboard/import") }}
+          next={{
+            label: "Next: Import Data",
+            onClick: () => router.push("/dashboard/import"),
+          }}
         />
       </div>
     );
@@ -140,19 +164,32 @@ export default function TemplatesPage() {
   return (
     <div className="space-y-8 pb-6">
       <div className="glass-card rounded-[2rem] border border-white/8 p-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">Templates</p>
-        <h1 className="mt-3 text-3xl font-bold">Choose a presentation system</h1>
+        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
+          Templates
+        </p>
+        <h1 className="mt-3 text-3xl font-bold">
+          Choose a presentation system
+        </h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Pick the visual language that best fits your work. Content stays the same while layout, rhythm, and tone shift with the template.
+          Pick the visual language that best fits your work. Content stays the
+          same while layout, rhythm, and tone shift with the template.
         </p>
         {accessTier === "trial" && (
           <p className="mt-3 text-sm text-emerald-400/90">
-            Free month active: {trialDaysRemaining} day{trialDaysRemaining === 1 ? "" : "s"} left for all templates.
+            Free trial active — {trialDaysRemaining} day
+            {trialDaysRemaining === 1 ? "" : "s"} left to use all templates.
           </p>
         )}
         {accessTier === "free" && (
           <p className="mt-3 text-sm text-amber-300/90">
-            Your free month ended. Minimal stays available; upgrade to Pro to unlock premium benefits.
+            Your free trial ended. Minimal stays available.{" "}
+            <Link
+              href="/dashboard/billing"
+              className="underline underline-offset-4 hover:text-amber-200"
+            >
+              Upgrade to Pro
+            </Link>{" "}
+            to unlock all templates.
           </p>
         )}
       </div>
@@ -167,664 +204,21 @@ export default function TemplatesPage() {
           return (
             <Card
               key={template.id}
-              className={`glass-card relative overflow-hidden rounded-[1.75rem] border-white/8 bg-white/3 transition-all ${isActive ? "ring-2 ring-primary" : "hover:-translate-y-1 hover:ring-1 hover:ring-border"
-                }`}
+              className={`glass-card relative overflow-hidden rounded-[1.75rem] border-white/8 bg-white/3 transition-all ${
+                isActive
+                  ? "ring-2 ring-primary"
+                  : isLocked
+                    ? "opacity-75"
+                    : "hover:-translate-y-1 hover:ring-1 hover:ring-border"
+              }`}
             >
-              <div className="border-b border-white/8 p-4">
+              <div className="relative border-b border-white/8 p-4">
                 <TemplatePreview templateId={template.id} />
-              </div>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg text-zinc-100">{template.name}</CardTitle>
-                  <Badge
-                    variant={isActive ? "default" : "secondary"}
-                    className={!isActive ? "bg-white/6 text-zinc-300" : undefined}
-                  >
-                    {isLocked ? "Pro" : template.category}
-                  </Badge>
-                </div>
-                <CardDescription className="text-zinc-400">{template.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  variant={isActive ? "secondary" : "outline"}
-                  className="w-full"
-                  onClick={() => handleSelect(template.id)}
-                  disabled={updateTemplate.isPending || isLocked}
-                >
-                  {isActive ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4" />
-                      Current Template
-                    </>
-                  ) : isLocked ? (
-                    "Upgrade to unlock"
-                  ) : (
-                    "Use Template"
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <FlowFooter
-        previous={{ href: "/dashboard/edit", label: "Previous: Edit" }}
-        next={{ href: "/dashboard/import", label: "Next: Import Data" }}
-      />
-    </div>
-  );
-}
-/*
-"use client";
-
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Check, Loader2, Plus } from "lucide-react";
-import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-import { usePortfolio, useUpdateTemplate } from "@/features/portfolio/api/use-portfolio";
-import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
-import { templateRegistry } from "@/features/templates/registry";
-
-function TemplatePreview({ templateId }: { templateId: string }) {
-  const theme: Record<string, string> = {
-    minimal: "from-stone-100 to-stone-200",
-    modern: "from-violet-500/50 to-cyan-400/40",
-    developer: "from-green-500/40 to-emerald-400/30",
-    creative: "from-pink-500/40 to-orange-400/30",
-    corporate: "from-sky-500/40 to-slate-300/30",
-    spotlight: "from-[#fc3]/50 to-[#fbfffe]",
-    retro: "from-[#ff90e8]/80 to-[#ffc900]/80",
-    bento: "from-zinc-100 to-zinc-200",
-    vibrant: "from-fuchsia-600/60 to-cyan-500/60",
-    space: "from-[#030014] to-[#0B0F19]",
-    windows: "from-[#3a6ea5] to-[#3a6ea5]",
-    paper: "from-[#f4f1ea] to-[#e8e4db]",
-    cyberpunk: "from-[#050505] to-[#050505]",
-    pastel: "from-[#fff5f8] to-[#ffdfba]",
-    monochrome: "from-white to-gray-100",
-    synthwave: "from-[#120458] to-[#000000]",
-    artdeco: "from-[#0b132b] to-[#111c3d]",
-    blueprint: "from-[#003366] to-[#002244]",
-  };
-
-  return (
-    <div className={`aspect-4/3 rounded-3xl bg-linear-to-br ${theme[templateId] ?? theme.minimal} p-4`}>
-      <div className="h-full rounded-2xl border border-white/20 bg-black/10 p-4">
-        <div className="h-3 w-24 rounded-full bg-white/40" />
-        <div className="mt-4 h-16 rounded-2xl bg-white/15" />
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="h-16 rounded-2xl bg-white/15" />
-          <div className="h-16 rounded-2xl bg-white/15" />
-        </div>
-      </div>
-    </div>
-  );
-}
-export default function TemplatesPage() {
-  const router = useRouter();
-  const { data: portfolio, isLoading } = usePortfolio();
-  const createPortfolio = useCreatePortfolio();
-  const updateTemplate = useUpdateTemplate();
-  const currentTemplate = portfolio?.templateId ?? "minimal";
-
-  const handleSelect = (templateId: string) => {
-    updateTemplate.mutate(templateId, {
-      onSuccess: () => toast.success(`Template changed to ${templateId}`),
-      onError: () => toast.error("Failed to change template"),
-    });
-  };
-
-  const handleCreatePortfolio = async () => {
-    try {
-      await createPortfolio.mutateAsync();
-      toast.success("Portfolio created");
-    } catch {
-      toast.error("Failed to create portfolio");
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!portfolio) {
-    return (
-      <div className="space-y-6">
-        <Card className="glass-card rounded-[2rem] border border-white/8 bg-white/3">
-          <CardHeader>
-            <CardTitle className="text-zinc-100">Create your portfolio before choosing a template</CardTitle>
-            <CardDescription className="text-zinc-400">
-              The template controls the look and feel of your portfolio. Create the portfolio first so the selection can be saved.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Button onClick={handleCreatePortfolio} disabled={createPortfolio.isPending}>
-              <Plus className="mr-2 h-4 w-4" />
-              {createPortfolio.isPending ? "Creating..." : "Create Portfolio"}
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/edit">Back to Edit</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <FlowFooter
-          previous={{ href: "/dashboard/edit", label: "Back to Edit" }}
-          next={{ label: "Next: Import Data", onClick: () => router.push("/dashboard/import") }}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-8 pb-6">
-      <div className="glass-card rounded-[2rem] border border-white/8 p-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">Templates</p>
-        <h1 className="mt-3 text-3xl font-bold">Choose a presentation system</h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Pick the visual language that best fits your work. Content stays the same while layout, rhythm, and tone shift with the template.
-        </p>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {Object.values(templateRegistry).map((template) => {
-          const isActive = currentTemplate === template.id;
-
-          return (
-            <Card
-              key={template.id}
-              className={`glass-card relative overflow-hidden rounded-[1.75rem] border-white/8 bg-white/3 transition-all ${isActive ? "ring-2 ring-primary" : "hover:-translate-y-1 hover:ring-1 hover:ring-border"
-                }`}
-            >
-              <div className="border-b border-white/8 p-4">
-                <TemplatePreview templateId={template.id} />
-              </div>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg text-zinc-100">{template.name}</CardTitle>
-                  <Badge variant={isActive ? "default" : "secondary"} className={!isActive ? "bg-white/6 text-zinc-300" : undefined}>
-                    {template.category}
-                  </Badge>
-                </div>
-                <CardDescription className="text-zinc-400">{template.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  variant={isActive ? "secondary" : "outline"}
-                  className="w-full"
-                  onClick={() => handleSelect(template.id)}
-                  disabled={updateTemplate.isPending}
-                >
-                  {isActive ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4" />
-                      Current Template
-                    </>
-                  ) : (
-                    "Use Template"
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      <FlowFooter
-        previous={{ href: "/dashboard/edit", label: "Previous: Edit" }}
-        next={{ href: "/dashboard/import", label: "Next: Import Data" }}
-      />
-    </div>
-  );
-}
-/*
-
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { usePortfolio, useUpdateTemplate, useCreatePortfolio } from "@/features/portfolio/api/use-portfolio";
-import { templateRegistry } from "@/features/templates/registry";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-import { toast } from "sonner";
-import { Check, Loader2, Plus } from "lucide-react";
-
-export default function TemplatesPage() {
-  const router = useRouter();
-  const { data: portfolio, isLoading } = usePortfolio();
-  const createPortfolio = useCreatePortfolio();
-  const updateTemplate = useUpdateTemplate();
-
-  const currentTemplate = portfolio?.templateId ?? "minimal";
-
-  const handleSelect = (templateId: string) => {
-    updateTemplate.mutate(templateId, {
-      onSuccess: () => toast.success(`Template changed to ${templateId}`),
-      "use client";
-
-      import Link from "next/link";
-      import { useRouter } from "next/navigation";
-      import { Check, Loader2, Plus } from "lucide-react";
-      import { toast } from "sonner";
-      import { Badge } from "@/components/ui/badge";
-      import { Button } from "@/components/ui/button";
-      import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-      import { FlowFooter } from "@/features/dashboard/components/flow-footer";
-      import { useCreatePortfolio, usePortfolio, useUpdateTemplate } from "@/features/portfolio/api/use-portfolio";
-      import { templateRegistry } from "@/features/templates/registry";
-
-      function TemplatePreview({ templateId }: { templateId: string }) {
-      const theme: Record<string, string> = {
-      minimal: "from-stone-100 to-stone-200",
-      modern: "from-violet-500/50 to-cyan-400/40",
-      developer: "from-green-500/40 to-emerald-400/30",
-      creative: "from-pink-500/40 to-orange-400/30",
-      corporate: "from-sky-500/40 to-slate-300/30",
-    };
-
-    return (
-      <div className={`aspect-4/3 rounded-3xl bg-linear-to-br ${theme[templateId] ?? theme.minimal} p-4`}>
-        <div className="h-full rounded-2xl border border-white/20 bg-black/10 p-4">
-          <div className="h-3 w-24 rounded-full bg-white/40" />
-          <div className="mt-4 h-16 rounded-2xl bg-white/15" />
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="h-16 rounded-2xl bg-white/15" />
-            <div className="h-16 rounded-2xl bg-white/15" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  export default function TemplatesPage() {
-    const router = useRouter();
-    const { data: portfolio, isLoading } = usePortfolio();
-    const createPortfolio = useCreatePortfolio();
-    const updateTemplate = useUpdateTemplate();
-    const currentTemplate = portfolio?.templateId ?? "minimal";
-
-    const handleSelect = (templateId: string) => {
-      updateTemplate.mutate(templateId, {
-        onSuccess: () => toast.success(`Template changed to ${templateId}`),
-        onError: () => toast.error("Failed to change template"),
-      });
-    };
-
-    const handleCreatePortfolio = async () => {
-      try {
-        await createPortfolio.mutateAsync();
-        toast.success("Portfolio created");
-      } catch {
-        toast.error("Failed to create portfolio");
-      }
-    };
-
-    if (isLoading) {
-      return (
-        <div className="flex h-96 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      );
-    }
-
-    if (!portfolio) {
-      return (
-        <div className="space-y-6">
-          <Card className="glass-card rounded-[2rem] border border-white/8 bg-white/3">
-            <CardHeader>
-              <CardTitle className="text-zinc-100">Create your portfolio before choosing a template</CardTitle>
-              <CardDescription className="text-zinc-400">
-                The template controls the look and feel of your portfolio. Create the portfolio first so the selection can be saved.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-3">
-              <Button onClick={handleCreatePortfolio} disabled={createPortfolio.isPending}>
-                <Plus className="mr-2 h-4 w-4" />
-                {createPortfolio.isPending ? "Creating..." : "Create Portfolio"}
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/dashboard/edit">Back to Edit</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <FlowFooter
-                "use client";
-
-          import Link from "next/link";
-          import {useRouter} from "next/navigation";
-          import {Check, Loader2, Plus} from "lucide-react";
-          import {toast} from "sonner";
-          import {Badge} from "@/components/ui/badge";
-          import {Button} from "@/components/ui/button";
-          import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
-          import {FlowFooter} from "@/features/dashboard/components/flow-footer";
-          import {useCreatePortfolio, usePortfolio, useUpdateTemplate} from "@/features/portfolio/api/use-portfolio";
-          import {templateRegistry} from "@/features/templates/registry";
-
-          function TemplatePreview({templateId}: {templateId: string }) {
-                  const theme: Record<string, string> = {
-            minimal: "from-stone-100 to-stone-200",
-          modern: "from-violet-500/50 to-cyan-400/40",
-          developer: "from-green-500/40 to-emerald-400/30",
-          creative: "from-pink-500/40 to-orange-400/30",
-          corporate: "from-sky-500/40 to-slate-300/30",
-                  };
-
-          return (
-          <div className={`aspect-4/3 rounded-3xl bg-linear-to-br ${theme[templateId] ?? theme.minimal} p-4`}>
-            <div className="h-full rounded-2xl border border-white/20 bg-black/10 p-4">
-              <div className="h-3 w-24 rounded-full bg-white/40" />
-              <div className="mt-4 h-16 rounded-2xl bg-white/15" />
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="h-16 rounded-2xl bg-white/15" />
-                <div className="h-16 rounded-2xl bg-white/15" />
-              </div>
-            </div>
-          </div>
-          );
-                }
-
-          export default function TemplatesPage() {
-                  const router = useRouter();
-          const {data: portfolio, isLoading } = usePortfolio();
-          const createPortfolio = useCreatePortfolio();
-          const updateTemplate = useUpdateTemplate();
-          const currentTemplate = portfolio?.templateId ?? "minimal";
-
-                  const handleSelect = (templateId: string) => {
-            updateTemplate.mutate(templateId, {
-              onSuccess: () => toast.success(`Template changed to ${templateId}`),
-              onError: () => toast.error("Failed to change template"),
-            });
-                  };
-
-                  const handleCreatePortfolio = async () => {
-                    try {
-            await createPortfolio.mutateAsync();
-          toast.success("Portfolio created");
-                    } catch {
-            toast.error("Failed to create portfolio");
-                    }
-                  };
-
-          if (isLoading) {
-                    return (
-          <div className="flex h-96 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-          );
-                  }
-
-          if (!portfolio) {
-                    return (
-          <div className="space-y-6">
-            <Card className="glass-card rounded-[2rem] border border-white/8 bg-white/3">
-              <CardHeader>
-                <CardTitle className="text-zinc-100">Create your portfolio before choosing a template</CardTitle>
-                <CardDescription className="text-zinc-400">
-                  The template controls the look and feel of your portfolio. Create the portfolio first so the selection can be saved.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-3">
-                <Button onClick={handleCreatePortfolio} disabled={createPortfolio.isPending}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  {createPortfolio.isPending ? "Creating..." : "Create Portfolio"}
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link href="/dashboard/edit">Back to Edit</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <FlowFooter
-              previous={{ href: "/dashboard/edit", label: "Back to Edit" }}
-              next={{ label: "Next: Import Data", onClick: () => router.push("/dashboard/import") }}
-            />
-          </div>
-          );
-                  }
-
-          return (
-          <div className="space-y-8 pb-6">
-            <div className="glass-card rounded-[2rem] border border-white/8 p-6">
-              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">Templates</p>
-              <h1 className="mt-3 text-3xl font-bold">Choose a presentation system</h1>
-              <p className="mt-2 max-w-2xl text-muted-foreground">
-                Pick the visual language that best fits your work. Content stays the same while layout, rhythm, and tone shift with the template.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {Object.values(templateRegistry).map((template) => {
-                const isActive = currentTemplate === template.id;
-
-                return (
-                  <Card
-                    key={template.id}
-                    className={`glass-card relative overflow-hidden rounded-[1.75rem] border-white/8 bg-white/3 transition-all ${isActive ? "ring-2 ring-primary" : "hover:-translate-y-1 hover:ring-1 hover:ring-border"
-                      }`}
-                  >
-                    <div className="border-b border-white/8 p-4">
-                      <TemplatePreview templateId={template.id} />
-                    </div>
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg text-zinc-100">{template.name}</CardTitle>
-                        <Badge variant={isActive ? "default" : "secondary"} className={!isActive ? "bg-white/6 text-zinc-300" : undefined}>
-                          {template.category}
-                        </Badge>
-                      </div>
-                      <CardDescription className="text-zinc-400">{template.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        variant={isActive ? "secondary" : "outline"}
-                        className="w-full"
-                        onClick={() => handleSelect(template.id)}
-                        disabled={updateTemplate.isPending}
-                      >
-                        {isActive ? (
-                          <>
-                            <Check className="mr-2 h-4 w-4" />
-                            Current Template
-                          </>
-                        ) : (
-                          "Use Template"
-                        )}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-
-            <FlowFooter
-              previous={{ href: "/dashboard/edit", label: "Previous: Edit" }}
-              next={{ href: "/dashboard/import", label: "Next: Import Data" }}
-            />
-          </div>
-          );
-                }
-                  >
-          {template.category}
-        </Badge>
-                </div >
-              </CardHeader >
-        <CardContent className="space-y-3">
-          <CardDescription className="text-zinc-400">
-            {template.description}
-          </CardDescription>
-          <Button
-            className="w-full rounded-full"
-            variant={isActive ? "secondary" : "default"}
-            disabled={updateTemplate.isPending}
-            onClick={() => handleSelect(template.id)}
-          >
-            {updateTemplate.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : isActive ? (
-              <>
-                <Check className="mr-2 h-4 w-4" /> Active
-              </>
-            ) : (
-              "Use Template"
-            )}
-          </Button>
-        </CardContent>
-            </Card >
-          );
-    })
-  }
-      </div >
-
-    <FlowFooter
-      previous={{ href: "/dashboard/edit", label: "Previous: Edit" }}
-      next={{ href: "/dashboard/import", label: "Next: Import Data" }}
-    />
-    </div >
-  );
-}
-function TemplatePreview({ templateId }: { templateId: string }) {
-  const styles: Record<
-    string,
-    {
-      shell: string;
-      top: string;
-      accent: string;
-      card: string;
-    }
-  > = {
-    minimal: {
-      shell: "bg-[#f7f3eb]",
-      top: "bg-[#fbf8f1]",
-      accent: "bg-stone-900/80",
-      card: "bg-white/90 border-stone-200",
-    },
-    modern: {
-      shell: "bg-[#0a1020]",
-      top: "bg-gradient-to-br from-violet-500/30 via-slate-900 to-cyan-400/10",
-      accent: "bg-linear-to-r from-violet-400 to-cyan-300",
-      card: "bg-white/6 border-white/8",
-    },
-    developer: {
-      shell: "bg-gray-950",
-      top: "bg-black/30",
-      accent: "bg-green-400/80",
-      card: "bg-green-950/20 border-green-900/40",
-    },
-    creative: {
-      shell: "bg-white",
-      top: "bg-linear-to-r from-pink-400/30 via-orange-300/25 to-yellow-300/25",
-      accent: "bg-linear-to-r from-pink-500 to-orange-400",
-      card: "bg-white border-gray-200",
-    },
-    corporate: {
-      shell: "bg-slate-100",
-      top: "bg-slate-900",
-      accent: "bg-sky-500/80",
-      card: "bg-white border-slate-200",
-    },
-  };
-
-  const style = styles[templateId] ?? styles.minimal;
-
-  return (
-    <div className={`aspect-4/3 overflow-hidden rounded-4xl border ${style.card} ${style.shell}`}>
-      <div className={`h-[38%] px-4 py-3 ${style.top}`}>
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <div className={`h-2.5 w-24 rounded-full ${style.accent}`} />
-            <div className="h-2 w-36 rounded-full bg-white/20" />
-            <div className="h-2 w-24 rounded-full bg-white/15" />
-          </div>
-          <div className="h-10 w-10 rounded-2xl bg-white/15 ring-1 ring-white/15" />
-        </div>
-      </div>
-
-      <div className="grid gap-2 p-4">
-        <div className={`h-14 rounded-xl border ${style.card}`} />
-        <div className="grid grid-cols-2 gap-2">
-          <div className={`h-20 rounded-xl border ${style.card}`} />
-          <div className={`h-20 rounded-xl border ${style.card}`} />
-        </div>
-        <div className="flex gap-2">
-          <div className={`h-7 w-20 rounded-full border ${style.card}`} />
-          <div className={`h-7 w-16 rounded-full border ${style.card}`} />
-          <div className={`h-7 w-24 rounded-full border ${style.card}`} />
-        </div>
-      </div>
-    </div>
-  );
-} "use client";
-
-import {
-  usePortfolio,
-  useUpdateTemplate,
-} from "@/features/portfolio/api/use-portfolio";
-import { templateRegistry } from "@/features/templates/registry";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { Check, Loader2 } from "lucide-react";
-
-export default function TemplatesPage() {
-  const { data: portfolio } = usePortfolio();
-  const updateTemplate = useUpdateTemplate();
-
-  const currentTemplate = portfolio?.templateId ?? "minimal";
-
-  const handleSelect = (templateId: string) => {
-    updateTemplate.mutate(templateId, {
-      onSuccess: () => toast.success(`Template changed to ${templateId}`),
-      onError: () => toast.error("Failed to change template"),
-    });
-  };
-
-  return (
-    <div className="space-y-8">
-      <div className="glass-card rounded-[2rem] border border-white/8 p-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-          Templates
-        </p>
-        <h1 className="mt-3 text-3xl font-bold">Choose a presentation system</h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Pick the visual language that best fits your work. Content stays the
-          same while layout, rhythm, and tone shift with the template.
-        </p>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {Object.values(templateRegistry).map((template) => {
-          const isActive = currentTemplate === template.id;
-          return (
-            <Card
-              key={template.id}
-              className={`glass-card relative overflow-hidden rounded-[1.75rem] border-white/8 bg-white/3 transition-all ${isActive
-                ? "ring-2 ring-primary"
-                : "hover:-translate-y-1 hover:ring-1 hover:ring-border"
-                }`}
-            >
-              <div className="border-b border-white/8 p-4">
-                <TemplatePreview templateId={template.id} />
+                {isLocked && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-t-[1.75rem] bg-black/40 backdrop-blur-[2px]">
+                    <Lock className="h-6 w-6 text-zinc-300" />
+                  </div>
+                )}
               </div>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -833,110 +227,57 @@ export default function TemplatesPage() {
                   </CardTitle>
                   <Badge
                     variant={isActive ? "default" : "secondary"}
-                    className={!isActive ? "bg-white/6 text-zinc-300" : undefined}
+                    className={
+                      isLocked
+                        ? "border-teal-400/30 bg-teal-500/15 text-teal-300"
+                        : !isActive
+                          ? "bg-white/6 text-zinc-300"
+                          : undefined
+                    }
                   >
-                    {template.category}
+                    {isLocked ? "Pro" : isActive ? "Active" : template.category}
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
                 <CardDescription className="text-zinc-400">
                   {template.description}
                 </CardDescription>
-                <Button
-                  className="w-full rounded-full"
-                  variant={isActive ? "secondary" : "default"}
-                  disabled={updateTemplate.isPending}
-                  onClick={() => handleSelect(template.id)}
-                >
-                  {updateTemplate.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : isActive ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4" /> Active
-                    </>
-                  ) : (
-                    "Use Template"
-                  )}
-                </Button>
+              </CardHeader>
+              <CardContent>
+                {isLocked ? (
+                  <Button
+                    asChild
+                    className="w-full rounded-full bg-teal-500/15 text-teal-300 hover:bg-teal-500/25 border border-teal-500/20"
+                    variant="outline"
+                  >
+                    <Link href="/dashboard/billing">Upgrade to unlock</Link>
+                  </Button>
+                ) : (
+                  <Button
+                    variant={isActive ? "secondary" : "outline"}
+                    className="w-full"
+                    onClick={() => handleSelect(template.id)}
+                    disabled={updateTemplate.isPending}
+                  >
+                    {isActive ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        Current Template
+                      </>
+                    ) : (
+                      "Use Template"
+                    )}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           );
         })}
       </div>
+
+      <FlowFooter
+        previous={{ href: "/dashboard/edit", label: "Previous: Edit" }}
+        next={{ href: "/dashboard/import", label: "Next: Import Data" }}
+      />
     </div>
   );
 }
-function TemplatePreview({ templateId }: { templateId: string }) {
-  const styles: Record<
-    string,
-    {
-      shell: string;
-      top: string;
-      accent: string;
-      card: string;
-    }
-  > = {
-    minimal: {
-      shell: "bg-[#f7f3eb]",
-      top: "bg-[#fbf8f1]",
-      accent: "bg-stone-900/80",
-      card: "bg-white/90 border-stone-200",
-    },
-    modern: {
-      shell: "bg-[#0a1020]",
-      top: "bg-gradient-to-br from-violet-500/30 via-slate-900 to-cyan-400/10",
-      accent: "bg-linear-to-r from-violet-400 to-cyan-300",
-      card: "bg-white/6 border-white/8",
-    },
-    developer: {
-      shell: "bg-gray-950",
-      top: "bg-black/30",
-      accent: "bg-green-400/80",
-      card: "bg-green-950/20 border-green-900/40",
-    },
-    creative: {
-      shell: "bg-white",
-      top: "bg-linear-to-r from-pink-400/30 via-orange-300/25 to-yellow-300/25",
-      accent: "bg-linear-to-r from-pink-500 to-orange-400",
-      card: "bg-white border-gray-200",
-    },
-    corporate: {
-      shell: "bg-slate-100",
-      top: "bg-slate-900",
-      accent: "bg-sky-500/80",
-      card: "bg-white border-slate-200",
-    },
-  };
-
-  const style = styles[templateId] ?? styles.minimal;
-
-  return (
-    <div className={`aspect-4/3 overflow-hidden rounded-4xl border ${style.card} ${style.shell}`}>
-      <div className={`h-[38%] px-4 py-3 ${style.top}`}>
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <div className={`h-2.5 w-24 rounded-full ${style.accent}`} />
-            <div className="h-2 w-36 rounded-full bg-white/20" />
-            <div className="h-2 w-24 rounded-full bg-white/15" />
-          </div>
-          <div className="h-10 w-10 rounded-2xl bg-white/15 ring-1 ring-white/15" />
-        </div>
-      </div>
-
-      <div className="grid gap-2 p-4">
-        <div className={`h-14 rounded-xl border ${style.card}`} />
-        <div className="grid grid-cols-2 gap-2">
-          <div className={`h-20 rounded-xl border ${style.card}`} />
-          <div className={`h-20 rounded-xl border ${style.card}`} />
-        </div>
-        <div className="flex gap-2">
-          <div className={`h-7 w-20 rounded-full border ${style.card}`} />
-          <div className={`h-7 w-16 rounded-full border ${style.card}`} />
-          <div className={`h-7 w-24 rounded-full border ${style.card}`} />
-        </div>
-      </div>
-    </div>
-  );
-}
-*/
