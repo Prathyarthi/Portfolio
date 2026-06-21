@@ -17,6 +17,7 @@ import {
   PreviewEditSidebar,
   PreviewEditToggle,
 } from "@/features/portfolio/components/preview-edit-sidebar";
+import { PublishDialog } from "@/features/portfolio/components/publish-dialog";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
 import { getTemplate, templateRegistry } from "@/features/templates/registry";
 import { portfolioToTemplateData } from "@/features/templates/transform";
@@ -32,6 +33,7 @@ export default function PreviewPage() {
   );
   const isMobile = useIsMobile();
   const [editOpen, setEditOpen] = useState(false);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
 
   useEffect(() => {
     setEditOpen(!isMobile);
@@ -92,20 +94,22 @@ export default function PreviewPage() {
     }
   };
 
-  const handlePublishToggle = async (next: boolean) => {
-    if (next && !portfolio?.slug) {
-      toast.error("Choose a subdomain in the Publish step before going live");
+  const handlePublishClick = async () => {
+    if (!portfolio) return;
+
+    if (portfolio.isPublished) {
+      try {
+        await publishPortfolio.mutateAsync(false);
+        toast.success("Portfolio unpublished");
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to update publish status",
+        );
+      }
       return;
     }
 
-    try {
-      await publishPortfolio.mutateAsync(next);
-      toast.success(next ? "Portfolio published" : "Portfolio unpublished");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update publish status",
-      );
-    }
+    setPublishDialogOpen(true);
   };
 
   const templateOptions = useMemo(() => Object.values(templateRegistry), []);
@@ -174,8 +178,10 @@ export default function PreviewPage() {
               type="button"
               size="sm"
               variant={isPublished ? "outline" : "default"}
-              onClick={() => handlePublishToggle(!isPublished)}
-              disabled={publishPortfolio.isPending || (!isPublished && !slug)}
+              onClick={() => void handlePublishClick()}
+              disabled={
+                publishPortfolio.isPending || (!isPublished && !slug)
+              }
               className={
                 isPublished
                   ? "rounded-full border-white/8 bg-white/4 text-zinc-200 h-8 text-xs"
@@ -205,6 +211,12 @@ export default function PreviewPage() {
 
         <FlowFooter
           previous={{ href: "/dashboard/import", label: "Previous: Import" }}
+        />
+
+        <PublishDialog
+          open={publishDialogOpen}
+          onOpenChange={setPublishDialogOpen}
+          currentSlug={slug}
         />
       </div>
 
