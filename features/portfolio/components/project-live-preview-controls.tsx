@@ -71,7 +71,7 @@ export function ProjectLivePreviewControls({
               Live preview on portfolio
             </Label>
             <p className="text-sm text-muted-foreground">
-              Shows a live screenshot of your project URL on your portfolio.{" "}
+              Shows a live screenshot of your project on your portfolio.{" "}
               {enabledCount}/{maxAllowed} used{!isPro ? " (free limit)" : ""}.
             </p>
           </div>

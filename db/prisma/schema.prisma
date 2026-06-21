@@ -23,6 +23,9 @@ model User {
   /// none | pending | active — Pro is `active` (set after successful payment / webhook).
   subscriptionStatus String @default("none")
 
+  /// Razorpay subscription ID for managing the subscription (cancel, etc.)
+  razorpaySubscriptionId String?
+
   portfolio Portfolio?
 
   @@map("users")

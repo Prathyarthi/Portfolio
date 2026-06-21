@@ -1,3 +1,5 @@
+"use client";
+
 import { getPreviewImage } from "@/lib/link-preview-code";
 
 interface LivePreviewImageProps {

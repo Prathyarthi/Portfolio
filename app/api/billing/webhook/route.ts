@@ -7,6 +7,7 @@ type RazorpayWebhookPayload = {
   payload?: {
     subscription?: {
       entity?: {
+        id?: string;
         notes?: Record<string, string | undefined>;
       };
     };
@@ -90,9 +91,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, ignored: true });
   }
 
+  const subscriptionId = body.payload?.subscription?.entity?.id;
+
   await prisma.user.update({
     where: { id: userId },
-    data: { subscriptionStatus: nextStatus },
+    data: { 
+      subscriptionStatus: nextStatus,
+      ...(subscriptionId && { razorpaySubscriptionId: subscriptionId }),
+    },
   });
 
   return NextResponse.json({ ok: true });

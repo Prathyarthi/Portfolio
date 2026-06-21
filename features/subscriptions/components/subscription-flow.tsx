@@ -5,6 +5,12 @@ import { useCallback, useEffect, useState } from "react";
 import { pricingPlans } from "@/lib/pricing";
 import { PricingCards } from "./pricing-cards";
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export function SubscriptionFlow() {
   const { data: session, status } = useSession();
   const authLoading = status === "loading";
@@ -20,6 +26,18 @@ export function SubscriptionFlow() {
     null
   );
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => setRazorpayLoaded(true);
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) {
@@ -73,7 +91,9 @@ export function SubscriptionFlow() {
       const res = await fetch("/api/billing/checkout", { method: "POST" });
       const body = (await res.json().catch(() => ({}))) as {
         error?: string;
-        checkoutUrl?: string;
+        keyId?: string;
+        subscriptionId?: string;
+        email?: string;
       };
       if (!res.ok) {
         setBanner(
@@ -81,21 +101,38 @@ export function SubscriptionFlow() {
             ? body.error
             : "Checkout could not be started."
         );
+        setSubscribing(false);
         return;
       }
 
-      if (body.checkoutUrl) {
-        window.location.href = body.checkoutUrl;
+      if (!razorpayLoaded || !window.Razorpay) {
+        setBanner("Payment system is loading. Please try again.");
+        setSubscribing(false);
         return;
       }
 
-      setBanner("Checkout link was not returned by server.");
+      const options = {
+        key: body.keyId,
+        subscription_id: body.subscriptionId,
+        name: "Portfolio Pro",
+        description: "Monthly Pro Subscription",
+        callback_url: `${window.location.origin}/dashboard/billing?return=true`,
+        prefill: {
+          email: body.email || "",
+        },
+        theme: {
+          color: "#14b8a6",
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+      setSubscribing(false);
     } catch {
       setBanner("Something went wrong. Please try again.");
-    } finally {
       setSubscribing(false);
     }
-  }, []);
+  }, [razorpayLoaded]);
 
   if (authLoading || billingLoading) {
     return (

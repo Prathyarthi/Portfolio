@@ -23,8 +23,8 @@ function getCheckoutError(error: unknown) {
     "Failed to create Razorpay subscription checkout.";
   const status =
     typeof failure.statusCode === "number" &&
-    failure.statusCode >= 400 &&
-    failure.statusCode < 500
+      failure.statusCode >= 400 &&
+      failure.statusCode < 500
       ? failure.statusCode
       : 500;
 
@@ -79,24 +79,16 @@ export async function POST(req: Request) {
 
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { subscriptionStatus: "pending" },
+      data: { 
+        subscriptionStatus: "pending",
+        razorpaySubscriptionId: subscription.id,
+      },
     });
 
-    if (!subscription.short_url) {
-      return NextResponse.json(
-        { error: "Subscription checkout URL was not returned by Razorpay." },
-        { status: 502 }
-      );
-    }
-
-    const baseUrl =
-      process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
-    const callbackUrl = `${baseUrl}/dashboard/billing?payment_status=success`;
-    const checkoutUrl = `${subscription.short_url}?callback_url=${encodeURIComponent(callbackUrl)}`;
-
     return NextResponse.json({
-      checkoutUrl,
+      keyId,
       subscriptionId: subscription.id,
+      email: session.user.email,
     });
   } catch (error) {
     const checkoutError = getCheckoutError(error);
