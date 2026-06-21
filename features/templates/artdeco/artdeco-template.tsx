@@ -18,7 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -84,7 +83,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
               <img
                 src={portfolio.avatarUrl}
                 alt={portfolio.title}
-                className="relative w-40 h-40 md:w-48 md:h-48 object-cover filter grayscale contrast-125"
+                className="relative w-40 h-40 md:w-48 md:h-48 object-cover filter contrast-125"
               />
             </div>
           )}
@@ -152,26 +151,21 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
               buttonClassName="col-span-full mt-12 mx-auto block bg-transparent border border-[#d4af37] px-10 py-3 text-xs font-bold text-[#d4af37] hover:bg-[#d4af37] hover:text-[#0b132b] transition-all uppercase tracking-[0.2em]"
             >
               {visibleProjects.map((project) => (
-                <article key={project.id} className="group bg-[#111c3d] border border-[#d4af37]/20 hover:border-[#d4af37] transition-all duration-500 flex flex-col p-2">
-                  <div className="border border-[#d4af37]/10 h-full flex flex-col p-4">
-                    {project.liveUrl ? (
-                      <div className="relative h-56 overflow-hidden mb-6 border-b border-[#d4af37]/30 pb-4">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover object-top filter sepia-[0.3] contrast-125 transition-transform duration-1000 group-hover:scale-105"
-                          fallbackSrc="https://placehold.co/800x600/111c3d/d4af37?text=View"
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-56 bg-[#0b132b] flex items-center justify-center mb-6 border-b border-[#d4af37]/30 pb-4">
-                        <Diamond className="w-8 h-8 text-[#d4af37]/30" />
-                      </div>
-                    )}
-                    
-                    <div className="flex flex-col grow">
+                <article key={project.id} className="group flex flex-col overflow-hidden border border-[#d4af37]/20 bg-[#111c3d] p-2 transition-all duration-500 hover:border-[#d4af37]">
+                  <div className="relative border-b border-[#d4af37]/30">
+                    <LivePreviewImage
+                      liveUrl={project.liveUrl ?? null}
+                      projectId={project.id}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      containerClassName="overflow-hidden bg-[#0b132b]"
+                      placeholderClassName="bg-[#0b132b] [&_p]:font-serif [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-[#d4af37]"
+                      className="h-full w-full object-cover object-top filter sepia-[0.3] contrast-125 transition-transform duration-1000 group-hover:scale-105"
+                    />
+                  </div>
+
+                  <div className="flex h-full flex-col border border-[#d4af37]/10 p-4">
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <h3 className="text-2xl font-serif text-[#d4af37] uppercase tracking-widest">
                           {project.title}
@@ -206,7 +200,6 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
                           sourceClassName="border border-[#d4af37] text-[#d4af37] text-xs font-bold px-6 py-2 hover:bg-[#d4af37] hover:text-[#0b132b] transition-colors uppercase tracking-[0.15em]"
                         />
                       </div>
-                    </div>
                   </div>
                 </article>
               ))}

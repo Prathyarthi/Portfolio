@@ -13,7 +13,6 @@ import {
   CustomSectionItems
 } from "../shared";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { GitHubContributionHeatmap, parseContributionCalendar } from "../github-contribution-heatmap";
 import { motion } from "motion/react";
@@ -108,21 +107,17 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
               <h2 className="mb-8 text-3xl font-bold text-slate-800 px-2">Projects</h2>
               <CollapsibleList initial={4} wrapperClassName="grid gap-6 md:grid-cols-2" buttonClassName="mt-6 mx-auto bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                 {projects.map((project) => (
-                  <article key={project.id} className="group rounded-3xl bg-white border border-slate-100 shadow-xs hover:shadow-md transition-all overflow-hidden">
-                    {project.liveUrl ? (
-                      <div className="relative h-56 w-full overflow-hidden border-b border-slate-50">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-40 w-full items-center justify-center bg-slate-50 border-b border-slate-100">
-                        <span className="text-xs font-semibold tracking-widest text-slate-400 uppercase">No Preview</span>
-                      </div>
-                    )}
+                  <article key={project.id} className="group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xs transition-all hover:shadow-md">
+                    <LivePreviewImage
+                      liveUrl={project.liveUrl ?? null}
+                      projectId={project.id}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      containerClassName="overflow-hidden border-b border-slate-50 bg-slate-50"
+                      placeholderClassName="bg-slate-50 [&_p]:text-sm [&_p]:font-medium [&_p]:text-slate-500"
+                      className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    />
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-slate-800 mb-2">{project.title}</h3>
                       {project.description && (

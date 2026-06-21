@@ -18,7 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function RetroTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -98,7 +97,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                   <img
                     src={portfolio.avatarUrl}
                     alt={portfolio.title}
-                    className="h-64 w-full border-2 border-black object-cover grayscale filter"
+                    className="h-64 w-full border-2 border-black object-cover filter"
                   />
                 </div>
               )}
@@ -153,38 +152,27 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                     {visibleProjects.map((project) => (
                       <article
                         key={project.id}
-                        className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-2"
+                        className="overflow-hidden border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-2"
                       >
-                        {project.liveUrl ? (
-                          <div className="relative h-48 w-full border-b-4 border-black bg-gray-100 sm:h-64">
-                            <LivePreviewImage
-                              liveUrl={project.liveUrl}
-                              enabled={isLivePreviewEnabledForProject(
-                                project.id,
-                                livePreviewProjectIds
-                              )}
-                              alt={project.title}
-                              loading="lazy"
-                              className="h-full w-full object-cover object-top filter grayscale transition-all duration-500 hover:grayscale-0"
-                              fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex h-32 w-full items-center justify-center border-b-4 border-black bg-gray-200">
-                            <span className="text-sm font-bold uppercase tracking-widest text-gray-500">
-                              No Preview
-                            </span>
-                          </div>
-                        )}
+                        <LivePreviewImage
+                          liveUrl={project.liveUrl ?? null}
+                          projectId={project.id}
+                          livePreviewProjectIds={livePreviewProjectIds}
+                          alt={project.title}
+                          loading="lazy"
+                          containerClassName="border-b-4 border-black"
+                          placeholderClassName="bg-gray-200 [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-gray-500"
+                          className="h-full w-full object-cover object-top filter transition-all duration-500"
+                        />
                         <div className="p-6">
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-sans text-2xl font-black uppercase text-black">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h3 className="font-sans text-2xl font-black uppercase leading-tight text-black">
                                   {project.title}
                                 </h3>
                                 {project.featured && (
-                                  <span className="border-2 border-black bg-[#ff90e8] px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                  <span className="shrink-0 border-2 border-black bg-[#ff90e8] px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                                     Featured
                                   </span>
                                 )}
@@ -196,12 +184,14 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                               )}
                             </div>
 
-                            <ProjectActions
-                              liveUrl={project.liveUrl}
-                              sourceUrl={project.sourceUrl}
-                              liveClassName="border-2 border-black bg-[#23a094] px-4 py-2 text-xs font-bold uppercase text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
-                              sourceClassName="border-2 border-black bg-white px-4 py-2 text-xs font-bold uppercase text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
-                            />
+                            <div className="relative z-10 shrink-0">
+                              <ProjectActions
+                                liveUrl={project.liveUrl}
+                                sourceUrl={project.sourceUrl}
+                                liveClassName="border-2 border-black bg-[#23a094] px-4 py-2 text-xs font-bold uppercase text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
+                                sourceClassName="border-2 border-black bg-white px-4 py-2 text-xs font-bold uppercase text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
+                              />
+                            </div>
                           </div>
 
                           {project.description && (

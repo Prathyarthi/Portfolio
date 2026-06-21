@@ -21,7 +21,6 @@ import { CollapsibleList } from "@/features/templates/collapsible-list";
 
 // import { getPreviewImage } from "@/lib/link-preview-code";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections, livePreviewProjectIds } =
@@ -58,7 +57,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
               <img
                 src={portfolio.avatarUrl}
                 alt={portfolio.title}
-                className="hidden h-28 w-28 rounded border-2 border-green-800 object-cover grayscale hover:grayscale-0 transition-all duration-500 sm:block"
+                className="hidden h-28 w-28 rounded border-2 border-green-800 object-cover transition-all duration-500 sm:block"
               />
             )}
             <div className="flex-1">
@@ -297,7 +296,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
       {/* Projects */}
       {projects.length > 0 && (
         <section id="work" className="scroll-mt-24 border-b border-green-900/30">
-          <div className="mx-auto max-w-7xl px-6 py-16">
+          <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-16">
             <p className="mb-8 text-sm text-gray-600">
               guest@portfolio:~$ ls -la ~/projects/
             </p>
@@ -311,126 +310,107 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
               {projects.map((project) => (
                 <div
                   key={project.id}
-                  className="group rounded-lg border border-green-900/40 bg-gray-900/50 p-5 hover:border-green-700/60 hover:bg-gray-900/80 transition-all duration-300"
+                  className="group overflow-hidden rounded-lg border border-green-900/40 bg-gray-900/50 hover:border-green-700/60 hover:bg-gray-900/80 transition-all duration-300"
                 >
-                  {project.liveUrl ? (
-                    <LivePreviewImage
-                      liveUrl={project.liveUrl}
-                      enabled={isLivePreviewEnabledForProject(
-                        project.id,
-                        livePreviewProjectIds
-                      )}
-                      alt={`${project.title} preview`}
-                      loading="lazy"
-                      className="h-auto w-full object-cover"
-                      fallbackSrc="https://placehold.co/1440x900/111827/374151?text=No+Preview"
-                    />
-                  ) : (
-                    <img
-                      src="https://placehold.co/1440x900/111827/374151?text=No+Preview"
-                      alt={`${project.title} preview`}
-                      loading="lazy"
-                      className="h-auto w-full object-cover"
-                    />
-                  )}
-                  {/* <img
-                  src={project.liveUrl ? getPreviewImage(project.liveUrl) : 'https://placehold.co/1440x900/111827/374151?text=No+Preview'}
-                  alt={`${project.title} preview`}
-                  loading="lazy"
-                  className="h-auto w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://placehold.co/1440x900/111827/374151?text=No+Preview';
-                  }}
-                /> */}
-                  <div className="flex items-start pt-2 justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-base font-semibold text-green-300 group-hover:text-green-200 transition-colors truncate">
-                          {project.title}
-                        </h3>
-                        {project.featured && (
-                          <span className="shrink-0 rounded border border-yellow-700/50 bg-yellow-900/20 px-1.5 py-0.5 text-[10px] text-yellow-500 uppercase tracking-wider">
-                            featured
+                  <LivePreviewImage
+                    liveUrl={project.liveUrl ?? null}
+                    projectId={project.id}
+                    livePreviewProjectIds={livePreviewProjectIds}
+                    alt={project.title}
+                    loading="lazy"
+                    placeholderClassName="bg-gray-900/80"
+                  />
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-base font-semibold text-green-300 group-hover:text-green-200 transition-colors truncate">
+                            {project.title}
+                          </h3>
+                          {project.featured && (
+                            <span className="shrink-0 rounded border border-yellow-700/50 bg-yellow-900/20 px-1.5 py-0.5 text-[10px] text-yellow-500 uppercase tracking-wider">
+                              featured
+                            </span>
+                          )}
+                        </div>
+                        {project.language && (
+                          <div className="mt-1.5 flex items-center gap-1.5">
+                            <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                            <span className="text-xs text-gray-500">
+                              {project.language}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3 text-xs text-gray-500">
+                        {project.githubStars != null && project.githubStars > 0 && (
+                          <span className="flex items-center gap-1" title="Stars">
+                            <svg
+                              className="h-3.5 w-3.5 text-yellow-500/70"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                            {project.githubStars}
+                          </span>
+                        )}
+                        {project.githubForks != null && project.githubForks > 0 && (
+                          <span className="flex items-center gap-1" title="Forks">
+                            <svg
+                              className="h-3.5 w-3.5 text-gray-500"
+                              fill="currentColor"
+                              viewBox="0 0 16 16"
+                            >
+                              <path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 9.5a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm7.5-9.5a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM5 12.75v-1a4 4 0 0 1 4-4h1.25v-1A2.25 2.25 0 0 1 12.5 4.5V3.25a2.25 2.25 0 1 0-4.5 0v1.25A4 4 0 0 0 4 8.5v1a2.25 2.25 0 1 0 1 3.25ZM4.25 11a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM11.5 1a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z" />
+                            </svg>
+                            {project.githubForks}
                           </span>
                         )}
                       </div>
-                      {project.language && (
-                        <div className="mt-1.5 flex items-center gap-1.5">
-                          <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
-                          <span className="text-xs text-gray-500">
-                            {project.language}
+                    </div>
+
+                    <DescriptionBlock
+                      text={project.description}
+                      paragraphClassName="mt-3 text-sm text-gray-400 leading-relaxed"
+                      listClassName="mt-3 space-y-2 pl-5 text-sm text-gray-400 leading-relaxed marker:text-green-900"
+                    />
+
+                    {project.techStack.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {project.techStack.map((tech) => (
+                          <span
+                            key={tech}
+                            className="rounded bg-green-900/20 px-2 py-0.5 text-[11px] text-green-500/80 border border-green-900/30"
+                          >
+                            {tech}
                           </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex shrink-0 items-center gap-3 text-xs text-gray-500">
-                      {project.githubStars != null && project.githubStars > 0 && (
-                        <span className="flex items-center gap-1" title="Stars">
-                          <svg
-                            className="h-3.5 w-3.5 text-yellow-500/70"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                          {project.githubStars}
-                        </span>
-                      )}
-                      {project.githubForks != null && project.githubForks > 0 && (
-                        <span className="flex items-center gap-1" title="Forks">
-                          <svg
-                            className="h-3.5 w-3.5 text-gray-500"
-                            fill="currentColor"
-                            viewBox="0 0 16 16"
-                          >
-                            <path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 9.5a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm7.5-9.5a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM5 12.75v-1a4 4 0 0 1 4-4h1.25v-1A2.25 2.25 0 0 1 12.5 4.5V3.25a2.25 2.25 0 1 0-4.5 0v1.25A4 4 0 0 0 4 8.5v1a2.25 2.25 0 1 0 1 3.25ZM4.25 11a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM11.5 1a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z" />
-                          </svg>
-                          {project.githubForks}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                        ))}
+                      </div>
+                    )}
 
-                  <DescriptionBlock
-                    text={project.description}
-                    paragraphClassName="mt-3 text-sm text-gray-400 leading-relaxed line-clamp-3"
-                    listClassName="mt-3 space-y-2 pl-5 text-sm text-gray-400 leading-relaxed marker:text-green-900"
-                  />
-
-                  {project.techStack.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {project.techStack.map((tech) => (
-                        <span
-                          key={tech}
-                          className="rounded bg-green-900/20 px-2 py-0.5 text-[11px] text-green-500/80 border border-green-900/30"
+                    <div className="mt-4 flex items-center gap-4">
+                      {project.sourceUrl && (
+                        <a
+                          href={project.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-green-600 underline decoration-green-900 hover:text-green-400 transition-colors"
                         >
-                          {tech}
-                        </span>
-                      ))}
+                          source
+                        </a>
+                      )}
+                      {project.liveUrl && (
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-green-600 underline decoration-green-900 hover:text-green-400 transition-colors"
+                        >
+                          live demo
+                        </a>
+                      )}
                     </div>
-                  )}
-
-                  <div className="mt-4 flex items-center gap-4">
-                    {project.sourceUrl && (
-                      <a
-                        href={project.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-green-600 underline decoration-green-900 hover:text-green-400 transition-colors"
-                      >
-                        source
-                      </a>
-                    )}
-                    {project.liveUrl && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-green-600 underline decoration-green-900 hover:text-green-400 transition-colors"
-                      >
-                        live demo
-                      </a>
-                    )}
                   </div>
                 </div>
               ))}

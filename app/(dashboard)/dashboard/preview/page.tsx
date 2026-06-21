@@ -69,18 +69,26 @@ export default function PreviewPage() {
     }
   }, [allowedTemplateIds, previewTemplate]);
 
-  const handleTemplateChange = async (next: string) => {
+  const handleTemplatePreview = (next: string) => {
     if (allowedTemplateIds && !allowedTemplateIds.includes(next)) {
       toast.error("Your free month has ended. Upgrade to Pro to unlock this template.");
       return;
     }
     setPreviewTemplate(next);
-    if (next === portfolio?.templateId) return;
+  };
+
+  const savedTemplateId = portfolio?.templateId ?? "minimal";
+
+  const handleTemplateSave = async () => {
+    const templateToSave = previewTemplate ?? savedTemplateId;
+    if (templateToSave === savedTemplateId) return;
+
     try {
-      await updateTemplate.mutateAsync(next);
-      toast.success("Template updated");
+      await updateTemplate.mutateAsync(templateToSave);
+      setPreviewTemplate(null);
+      toast.success("Template saved");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update template");
+      toast.error(error instanceof Error ? error.message : "Failed to save template");
     }
   };
 
@@ -143,6 +151,8 @@ export default function PreviewPage() {
     allowedTemplateIds && !allowedTemplateIds.includes(effectiveTemplate)
       ? "minimal"
       : effectiveTemplate;
+  const hasUnsavedTemplate =
+    templateId !== (portfolio.templateId ?? "minimal");
   const template = getTemplate(templateId);
   const TemplateComponent = template.component;
   const data = portfolioToTemplateData(portfolio);
@@ -202,7 +212,11 @@ export default function PreviewPage() {
         open={editOpen} 
         onOpenChange={setEditOpen} 
         templateId={templateId}
-        onTemplateChange={handleTemplateChange}
+        savedTemplateId={portfolio.templateId ?? "minimal"}
+        hasUnsavedTemplate={hasUnsavedTemplate}
+        isSavingTemplate={updateTemplate.isPending}
+        onTemplateChange={handleTemplatePreview}
+        onTemplateSave={handleTemplateSave}
         templateOptions={templateOptions}
         isTemplateLocked={isTemplateLocked}
       />

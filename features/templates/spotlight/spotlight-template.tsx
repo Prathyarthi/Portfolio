@@ -7,48 +7,54 @@ import { ExternalLink, Menu, X } from "lucide-react";
 import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { CollapsibleList } from "../collapsible-list";
-import { DescriptionBlock } from "../shared";
-// import { getPreviewImage } from "@/lib/link-preview-code";
+import {
+  ContactChips,
+  CustomSectionItems,
+  DescriptionBlock,
+  ProfileLinksSection,
+} from "../shared";
+import { formatDateRange, groupSkillsByCategory } from "../utils";
+import {
+  GitHubContributionHeatmap,
+  parseContributionCalendar,
+} from "../github-contribution-heatmap";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 const MADE_TOMMY_LINK_ID = "made-tommy-spotlight-font";
-
-const NAV = [
-  { name: "home", link: "#top" },
-  { name: "projects", link: "#projects" },
-  { name: "Achievements", link: "#achievements" },
-] as const;
-
-const FILTERS = ["Frontend", "Fullstack", "Freelancing", "Archive"] as const;
-type Filter = (typeof FILTERS)[number] | "All";
-
-/**
- * Spotlight-inspired layout with sticky nav, hero, filter pills, project cards,
- * and a timeline section.
- * from the shipped bundle (sticky nav, hero, filter pills, project cards, timeline).
- * Content maps from portfolio fields; optional `customization.spotlightProjectCategories`
- * maps project id → string[] for filters; else `language` may be comma-separated tags.
- */
 export function SpotlightTemplate({ data }: { data: PortfolioData }) {
-  const { portfolio, projects, articles, socialProfiles, certifications, achievements, livePreviewProjectIds } = data;
+  const {
+    portfolio,
+    experiences,
+    educations,
+    skills,
+    projects,
+    articles,
+    socialProfiles,
+    certifications,
+    achievements,
+    customSections,
+    livePreviewProjectIds,
+  } = data;
   const [menuOpen, setMenuOpen] = useState(false);
-  const [filter, setFilter] = useState<Filter>("All");
   const [logoFailed, setLogoFailed] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const [showFloatSocial, setShowFloatSocial] = useState(false);
-
-  const custom =
-    portfolio.customization && typeof portfolio.customization === "object"
-      ? (portfolio.customization as Record<string, unknown>)
-      : {};
-
-  const projectCategoryMap =
-    custom.spotlightProjectCategories &&
-    typeof custom.spotlightProjectCategories === "object" &&
-    !Array.isArray(custom.spotlightProjectCategories)
-      ? (custom.spotlightProjectCategories as Record<string, string[]>)
-      : null;
+  const groupedSkills = groupSkillsByCategory(skills);
+  const githubProfile = socialProfiles.find(
+    (profile) => profile.platform.toLowerCase() === "github"
+  );
+  const githubStats = githubProfile?.cachedStats as Record<string, unknown> | null;
+  const contributionCalendar = parseContributionCalendar(
+    githubStats?.contributionCalendar
+  );
+  const hasProfiles =
+    socialProfiles.length > 0 ||
+    Boolean(
+      portfolio.contactEmail ||
+        portfolio.phone ||
+        portfolio.websiteUrl ||
+        portfolio.location
+    );
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -73,14 +79,31 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
   const milestones = useMemo(() => buildMilestones(achievements, certifications), [achievements, certifications]);
 
-  const filteredProjects = useMemo(() => {
-    if (filter === "All") return projects;
-    return projects.filter((p) => {
-      const cats = getProjectCategories(p, projectCategoryMap);
-      if (cats.length === 0) return false;
-      return cats.includes(filter);
-    });
-  }, [projects, filter, projectCategoryMap]);
+  const navItems = useMemo(() => {
+    const items: { name: string; link: string }[] = [{ name: "home", link: "#top" }];
+    if (portfolio.summary?.trim()) items.push({ name: "about", link: "#about" });
+    if (projects.length > 0) items.push({ name: "projects", link: "#projects" });
+    if (experiences.length > 0) items.push({ name: "experience", link: "#experience" });
+    if (educations.length > 0) items.push({ name: "education", link: "#education" });
+    if (skills.length > 0) items.push({ name: "skills", link: "#skills" });
+    if (articles.length > 0) items.push({ name: "writing", link: "#writing" });
+    if (milestones.length > 0) items.push({ name: "achievements", link: "#achievements" });
+    if (hasProfiles) items.push({ name: "connect", link: "#profiles" });
+    for (const section of customSections) {
+      items.push({ name: section.label.toLowerCase(), link: `#${section.id}` });
+    }
+    return items;
+  }, [
+    portfolio.summary,
+    projects.length,
+    experiences.length,
+    educations.length,
+    skills.length,
+    articles.length,
+    milestones.length,
+    hasProfiles,
+    customSections,
+  ]);
 
   const headlineLines = splitHeadline(portfolio.headline);
 
@@ -149,7 +172,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                 <div className="absolute left-0 top-[72px] z-30 flex w-full md:hidden">
                   <div className="absolute mt-2 flex h-48 w-full flex-col items-end text-start">
                     <div className="space-y-5 rounded-lg bg-[#fbfffe] p-6 pr-5 text-[20px] font-semibold shadow-lg">
-                      {NAV.map((item) => (
+                      {navItems.map((item) => (
                         <a
                           key={item.name}
                           href={item.link}
@@ -170,7 +193,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                   menuOpen ? "hidden" : "hidden lg:flex"
                 )}
               >
-                {NAV.map((item) => (
+                {navItems.map((item) => (
                   <a
                     key={item.name}
                     href={item.link}
@@ -184,7 +207,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
           </nav>
         </header>
 
-        <div className="ml-4 mr-4 min-h-screen lg:ml-[200px] lg:mr-[200px]">
+        <div className="ml-4 mr-4 min-h-screen pb-16 md:pb-24 lg:ml-[200px] lg:mr-[200px]">
           <div ref={heroRef}>
             <section className="flex h-screen flex-col place-content-center place-items-center gap-y-4 px-2">
               <h1 className="-mt-7 text-center text-4xl font-extrabold leading-[130%] text-gray-950 md:font-semibold lg:mt-0 lg:text-6xl lg:font-semibold lg:leading-[128%]">
@@ -233,10 +256,23 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
             </section>
           </div>
 
+          {portfolio.summary?.trim() && (
+            <section className="container mx-auto mb-16 px-0" id="about">
+              <SpotlightSectionHeading title="About" />
+              <div className="rounded-lg border border-gray-200 bg-white p-6 md:p-8">
+                <DescriptionBlock
+                  text={portfolio.summary}
+                  paragraphClassName="text-base leading-relaxed text-gray-600 md:text-lg"
+                  listClassName="space-y-2 pl-5 text-base leading-relaxed text-gray-600 marker:text-[hsl(45,100%,60%)] md:text-lg"
+                />
+              </div>
+            </section>
+          )}
+
           {projects.length > 0 && (
-            <section className="container mx-auto mb-16 px-0">
+            <section className="container mx-auto mb-16 mt-8 px-0 scroll-mt-32">
               <div
-                className="-mt-40 flex flex-col pt-32 text-center leading-[150%] text-gray-950 lg:-mt-[157px] lg:pt-[130px] lg:text-left"
+                className="-mt-24 mb-10 flex flex-col pt-28 text-center leading-[150%] text-gray-950 lg:-mt-32 lg:pt-32 lg:text-left"
                 id="projects"
               >
                 <h2 className="text-3xl text-[38px] font-extrabold leading-[140%] lg:text-5xl lg:font-medium">
@@ -249,30 +285,12 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-3 items-center justify-center gap-2 pb-10 pt-10 sm:gap-4 lg:flex lg:justify-start">
-                {FILTERS.map((f) => (
-                  <button
-                    key={f}
-                    type="button"
-                    onClick={() => setFilter(f)}
-                    className={cn(
-                      "rounded-full border border-gray-200 px-4 py-1 text-gray-950 backdrop-blur-sm transition-all duration-300 hover:border-[hsl(45,100%,60%)] sm:px-6 md:font-semibold lg:font-normal",
-                      filter === f && "bg-[hsl(45,100%,60%)]",
-                      f === "Freelancing" && filter === f && "text-gray-950"
-                    )}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-
               <CollapsibleList
-                key={filter}
                 initial={4}
                 wrapperClassName="mb-16 grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2"
                 buttonClassName="md:col-span-2 rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
               >
-                {filteredProjects.map((project) => (
+                {projects.map((project) => (
                   <ProjectCard
                     key={project.id}
                     project={project}
@@ -283,14 +301,106 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
             </section>
           )}
 
+          {experiences.length > 0 && (
+            <section className="container mx-auto mb-16 px-0" id="experience">
+              <SpotlightSectionHeading title="Experience" />
+              <CollapsibleList
+                initial={4}
+                wrapperClassName="space-y-6"
+                buttonClassName="mx-auto mt-4 block rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
+              >
+                {experiences.map((exp) => (
+                  <article
+                    key={exp.id}
+                    className="rounded-lg border border-gray-200 bg-white p-6 transition-colors hover:border-[hsl(45,100%,60%)]"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-950">{exp.role}</h3>
+                        <p className="mt-1 text-sm font-medium text-gray-600">
+                          {exp.company}
+                          {exp.location ? ` · ${exp.location}` : ""}
+                        </p>
+                      </div>
+                      {(exp.startDate || exp.endDate) && (
+                        <span className="text-xs font-medium text-gray-500">
+                          {formatDateRange(exp.startDate, exp.endDate)}
+                        </span>
+                      )}
+                    </div>
+                    {exp.description && (
+                      <DescriptionBlock
+                        text={exp.description}
+                        paragraphClassName="mt-4 text-sm leading-relaxed text-gray-600"
+                        listClassName="mt-4 space-y-2 pl-5 text-sm leading-relaxed text-gray-600 marker:text-gray-300"
+                      />
+                    )}
+                  </article>
+                ))}
+              </CollapsibleList>
+            </section>
+          )}
+
+          {educations.length > 0 && (
+            <section className="container mx-auto mb-16 px-0" id="education">
+              <SpotlightSectionHeading title="Education" />
+              <CollapsibleList
+                initial={4}
+                wrapperClassName="grid gap-6 sm:grid-cols-1 md:grid-cols-2"
+                buttonClassName="md:col-span-2 mx-auto mt-4 block rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
+              >
+                {educations.map((edu) => (
+                  <article
+                    key={edu.id}
+                    className="rounded-lg border border-gray-200 bg-white p-6 transition-colors hover:border-[hsl(45,100%,60%)]"
+                  >
+                    <h3 className="text-lg font-bold text-gray-950">
+                      {edu.degree}
+                      {edu.field ? (
+                        <span className="font-medium text-gray-600"> in {edu.field}</span>
+                      ) : null}
+                    </h3>
+                    <p className="mt-2 text-sm font-medium text-gray-600">{edu.institution}</p>
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                      {(edu.startDate || edu.endDate) && (
+                        <span>{formatDateRange(edu.startDate, edu.endDate)}</span>
+                      )}
+                      {edu.gpa ? <span>GPA {edu.gpa}</span> : null}
+                    </div>
+                  </article>
+                ))}
+              </CollapsibleList>
+            </section>
+          )}
+
+          {skills.length > 0 && (
+            <section className="container mx-auto mb-16 px-0" id="skills">
+              <SpotlightSectionHeading title="Skills" />
+              <div className="space-y-8 rounded-lg border border-gray-200 bg-white p-6 md:p-8">
+                {Object.entries(groupedSkills).map(([category, names]) => (
+                  <div key={category}>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">
+                      {category}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {names.map((name) => (
+                        <span
+                          key={name}
+                          className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm font-medium text-gray-700"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {articles.length > 0 && (
             <section className="container mx-auto mb-16 px-0" id="writing">
-              <div className="mb-12">
-                <h2 className="text-5xl font-medium tracking-wide">
-                  Writing
-                  <span className="text-[hsl(45,100%,60%)]">.</span>
-                </h2>
-              </div>
+              <SpotlightSectionHeading title="Writing" />
               <CollapsibleList
                 initial={4}
                 wrapperClassName="grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2"
@@ -339,19 +449,14 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
           )}
 
           {milestones.length > 0 && (
-            <section className="min-h-auto w-full pb-24 pt-28 text-gray-950" id="achievements">
-              <div className="mb-12">
-                <h2 className="text-5xl font-medium tracking-wide">
-                  Achievements
-                  <span className="text-[hsl(45,100%,60%)]">.</span>
-                </h2>
-              </div>
+            <section className="container mx-auto mb-16 px-0 text-gray-950" id="achievements">
+              <SpotlightSectionHeading title="Achievements" />
 
               <div className="relative">
-                <div className="absolute left-4 h-full w-0.5 bg-[hsl(45,100%,60%)] md:left-1/2" />
+                <div className="pointer-events-none absolute bottom-16 left-4 top-0 w-0.5 bg-[hsl(45,100%,60%)] md:left-1/2 md:-translate-x-px" />
                 <CollapsibleList
                   initial={4}
-                  buttonClassName="mx-auto mt-4 block rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
+                  buttonClassName="relative z-10 mx-auto mt-4 block rounded-full border border-gray-200 bg-[#fbfffe] px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
                 >
                   {milestones.map((m, t) => (
                     <motion.div
@@ -365,7 +470,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                         t % 2 === 0 ? "md:flex-row-reverse" : ""
                       )}
                     >
-                      <div className="absolute left-4 mt-1.5 h-4 w-4 -translate-x-2 rounded-full bg-[hsl(45,100%,60%)] md:left-1/2" />
+                      <div className="absolute left-4 z-10 mt-1.5 h-4 w-4 -translate-x-2 rounded-full bg-[hsl(45,100%,60%)] md:left-1/2 md:-translate-x-1/2" />
                       <div className="ml-12 p-4 md:ml-0 md:w-1/2">
                         <div className="rounded-lg border border-[hsl(45,100%,60%)] bg-[#fbfffe] p-6 shadow-lg">
                           <span className="font-bold text-[hsl(45,100%,60%)]">{m.year}</span>
@@ -381,6 +486,62 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
                     </motion.div>
                   ))}
                 </CollapsibleList>
+              </div>
+            </section>
+          )}
+
+          {hasProfiles && (
+            <section className="container mx-auto mb-16 px-0" id="profiles">
+              <SpotlightSectionHeading title="Connect" />
+              <div className="rounded-lg border border-gray-200 bg-white p-6 md:p-8">
+                <ContactChips
+                  portfolio={portfolio}
+                  chipClassName="rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-[hsl(45,100%,60%)]"
+                />
+                <div className="mt-6">
+                  <ProfileLinksSection
+                    portfolio={portfolio}
+                    profiles={socialProfiles}
+                    chipClassName="rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-[hsl(45,100%,60%)]"
+                    pillClassName="rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-[hsl(45,100%,60%)]"
+                    titleClassName="font-semibold text-gray-950"
+                    textClassName="text-sm text-gray-600"
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {customSections.map((section) => (
+            <section
+              key={section.id}
+              className="container mx-auto mb-16 px-0"
+              id={section.id}
+            >
+              <SpotlightSectionHeading title={section.label} />
+              <div className="rounded-lg border border-gray-200 bg-white p-6 md:p-8">
+                <CustomSectionItems
+                  items={section.items}
+                  titleClassName="text-lg font-bold text-gray-950"
+                  textClassName="mt-2 text-sm leading-relaxed text-gray-600"
+                  chipClassName="rounded-full bg-[hsl(45,100%,60%)]/20 px-2.5 py-1 text-xs capitalize text-gray-950"
+                  buttonClassName="mx-auto mt-4 block rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
+                />
+              </div>
+            </section>
+          ))}
+
+          {contributionCalendar && (
+            <section className="container mx-auto mb-16 px-0" id="activity">
+              <SpotlightSectionHeading title="GitHub Activity" />
+              <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white p-6">
+                <GitHubContributionHeatmap
+                  calendar={contributionCalendar}
+                  profileUrl={githubProfile?.url}
+                  username={githubProfile?.username}
+                  variant="minimal"
+                  label="GitHub Contributions"
+                />
               </div>
             </section>
           )}
@@ -410,6 +571,17 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
         </div>
       </div>
     </>
+  );
+}
+
+function SpotlightSectionHeading({ title }: { title: string }) {
+  return (
+    <div className="mb-12">
+      <h2 className="text-5xl font-medium tracking-wide">
+        {title}
+        <span className="text-[hsl(45,100%,60%)]">.</span>
+      </h2>
+    </div>
   );
 }
 
@@ -455,36 +627,15 @@ function ProjectCard({
     <article className="group flex h-full w-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(45,100%,60%)] hover:shadow-lg">
       <div className="h-1 w-full bg-[hsl(45,100%,60%)]/70" />
 
+      <LivePreviewImage
+        liveUrl={project.liveUrl ?? null}
+        projectId={project.id}
+        livePreviewProjectIds={livePreviewProjectIds}
+        alt={project.title}
+        loading="lazy"
+      />
+
       <div className="flex flex-1 flex-col gap-4 p-5">
-        {project.liveUrl ? (
-          <div className="relative h-auto w-full overflow-hidden bg-stone-100">
-            {/* <img
-              src={getPreviewImage(project.liveUrl)}
-              alt={project.title}
-              loading="lazy"
-              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-              onError={(e) => {
-                e.currentTarget.src =
-                  'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
-              }}
-            /> */}
-            <LivePreviewImage
-              liveUrl={project.liveUrl}
-              enabled={isLivePreviewEnabledForProject(
-                project.id,
-                livePreviewProjectIds
-              )}
-              alt={project.title}
-              loading="lazy"
-              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-              fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
-            />
-          </div>
-        ) : (
-          <div className="h-3/5 w-full bg-white/4.5 flex items-center justify-center">
-            <span className="text-sm text-gray-600 border-gray-200 bg-white tracking-widest uppercase">no preview</span>
-          </div>
-        )}
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-lg font-semibold tracking-tight text-gray-950">{project.title}</h3>
           {hasLinks ? (
@@ -537,16 +688,6 @@ function ProjectCard({
       </div>
     </article>
   );
-}
-
-function getProjectCategories(
-  project: PortfolioData["projects"][number],
-  map: Record<string, string[]> | null
-): string[] {
-  if (map?.[project.id]?.length) return map[project.id];
-  const raw = project.language?.trim();
-  if (!raw) return [];
-  return raw.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
 function splitHeadline(headline: string): [string, string | null] {

@@ -18,7 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -115,7 +114,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
                 <img
                   src={portfolio.avatarUrl}
                   alt={portfolio.title}
-                  className="relative w-40 h-40 object-cover border-2 border-[#00ff00] filter grayscale contrast-150"
+                  className="relative w-40 h-40 object-cover border-2 border-[#00ff00] filter contrast-150"
                 />
               </div>
             )}
@@ -157,24 +156,19 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
                 <article key={project.id} className="group relative border border-[#00ff00]/30 bg-[#050505] overflow-hidden hover:border-[#00ff00] transition-colors">
                   <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#00ff00] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                  {project.liveUrl ? (
-                    <div className="relative h-48 border-b border-[#00ff00]/30 overflow-hidden">
-                      <LivePreviewImage
-                        liveUrl={project.liveUrl}
-                        enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                        alt={project.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover object-top filter grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500 opacity-70 group-hover:opacity-100"
-                        fallbackSrc="https://placehold.co/800x600/050505/00ff00?text=NO_SIGNAL"
-                      />
-                      <div className="absolute inset-0 bg-[#00ff00]/10 mix-blend-overlay" />
-                    </div>
-                  ) : (
-                    <div className="h-48 border-b border-[#00ff00]/30 bg-[#050505] flex items-center justify-center relative overflow-hidden">
-                      <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,255,0,0.1)_50%)] bg-size-[100%_4px]" />
-                      <span className="text-xs font-bold uppercase tracking-widest text-[#008800] z-10">OFFLINE</span>
-                    </div>
-                  )}
+                  <div className="relative border-b border-[#00ff00]/30">
+                    <LivePreviewImage
+                      liveUrl={project.liveUrl ?? null}
+                      projectId={project.id}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      containerClassName="bg-[#050505]"
+                      placeholderClassName="bg-[#050505] [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-wider [&_p]:text-[#00ff00]"
+                      className="h-full w-full object-cover object-top opacity-70 filter contrast-125 transition-all duration-500 group-hover:opacity-100"
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-[#00ff00]/10 mix-blend-overlay" />
+                  </div>
 
                   <div className="p-6 flex flex-col grow">
                     <div className="flex items-start justify-between gap-4 mb-4">
