@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function PastelTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -147,22 +146,17 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
             >
               {visibleProjects.map((project) => (
                 <article key={project.id} className="group bg-white rounded-[2.5rem] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(255,179,186,0.2)] transition-all duration-500 flex flex-col">
-                  {project.liveUrl ? (
-                    <div className="relative h-56 rounded-[2rem] overflow-hidden mb-6">
-                      <LivePreviewImage
-                        liveUrl={project.liveUrl}
-                        enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                        alt={project.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                        fallbackSrc="https://placehold.co/800x600/fff5f8/ffb3ba?text=Preview"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-56 rounded-[2rem] bg-[#fdf6e3] flex items-center justify-center mb-6">
-                      <span className="text-sm font-bold text-[#ffdfba] uppercase tracking-widest">No Preview</span>
-                    </div>
-                  )}
+                  <div className="relative h-56 rounded-[2rem] overflow-hidden mb-6">
+                    <ProjectPreviewMedia
+                      projectId={project.id}
+                      liveUrl={project.liveUrl}
+                      imageUrl={project.imageUrl}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
                   
                   <div className="px-4 pb-4 flex flex-col grow">
                     <div className="flex items-start justify-between gap-4 mb-3">

@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function SpaceTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -145,29 +144,18 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
                     key={project.id}
                     className="group rounded-3xl bg-[#0B0F19]/60 backdrop-blur-xl border border-cyan-900/30 overflow-hidden transition-all duration-500 hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)] hover:-translate-y-2 flex flex-col"
                   >
-                    {project.liveUrl ? (
-                      <div className="relative h-64 w-full overflow-hidden bg-[#030014]">
-                        <div className="absolute inset-0 bg-linear-to-t from-[#0B0F19] via-transparent to-transparent z-10 opacity-80" />
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(
-                            project.id,
-                            livePreviewProjectIds
-                          )}
-                          alt={project.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
-                          fallbackSrc="https://placehold.co/1440x900/030014/06b6d4?text=No+Preview"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-64 w-full items-center justify-center bg-[#030014] relative">
-                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20" />
-                        <span className="text-sm font-medium uppercase tracking-widest text-slate-600 z-10">
-                          Offline
-                        </span>
-                      </div>
-                    )}
+                    <div className="relative h-64 w-full overflow-hidden bg-[#030014]">
+                      <div className="absolute inset-0 bg-linear-to-t from-[#0B0F19] via-transparent to-transparent z-10 opacity-80 pointer-events-none" />
+                      <ProjectPreviewMedia
+                        projectId={project.id}
+                        liveUrl={project.liveUrl}
+                        imageUrl={project.imageUrl}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-110 opacity-80 group-hover:opacity-100"
+                      />
+                    </div>
                     <div className="p-8 flex flex-col grow relative z-20">
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <h3 className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">

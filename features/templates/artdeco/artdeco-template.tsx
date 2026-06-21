@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -154,22 +153,17 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
               {visibleProjects.map((project) => (
                 <article key={project.id} className="group bg-[#111c3d] border border-[#d4af37]/20 hover:border-[#d4af37] transition-all duration-500 flex flex-col p-2">
                   <div className="border border-[#d4af37]/10 h-full flex flex-col p-4">
-                    {project.liveUrl ? (
-                      <div className="relative h-56 overflow-hidden mb-6 border-b border-[#d4af37]/30 pb-4">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover object-top filter sepia-[0.3] contrast-125 transition-transform duration-1000 group-hover:scale-105"
-                          fallbackSrc="https://placehold.co/800x600/111c3d/d4af37?text=View"
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-56 bg-[#0b132b] flex items-center justify-center mb-6 border-b border-[#d4af37]/30 pb-4">
-                        <Diamond className="w-8 h-8 text-[#d4af37]/30" />
-                      </div>
-                    )}
+                    <div className="relative h-56 overflow-hidden mb-6 border-b border-[#d4af37]/30 pb-4">
+                      <ProjectPreviewMedia
+                        projectId={project.id}
+                        liveUrl={project.liveUrl}
+                        imageUrl={project.imageUrl}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-top filter sepia-[0.3] contrast-125 transition-transform duration-1000 group-hover:scale-105"
+                      />
+                    </div>
                     
                     <div className="flex flex-col grow">
                       <div className="flex items-start justify-between gap-4 mb-4">

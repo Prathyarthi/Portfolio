@@ -99,7 +99,7 @@ export function LivePreviewSelectionDialog({
         <DialogHeader>
           <DialogTitle>Choose live preview links</DialogTitle>
           <DialogDescription>
-            Choose which projects should show a live preview in the Projects section.
+            Select which projects should show a live preview on your portfolio templates.
           </DialogDescription>
         </DialogHeader>
 

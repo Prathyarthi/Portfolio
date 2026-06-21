@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function WindowsTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -107,25 +106,17 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
             >
               {visibleProjects.map((project) => (
                 <div key={project.id} className="win95-outset bg-[#c0c0c0] flex flex-col">
-                  {project.liveUrl ? (
-                    <div className="h-40 win95-inset bg-black m-2 relative group overflow-hidden">
-                      <LivePreviewImage
-                        liveUrl={project.liveUrl}
-                        enabled={isLivePreviewEnabledForProject(
-                          project.id,
-                          livePreviewProjectIds
-                        )}
-                        alt={project.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover object-top filter grayscale group-hover:grayscale-0 transition-all"
-                        fallbackSrc="https://placehold.co/1440x900/000000/008080?text=No+Preview"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-40 win95-inset bg-black m-2 flex items-center justify-center text-[#00ff00] font-mono text-xs">
-                      C:\&gt; No preview available
-                    </div>
-                  )}
+                  <div className="h-40 win95-inset bg-black m-2 relative group overflow-hidden">
+                    <ProjectPreviewMedia
+                      projectId={project.id}
+                      liveUrl={project.liveUrl}
+                      imageUrl={project.imageUrl}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover object-top filter grayscale group-hover:grayscale-0 transition-all"
+                    />
+                  </div>
                   <div className="p-3 flex flex-col grow">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-bold text-sm truncate pr-2">{project.title}</h3>

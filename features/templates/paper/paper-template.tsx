@@ -16,8 +16,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function PaperTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -128,22 +127,17 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
               {visibleProjects.map((project) => (
                 <article key={project.id} className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
                   <div className="md:col-span-5">
-                    {project.liveUrl ? (
-                      <div className="border border-[#2c2c2c] p-1 bg-white">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full aspect-4/3 object-cover filter grayscale hover:grayscale-0 transition-all duration-500"
-                          fallbackSrc="https://placehold.co/800x600/f4f1ea/2c2c2c?text=Figure+1"
-                        />
-                      </div>
-                    ) : (
-                      <div className="border border-[#2c2c2c] p-1 bg-white aspect-4/3 flex items-center justify-center">
-                        <span className="text-xs font-sans uppercase tracking-widest text-[#888]">Figure Unavailable</span>
-                      </div>
-                    )}
+                    <div className="border border-[#2c2c2c] p-1 bg-white overflow-hidden">
+                      <ProjectPreviewMedia
+                        projectId={project.id}
+                        liveUrl={project.liveUrl}
+                        imageUrl={project.imageUrl}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                        className="w-full aspect-4/3 object-cover filter grayscale hover:grayscale-0 transition-all duration-500"
+                      />
+                    </div>
                   </div>
                   <div className="md:col-span-7 space-y-4">
                     <div className="flex items-baseline justify-between">

@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function MonochromeTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -133,22 +132,17 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
             >
               {visibleProjects.map((project) => (
                 <article key={project.id} className="group flex flex-col">
-                  {project.liveUrl ? (
-                    <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 mb-6">
-                      <LivePreviewImage
-                        liveUrl={project.liveUrl}
-                        enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                        alt={project.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover object-top filter grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                        fallbackSrc="https://placehold.co/800x600/f3f4f6/000000?text=No+Preview"
-                      />
-                    </div>
-                  ) : (
-                    <div className="aspect-4/3 w-full bg-gray-100 flex items-center justify-center mb-6">
-                      <span className="text-sm font-bold uppercase tracking-widest text-gray-400">No Preview</span>
-                    </div>
-                  )}
+                  <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 mb-6">
+                    <ProjectPreviewMedia
+                      projectId={project.id}
+                      liveUrl={project.liveUrl}
+                      imageUrl={project.imageUrl}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-top filter grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                    />
+                  </div>
                   
                   <div className="flex flex-col grow">
                     <div className="flex items-start justify-between gap-4 mb-4">

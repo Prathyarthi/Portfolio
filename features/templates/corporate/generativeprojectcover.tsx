@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 
 export function hashString(str: string): number {
@@ -192,7 +194,7 @@ export function GenerativeProjectCover({ seed }: { seed: string }) {
         </div>
         
         <div
-          className="absolute inset-0"
+          className="absolute bg-red-600 inset-0"
           style={{
             background: `linear-gradient(${cfg.wash.angle}deg, ${cfg.palette.wash[0]}, ${cfg.palette.wash[1]}, ${cfg.palette.wash[2]})`,
           }}

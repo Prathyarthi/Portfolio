@@ -8,9 +8,7 @@ import { GithubIcon, InstagramIcon, LinkedinIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { CollapsibleList } from "../collapsible-list";
 import { DescriptionBlock } from "../shared";
-// import { getPreviewImage } from "@/lib/link-preview-code";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 const MADE_TOMMY_LINK_ID = "made-tommy-spotlight-font";
 
@@ -456,35 +454,15 @@ function ProjectCard({
       <div className="h-1 w-full bg-[hsl(45,100%,60%)]/70" />
 
       <div className="flex flex-1 flex-col gap-4 p-5">
-        {project.liveUrl ? (
-          <div className="relative h-auto w-full overflow-hidden bg-stone-100">
-            {/* <img
-              src={getPreviewImage(project.liveUrl)}
-              alt={project.title}
-              loading="lazy"
-              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-              onError={(e) => {
-                e.currentTarget.src =
-                  'https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview';
-              }}
-            /> */}
-            <LivePreviewImage
-              liveUrl={project.liveUrl}
-              enabled={isLivePreviewEnabledForProject(
-                project.id,
-                livePreviewProjectIds
-              )}
-              alt={project.title}
-              loading="lazy"
-              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-              fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
-            />
-          </div>
-        ) : (
-          <div className="h-3/5 w-full bg-white/4.5 flex items-center justify-center">
-            <span className="text-sm text-gray-600 border-gray-200 bg-white tracking-widest uppercase">no preview</span>
-          </div>
-        )}
+        <ProjectPreviewMedia
+          projectId={project.id}
+          liveUrl={project.liveUrl}
+          imageUrl={project.imageUrl}
+          livePreviewProjectIds={livePreviewProjectIds}
+          alt={project.title}
+          loading="lazy"
+          className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+        />
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-lg font-semibold tracking-tight text-gray-950">{project.title}</h3>
           {hasLinks ? (
