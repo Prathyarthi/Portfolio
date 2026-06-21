@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -148,24 +147,18 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
               {visibleProjects.map((project) => (
                 <article key={project.id} className="group bg-[#1a0b2e]/90 border border-[#ff007f]/50 hover:border-[#ff007f] p-1 shadow-[0_0_15px_rgba(255,0,127,0.1)] hover:shadow-[0_0_25px_rgba(255,0,127,0.4)] transition-all duration-300 flex flex-col">
                   <div className="bg-[#0d0221] h-full flex flex-col p-5">
-                    {project.liveUrl ? (
-                      <div className="relative h-48 overflow-hidden mb-6 border-b-2 border-[#00f0ff]">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover object-top filter contrast-125 saturate-150 transition-transform duration-700 group-hover:scale-110"
-                          fallbackSrc="https://placehold.co/800x600/1a0b2e/00f0ff?text=VHS_TAPE"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-t from-[#ff007f]/40 to-transparent mix-blend-overlay" />
-                      </div>
-                    ) : (
-                      <div className="h-48 bg-[#1a0b2e] border-b-2 border-[#00f0ff] flex items-center justify-center mb-6 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.1)_50%)] bg-size-[100%_4px]" />
-                        <span className="text-sm font-bold text-[#ff007f] uppercase tracking-widest z-10">NO SIGNAL</span>
-                      </div>
-                    )}
+                    <div className="relative h-48 overflow-hidden mb-6 border-b-2 border-[#00f0ff]">
+                      <ProjectPreviewMedia
+                        projectId={project.id}
+                        liveUrl={project.liveUrl}
+                        imageUrl={project.imageUrl}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-top filter contrast-125 saturate-150 transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-linear-to-t from-[#ff007f]/40 to-transparent mix-blend-overlay pointer-events-none" />
+                    </div>
                     
                     <div className="flex flex-col grow">
                       <div className="flex items-start justify-between gap-4 mb-3">

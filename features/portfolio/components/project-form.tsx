@@ -291,7 +291,7 @@ export function ProjectForm() {
         nextIds.length !== livePreviewProjectIds.length ||
         nextIds.some((id) => !livePreviewProjectIds.includes(id));
 
-      if (idsChanged) {
+      if (idsChanged || wantPreview) {
         await syncLivePreviewIds(nextIds);
       }
 

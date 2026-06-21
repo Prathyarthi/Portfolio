@@ -13,6 +13,7 @@ import {
   getMaxLivePreviews,
   sanitizeLivePreviewProjectIds,
 } from "@/lib/live-preview";
+import { syncLivePreviewImages } from "@/lib/sync-live-preview-images";
 
 function toDateOrThrow(value: string) {
   const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -1213,9 +1214,15 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         maxAllowed
       );
 
-      const updated = await prisma.portfolio.update({
+      await prisma.portfolio.update({
         where: { id: portfolio.id },
         data: { livePreviewProjectIds },
+      });
+
+      await syncLivePreviewImages(portfolio.id, livePreviewProjectIds);
+
+      const updated = await prisma.portfolio.findUnique({
+        where: { id: portfolio.id },
         include: portfolioInclude,
       });
 

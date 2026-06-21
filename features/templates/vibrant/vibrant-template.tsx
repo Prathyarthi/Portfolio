@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function VibrantTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -147,29 +146,18 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
                     key={project.id}
                     className="group rounded-3xl bg-slate-900/40 backdrop-blur-xl border border-white/10 overflow-hidden transition-all duration-500 hover:border-fuchsia-500/50 hover:shadow-[0_0_40px_rgba(217,70,239,0.15)] hover:-translate-y-2 flex flex-col"
                   >
-                    {project.liveUrl ? (
-                      <div className="relative h-64 w-full overflow-hidden bg-slate-800">
-                        <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent z-10 opacity-60" />
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(
-                            project.id,
-                            livePreviewProjectIds
-                          )}
-                          alt={project.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
-                          fallbackSrc="https://placehold.co/1440x900/1e293b/94a3b8?text=No+Preview"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-64 w-full items-center justify-center bg-slate-800/50 relative">
-                        <div className="absolute inset-0 bg-linear-to-br from-fuchsia-500/10 to-cyan-500/10" />
-                        <span className="text-sm font-medium uppercase tracking-widest text-slate-500 z-10">
-                          No Preview
-                        </span>
-                      </div>
-                    )}
+                    <div className="relative h-64 w-full overflow-hidden bg-slate-800">
+                      <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent z-10 opacity-60 pointer-events-none" />
+                      <ProjectPreviewMedia
+                        projectId={project.id}
+                        liveUrl={project.liveUrl}
+                        imageUrl={project.imageUrl}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                      />
+                    </div>
                     <div className="p-8 flex flex-col grow relative z-20">
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <h3 className="text-2xl font-bold text-white group-hover:text-fuchsia-400 transition-colors">

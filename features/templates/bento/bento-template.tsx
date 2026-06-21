@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function BentoTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -159,16 +158,14 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                   >
                     {project.liveUrl ? (
                       <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="relative h-48 w-full overflow-hidden bg-zinc-200 block">
-                        <LivePreviewImage
+                        <ProjectPreviewMedia
+                          projectId={project.id}
                           liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(
-                            project.id,
-                            livePreviewProjectIds
-                          )}
+                          imageUrl={project.imageUrl}
+                          livePreviewProjectIds={livePreviewProjectIds}
                           alt={project.title}
                           loading="lazy"
                           className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                          fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
                         />
                         <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10 flex items-center justify-center">
                           <div className="opacity-0 transform translate-y-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 bg-white text-zinc-900 rounded-full p-2 shadow-lg">
@@ -177,10 +174,16 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                         </div>
                       </a>
                     ) : (
-                      <div className="flex h-48 w-full items-center justify-center bg-zinc-100 border-b border-zinc-200/50">
-                        <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">
-                          No Preview
-                        </span>
+                      <div className="h-48 w-full overflow-hidden border-b border-zinc-200/50">
+                        <ProjectPreviewMedia
+                          projectId={project.id}
+                          liveUrl={project.liveUrl}
+                          imageUrl={project.imageUrl}
+                          livePreviewProjectIds={livePreviewProjectIds}
+                          alt={project.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover object-top"
+                        />
                       </div>
                     )}
                     <div className="p-6 flex flex-col grow">

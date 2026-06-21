@@ -3,7 +3,7 @@ import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
 } from "../github-contribution-heatmap";
-import { Crosshair, Box, Layers } from "lucide-react";
+import { Crosshair, Layers } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function BlueprintTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -166,26 +165,19 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
                     REF.{index + 1}
                   </div>
                   
-                  {project.liveUrl ? (
-                    <div className="relative h-56 border-b-2 border-white/50 overflow-hidden p-2">
-                      <div className="w-full h-full border border-dashed border-white/30 relative">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover object-top filter grayscale contrast-150 mix-blend-screen opacity-70 group-hover:opacity-100 transition-opacity"
-                          fallbackSrc="https://placehold.co/800x600/003366/ffffff?text=NO_VIEW"
-                        />
-                      </div>
+                  <div className="relative h-56 border-b-2 border-white/50 overflow-hidden p-2">
+                    <div className="w-full h-full border border-dashed border-white/30 relative overflow-hidden">
+                      <ProjectPreviewMedia
+                        projectId={project.id}
+                        liveUrl={project.liveUrl}
+                        imageUrl={project.imageUrl}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-top filter grayscale contrast-150 mix-blend-screen opacity-70 group-hover:opacity-100 transition-opacity"
+                      />
                     </div>
-                  ) : (
-                    <div className="h-56 border-b-2 border-white/50 flex items-center justify-center p-2">
-                      <div className="w-full h-full border border-dashed border-white/30 flex items-center justify-center">
-                        <Box className="w-12 h-12 text-white/30" />
-                      </div>
-                    </div>
-                  )}
+                  </div>
                   
                   <div className="p-6 flex flex-col grow">
                     <div className="flex items-start justify-between gap-4 mb-4">

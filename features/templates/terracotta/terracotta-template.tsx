@@ -12,8 +12,7 @@ import {
   ContactChips,
   CustomSectionItems
 } from "../shared";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { GitHubContributionHeatmap, parseContributionCalendar } from "../github-contribution-heatmap";
 import { motion } from "motion/react";
@@ -116,20 +115,17 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
               <CollapsibleList initial={4} wrapperClassName="grid gap-12 lg:grid-cols-2" buttonClassName="mt-12 mx-auto block uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
                 {projects.map((project) => (
                   <article key={project.id} className="group flex flex-col gap-6">
-                    {project.liveUrl ? (
-                      <div className="relative h-72 w-full overflow-hidden rounded-t-[50px]">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex h-72 w-full items-center justify-center rounded-t-[50px] bg-[#3D405B]/5">
-                        <span className="text-sm font-light tracking-[0.2em] text-[#3D405B]/40 uppercase">No Preview</span>
-                      </div>
-                    )}
+                    <div className="relative h-72 w-full overflow-hidden rounded-t-[50px]">
+                      <ProjectPreviewMedia
+                        projectId={project.id}
+                        liveUrl={project.liveUrl}
+                        imageUrl={project.imageUrl}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
                     <div>
                       <h3 className="text-2xl font-medium text-[#3D405B] mb-3">{project.title}</h3>
                       {project.description && (

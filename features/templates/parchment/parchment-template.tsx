@@ -12,8 +12,7 @@ import {
   ContactChips,
   CustomSectionItems
 } from "../shared";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { GitHubContributionHeatmap, parseContributionCalendar } from "../github-contribution-heatmap";
 import { motion } from "motion/react";
@@ -120,22 +119,17 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
                 {projects.map((project, idx) => (
                   <article key={project.id} className="grid md:grid-cols-12 gap-8 items-start">
                     <div className={cn("md:col-span-5", idx % 2 !== 0 && "md:order-last")}>
-                      {project.liveUrl ? (
-                        <div className="relative h-64 w-full overflow-hidden border-2 border-[#2B2B2B] p-1 bg-white">
-                          <LivePreviewImage
-                            liveUrl={project.liveUrl}
-                            enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                            alt={project.title}
-                            className="h-full w-full object-cover object-top filter grayscale hover:grayscale-0 transition-all duration-700"
-                          />
-                        </div>
-                      ) : (
-                        <div className="h-64 w-full border-2 border-[#2B2B2B] bg-[#2B2B2B]/5 flex items-center justify-center p-1">
-                          <div className="w-full h-full border border-[#2B2B2B] flex items-center justify-center">
-                            <span className="font-bold tracking-widest text-[#2B2B2B]/40 uppercase text-sm">Archived</span>
-                          </div>
-                        </div>
-                      )}
+                      <div className="relative h-64 w-full overflow-hidden border-2 border-[#2B2B2B] p-1 bg-white">
+                        <ProjectPreviewMedia
+                          projectId={project.id}
+                          liveUrl={project.liveUrl}
+                          imageUrl={project.imageUrl}
+                          livePreviewProjectIds={livePreviewProjectIds}
+                          alt={project.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover object-top filter grayscale hover:grayscale-0 transition-all duration-700"
+                        />
+                      </div>
                     </div>
                     
                     <div className="md:col-span-7 flex flex-col h-full justify-center">

@@ -17,8 +17,7 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { ProjectPreviewMedia } from "@/features/templates/project-preview-media";
 
 export function RetroTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -155,27 +154,17 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                         key={project.id}
                         className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-2"
                       >
-                        {project.liveUrl ? (
-                          <div className="relative h-48 w-full border-b-4 border-black bg-gray-100 sm:h-64">
-                            <LivePreviewImage
-                              liveUrl={project.liveUrl}
-                              enabled={isLivePreviewEnabledForProject(
-                                project.id,
-                                livePreviewProjectIds
-                              )}
-                              alt={project.title}
-                              loading="lazy"
-                              className="h-full w-full object-cover object-top filter grayscale transition-all duration-500 hover:grayscale-0"
-                              fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex h-32 w-full items-center justify-center border-b-4 border-black bg-gray-200">
-                            <span className="text-sm font-bold uppercase tracking-widest text-gray-500">
-                              No Preview
-                            </span>
-                          </div>
-                        )}
+                        <div className="relative h-48 w-full border-b-4 border-black bg-gray-100 sm:h-64 overflow-hidden">
+                          <ProjectPreviewMedia
+                            projectId={project.id}
+                            liveUrl={project.liveUrl}
+                            imageUrl={project.imageUrl}
+                            livePreviewProjectIds={livePreviewProjectIds}
+                            alt={project.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover object-top filter grayscale transition-all duration-500 hover:grayscale-0"
+                          />
+                        </div>
                         <div className="p-6">
                           <div className="flex flex-wrap items-start justify-between gap-3">
                             <div>
