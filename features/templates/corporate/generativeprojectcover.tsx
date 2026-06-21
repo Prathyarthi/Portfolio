@@ -2,14 +2,19 @@
 
 import { useMemo } from "react";
 
-export function hashString(str: string): number {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < str.length; i++) {
-    hash ^= str.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
+export function hashString(str: string | undefined | null): number {
+    // 1. Add a guard clause to handle empty/undefined/null values
+    if (!str) {
+      return 0; 
+    }
+  
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193);
+    }
+    return hash >>> 0;
   }
-  return hash >>> 0;
-}
 
 function mulberry32(seed: number) {
   let a = seed;
