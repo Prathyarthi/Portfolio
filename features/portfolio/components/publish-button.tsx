@@ -197,7 +197,7 @@ export function PublishButton() {
             <p className="text-xs text-muted-foreground">Checking availability...</p>
           )}
           {!checking && slugAvailable === true && (
-            <p className="text-xs text-emerald-600">Available</p>
+            <p className="text-xs text-success">Available</p>
           )}
           {!checking && slugAvailable === false && (
             <p className="text-xs text-destructive">Already taken or invalid</p>

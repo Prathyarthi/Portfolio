@@ -68,7 +68,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-brand-primary" />
       </div>
     );
   }
@@ -84,55 +84,47 @@ export default function BillingPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-6">
       <div>
-        <h1 className="text-3xl font-bold">Billing</h1>
-        <p className="mt-1 text-muted-foreground">
+        <h1 className="text-h2 text-text-primary">Billing</h1>
+        <p className="mt-1 text-body-sm text-text-secondary">
           Manage your plan and subscription.
         </p>
       </div>
 
       {paymentSuccess && (
-        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
-          <CheckCircle2 className="h-4 w-4 shrink-0" />
+        <div className="flex items-center gap-3 rounded-[var(--radius-md)] bg-success-bg px-4 py-3 text-body-sm text-success">
+          <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
           Payment received — your subscription is being activated. This page will
           reflect the change shortly.
         </div>
       )}
 
       {error && (
-        <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+        <p className="rounded-[var(--radius-md)] bg-danger-bg px-4 py-3 text-body-sm text-danger">
           {error}
         </p>
       )}
 
-      <Card className="glass-card rounded-[1.5rem] border-white/8 bg-white/3">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-zinc-100">
-              <CreditCard className="h-5 w-5" />
-              Current Plan
+            <CardTitle className="flex items-center gap-2 text-text-primary">
+              <CreditCard className="h-5 w-5" aria-hidden />
+              Current plan
             </CardTitle>
-            <Badge
-              className={
-                isPro
-                  ? "border-teal-400/30 bg-teal-500/15 text-teal-200"
-                  : isTrial
-                    ? "border-emerald-400/30 bg-emerald-500/15 text-emerald-200"
-                    : "border-white/10 bg-white/5 text-zinc-400"
-              }
-            >
-              {isPro ? "Pro" : isTrial ? "Free Trial" : "Free"}
+            <Badge variant={isPro || isTrial ? "success" : "neutral"}>
+              {isPro ? "Pro" : isTrial ? "Free trial" : "Free"}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {isPro && (
-            <div className="flex items-start gap-3 rounded-xl border border-teal-500/20 bg-teal-500/8 px-4 py-3">
-              <Crown className="mt-0.5 h-4 w-4 shrink-0 text-teal-400" />
+            <div className="flex items-start gap-3 rounded-[var(--radius-md)] bg-success-bg px-4 py-3">
+              <Crown className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
               <div>
-                <p className="text-sm font-medium text-teal-200">
+                <p className="text-body-sm font-medium text-text-primary">
                   Pro subscription is active
                 </p>
-                <p className="mt-0.5 text-xs text-teal-400/70">
+                <p className="mt-0.5 text-body-sm text-text-secondary">
                   All templates and features are unlocked.
                 </p>
               </div>
@@ -140,13 +132,13 @@ export default function BillingPage() {
           )}
 
           {isTrial && (
-            <div className="flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 px-4 py-3">
-              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+            <div className="flex items-start gap-3 rounded-[var(--radius-md)] bg-success-bg px-4 py-3">
+              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
               <div>
-                <p className="text-sm font-medium text-emerald-200">
+                <p className="text-body-sm font-medium text-text-primary">
                   Free trial active
                 </p>
-                <p className="mt-0.5 text-xs text-emerald-400/70">
+                <p className="mt-0.5 text-body-sm text-text-secondary">
                   {trialDays} day{trialDays === 1 ? "" : "s"} remaining — all
                   features unlocked during trial.
                 </p>
@@ -155,9 +147,9 @@ export default function BillingPage() {
           )}
 
           {isFree && (
-            <div className="rounded-xl border border-amber-400/20 bg-amber-400/8 px-4 py-3">
-              <p className="text-sm font-medium text-amber-200">Free plan</p>
-              <p className="mt-0.5 text-xs text-amber-400/70">
+            <div className="rounded-[var(--radius-md)] bg-warning-bg px-4 py-3">
+              <p className="text-body-sm font-medium text-text-primary">Free plan</p>
+              <p className="mt-0.5 text-body-sm text-text-secondary">
                 Your trial has ended. Upgrade to Pro to unlock premium templates,
                 imports, and more live preview slots.
               </p>
@@ -165,40 +157,40 @@ export default function BillingPage() {
           )}
 
           {isPending && (
-            <p className="text-xs text-amber-300/80">
+            <p className="text-body-sm text-text-secondary">
               Payment pending confirmation. If you have completed checkout, it
               may take a moment to reflect here.
             </p>
           )}
 
-          <div className="divide-y divide-white/6 text-sm">
+          <div className="divide-y divide-border-default text-body-sm">
             <div className="flex items-center justify-between py-2">
-              <span className="text-zinc-400">Premium templates</span>
+              <span className="text-text-secondary">Premium templates</span>
               <span
                 className={
                   billing?.access?.canUsePremiumTemplates
-                    ? "text-teal-400"
-                    : "text-zinc-600"
+                    ? "font-medium text-success"
+                    : "text-text-muted"
                 }
               >
                 {billing?.access?.canUsePremiumTemplates ? "Unlocked" : "Locked"}
               </span>
             </div>
             <div className="flex items-center justify-between py-2">
-              <span className="text-zinc-400">Resume & GitHub import</span>
+              <span className="text-text-secondary">Resume &amp; GitHub import</span>
               <span
                 className={
                   billing?.access?.canUseImports
-                    ? "text-teal-400"
-                    : "text-zinc-600"
+                    ? "font-medium text-success"
+                    : "text-text-muted"
                 }
               >
                 {billing?.access?.canUseImports ? "Unlocked" : "Locked"}
               </span>
             </div>
             <div className="flex items-center justify-between py-2">
-              <span className="text-zinc-400">Live preview slots</span>
-              <span className="text-zinc-300">
+              <span className="text-text-secondary">Live preview slots</span>
+              <span className="text-text-primary">
                 {isPro ? "Unlimited" : "2 included"}
               </span>
             </div>
@@ -206,7 +198,7 @@ export default function BillingPage() {
 
           {!isPro && paymentsReady && (
             <Button
-              className="w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
+              className="w-full"
               disabled={subscribing || isPending}
               onClick={subscribe}
             >
@@ -219,18 +211,18 @@ export default function BillingPage() {
           )}
 
           {!isPro && !paymentsReady && (
-            <p className="text-center text-xs text-zinc-600">
+            <p className="text-center text-body-sm text-text-muted">
               Payments are not configured on this instance.
             </p>
           )}
         </CardContent>
       </Card>
 
-      <p className="text-center text-sm text-zinc-600">
+      <p className="text-center text-body-sm text-text-muted">
         Questions?{" "}
         <Link
           href="/pricing"
-          className="text-zinc-400 underline-offset-4 hover:text-zinc-200 hover:underline"
+          className="text-brand-primary underline-offset-4 hover:underline"
         >
           View full pricing
         </Link>

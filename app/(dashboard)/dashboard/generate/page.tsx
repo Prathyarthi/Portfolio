@@ -131,7 +131,7 @@ function PromptTab({
     <div className="space-y-4">
       <Textarea
         placeholder="Describe yourself — your role, experience, technologies you use, notable projects..."
-        className="min-h-[120px] resize-none rounded-2xl border-white/10 bg-white/4 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-white/20"
+        className="min-h-[120px] resize-none"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         disabled={isGenerating}
@@ -143,7 +143,7 @@ function PromptTab({
             key={i}
             type="button"
             onClick={() => setPrompt(p)}
-            className="rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-200"
+            className="rounded-full border border-border-default bg-surface-sunken px-3 py-1 text-xs text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
           >
             Example {i + 1}
           </button>
@@ -222,23 +222,23 @@ function ResumeTab({ onData }: { onData: (data: PortfolioData) => void }) {
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
         onClick={() => !isParsing && fileInputRef.current?.click()}
-        className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-white/10 p-12 transition-colors hover:border-white/20"
+        className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-[var(--radius-xl)] border-2 border-dashed border-brand-secondary bg-brand-light p-12 transition-colors hover:border-brand-primary"
       >
         {isParsing ? (
           <>
-            <Loader2 className="h-10 w-10 animate-spin text-zinc-500" />
-            <p className="text-sm text-zinc-400">Parsing your resume with AI...</p>
+            <Loader2 className="h-10 w-10 animate-spin text-brand-primary" />
+            <p className="text-body-sm text-text-secondary">Parsing your resume with AI...</p>
           </>
         ) : (
           <>
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/4">
-              <FileText className="h-6 w-6 text-zinc-400" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-lg)] bg-surface-base">
+              <FileText className="h-6 w-6 text-brand-primary" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-zinc-200">
+              <p className="text-body-sm font-medium text-text-primary">
                 Drop your resume here or click to upload
               </p>
-              <p className="mt-1 text-xs text-zinc-500">PDF only · up to 10MB</p>
+              <p className="mt-1 text-xs text-text-muted">PDF only · up to 10MB</p>
             </div>
             <Button variant="outline" size="sm" className="gap-2 pointer-events-none">
               <Upload className="h-3.5 w-3.5" />
@@ -295,25 +295,23 @@ export default function GeneratePage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="glass-card rounded-[2rem] border border-white/8 p-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-          AI Generator
-        </p>
-        <h1 className="mt-3 text-3xl font-bold">Generate your portfolio</h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
+      <div className="rounded-[var(--radius-lg)] border border-border-default bg-surface-raised p-6 shadow-[var(--shadow-card)]">
+        <p className="eyebrow uppercase">AI generator</p>
+        <h1 className="mt-3 text-h1 text-text-primary">Generate your portfolio</h1>
+        <p className="mt-2 max-w-2xl text-body text-text-secondary">
           Describe yourself or upload your resume — AI builds the portfolio JSON,
           Syntux renders it as a live UI.
         </p>
       </div>
 
-      <div className="glass-card rounded-[2rem] border border-white/8 p-6">
+      <div className="rounded-[var(--radius-lg)] border border-border-default bg-surface-raised p-6 shadow-[var(--shadow-card)]">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6 rounded-xl bg-white/4">
-            <TabsTrigger value="describe" className="rounded-lg data-[state=active]:bg-white/10">
+          <TabsList className="mb-6">
+            <TabsTrigger value="describe">
               <Sparkles className="mr-2 h-3.5 w-3.5" />
               Describe yourself
             </TabsTrigger>
-            <TabsTrigger value="resume" className="rounded-lg data-[state=active]:bg-white/10">
+            <TabsTrigger value="resume">
               <FileText className="mr-2 h-3.5 w-3.5" />
               Upload resume
             </TabsTrigger>
@@ -333,10 +331,8 @@ export default function GeneratePage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-                Preview
-              </p>
-              <p className="mt-1 text-sm text-zinc-400">
+              <p className="eyebrow uppercase">Preview</p>
+              <p className="mt-1 text-body-sm text-text-secondary">
                 Live UI rendered by Syntux from the generated JSON
               </p>
             </div>
@@ -372,14 +368,14 @@ export default function GeneratePage() {
             </div>
           </div>
 
-          <div className="glass-card overflow-hidden rounded-[2rem] border border-white/8 p-6">
+          <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-raised p-6 shadow-[var(--shadow-card)]">
             <GeneratedUI
               endpoint="/api/syntux"
               value={portfolioData}
               hint="Display this portfolio data as a beautiful, modern portfolio preview. Show the person's name and headline prominently, then sections for experience, education, skills (as badges), and projects (as cards). Use a clean professional layout."
               placeholder={
                 <div className="flex h-64 items-center justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+                  <Loader2 className="h-6 w-6 animate-spin text-brand-primary" />
                 </div>
               }
             />

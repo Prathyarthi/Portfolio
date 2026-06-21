@@ -99,9 +99,9 @@ export function SubscriptionFlow() {
 
   if (authLoading || billingLoading) {
     return (
-      <div className="grid animate-pulse grid-cols-1 gap-5 md:grid-cols-2">
-        <div className="h-96 rounded-3xl bg-white/4" />
-        <div className="h-96 rounded-3xl bg-white/4" />
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="skeleton-shimmer h-96 rounded-[var(--radius-lg)]" />
+        <div className="skeleton-shimmer h-96 rounded-[var(--radius-lg)]" />
       </div>
     );
   }
@@ -109,25 +109,25 @@ export function SubscriptionFlow() {
   return (
     <div className="flex flex-col gap-4">
       {banner && (
-        <p className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-center text-sm text-red-400">
+        <p className="rounded-[var(--radius-md)] bg-danger-bg px-4 py-3 text-center text-body-sm text-danger">
           <span>{banner}</span>{" "}
           <button
             type="button"
             onClick={() => setBanner(null)}
-            className="text-zinc-400 underline hover:text-zinc-200"
+            className="underline hover:opacity-80"
           >
             Dismiss
           </button>
         </p>
       )}
       {accessTier === "trial" && (
-        <p className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-center text-sm text-emerald-300">
+        <p className="rounded-[var(--radius-md)] bg-success-bg px-4 py-3 text-center text-body-sm text-success">
           You are on your free month. {trialDaysRemaining} day
           {trialDaysRemaining === 1 ? "" : "s"} remaining with full features.
         </p>
       )}
       {accessTier === "free" && (
-        <p className="rounded-xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-center text-sm text-amber-200">
+        <p className="rounded-[var(--radius-md)] bg-warning-bg px-4 py-3 text-center text-body-sm text-text-secondary">
           Your free month ended. Free essentials remain active; upgrade to Pro
           for imports (resume, GitHub, LeetCode) and premium templates.
         </p>

@@ -39,64 +39,58 @@ export function PricingCards({
           <div key={plan.slug} className="relative">
             {plan.badge && (
               <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0">
-                <Badge className="rounded-full border border-teal-400/30 bg-teal-500/15 px-3 py-1 text-[10px] uppercase tracking-wider text-teal-200">
-                  {plan.badge}
-                </Badge>
+                <Badge variant="brand">Most popular</Badge>
               </div>
             )}
             <Card
-              className={`h-full rounded-2xl md:rounded-3xl ${
+              className={`h-full ${
                 plan.highlight
-                  ? "border-teal-500/25 bg-gradient-to-b from-teal-500/[0.06] to-transparent shadow-[0_0_0_1px_rgba(45,212,191,0.12)]"
-                  : "border-white/[0.08]"
+                  ? "border-2 border-brand-primary"
+                  : "border-border-default"
               }`}
             >
-              <CardContent className="flex h-full flex-col gap-6 p-6 md:p-8">
+              <CardContent className="flex h-full flex-col gap-6">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+                  <p className="text-label uppercase text-text-secondary">
                     {plan.eyebrow}
                   </p>
-                  <h2 className="mt-2 text-xl font-bold text-zinc-100 md:text-2xl">
+                  <h2 className="mt-2 text-h2 text-text-primary">
                     {plan.name}
                   </h2>
                   <div className="mt-5 flex flex-wrap items-baseline gap-2">
-                    <span className="gradient-text text-4xl font-bold tabular-nums md:text-5xl">
+                    <span className="text-display tabular-nums text-text-primary">
                       {plan.monthlyPrice}
                     </span>
                     {plan.pricePeriod && (
-                      <span className="text-sm text-zinc-500">
+                      <span className="text-body-sm text-text-muted">
                         {plan.pricePeriod}
                       </span>
                     )}
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-zinc-500">
+                  <p className="mt-4 text-body-sm text-text-secondary">
                     {plan.description}
                   </p>
                   {isPaid && paidActive && (
-                    <p className="mt-3 text-xs text-teal-400/90">
+                    <p className="mt-3 text-xs text-success">
                       Your subscription is active.
                     </p>
                   )}
                   {isPaid && paidPending && (
-                    <p className="mt-3 text-xs text-amber-400/90">
+                    <p className="mt-3 text-xs text-text-secondary">
                       Payment pending — open checkout again or wait for
                       confirmation.
                     </p>
                   )}
                   {isPaid && loggedIn && !paymentsReady && !paidActive && (
-                    <p className="mt-3 text-xs text-zinc-600">
+                    <p className="mt-3 text-xs text-text-muted">
                       Payments are not configured.
                     </p>
                   )}
                   {plan.note && !isPaid && (
-                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">
-                      {plan.note}
-                    </p>
+                    <p className="mt-3 text-xs text-text-muted">{plan.note}</p>
                   )}
                   {isPaid && plan.note && !paidActive && (
-                    <p className="mt-3 text-xs leading-relaxed text-zinc-600">
-                      {plan.note}
-                    </p>
+                    <p className="mt-3 text-xs text-text-muted">{plan.note}</p>
                   )}
                 </div>
 
@@ -104,11 +98,11 @@ export function PricingCards({
                   {plan.features.map((feature) => (
                     <li
                       key={feature.label}
-                      className="flex gap-3 text-sm leading-snug"
+                      className="flex gap-3 text-body-sm leading-snug"
                     >
                       <span
                         className={`w-5 shrink-0 text-center ${
-                          feature.included ? "text-teal-400" : "text-zinc-700"
+                          feature.included ? "text-success" : "text-text-muted"
                         }`}
                         aria-hidden
                       >
@@ -116,7 +110,7 @@ export function PricingCards({
                       </span>
                       <span
                         className={
-                          feature.included ? "text-zinc-300" : "text-zinc-600"
+                          feature.included ? "text-text-primary" : "text-text-muted"
                         }
                       >
                         {feature.label}
@@ -126,11 +120,7 @@ export function PricingCards({
                 </ul>
 
                 {plan.slug === "starter" && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="mt-auto w-full rounded-full border-white/15 bg-white/[0.03] text-zinc-100 hover:bg-white/10"
-                  >
+                  <Button asChild variant="outline" className="mt-auto w-full">
                     <Link href={loggedIn ? "/dashboard" : plan.ctaHref}>
                       {loggedIn ? "Continue with Free" : plan.ctaLabel}
                     </Link>
@@ -138,17 +128,13 @@ export function PricingCards({
                 )}
 
                 {isPaid && !loggedIn && (
-                  <Button asChild className="mt-auto w-full rounded-full">
+                  <Button asChild className="mt-auto w-full">
                     <Link href="/sign-up">Sign up to subscribe</Link>
                   </Button>
                 )}
 
                 {isPaid && loggedIn && paidActive && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="mt-auto w-full rounded-full border-white/15 bg-white/[0.03] text-zinc-100 hover:bg-white/10"
-                  >
+                  <Button asChild variant="outline" className="mt-auto w-full">
                     <Link href="/dashboard/settings">Manage billing</Link>
                   </Button>
                 )}
@@ -156,7 +142,7 @@ export function PricingCards({
                 {isPaid && loggedIn && showSubscribe && (
                   <Button
                     type="button"
-                    className="mt-auto w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
+                    className="mt-auto w-full"
                     disabled={subscribing}
                     onClick={onSubscribePaid}
                   >
@@ -168,7 +154,7 @@ export function PricingCards({
                   <Button
                     type="button"
                     variant="outline"
-                    className="mt-auto w-full rounded-full border-white/15 bg-white/[0.03] text-zinc-300 opacity-90"
+                    className="mt-auto w-full"
                     disabled
                   >
                     Subscribe to Pro
@@ -178,7 +164,7 @@ export function PricingCards({
                 {isPaid && loggedIn && paidPending && paymentsReady && (
                   <Button
                     type="button"
-                    className="mt-auto w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
+                    className="mt-auto w-full"
                     disabled={subscribing}
                     onClick={onSubscribePaid}
                   >
@@ -190,7 +176,7 @@ export function PricingCards({
                   <Button
                     type="button"
                     variant="outline"
-                    className="mt-auto w-full rounded-full border-white/15 bg-white/[0.03] text-zinc-300 opacity-90"
+                    className="mt-auto w-full"
                     disabled
                   >
                     Complete subscription

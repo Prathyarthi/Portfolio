@@ -80,14 +80,14 @@ function EditorBody({
   const activeStepInfo = EDIT_STEPS.find((step) => step.value === activeStep);
 
   return (
-    <Tabs defaultValue="content" className="flex h-full min-h-0 flex-col bg-[#090b12] text-zinc-100">
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/8 px-4 py-3">
+    <Tabs defaultValue="content" className="flex h-full min-h-0 flex-col bg-surface-raised text-text-primary">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border-default px-4 py-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Pencil className="h-3.5 w-3.5 text-zinc-500" />
-            <p className="text-sm font-semibold">Inspect & Edit</p>
+            <Pencil className="h-3.5 w-3.5 text-text-muted" aria-hidden />
+            <p className="text-body-sm font-semibold text-text-primary">Inspect &amp; edit</p>
           </div>
-          <p className="mt-0.5 truncate text-xs text-zinc-500">
+          <p className="mt-0.5 truncate text-body-sm text-text-muted">
             Live preview stays on canvas
           </p>
         </div>
@@ -95,17 +95,16 @@ function EditorBody({
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             onClick={onClose}
-            className="h-8 w-8 shrink-0 rounded-lg text-zinc-400 hover:bg-white/8 hover:text-zinc-100"
             aria-label="Close editor"
           >
-            <PanelRightClose className="h-4 w-4" />
+            <PanelRightClose className="h-4 w-4" aria-hidden />
           </Button>
         ) : null}
       </div>
 
-      <div className="shrink-0 border-b border-white/8 px-3 py-2">
+      <div className="shrink-0 border-b border-border-default px-3 py-2">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
           <TabsTrigger value="design" className="text-xs">Design</TabsTrigger>
@@ -113,7 +112,7 @@ function EditorBody({
       </div>
 
       <TabsContent value="content" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
-        <div className="shrink-0 border-b border-white/8 px-3 py-3">
+        <div className="shrink-0 border-b border-border-default px-3 py-3">
           <div className="grid grid-cols-4 gap-1.5">
             {EDIT_STEPS.map((step) => {
               const Icon = step.icon;
@@ -122,15 +121,16 @@ function EditorBody({
                   key={step.value}
                   type="button"
                   onClick={() => onStepChange(step.value)}
+                  aria-pressed={activeStep === step.value}
                   className={cn(
-                    "flex min-w-0 flex-col items-center gap-1 rounded-lg border px-1.5 py-2 text-[11px] leading-none transition-colors",
+                    "flex min-w-0 flex-col items-center gap-1 rounded-[var(--radius-md)] border px-1.5 py-2 text-[11px] leading-none transition-colors",
                     activeStep === step.value
-                      ? "border-white/12 bg-white/12 text-zinc-50"
-                      : "border-transparent text-zinc-500 hover:bg-white/6 hover:text-zinc-200"
+                      ? "border-transparent bg-brand-light text-brand-primary"
+                      : "border-transparent text-text-muted hover:bg-surface-sunken hover:text-text-primary"
                   )}
                   title={step.label}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-4 w-4 shrink-0" aria-hidden />
                   <span className="max-w-full truncate">{step.short}</span>
                 </button>
               );
@@ -138,26 +138,22 @@ function EditorBody({
           </div>
         </div>
 
-        <div className="shrink-0 border-b border-white/8 px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-600">
-            Section
-          </p>
-          <h2 className="mt-1 text-base font-semibold">{activeStepInfo?.label}</h2>
+        <div className="shrink-0 border-b border-border-default px-4 py-3">
+          <p className="text-label uppercase text-text-secondary">Section</p>
+          <h2 className="mt-1 text-h4 text-text-primary">{activeStepInfo?.label}</h2>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
-          <div className="preview-edit-form **:data-[slot=card]:gap-3 **:data-[slot=card]:rounded-xl **:data-[slot=card]:border-white/8 **:data-[slot=card]:bg-white/3 **:data-[slot=card]:py-3 **:data-[slot=card-content]:px-3 **:data-[slot=card-description]:text-[11px] **:data-[slot=card-header]:gap-1 **:data-[slot=card-header]:px-3 **:data-[slot=card-title]:text-sm [&_button]:h-8 [&_button]:text-xs [&_input]:h-8 [&_input]:text-xs [&_label]:text-[11px] [&_textarea]:min-h-20 [&_textarea]:text-xs">
+          <div className="preview-edit-form [&_button]:text-xs [&_input]:text-xs [&_textarea]:min-h-20 [&_textarea]:text-xs">
             <EditStepContent step={activeStep} />
           </div>
         </div>
       </TabsContent>
 
       <TabsContent value="design" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
-        <div className="shrink-0 border-b border-white/8 px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-600">
-            Theme Settings
-          </p>
-          <h2 className="mt-1 text-base font-semibold">Templates</h2>
+        <div className="shrink-0 border-b border-border-default px-4 py-3">
+          <p className="text-label uppercase text-text-secondary">Theme settings</p>
+          <h2 className="mt-1 text-h4 text-text-primary">Templates</h2>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
           {templateOptions && onTemplateChange ? (
@@ -165,7 +161,7 @@ function EditorBody({
               {templateOptions.map((t) => {
                 const isActive = templateId === t.id;
                 const isLocked = isTemplateLocked?.(t.id) ?? false;
-                
+
                 return (
                   <button
                     key={t.id}
@@ -173,25 +169,25 @@ function EditorBody({
                     disabled={isLocked}
                     onClick={() => onTemplateChange(t.id)}
                     className={cn(
-                      "group relative flex flex-col gap-2 rounded-xl border p-2 text-left transition-all",
+                      "group relative flex flex-col gap-2 rounded-[var(--radius-md)] border p-2 text-left transition-all",
                       isActive
-                        ? "border-primary bg-primary/5"
-                        : "border-white/8 bg-white/3 hover:border-white/20 hover:bg-white/5",
-                      isLocked && "opacity-50 cursor-not-allowed"
+                        ? "border-brand-primary bg-brand-light"
+                        : "border-border-default bg-surface-base hover:border-border-strong",
+                      isLocked && "cursor-not-allowed opacity-50"
                     )}
                   >
                     <TemplatePreview templateId={t.id} />
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-xs font-medium truncate pr-2">{t.name}</span>
-                      {isActive && <Check className="h-3 w-3 text-primary shrink-0" />}
-                      {isLocked && <span className="text-[10px] text-zinc-500 shrink-0">PRO</span>}
+                    <div className="flex w-full items-center justify-between">
+                      <span className="truncate pr-2 text-xs font-medium text-text-primary">{t.name}</span>
+                      {isActive && <Check className="h-3 w-3 shrink-0 text-brand-primary" aria-hidden />}
+                      {isLocked && <span className="shrink-0 text-[10px] text-text-muted">PRO</span>}
                     </div>
                   </button>
                 );
               })}
             </div>
           ) : (
-            <p className="text-sm text-zinc-500 text-center py-8">Templates not available</p>
+            <p className="py-8 text-center text-body-sm text-text-muted">Templates not available</p>
           )}
         </div>
       </TabsContent>
@@ -216,7 +212,7 @@ export function PreviewEditSidebar({
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="w-full border-white/8 bg-[#090b12] p-0 sm:max-w-md"
+          className="w-full border-border-default bg-surface-raised p-0 sm:max-w-md"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Edit portfolio</SheetTitle>
@@ -238,7 +234,7 @@ export function PreviewEditSidebar({
   if (!open) return null;
 
   return (
-    <aside className="sticky top-20 ml-4 h-[calc(100vh-6rem)] w-100 shrink-0 self-start overflow-hidden rounded-[1.25rem] border border-white/8 bg-[#090b12]/95 shadow-2xl backdrop-blur-xl">
+    <aside className="sticky top-4 ml-4 h-[calc(100vh-2rem)] w-100 shrink-0 self-start overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-raised shadow-[var(--shadow-card)]">
       <EditorBody
         activeStep={activeStep}
         onStepChange={setActiveStep}
@@ -265,18 +261,13 @@ export function PreviewEditToggle({
       size="sm"
       variant={open ? "default" : "outline"}
       onClick={() => onOpenChange(!open)}
-      className={
-        open
-          ? "rounded-full h-8 text-xs"
-          : "rounded-full border-white/8 bg-white/4 text-zinc-200 h-8 text-xs"
-      }
     >
       {open ? (
-        <PanelRightClose className="mr-1.5 h-3 w-3" />
+        <PanelRightClose className="h-3.5 w-3.5" aria-hidden />
       ) : (
-        <Pencil className="mr-1.5 h-3 w-3" />
+        <Pencil className="h-3.5 w-3.5" aria-hidden />
       )}
-      {open ? "Close Editor" : "Edit"}
+      {open ? "Close editor" : "Edit"}
     </Button>
   );
 }

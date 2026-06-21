@@ -5,19 +5,24 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3",
+  "inline-flex h-[22px] w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-[var(--radius-sm)] border border-transparent px-2.5 py-1 font-mono text-xs font-medium tracking-[0.03em] whitespace-nowrap transition-[color,box-shadow] focus-visible:shadow-[var(--shadow-focus)] [&>svg]:pointer-events-none [&>svg]:size-3",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        default:
+          "bg-brand-light text-brand-dark [a&]:hover:bg-brand-secondary/40",
+        brand: "bg-brand-light text-brand-dark [a&]:hover:bg-brand-secondary/40",
         secondary:
-          "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-          "bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90",
+          "bg-surface-sunken text-text-secondary [a&]:hover:opacity-90",
+        neutral: "bg-surface-sunken text-text-secondary",
+        success: "bg-success-bg text-[#00614e] dark:text-success",
+        warning: "bg-warning-bg text-[#7a5400] dark:text-warning",
+        destructive: "bg-danger-bg text-[#7a2e1a] dark:text-danger",
+        danger: "bg-danger-bg text-[#7a2e1a] dark:text-danger",
         outline:
-          "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 [a&]:hover:underline",
+          "border-border-default text-text-primary [a&]:hover:bg-surface-raised",
+        ghost: "[a&]:hover:bg-surface-raised [a&]:hover:text-text-primary",
+        link: "text-brand-primary underline-offset-4 [a&]:hover:underline",
       },
     },
     defaultVariants: {

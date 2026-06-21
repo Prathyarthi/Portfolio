@@ -1,181 +1,94 @@
-"use client";
-
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
-import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
-import { landingSurfaceInteractive, landingFocusRing } from "@/features/landing/surface";
-import {
-  landingGridContainerVariants,
-  landingGridItemVariants,
-  landingSectionHeaderProps,
-} from "@/features/landing/motion-presets";
-import {
-  TemplateMicroScene,
-  type TemplateSceneId,
-} from "@/features/landing/components/template-micro-scenes";
 
-const templates = [
-  {
-    id: "minimal",
-    name: "Minimal",
-    tagline: "Quiet structure",
-    description: "Generous space and restrained type for a confident, calm read.",
-    barClass: "bg-zinc-400/80",
-  },
-  {
-    id: "modern",
-    name: "Modern",
-    tagline: "Product depth",
-    description: "Layered surfaces and contrast that feel current without shouting.",
-    barClass: "bg-violet-400/85",
-  },
-  {
-    id: "developer",
-    name: "Developer",
-    tagline: "Technical tone",
-    description: "Monospace cues and grid logic that match how engineers present work.",
-    barClass: "bg-emerald-400/82",
-  },
-  {
-    id: "creative",
-    name: "Creative",
-    tagline: "Expressive rhythm",
-    description: "Warmer motion and asymmetry for portfolios that lead with craft.",
-    barClass: "bg-rose-400/80",
-  },
-  {
-    id: "corporate",
-    name: "Corporate",
-    tagline: "Executive clarity",
-    description: "Sharper hierarchy and restrained polish for a more premium professional tone.",
-    barClass: "bg-sky-400/80",
-  },
-  {
-    id: "spotlight",
-    name: "Spotlight",
-    tagline: "Portfolio site",
-    description:
-      "Dark typography-led layout inspired by a stacked project and achievements flow.",
-    barClass: "bg-[#fc3]/90",
-  },
-] as const;
+type Preview = {
+  name: string;
+  role: string;
+  template: string;
+  hue: string;
+};
 
-function TemplateTile({
-  template,
-  index,
-  variants,
-  reducedMotion,
-}: {
-  template: (typeof templates)[number];
-  index: number;
-  variants: ReturnType<typeof landingGridItemVariants>;
-  reducedMotion: boolean | null;
-}) {
-  const idx = String(index + 1).padStart(2, "0");
+const PREVIEWS: Preview[] = [
+  { name: "Maya Chen", role: "Product Designer", template: "Minimal", hue: "#6c5ce7" },
+  { name: "Dev Patel", role: "Frontend Engineer", template: "Developer", hue: "#00b894" },
+  { name: "Sara Lind", role: "Marketing Lead", template: "Modern", hue: "#a29bfe" },
+  { name: "Omar Reed", role: "Data Scientist", template: "Corporate", hue: "#4834d4" },
+  { name: "Ivy Nakamura", role: "Illustrator", template: "Creative", hue: "#e17055" },
+  { name: "Leo Martins", role: "Full-stack Dev", template: "Spotlight", hue: "#fdcb6e" },
+];
 
+function PreviewCard({ p }: { p: Preview }) {
   return (
-    <motion.div variants={variants} className="min-h-0">
-      <Link
-        href="/sign-up"
-        className={cn(
-          landingSurfaceInteractive,
-          landingFocusRing,
-          "group block h-full p-5 md:p-6"
-        )}
-      >
-        <motion.div
-          className="flex h-full w-full flex-col"
-          whileHover={reducedMotion ? undefined : { y: -2 }}
-          transition={{ type: "spring", stiffness: 440, damping: 30 }}
-        >
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <span className="font-mono text-[10px] tabular-nums tracking-widest text-zinc-600">
-              {idx}
-            </span>
-            <div
-              className={cn(
-                "h-[3px] origin-left rounded-full transition-[width,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                "w-11 opacity-60 group-hover:w-[4.25rem] group-hover:opacity-100",
-                template.barClass
-              )}
-            />
+    <Link
+      href="/sign-up"
+      className="group flex w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-[var(--radius-xl)] border border-border-default bg-surface-raised shadow-[var(--shadow-card)] outline-none transition-all duration-200 ease-[var(--ease-out)] hover:-translate-y-1 hover:border-border-strong focus-visible:shadow-[var(--shadow-focus)]"
+    >
+      {/* Mock portfolio thumbnail */}
+      <div className="relative h-[150px] overflow-hidden bg-surface-base">
+        <div className="h-14 w-full" style={{ background: p.hue, opacity: 0.16 }} />
+        <div
+          className="absolute left-4 top-7 h-12 w-12 rounded-full border-4 border-surface-raised"
+          style={{ background: p.hue }}
+        />
+        <div className="space-y-2 px-4 pt-7">
+          <div className="h-2.5 w-1/2 rounded-full bg-text-primary/70" />
+          <div className="h-2 w-1/3 rounded-full" style={{ background: p.hue, opacity: 0.6 }} />
+          <div className="flex gap-1.5 pt-1">
+            <div className="h-4 w-10 rounded-[var(--radius-sm)] bg-surface-sunken" />
+            <div className="h-4 w-12 rounded-[var(--radius-sm)] bg-surface-sunken" />
+            <div className="h-4 w-8 rounded-[var(--radius-sm)] bg-surface-sunken" />
           </div>
+        </div>
+      </div>
 
-          <TemplateMicroScene
-            id={template.id as TemplateSceneId}
-            reduced={Boolean(reducedMotion)}
-          />
-
-          <div className="flex flex-1 flex-col">
-            <h3 className="text-lg font-medium tracking-tight text-zinc-100 md:text-xl">
-              {template.name}
-            </h3>
-            <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-600">
-              {template.tagline}
-            </p>
-            <p className="mt-3 flex-1 text-sm leading-relaxed text-zinc-500 md:text-[15px]">
-              {template.description}
-            </p>
-
-            <div className="mt-5 flex items-center gap-1 text-xs font-medium text-zinc-600 transition-colors group-hover:text-zinc-400">
-              <span>Start with this look</span>
-              <ArrowUpRight
-                className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                aria-hidden
-              />
-            </div>
-          </div>
-        </motion.div>
-      </Link>
-    </motion.div>
+      <div className="flex items-center justify-between border-t border-border-default px-4 py-3.5">
+        <div>
+          <p className="text-h4 text-text-primary">{p.name}</p>
+          <p className="text-body-sm text-text-secondary">{p.role}</p>
+        </div>
+        <ArrowUpRight
+          className="h-4 w-4 text-text-muted transition-colors group-hover:text-brand-primary"
+          aria-hidden
+        />
+      </div>
+    </Link>
   );
 }
 
 export function TemplateShowcase() {
-  const reducedMotion = useReducedMotion();
-  const reduce = Boolean(reducedMotion);
-
-  const containerVariants = landingGridContainerVariants(reduce);
-  const tileVariants = landingGridItemVariants(reduce);
-  const headerMotion = landingSectionHeaderProps(reduce);
-
   return (
-    <section id="showcase" className="px-4 py-20 md:px-6 md:py-28">
-      <div className="mx-auto max-w-5xl">
-        <motion.div
-          className="mx-auto mb-14 max-w-2xl text-center md:mb-16"
-          {...headerMotion}
-        >
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
-            Templates
-          </p>
-          <h2 className="mb-3 text-2xl font-semibold tracking-tight text-balance md:text-3xl">
-            Same story. <span className="gradient-text">Different first impression.</span>
-          </h2>
-          <p className="text-sm leading-relaxed text-zinc-500 md:text-[15px]">
-            Your sections stay put and only the presentation changes. Six layouts
-            ship in the app, each tuned for a distinct public-facing tone.
-          </p>
-        </motion.div>
+    <section
+      id="showcase"
+      className="scroll-mt-16 bg-surface-raised px-6 py-[var(--space-9)]"
+    >
+      <div className="mx-auto max-w-[1200px]">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <p className="eyebrow uppercase">Examples</p>
+            <h2 className="mt-3 text-h1 text-text-primary">
+              See what Foliofy creates
+            </h2>
+            <p className="prose-measure mt-4 text-body text-text-secondary">
+              Real layouts generated from a resume. Same content, your choice of
+              personality.
+            </p>
+          </div>
+          <Link
+            href="/sign-up"
+            className="inline-flex shrink-0 items-center gap-1 text-body-sm font-medium text-brand-primary hover:text-brand-dark"
+          >
+            Browse all 18 templates
+            <ArrowUpRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+      </div>
 
-        <motion.div
-          className="grid gap-3 sm:grid-cols-2 sm:gap-4"
-          variants={containerVariants}
-          initial={reduce ? false : "hidden"}
-          whileInView={reduce ? undefined : "show"}
-          viewport={{ once: true, margin: "-40px", amount: 0.12 }}
-        >
-          {templates.map((t, i) => (
-            <TemplateTile
-              key={t.id}
-              template={t}
-              index={i}
-              variants={tileVariants}
-              reducedMotion={reducedMotion}
-            />
+      <div className="mt-[var(--space-6)]">
+        <div className="mx-auto flex max-w-[1200px] snap-x gap-[var(--space-5)] overflow-x-auto px-6 pb-4 [scrollbar-width:thin]">
+          {PREVIEWS.map((p) => (
+            <PreviewCard key={p.name} p={p} />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
