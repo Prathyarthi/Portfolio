@@ -27,6 +27,7 @@ import {
   ChevronDown,
   Menu,
   Sparkles,
+  BarChart3,
 } from "lucide-react";
 
 const primaryNav = [
@@ -39,6 +40,7 @@ const primaryNav = [
 ] as const;
 
 const moreNav = [
+  { title: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { title: "Templates", href: "/dashboard/templates", icon: Palette },
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ] as const;

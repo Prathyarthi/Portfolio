@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Loader2, Share2, Globe } from "lucide-react";
+import { Loader2, Share2, Globe, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -195,6 +195,19 @@ export default function PreviewPage() {
               )}
               {isPublished ? "Unpublish" : "Publish"}
             </Button>
+            {isPublished && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-full border-white/8 bg-white/4 h-8 text-xs"
+                asChild
+              >
+                <Link href="/dashboard/analytics">
+                  <BarChart3 className="mr-2 h-3 w-3" />
+                  Analytics
+                </Link>
+              </Button>
+            )}
             {slug && (
               <ShareDialog slug={slug} isPublished={isPublished}>
                 <Button variant="outline" size="sm" className="rounded-full border-white/8 bg-white/4 h-8 text-xs">

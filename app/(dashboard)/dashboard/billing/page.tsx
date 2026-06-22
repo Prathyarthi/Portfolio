@@ -26,6 +26,7 @@ interface BillingState {
     trialDaysRemaining: number;
     canUsePremiumTemplates: boolean;
     canUseImports: boolean;
+    canUseAnalytics: boolean;
   } | null;
 }
 
@@ -265,6 +266,18 @@ export default function BillingPage() {
                 }
               >
                 {billing?.access?.canUseImports ? "Unlocked" : "Locked"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between py-2">
+              <span className="text-zinc-400">Portfolio visit analytics</span>
+              <span
+                className={
+                  billing?.access?.canUseAnalytics
+                    ? "text-teal-400"
+                    : "text-zinc-600"
+                }
+              >
+                {billing?.access?.canUseAnalytics ? "Unlocked" : "Locked"}
               </span>
             </div>
             <div className="flex items-center justify-between py-2">

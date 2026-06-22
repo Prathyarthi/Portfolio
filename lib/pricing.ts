@@ -124,6 +124,7 @@ export const pricingPlans: PricingPlan[] = [
     badge: "Popular",
     features: [
       { label: "Everything in Starter", included: true },
+      { label: "Portfolio visit analytics", included: true },
       { label: "Priority email support", included: true },
       { label: "Early access to new templates and tools", included: true },
       { label: "AI-assisted polish where it speeds you up", included: true },

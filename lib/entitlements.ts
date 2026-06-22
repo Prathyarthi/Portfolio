@@ -23,8 +23,8 @@ export interface AccessSnapshot {
   trialEndsAt: string;
   trialDaysRemaining: number;
   canUsePremiumTemplates: boolean;
-  /** Resume, GitHub, and LeetCode imports — trial or paid Pro. */
   canUseImports: boolean;
+  canUseAnalytics: boolean;
   allowedTemplateIds: string[];
 }
 
@@ -67,6 +67,7 @@ export function resolveAccessForUser(
     trialDaysRemaining,
     canUsePremiumTemplates,
     canUseImports,
+    canUseAnalytics: paidPro,
     allowedTemplateIds,
   };
 }

@@ -4,6 +4,7 @@ import { portfolioToTemplateData } from "@/features/templates/transform";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { canUseTemplate, resolveAccessForUser } from "@/lib/entitlements";
+import { PortfolioViewTracker } from "@/features/analytics/components/portfolio-view-tracker";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -56,5 +57,10 @@ export default async function PortfolioPage({ params }: Props) {
   const TemplateComponent = template.component;
   const data = portfolioToTemplateData(portfolio);
 
-  return <TemplateComponent data={data} />;
+  return (
+    <>
+      <PortfolioViewTracker slug={slug} />
+      <TemplateComponent data={data} />
+    </>
+  );
 }

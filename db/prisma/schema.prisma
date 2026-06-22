@@ -75,9 +75,21 @@ model Portfolio {
   certifications Certification[]
   achievements   Achievement[]
   customSections CustomSection[]
+  views          PortfolioView[]
 
   @@index([slug])
   @@map("portfolios")
+}
+
+model PortfolioView {
+  id          String   @id @default(uuid())
+  portfolioId String
+  viewedAt    DateTime @default(now())
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId, viewedAt])
+  @@map("portfolio_views")
 }
 
 model Experience {
