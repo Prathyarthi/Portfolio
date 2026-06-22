@@ -3,6 +3,7 @@ import {
   type BillingInterval,
 } from "@/lib/pricing";
 import { getCheckoutDescription } from "@/lib/billing";
+import { siteConfig } from "@/lib/site";
 
 declare global {
   interface Window {
@@ -47,7 +48,7 @@ export async function startProCheckout(options: {
   const razorpay = new window.Razorpay({
     key: body.keyId,
     subscription_id: body.subscriptionId,
-    name: "Foliofy Pro",
+    name: `${siteConfig.name} Pro`,
     description: getCheckoutDescription(interval),
     callback_url: `${window.location.origin}/dashboard/billing?return=true`,
     prefill: {

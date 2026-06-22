@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { siteConfig } from "@/lib/site";
 import {
   LayoutDashboard,
   Pencil,
@@ -84,10 +85,10 @@ export function TopBar() {
       <div className="flex h-16 items-center gap-3 px-4 sm:px-6">
         <Link href="/dashboard" className="flex shrink-0 items-center gap-2.5 sm:gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-sm font-semibold text-white">
-            F
+            L
           </div>
           <div className="hidden leading-tight sm:block">
-            <p className="text-sm font-semibold text-zinc-50">Foliofy</p>
+            <p className="text-sm font-semibold text-zinc-50">{siteConfig.name}</p>
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
               Workspace
             </p>

@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: "Foliofy",
+  name: "Livefolio",
   tagline: "Build a portfolio site that feels like a product, not a placeholder.",
-  supportEmail: "support@foliofy.app",
-  legalEntity: "Foliofy",
+  supportEmail: "support@livefolio.me",
+  legalEntity: "Livefolio",
 } as const;

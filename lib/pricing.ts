@@ -101,7 +101,7 @@ export const pricingPlans: PricingPlan[] = [
     ctaHref: "/sign-up",
     note: "After your free month ends, you can continue on Minimal template with core editing and publishing. Imports require Pro.",
     features: [
-      { label: "Public portfolio at your Foliofy link", included: true },
+      { label: "Public portfolio at your Livefolio link", included: true },
       { label: "Resume, GitHub, and LeetCode imports during free month", included: true },
       { label: "Editor, live preview, and publish", included: true },
       { label: "All templates during free month", included: true },

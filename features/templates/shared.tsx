@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { stripBulletPrefix } from "@/lib/text";
 import { Layers } from "lucide-react";
 import ExpandableText from "@/components/expandable-text";
 import type {
@@ -105,7 +106,7 @@ export function TemplateNavbar({
 export function splitDescription(text: string): string[] {
   return text
     .split(/\n+/)
-    .map((line) => line.replace(/^[-*]\s*/, "").trim())
+    .map(stripBulletPrefix)
     .filter(Boolean);
 }
 

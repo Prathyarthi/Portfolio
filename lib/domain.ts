@@ -1,4 +1,4 @@
-const DEFAULT_ROOT_DOMAIN = "aventro.in";
+const DEFAULT_ROOT_DOMAIN = "livefolio.me";
 
 /** Subdomains reserved for the platform — not assignable to portfolios. */
 export const RESERVED_SUBDOMAINS = new Set([

@@ -3,6 +3,7 @@ import { JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/query-provider";
 import { GlobalFooter } from "@/components/global-footer";
+import { siteConfig } from "@/lib/site";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
@@ -15,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Foliofy - Build Your Portfolio in Minutes",
+  title: `${siteConfig.name} - Build Your Portfolio in Minutes`,
   description:
     "Create a beautiful portfolio, deploy it instantly, and share a public link with recruiters. Import from GitHub, LeetCode, and your resume.",
 };

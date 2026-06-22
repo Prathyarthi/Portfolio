@@ -5,6 +5,7 @@ import { Pricing } from "@/features/landing/components/pricing";
 import { CTA } from "@/features/landing/components/cta";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { siteConfig } from "@/lib/site";
 
 export default function LandingPage() {
   return (
@@ -13,7 +14,7 @@ export default function LandingPage() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold gradient-text tracking-wide">
-              Foliofy
+              {siteConfig.name}
             </span>
             <span className="rounded-full border border-white/8 bg-white/4 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-zinc-400">
               Beta

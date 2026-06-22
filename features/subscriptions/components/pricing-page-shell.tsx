@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SubscriptionFlow } from "./subscription-flow";
 import { landingSurfaceMuted } from "@/features/landing/surface";
 import { cn } from "@/lib/utils";
+import { siteConfig } from "@/lib/site";
 
 export function PricingPageShell() {
   const { data: session } = useSession();
@@ -17,7 +18,7 @@ export function PricingPageShell() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
             <span className="gradient-text text-xl font-bold tracking-wide">
-              Foliofy
+              {siteConfig.name}
             </span>
             <span className="rounded-full border border-white/8 bg-white/4 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-zinc-400">
               Beta

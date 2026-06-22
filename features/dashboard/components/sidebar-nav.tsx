@@ -22,6 +22,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { siteConfig } from "@/lib/site";
 
 const navItems = [
   { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -42,7 +43,7 @@ export function SidebarNav() {
         <Link href="/" className="flex items-center gap-2">
           <div>
             <span className="gradient-text text-xl font-bold tracking-wide">
-              Foliofy
+              {siteConfig.name}
             </span>
             <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
               Portfolio OS
