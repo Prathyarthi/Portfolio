@@ -12,7 +12,7 @@ Step-by-step tests for plan restrictions and Razorpay subscription handling.
 | **Pro**   | `subscriptionStatus === "active"`   | All            | Yes     | 50 max (UI says "Unlimited") | Yes            |
 
 
-> **Dev fallback:** If `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, or `RAZORPAY_PRO_PLAN_ID` are missing, all restrictions are bypassed — everyone gets full access regardless of tier.
+> **Dev fallback:** If Razorpay keys or plan IDs are missing, all restrictions are bypassed — everyone gets full access regardless of tier.
 
 > **Pro is webhook-driven:** Checkout sets `pending`; Pro is granted only when the webhook sets `active`.
 
@@ -27,7 +27,9 @@ In `.env`, verify these are set:
 ```
 RAZORPAY_KEY_ID=...
 RAZORPAY_KEY_SECRET=...
-RAZORPAY_PRO_PLAN_ID=...
+RAZORPAY_PRO_PLAN_ID_MONTHLY=...   # or legacy RAZORPAY_PRO_PLAN_ID
+RAZORPAY_PRO_PLAN_ID_QUARTERLY=...
+RAZORPAY_PRO_PLAN_ID_YEARLY=...
 RAZORPAY_WEBHOOK_SECRET=...
 NEXTAUTH_URL=http://localhost:3000
 ```

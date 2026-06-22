@@ -194,4 +194,24 @@ body {
   [data-slot="textarea"]::placeholder {
     color: rgba(141, 147, 165, 0.7);
   }
+
+  .legal-prose h2 {
+    @apply mt-8 text-lg font-semibold text-zinc-100 first:mt-0;
+  }
+
+  .legal-prose h3 {
+    @apply mt-5 text-base font-medium text-zinc-200;
+  }
+
+  .legal-prose p {
+    @apply mt-3 text-sm leading-relaxed text-zinc-400;
+  }
+
+  .legal-prose ul {
+    @apply mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-zinc-400;
+  }
+
+  .legal-prose a {
+    @apply text-teal-400 underline-offset-4 transition-colors hover:text-teal-300 hover:underline;
+  }
 }

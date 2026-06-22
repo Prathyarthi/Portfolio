@@ -9,9 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog";
+import {
+  formatProPriceLabel,
+  type BillingInterval,
+} from "@/lib/pricing";
+import { BillingIntervalToggle } from "@/features/subscriptions/components/billing-interval-toggle";
+import { startProCheckout } from "@/features/subscriptions/lib/checkout";
+import { getIntervalCheckoutUnavailableMessage } from "@/lib/billing";
 
 interface BillingState {
   razorpayReady: boolean;
+  availableIntervals?: BillingInterval[];
   subscription: { status: "ACTIVE" | "PENDING" } | null;
   access: {
     tier: "free" | "trial" | "pro";
@@ -19,12 +27,6 @@ interface BillingState {
     canUsePremiumTemplates: boolean;
     canUseImports: boolean;
   } | null;
-}
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
 }
 
 export default function BillingPage() {
@@ -39,12 +41,22 @@ export default function BillingPage() {
   const [error, setError] = useState<string | null>(null);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [billingInterval, setBillingInterval] =
+    useState<BillingInterval>("monthly");
+  const [checkoutIntervals, setCheckoutIntervals] = useState<BillingInterval[]>([
+    "monthly",
+  ]);
 
   const loadBilling = useCallback(async () => {
     try {
       const res = await fetch("/api/billing/me", { cache: "no-store" });
       const data = await res.json();
       setBilling(data);
+      const intervals =
+        data.availableIntervals?.length
+          ? data.availableIntervals
+          : (["monthly"] as BillingInterval[]);
+      setCheckoutIntervals(intervals);
     } catch {
       // silent
     } finally {
@@ -71,39 +83,14 @@ export default function BillingPage() {
     setError(null);
     setSubscribing(true);
     try {
-      const res = await fetch("/api/billing/checkout", { method: "POST" });
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body.error ?? "Checkout could not be started.");
-        setSubscribing(false);
-        return;
-      }
-
-      if (!razorpayLoaded || !window.Razorpay) {
-        setError("Payment system is loading. Please try again.");
-        setSubscribing(false);
-        return;
-      }
-
-      const options = {
-        key: body.keyId,
-        subscription_id: body.subscriptionId,
-        name: "Portfolio Pro",
-        description: "Monthly Pro Subscription",
-        callback_url: `${window.location.origin}/dashboard/billing?return=true`,
-        prefill: {
-          email: body.email || "",
-        },
-        theme: {
-          color: "#14b8a6",
-        },
-      };
-
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
-      setSubscribing(false);
+      await startProCheckout({
+        interval: billingInterval,
+        razorpayLoaded,
+        onError: setError,
+      });
     } catch {
       setError("Something went wrong. Please try again.");
+    } finally {
       setSubscribing(false);
     }
   };
@@ -143,6 +130,7 @@ export default function BillingPage() {
   const trialDays = billing?.access?.trialDaysRemaining ?? 0;
   const paymentsReady = billing?.razorpayReady ?? false;
   const isPending = billing?.subscription?.status === "PENDING";
+  const intervalCheckoutReady = checkoutIntervals.includes(billingInterval);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-6">
@@ -288,17 +276,29 @@ export default function BillingPage() {
           </div>
 
           {!isPro && paymentsReady && (
-            <Button
-              className="w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
-              disabled={subscribing || isPending}
-              onClick={subscribe}
-            >
-              {subscribing
-                ? "Opening checkout…"
-                : isPending
-                  ? "Payment pending…"
-                  : "Upgrade to Pro — ₹599/month"}
-            </Button>
+            <div className="space-y-4">
+              <BillingIntervalToggle
+                value={billingInterval}
+                onChange={setBillingInterval}
+                className="w-full justify-center"
+              />
+              {!intervalCheckoutReady && (
+                <p className="text-center text-xs text-zinc-500">
+                  {getIntervalCheckoutUnavailableMessage(billingInterval)}
+                </p>
+              )}
+              <Button
+                className="w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
+                disabled={subscribing || isPending || !intervalCheckoutReady}
+                onClick={subscribe}
+              >
+                {subscribing
+                  ? "Opening checkout…"
+                  : isPending
+                    ? "Payment pending…"
+                    : `Upgrade to Pro — ${formatProPriceLabel(billingInterval)}`}
+              </Button>
+            </div>
           )}
 
           {!isPro && !paymentsReady && (

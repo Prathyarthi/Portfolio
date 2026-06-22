@@ -4,8 +4,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { PricingPlan } from "@/lib/pricing";
-import { PAID_PLAN_SLUG } from "@/lib/pricing";
+import type { BillingInterval, PricingPlan } from "@/lib/pricing";
+import {
+  BILLING_INTERVAL_LABELS,
+  getBillingPeriodSuffix,
+  getProSavingsPercent,
+  PAID_PLAN_SLUG,
+  PRO_PRICING,
+} from "@/lib/pricing";
+import { PlanPrice } from "./plan-price";
+import { subscribeButtonLabel } from "../lib/checkout";
 
 interface PricingCardsProps {
   plans: PricingPlan[];
@@ -14,6 +22,8 @@ interface PricingCardsProps {
   paidPending: boolean;
   paymentsReady: boolean;
   subscribing: boolean;
+  billingInterval: BillingInterval;
+  checkoutIntervals: BillingInterval[];
   onSubscribePaid: () => void;
 }
 
@@ -24,16 +34,39 @@ export function PricingCards({
   paidPending,
   paymentsReady,
   subscribing,
+  billingInterval,
+  checkoutIntervals,
   onSubscribePaid,
 }: PricingCardsProps) {
   return (
     <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 md:gap-6">
       {plans.map((plan) => {
         const isPaid = plan.slug === PAID_PLAN_SLUG;
+        const proAmount = isPaid
+          ? PRO_PRICING[billingInterval]
+          : plan.monthlyAmount;
+        const proPeriod = isPaid
+          ? getBillingPeriodSuffix(billingInterval)
+          : plan.pricePeriod;
+        const savings = isPaid ? getProSavingsPercent(billingInterval) : null;
+        const intervalCheckoutReady = checkoutIntervals.includes(billingInterval);
         const showSubscribe =
-          isPaid && loggedIn && !paidActive && paymentsReady && !paidPending;
+          isPaid &&
+          loggedIn &&
+          !paidActive &&
+          paymentsReady &&
+          !paidPending &&
+          intervalCheckoutReady;
         const showSubscribeDisabled =
           isPaid && loggedIn && !paidActive && !paymentsReady && !paidPending;
+
+        const showIntervalUnavailable =
+          isPaid &&
+          loggedIn &&
+          !paidActive &&
+          paymentsReady &&
+          !paidPending &&
+          !intervalCheckoutReady;
 
         return (
           <div key={plan.slug} className="relative">
@@ -59,16 +92,17 @@ export function PricingCards({
                   <h2 className="mt-2 text-xl font-bold text-zinc-100 md:text-2xl">
                     {plan.name}
                   </h2>
-                  <div className="mt-5 flex flex-wrap items-baseline gap-2">
-                    <span className="gradient-text text-4xl font-bold tabular-nums md:text-5xl">
-                      {plan.monthlyPrice}
-                    </span>
-                    {plan.pricePeriod && (
-                      <span className="text-sm text-zinc-500">
-                        {plan.pricePeriod}
-                      </span>
-                    )}
-                  </div>
+                  <PlanPrice
+                    amount={proAmount}
+                    period={proPeriod}
+                    size="lg"
+                    className="mt-5"
+                  />
+                  {isPaid && savings != null && savings > 0 && (
+                    <p className="mt-2 text-xs font-medium text-teal-400/90">
+                      Save {savings}% vs monthly
+                    </p>
+                  )}
                   <p className="mt-4 text-sm leading-relaxed text-zinc-500">
                     {plan.description}
                   </p>
@@ -149,7 +183,7 @@ export function PricingCards({
                     variant="outline"
                     className="mt-auto w-full rounded-full border-white/15 bg-white/[0.03] text-zinc-100 hover:bg-white/10"
                   >
-                    <Link href="/dashboard/settings">Manage billing</Link>
+                    <Link href="/dashboard/billing">Manage billing</Link>
                   </Button>
                 )}
 
@@ -160,7 +194,7 @@ export function PricingCards({
                     disabled={subscribing}
                     onClick={onSubscribePaid}
                   >
-                    {subscribing ? "Opening checkout…" : "Subscribe to Pro"}
+                    {subscribeButtonLabel(billingInterval, subscribing)}
                   </Button>
                 )}
 
@@ -175,14 +209,27 @@ export function PricingCards({
                   </Button>
                 )}
 
-                {isPaid && loggedIn && paidPending && paymentsReady && (
+                {isPaid && loggedIn && showIntervalUnavailable && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-auto w-full rounded-full border-white/15 bg-white/[0.03] text-zinc-300 opacity-90"
+                    disabled
+                  >
+                    {BILLING_INTERVAL_LABELS[billingInterval]} checkout unavailable
+                  </Button>
+                )}
+
+                {isPaid && loggedIn && paidPending && paymentsReady && intervalCheckoutReady && (
                   <Button
                     type="button"
                     className="mt-auto w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
                     disabled={subscribing}
                     onClick={onSubscribePaid}
                   >
-                    {subscribing ? "Opening checkout…" : "Complete subscription"}
+                    {subscribing
+                      ? "Opening checkout…"
+                      : "Complete subscription"}
                   </Button>
                 )}
 

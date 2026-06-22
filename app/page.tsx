@@ -3,7 +3,6 @@ import { Features } from "@/features/landing/components/features";
 import { TemplateShowcase } from "@/features/landing/components/template-showcase";
 import { Pricing } from "@/features/landing/components/pricing";
 import { CTA } from "@/features/landing/components/cta";
-import { Footer } from "@/features/landing/components/footer";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -57,7 +56,6 @@ export default function LandingPage() {
       <TemplateShowcase />
       <Pricing />
       <CTA />
-      <Footer />
     </div>
   );
 }

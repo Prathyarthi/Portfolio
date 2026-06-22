@@ -64,8 +64,8 @@ export function PricingPageShell() {
             </h1>
             <p className="text-sm leading-relaxed text-zinc-500 md:text-base">
               Start with a one-month free trial of all core workflows. After
-              that, stay on free essentials or upgrade to Pro for premium
-              templates and resume import.
+              that, stay on free essentials or upgrade to Pro — billed monthly,
+              quarterly, or yearly.
             </p>
           </header>
 

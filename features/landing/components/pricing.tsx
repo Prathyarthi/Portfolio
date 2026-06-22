@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { pricingPlans } from "@/lib/pricing";
+import { PlanPrice } from "@/features/subscriptions/components/plan-price";
 import { cn } from "@/lib/utils";
 import { landingSurfaceInteractive } from "@/features/landing/surface";
 import {
@@ -30,8 +31,8 @@ export function Pricing() {
             <span className="gradient-text">Pricing</span>
           </h2>
           <p className="mx-auto max-w-md text-sm leading-relaxed text-zinc-500 md:text-[15px]">
-            Two plans—start free, or open the full page when you want Pro details and
-            checkout.
+            Two plans—start free, or open the full page for Pro with monthly,
+            quarterly, or yearly billing.
           </p>
         </motion.div>
 
@@ -67,14 +68,12 @@ export function Pricing() {
                     <h3 className="mt-2 text-xl font-semibold tracking-tight text-zinc-100">
                       {plan.name}
                     </h3>
-                    <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                      <p className="gradient-text text-2xl font-semibold tabular-nums md:text-3xl">
-                        {plan.monthlyPrice}
-                      </p>
-                      {plan.pricePeriod ? (
-                        <span className="text-sm text-zinc-500">{plan.pricePeriod}</span>
-                      ) : null}
-                    </div>
+                    <PlanPrice
+                      amount={plan.monthlyAmount}
+                      period={plan.pricePeriod}
+                      size="sm"
+                      className="mt-3"
+                    />
                     <p className="mt-3 text-sm leading-relaxed text-zinc-500">
                       {plan.description}
                     </p>
@@ -113,7 +112,7 @@ export function Pricing() {
             Full plan details and subscribe
           </Link>
           <span className="text-zinc-700"> · </span>
-          Prices in INR.
+          Monthly, quarterly, or yearly Pro billing.
         </p>
       </div>
     </section>
