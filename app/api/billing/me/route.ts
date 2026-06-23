@@ -3,6 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth-options";
 import { prisma } from "@/lib/prisma";
 import { resolveAccessForUser } from "@/lib/entitlements";
+import {
+  getAvailableBillingIntervals,
+  isAnyBillingReady,
+} from "@/lib/billing";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -17,11 +21,8 @@ export async function GET() {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const paymentsReady = Boolean(
-    process.env.RAZORPAY_KEY_ID &&
-      process.env.RAZORPAY_KEY_SECRET &&
-      process.env.RAZORPAY_PRO_PLAN_ID
-  );
+  const paymentsReady = isAnyBillingReady();
+  const availableIntervals = getAvailableBillingIntervals();
   const access = resolveAccessForUser(user);
 
   const sub = String((user as { subscriptionStatus?: string | null }).subscriptionStatus ?? "").toLowerCase();
@@ -35,6 +36,7 @@ export async function GET() {
   // Keep response shape aligned with Xchat's subscription flow contract.
   return NextResponse.json({
     razorpayReady: paymentsReady,
+    availableIntervals,
     subscription,
     access,
   });

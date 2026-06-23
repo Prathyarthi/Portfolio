@@ -10,6 +10,7 @@ import {
   Download,
   Eye,
   Settings,
+  BarChart3,
   CreditCard,
   LogOut,
   User,
@@ -17,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { siteConfig } from "@/lib/site";
 import {
   Sidebar,
   SidebarContent,
@@ -39,6 +41,7 @@ const NAV = [
   { title: "Templates", href: "/dashboard/templates", icon: Palette },
   { title: "Import", href: "/dashboard/import", icon: Download },
   { title: "Preview", href: "/dashboard/preview", icon: Eye },
+  { title: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { title: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
@@ -54,11 +57,11 @@ function AppSidebar() {
         <Link
           href="/dashboard"
           className="flex h-8 items-center gap-2 overflow-hidden px-2"
-          aria-label="Foliofy home"
+          aria-label={`${siteConfig.name} home`}
         >
           <span className="font-display text-lg font-bold text-brand-primary">
-            <span className="group-data-[collapsible=icon]:hidden">Foliofy</span>
-            <span className="hidden group-data-[collapsible=icon]:inline">F</span>
+            <span className="group-data-[collapsible=icon]:hidden">{siteConfig.name}</span>
+            <span className="hidden group-data-[collapsible=icon]:inline">L</span>
           </span>
         </Link>
       </SidebarHeader>
@@ -133,17 +136,19 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       }
     >
       <AppSidebar />
-      <SidebarInset className="bg-surface-base">
+      <SidebarInset className="min-w-0 overflow-x-hidden bg-surface-base">
         <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-border-default bg-surface-base px-4">
           <SidebarTrigger className="size-9" />
           <Link href="/dashboard" className="font-display text-lg font-bold text-brand-primary md:hidden">
-            Foliofy
+            {siteConfig.name}
           </Link>
           <div className="ml-auto flex items-center gap-1 md:hidden">
             <ThemeToggle className="size-9" />
           </div>
         </header>
-        <main className="flex-1 p-[var(--space-5)]">{children}</main>
+        <main className="min-w-0 flex-1 overflow-x-hidden p-[var(--space-5)]">
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -18,7 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function PastelTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -146,31 +145,25 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
               buttonClassName="col-span-full mt-10 mx-auto block bg-white px-8 py-4 rounded-full text-sm font-bold text-[#ffb3ba] shadow-sm hover:shadow-md transition-all hover:scale-105"
             >
               {visibleProjects.map((project) => (
-                <article key={project.id} className="group bg-white rounded-[2.5rem] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(255,179,186,0.2)] transition-all duration-500 flex flex-col">
-                  {project.liveUrl ? (
-                    <div className="relative h-56 rounded-[2rem] overflow-hidden mb-6">
-                      <LivePreviewImage
-                        liveUrl={project.liveUrl}
-                        enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                        alt={project.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                        fallbackSrc="https://placehold.co/800x600/fff5f8/ffb3ba?text=Preview"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-56 rounded-[2rem] bg-[#fdf6e3] flex items-center justify-center mb-6">
-                      <span className="text-sm font-bold text-[#ffdfba] uppercase tracking-widest">No Preview</span>
-                    </div>
-                  )}
-                  
-                  <div className="px-4 pb-4 flex flex-col grow">
+                <article key={project.id} className="group flex flex-col overflow-hidden rounded-[2.5rem] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(255,179,186,0.2)]">
+                  <LivePreviewImage
+                    liveUrl={project.liveUrl ?? null}
+                    projectId={project.id}
+                    livePreviewProjectIds={livePreviewProjectIds}
+                    alt={project.title}
+                    loading="lazy"
+                    containerClassName="mb-6 overflow-hidden rounded-[2rem] bg-[#fff5f8]"
+                    placeholderClassName="bg-[#fff5f8] [&_p]:text-sm [&_p]:font-bold [&_p]:text-[#888]"
+                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  />
+
+                  <div className="flex flex-col grow px-4 pb-4">
                     <div className="flex items-start justify-between gap-4 mb-3">
                       <h3 className="text-2xl font-extrabold text-[#2d2d2d] group-hover:text-[#ffb3ba] transition-colors">
                         {project.title}
                       </h3>
                       {project.featured && (
-                        <span className="bg-[#ffffba] text-[#d4d400] text-xs font-bold px-3 py-1 rounded-full shrink-0">
+                        <span className="bg-[#fff8c4] text-[#8a8200] text-xs font-bold px-3 py-1 rounded-full shrink-0">
                           Featured
                         </span>
                       )}
@@ -246,7 +239,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
                   <div className="space-y-8">
                     {Object.entries(groupedSkills).map(([category, names]) => (
                       <div key={category}>
-                        <h3 className="text-sm font-extrabold text-[#bae1ff] uppercase tracking-wider mb-4">
+                        <h3 className="text-sm font-extrabold text-[#6aabdf] uppercase tracking-wider mb-4">
                           {category}
                         </h3>
                         <div className="flex flex-wrap gap-2">
@@ -274,12 +267,12 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
                   {educations.map((edu) => (
                     <article key={edu.id} className="bg-white rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
                       <h3 className="text-lg font-extrabold text-[#2d2d2d]">{edu.degree}</h3>
-                      <p className="text-[#baffc9] text-base font-bold mt-1 filter drop-shadow-sm">{edu.institution}</p>
+                      <p className="mt-1 text-base font-bold text-[#6aabdf]">{edu.institution}</p>
                       <div className="flex justify-between items-center mt-4 text-xs font-bold text-[#888]">
                         {(edu.startDate || edu.endDate) && (
                           <span className="bg-[#f4f4f4] px-3 py-1 rounded-full">{formatDateRange(edu.startDate, edu.endDate)}</span>
                         )}
-                        {edu.gpa && <span className="bg-[#ffffba] text-[#d4d400] px-3 py-1 rounded-full">GPA {edu.gpa}</span>}
+                        {edu.gpa && <span className="bg-[#fff8c4] text-[#8a8200] px-3 py-1 rounded-full">GPA {edu.gpa}</span>}
                       </div>
                     </article>
                   ))}
@@ -335,7 +328,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
                 >
                   {achievements.map((ach) => (
                     <article key={ach.id} className="bg-white rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.02)] flex items-center gap-4">
-                      <div className="bg-[#ffffba] text-[#d4d400] p-3 rounded-full shrink-0">
+                      <div className="bg-[#fff8c4] text-[#8a8200] p-3 rounded-full shrink-0">
                         <Star className="w-5 h-5" fill="currentColor" />
                       </div>
                       <div>
@@ -364,7 +357,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
             >
               {articles.map((article) => (
                 <article key={article.id} className="bg-white rounded-[2.5rem] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_15px_35px_rgba(255,179,186,0.15)] transition-all flex flex-col group">
-                  <h3 className="text-xl font-extrabold text-[#2d2d2d] mb-4 group-hover:text-[#bae1ff] transition-colors leading-tight">
+                  <h3 className="text-xl font-extrabold text-[#2d2d2d] mb-4 group-hover:text-[#6aabdf] transition-colors leading-tight">
                     <a href={article.url} target="_blank" rel="noopener noreferrer">
                       {article.title}
                     </a>

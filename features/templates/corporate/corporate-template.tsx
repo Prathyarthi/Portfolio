@@ -18,8 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
-import { GenerativeProjectCover } from "./generativeprojectcover";
 
 export function CorporateTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -198,21 +196,13 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       key={project.id}
                       className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
                     >
-                      {project.liveUrl ? (
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(
-                            project.id,
-                            livePreviewProjectIds
-                          )}
-                          alt={project.title}
-                          loading="lazy"
-                          className="transition-transform duration-500 group-hover:scale-105"
-                          fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
-                        />
-                      ) : (
-                        <GenerativeProjectCover seed={project.id} />
-                      )}
+                      <LivePreviewImage
+                        liveUrl={project.liveUrl ?? null}
+                        projectId={project.id}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                      />
                       <div className="p-5">
                         <div className="flex items-start justify-between gap-3">
                           <div>

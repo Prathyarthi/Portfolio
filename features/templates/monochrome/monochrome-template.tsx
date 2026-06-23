@@ -18,7 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function MonochromeTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -84,7 +83,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
               <img
                 src={portfolio.avatarUrl}
                 alt={portfolio.title}
-                className="w-48 h-48 md:w-64 md:h-64 object-cover filter grayscale"
+                className="w-48 h-48 md:w-64 md:h-64 object-cover filter"
               />
             )}
             
@@ -133,39 +132,35 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
             >
               {visibleProjects.map((project) => (
                 <article key={project.id} className="group flex flex-col">
-                  {project.liveUrl ? (
-                    <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 mb-6">
-                      <LivePreviewImage
-                        liveUrl={project.liveUrl}
-                        enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                        alt={project.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover object-top filter grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                        fallbackSrc="https://placehold.co/800x600/f3f4f6/000000?text=No+Preview"
-                      />
-                    </div>
-                  ) : (
-                    <div className="aspect-4/3 w-full bg-gray-100 flex items-center justify-center mb-6">
-                      <span className="text-sm font-bold uppercase tracking-widest text-gray-400">No Preview</span>
-                    </div>
-                  )}
-                  
+                  <LivePreviewImage
+                    liveUrl={project.liveUrl ?? null}
+                    projectId={project.id}
+                    livePreviewProjectIds={livePreviewProjectIds}
+                    alt={project.title}
+                    loading="lazy"
+                    containerClassName="mb-6 overflow-hidden bg-gray-100"
+                    placeholderClassName="bg-gray-100 [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-gray-500"
+                    className="h-full w-full object-cover object-top filter transition-all duration-700 group-hover:scale-105"
+                  />
+
                   <div className="flex flex-col grow">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <h3 className="text-3xl font-black uppercase tracking-tighter">
+                    <div className="mb-4 flex items-start justify-between gap-4">
+                      <h3 className="min-w-0 flex-1 text-3xl font-black uppercase tracking-tighter">
                         {project.title}
                       </h3>
                       {project.featured && (
-                        <span className="text-[10px] font-bold uppercase tracking-widest border border-black px-2 py-1 shrink-0">
+                        <span className="shrink-0 border border-black px-2 py-1 text-[10px] font-bold uppercase tracking-widest">
                           Featured
                         </span>
                       )}
                     </div>
-                    
+
                     {project.description && (
-                      <p className="text-gray-600 leading-relaxed mb-6 grow">
-                        {project.description}
-                      </p>
+                      <DescriptionBlock
+                        text={project.description}
+                        paragraphClassName="mb-6 grow text-gray-600 leading-relaxed"
+                        listClassName="mb-6 grow space-y-2 pl-5 text-gray-600 leading-relaxed marker:text-black"
+                      />
                     )}
                     
                     <div className="flex flex-wrap gap-2 mb-8">

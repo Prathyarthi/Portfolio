@@ -1,4 +1,5 @@
 import { templateRegistry } from "@/features/templates/registry";
+import { isAnyBillingReady } from "@/lib/billing";
 
 const FREE_TRIAL_DAYS = 30;
 
@@ -22,8 +23,8 @@ export interface AccessSnapshot {
   trialEndsAt: string;
   trialDaysRemaining: number;
   canUsePremiumTemplates: boolean;
-  /** Resume, GitHub, and LeetCode imports — trial or paid Pro. */
   canUseImports: boolean;
+  canUseAnalytics: boolean;
   allowedTemplateIds: string[];
 }
 
@@ -37,11 +38,7 @@ export function resolveAccessForUser(
   user: UserBillingProfile,
   now: Date = new Date()
 ): AccessSnapshot {
-  const billingConfigured = Boolean(
-    process.env.RAZORPAY_KEY_ID &&
-      process.env.RAZORPAY_KEY_SECRET &&
-      process.env.RAZORPAY_PRO_PLAN_ID
-  );
+  const billingConfigured = isAnyBillingReady();
   const trialEndsAtDate = new Date(
     user.createdAt.getTime() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000
   );
@@ -70,6 +67,7 @@ export function resolveAccessForUser(
     trialDaysRemaining,
     canUsePremiumTemplates,
     canUseImports,
+    canUseAnalytics: paidPro,
     allowedTemplateIds,
   };
 }

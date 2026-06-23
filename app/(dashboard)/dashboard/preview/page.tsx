@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Loader2, Share2, Globe, Monitor, Smartphone } from "lucide-react";
+import { Loader2, Share2, Globe, Monitor, Smartphone, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   PreviewEditSidebar,
   PreviewEditToggle,
 } from "@/features/portfolio/components/preview-edit-sidebar";
+import { PublishDialog } from "@/features/portfolio/components/publish-dialog";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
 import { getTemplate, templateRegistry } from "@/features/templates/registry";
 import { portfolioToTemplateData } from "@/features/templates/transform";
@@ -34,6 +35,7 @@ export default function PreviewPage() {
   const isMobile = useIsMobile();
   const [editOpen, setEditOpen] = useState(false);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
 
   useEffect(() => {
     setEditOpen(!isMobile);
@@ -71,35 +73,45 @@ export default function PreviewPage() {
     }
   }, [allowedTemplateIds, previewTemplate]);
 
-  const handleTemplateChange = async (next: string) => {
+  const handleTemplatePreview = (next: string) => {
     if (allowedTemplateIds && !allowedTemplateIds.includes(next)) {
       toast.error("Your free month has ended. Upgrade to Pro to unlock this template.");
       return;
     }
     setPreviewTemplate(next);
-    if (next === portfolio?.templateId) return;
+  };
+
+  const savedTemplateId = portfolio?.templateId ?? "minimal";
+
+  const handleTemplateSave = async () => {
+    const templateToSave = previewTemplate ?? savedTemplateId;
+    if (templateToSave === savedTemplateId) return;
+
     try {
-      await updateTemplate.mutateAsync(next);
-      toast.success("Template updated");
+      await updateTemplate.mutateAsync(templateToSave);
+      setPreviewTemplate(null);
+      toast.success("Template saved");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update template");
+      toast.error(error instanceof Error ? error.message : "Failed to save template");
     }
   };
 
-  const handlePublishToggle = async (next: boolean) => {
-    if (next && !portfolio?.slug) {
-      toast.error("Choose a subdomain in the Publish step before going live");
+  const handlePublishClick = async () => {
+    if (!portfolio) return;
+
+    if (portfolio.isPublished) {
+      try {
+        await publishPortfolio.mutateAsync(false);
+        toast.success("Portfolio unpublished");
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to update publish status",
+        );
+      }
       return;
     }
 
-    try {
-      await publishPortfolio.mutateAsync(next);
-      toast.success(next ? "Portfolio published" : "Portfolio unpublished");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to update publish status",
-      );
-    }
+    setPublishDialogOpen(true);
   };
 
   const templateOptions = useMemo(() => Object.values(templateRegistry), []);
@@ -147,6 +159,8 @@ export default function PreviewPage() {
     allowedTemplateIds && !allowedTemplateIds.includes(effectiveTemplate)
       ? "minimal"
       : effectiveTemplate;
+  const hasUnsavedTemplate =
+    templateId !== (portfolio.templateId ?? "minimal");
   const template = getTemplate(templateId);
   const TemplateComponent = template.component;
   const data = portfolioToTemplateData(portfolio);
@@ -155,8 +169,8 @@ export default function PreviewPage() {
   const slug = portfolio.slug ?? "";
 
   return (
-    <div className="flex gap-0">
-      <div className="min-w-0 flex-1 space-y-4">
+    <div className="flex min-w-0 w-full max-w-full flex-col gap-4 xl:flex-row xl:items-start">
+      <div className="min-w-0 w-full flex-1 space-y-4">
         <div className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border-default bg-surface-raised p-3 shadow-[var(--shadow-card)] lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-2 px-2">
             <span className="h-2 w-2 rounded-full bg-success" aria-hidden />
@@ -199,8 +213,15 @@ export default function PreviewPage() {
               type="button"
               size="sm"
               variant={isPublished ? "outline" : "default"}
-              onClick={() => handlePublishToggle(!isPublished)}
-              disabled={publishPortfolio.isPending || (!isPublished && !slug)}
+              onClick={() => void handlePublishClick()}
+              disabled={
+                publishPortfolio.isPending || (!isPublished && !slug)
+              }
+              className={
+                isPublished
+                  ? "rounded-full border-white/8 bg-white/4 text-zinc-200 h-8 text-xs"
+                  : "rounded-full bg-emerald-500 text-white hover:bg-emerald-600 h-8 text-xs"
+              }
             >
               {publishPortfolio.isPending ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -209,6 +230,19 @@ export default function PreviewPage() {
               )}
               {isPublished ? "Unpublish" : "Publish"}
             </Button>
+            {isPublished && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-full border-white/8 bg-white/4 h-8 text-xs"
+                asChild
+              >
+                <Link href="/dashboard/analytics">
+                  <BarChart3 className="mr-2 h-3 w-3" />
+                  Analytics
+                </Link>
+              </Button>
+            )}
             {slug && (
               <ShareDialog slug={slug} isPublished={isPublished}>
                 <Button variant="outline" size="sm">
@@ -222,16 +256,24 @@ export default function PreviewPage() {
         <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-3 shadow-[var(--shadow-modal)]">
           <div
             className={cn(
-              "mx-auto overflow-hidden rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
-              device === "mobile" ? "max-w-[390px]" : "max-w-full"
+              "mx-auto min-w-0 overflow-x-auto rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
+              device === "mobile" ? "max-w-[390px]" : "w-full max-w-full"
             )}
           >
-            <TemplateComponent data={data} />
+            <div className="min-w-0">
+              <TemplateComponent data={data} />
+            </div>
           </div>
         </div>
 
         <FlowFooter
           previous={{ href: "/dashboard/import", label: "Previous: Import" }}
+        />
+
+        <PublishDialog
+          open={publishDialogOpen}
+          onOpenChange={setPublishDialogOpen}
+          currentSlug={slug}
         />
       </div>
 
@@ -239,7 +281,11 @@ export default function PreviewPage() {
         open={editOpen} 
         onOpenChange={setEditOpen} 
         templateId={templateId}
-        onTemplateChange={handleTemplateChange}
+        savedTemplateId={portfolio.templateId ?? "minimal"}
+        hasUnsavedTemplate={hasUnsavedTemplate}
+        isSavingTemplate={updateTemplate.isPending}
+        onTemplateChange={handleTemplatePreview}
+        onTemplateSave={handleTemplateSave}
         templateOptions={templateOptions}
         isTemplateLocked={isTemplateLocked}
       />

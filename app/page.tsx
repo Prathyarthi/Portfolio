@@ -4,7 +4,6 @@ import { Features } from "@/features/landing/components/features";
 import { TemplateShowcase } from "@/features/landing/components/template-showcase";
 import { Pricing } from "@/features/landing/components/pricing";
 import { CTA } from "@/features/landing/components/cta";
-import { Footer } from "@/features/landing/components/footer";
 import { LandingNav } from "@/features/landing/components/landing-nav";
 
 export default function LandingPage() {
@@ -28,8 +27,6 @@ export default function LandingPage() {
           <Pricing />
           <CTA />
         </main>
-
-        <Footer />
       </div>
     </>
   );

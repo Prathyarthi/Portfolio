@@ -1,4 +1,4 @@
-const DEFAULT_ROOT_DOMAIN = "aventro.in";
+const DEFAULT_ROOT_DOMAIN = "livefolio.me";
 
 /** Subdomains reserved for the platform — not assignable to portfolios. */
 export const RESERVED_SUBDOMAINS = new Set([
@@ -94,27 +94,38 @@ export function getPortfolioSubdomainHost(slug: string): string {
   return `${slug}.${getPortfolioRootDomain()}`;
 }
 
-/**
- * Public portfolio URL. Uses subdomain in production; path-based URL on localhost.
- */
+function getPortfolioPublicPort(): string {
+  if (typeof window !== "undefined" && window.location.port) {
+    return window.location.port;
+  }
+
+  try {
+    const origin = getAppOrigin();
+    const url = new URL(origin);
+    return url.port;
+  } catch {
+    return "";
+  }
+}
+
+/** Public portfolio URL — always `{slug}.{rootDomain}`. */
 export function getPortfolioPublicUrl(slug: string): string {
   const rootDomain = getPortfolioRootDomain();
-
-  if (typeof window !== "undefined") {
-    const hostname = normalizeHost(window.location.host);
-    if (hostname === "localhost" || hostname.endsWith(".localhost")) {
-      return `${window.location.origin}/p/${slug}`;
-    }
-  }
-
-  if (rootDomain === "localhost") {
-    const origin = getAppOrigin();
-    return `${origin}/p/${slug}`;
-  }
-
   const protocol =
     process.env.NODE_ENV === "development" ? "http" : "https";
-  return `${protocol}://${slug}.${rootDomain}`;
+  const port = getPortfolioPublicPort();
+  const host = port
+    ? `${slug}.${rootDomain}:${port}`
+    : `${slug}.${rootDomain}`;
+
+  return `${protocol}://${host}`;
+}
+
+/** Internal App Router path for portfolio pages (subdomain rewrite target). */
+export const INTERNAL_PORTFOLIO_PATH_PREFIX = "/sites";
+
+export function getInternalPortfolioPath(slug: string): string {
+  return `${INTERNAL_PORTFOLIO_PATH_PREFIX}/${slug}`;
 }
 
 /** App routes that should not be served from portfolio subdomains. */

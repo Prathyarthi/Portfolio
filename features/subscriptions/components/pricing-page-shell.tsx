@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SubscriptionFlow } from "./subscription-flow";
+import { siteConfig } from "@/lib/site";
 
 export function PricingPageShell() {
   const { data: session } = useSession();
@@ -15,17 +16,20 @@ export function PricingPageShell() {
       <header
         className="sticky top-0 z-[100] border-b border-border-default"
         style={{
-          backgroundColor: "color-mix(in srgb, var(--color-surface-base) 90%, transparent)",
+          backgroundColor:
+            "color-mix(in srgb, var(--color-surface-base) 90%, transparent)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
       >
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-2" aria-label="Foliofy home">
-            <span
-              className="font-display text-[20px] font-bold tracking-[-0.01em] text-brand-primary"
-            >
-              Foliofy
+          <Link
+            href="/"
+            className="flex items-center gap-2"
+            aria-label={`${siteConfig.name} home`}
+          >
+            <span className="font-display text-[20px] font-bold tracking-[-0.01em] text-brand-primary">
+              {siteConfig.name}
             </span>
           </Link>
 
@@ -58,8 +62,8 @@ export function PricingPageShell() {
             </h1>
             <p className="prose-measure mx-auto text-body text-text-secondary">
               Start with a one-month free trial of all core workflows. After
-              that, stay on free essentials or upgrade to Pro for premium
-              templates and resume import.
+              that, stay on free essentials or upgrade to Pro — billed monthly,
+              quarterly, or yearly.
             </p>
           </header>
 

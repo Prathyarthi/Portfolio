@@ -22,7 +22,7 @@ Return ONLY valid JSON matching this exact schema. No markdown, no code fences.
       "id": "exp_1",
       "company": "Company Name",
       "role": "Job Title",
-      "description": "Key responsibilities and achievements",
+      "description": "Key responsibilities and achievements — one point per line, newline-separated, no bullet characters",
       "startDate": "YYYY-MM-DD or null",
       "endDate": "YYYY-MM-DD or null (null if current)",
       "location": "City or null"
@@ -46,7 +46,7 @@ Return ONLY valid JSON matching this exact schema. No markdown, no code fences.
     {
       "id": "proj_1",
       "title": "Project Name",
-      "description": "What it does and why it's interesting",
+      "description": "What it does — one point per line, newline-separated, no bullet characters",
       "imageUrl": null,
       "liveUrl": null,
       "sourceUrl": null,
@@ -66,7 +66,7 @@ Return ONLY valid JSON matching this exact schema. No markdown, no code fences.
   "customSections": []
 }
 
-Generate realistic, detailed content. Include 2-4 experiences, 1-2 educations, 8-15 skills across categories, and 2-4 projects.`;
+Generate realistic, detailed content. Include 2-4 experiences, 1-2 educations, 8-15 skills across categories, and 2-4 projects. Do not use bullet characters (•, -, *) in description fields — separate points with newlines only; the UI adds bullets.`;
 
 export async function POST(request: Request) {
   try {

@@ -1,4 +1,5 @@
 import { generateOpenRouterText } from "@/lib/openrouter";
+import { normalizeMultilineText, stripBulletPrefix } from "@/lib/text";
 
 export interface ParsedCustomSection {
   sectionType: string;
@@ -72,14 +73,14 @@ function normalizeString(v: unknown, fallback = ""): string {
 
 function normalizeDescription(v: unknown): string {
   if (v == null) return "";
-  if (typeof v === "string") return v;
+  if (typeof v === "string") return normalizeMultilineText(v);
   if (Array.isArray(v)) {
     return v
-      .map((x) => (typeof x === "string" ? x : JSON.stringify(x)))
+      .map((x) => (typeof x === "string" ? stripBulletPrefix(x) : String(x)))
       .filter(Boolean)
       .join("\n");
   }
-  return String(v);
+  return normalizeMultilineText(String(v));
 }
 
 function normalizeEndDateField(v: unknown): string | null {
@@ -220,20 +221,22 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   if (Array.isArray(achievementsRaw)) {
     achievements = achievementsRaw
       .map((item) => {
-        if (typeof item === "string") return item.trim();
+        if (typeof item === "string") return stripBulletPrefix(item);
         const a = asRecord(item);
         if (a) {
-          return normalizeString(
-            a.title ?? a.name ?? a.description ?? a.achievement
+          return stripBulletPrefix(
+            normalizeString(
+              a.title ?? a.name ?? a.description ?? a.achievement
+            )
           );
         }
-        return String(item);
+        return stripBulletPrefix(String(item));
       })
       .filter((text) => text.trim() !== "");
   } else if (typeof achievementsRaw === "string") {
     achievements = achievementsRaw
       .split(/\n+/)
-      .map((line) => line.trim())
+      .map(stripBulletPrefix)
       .filter(Boolean);
   }
 
@@ -339,7 +342,7 @@ function buildPrompt(rawText: string): string {
 
 CRITICAL RULES:
 - Do NOT skip any information. Every piece of data in the resume must appear in your output.
-- PRESERVE BULLET POINTS: If the resume has bullet points in descriptions (for experiences, projects, etc.), either return them as an array of strings OR join them with newline characters (\\n). DO NOT merge them into one continuous paragraph.
+- MULTI-LINE DESCRIPTIONS: For experiences, projects, and similar fields with multiple points, put each point on its own line (newline-separated). Do NOT prefix lines with bullet characters (•, -, *, etc.) — the portfolio template adds bullets automatically. Strip bullet markers from the source text; keep the words only.
 - For well-known sections, use the schemas below.
 - For ANY information that does NOT fit the well-known schemas, put it in "customSections". This includes: volunteer work, publications, languages, interests, hobbies, references, awards, honors, courses, trainings, or anything else NOT covered by the schemas. Do NOT use customSections for contact info or social profiles — those have their own fields.
 - DO NOT duplicate. If a piece of information fits a well-known schema field (e.g. a school percentage fits "gpa", a project description fits "projects[].description", an email fits "contact.email", a LinkedIn URL fits "socialProfiles"), put it there ONLY. Never repeat the same fact in customSections.
@@ -367,7 +370,7 @@ Schema:
     {
       "company": "Company Name (REQUIRED)",
       "role": "Job Title (REQUIRED)",
-      "description": "Description of responsibilities and achievements. If the resume has bullet points, join them with newlines (\\n) to preserve formatting. Can also be an array of strings (or empty string)",
+      "description": "Responsibilities and achievements — one point per line, newline-separated, no bullet characters (or empty string)",
       "startDate": "YYYY-MM-DD or null",
       "endDate": "YYYY-MM-DD or null if current position",
       "location": "City, State or null"
@@ -389,13 +392,13 @@ Schema:
   "projects": [
     {
       "title": "Project Name",
-      "description": "Project description. If the resume has bullet points, join them with newlines (\\n) to preserve formatting. Can also be an array of strings",
+      "description": "Project description — one point per line, newline-separated, no bullet characters. Can also be an array of plain strings",
       "techStack": ["Tech1", "Tech2"],
       "liveUrl": "URL or null",
       "sourceUrl": "URL or null"
     }
   ],
-  "achievements": ["Achievement description string"],
+  "achievements": ["Plain achievement text — no bullet characters"],
   "certifications": [
     { "name": "Certification Name", "issuer": "Issuing Organization", "issueDate": "YYYY-MM-DD or null", "url": "URL or null" }
   ],

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GithubIcon, TwitterIcon, LinkedinIcon } from "@/components/icons";
+import { siteConfig } from "@/lib/site";
 
 const NAV = {
   Product: [
@@ -19,6 +20,13 @@ const NAV = {
   ],
 };
 
+const LEGAL_LINKS = [
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+  { href: "/refund-policy", label: "Refunds" },
+  { href: "/contact", label: "Contact" },
+] as const;
+
 const SOCIAL = [
   { label: "GitHub", href: "https://github.com", icon: GithubIcon },
   { label: "Twitter", href: "https://twitter.com", icon: TwitterIcon },
@@ -34,13 +42,13 @@ export function Footer() {
       <div className="mx-auto max-w-[1200px]">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-[2fr_1fr_1fr_1fr]">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" aria-label="Foliofy home">
+            <Link href="/" aria-label={`${siteConfig.name} home`}>
               <span className="font-display text-[20px] font-bold text-white">
-                Foliofy
+                {siteConfig.name}
               </span>
             </Link>
             <p className="mt-3 max-w-[260px] text-body-sm text-white/60">
-              Drop your resume. Get a portfolio. In under 60 seconds.
+              {siteConfig.tagline}
             </p>
             <div className="mt-5 flex items-center gap-2">
               {SOCIAL.map(({ label, href, icon: Icon }) => (
@@ -77,13 +85,25 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-6 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
           <p className="text-body-sm text-white/40">
-            &copy; {new Date().getFullYear()} Foliofy. All rights reserved.
+            &copy; {new Date().getFullYear()} {siteConfig.legalEntity}. All rights
+            reserved.
           </p>
-          <p className="text-body-sm text-white/40">
-            Drop your resume. Get a portfolio.
-          </p>
+          <nav
+            className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
+            aria-label="Legal"
+          >
+            {LEGAL_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-body-sm text-white/40 transition-colors hover:text-white"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>

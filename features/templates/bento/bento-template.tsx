@@ -18,7 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function BentoTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -67,10 +66,6 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
           <header className="col-span-1 md:col-span-2 lg:col-span-3 row-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50 flex flex-col justify-between relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-blue-100/40 to-purple-100/40 rounded-full blur-3xl -mr-20 -mt-20 transition-transform duration-700 group-hover:scale-110" />
             <div className="relative z-10">
-              <div className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-600 mb-6">
-                <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2"></span>
-                Available for work
-              </div>
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-zinc-900 mb-4">
                 {portfolio.title}
               </h1>
@@ -155,66 +150,77 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                 {visibleProjects.map((project) => (
                   <article
                     key={project.id}
-                    className="group flex flex-col rounded-2xl border border-zinc-200/60 bg-zinc-50/50 overflow-hidden transition-all hover:shadow-md hover:bg-white hover:border-zinc-300/80"
+                    className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200/60 bg-zinc-50/50 transition-all hover:border-zinc-300/80 hover:bg-white hover:shadow-md"
                   >
-                    {project.liveUrl ? (
-                      <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="relative h-48 w-full overflow-hidden bg-zinc-200 block">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(
-                            project.id,
-                            livePreviewProjectIds
+                    <LivePreviewImage
+                      liveUrl={project.liveUrl ?? null}
+                      projectId={project.id}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      containerClassName="overflow-hidden bg-zinc-200"
+                      placeholderClassName="bg-zinc-100 [&_p]:text-sm [&_p]:font-semibold [&_p]:text-zinc-500"
+                      className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="flex flex-col grow p-5">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-lg font-bold text-zinc-900 transition-colors group-hover:text-blue-600">
+                            {project.title}
+                          </h3>
+                          {project.language && (
+                            <p className="mt-1 text-xs font-medium uppercase tracking-wider text-zinc-400">
+                              {project.language}
+                            </p>
                           )}
-                          alt={project.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                          fallbackSrc="https://placehold.co/1440x900/e7e5e4/a8a29e?text=No+Preview"
-                        />
-                        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10 flex items-center justify-center">
-                          <div className="opacity-0 transform translate-y-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 bg-white text-zinc-900 rounded-full p-2 shadow-lg">
-                            <ArrowUpRight className="w-5 h-5" />
-                          </div>
                         </div>
-                      </a>
-                    ) : (
-                      <div className="flex h-48 w-full items-center justify-center bg-zinc-100 border-b border-zinc-200/50">
-                        <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">
-                          No Preview
-                        </span>
-                      </div>
-                    )}
-                    <div className="p-6 flex flex-col grow">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="text-lg font-bold text-zinc-900 group-hover:text-blue-600 transition-colors">
-                          {project.title}
-                        </h3>
                         {project.featured && (
-                          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-600">
+                          <span className="shrink-0 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-600">
                             Featured
                           </span>
                         )}
                       </div>
-                      
+
                       {project.description && (
-                        <p className="text-sm text-zinc-500 line-clamp-2 mb-4">
-                          {project.description}
-                        </p>
+                        <DescriptionBlock
+                          text={project.description}
+                          paragraphClassName="mb-4 text-sm leading-relaxed text-zinc-500"
+                          listClassName="mb-4 space-y-1 pl-4 text-sm leading-relaxed text-zinc-500 marker:text-zinc-400"
+                        />
                       )}
 
-                      <div className="mt-auto pt-4 flex flex-wrap items-center gap-2 border-t border-zinc-100">
-                        {project.techStack.slice(0, 3).map((tech) => (
-                          <span
-                            key={tech}
-                            className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                        {project.techStack.length > 3 && (
-                          <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
-                            +{project.techStack.length - 3}
-                          </span>
-                        )}
+                      {(project.techStack.length > 0 ||
+                        project.githubStars !== null ||
+                        project.githubForks !== null) && (
+                        <div className="mb-4 flex flex-wrap gap-2">
+                          {project.techStack.map((tech) => (
+                            <span
+                              key={tech}
+                              className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                          {project.githubStars !== null && (
+                            <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
+                              {project.githubStars} stars
+                            </span>
+                          )}
+                          {project.githubForks !== null && (
+                            <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
+                              {project.githubForks} forks
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="mt-auto border-t border-zinc-100 pt-4">
+                        <ProjectActions
+                          liveUrl={project.liveUrl}
+                          sourceUrl={project.sourceUrl}
+                          liveClassName="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-800"
+                          sourceClassName="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-600 transition-colors hover:border-zinc-300 hover:text-zinc-900"
+                        />
                       </div>
                     </div>
                   </article>
@@ -232,32 +238,33 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
               </h2>
               <CollapsibleList
                 initial={4}
-                wrapperClassName="space-y-6 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-linear-to-b before:from-transparent before:via-zinc-200 before:to-transparent"
+                wrapperClassName="space-y-4"
                 buttonClassName="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-600 transition-colors hover:bg-white hover:border-zinc-300"
               >
                 {experiences.map((exp) => (
-                  <article key={exp.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                    <div className="flex items-center justify-center w-5 h-5 rounded-full border-2 border-white bg-zinc-200 group-hover:bg-purple-500 text-zinc-500 group-hover:text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 transition-colors duration-300 z-10 absolute left-0 md:left-1/2 -translate-x-1/2"></div>
-                    <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] p-4 rounded-2xl border border-zinc-200/60 bg-zinc-50/50 hover:bg-white hover:shadow-sm transition-all ml-8 md:ml-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
-                        <h3 className="font-bold text-zinc-900">{exp.role}</h3>
-                        {(exp.startDate || exp.endDate) && (
-                          <span className="text-xs font-medium text-zinc-500 bg-zinc-100 px-2 py-1 rounded-md whitespace-nowrap">
-                            {formatDateRange(exp.startDate, exp.endDate)}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm font-medium text-purple-600 mb-2">{exp.company}</p>
-                      {exp.description && (
-                        <div className="text-sm text-zinc-600 line-clamp-3">
-                          <DescriptionBlock
-                            text={exp.description}
-                            paragraphClassName="text-sm text-zinc-600"
-                            listClassName="space-y-1 pl-4 text-sm text-zinc-600 marker:text-zinc-400"
-                          />
-                        </div>
+                  <article
+                    key={exp.id}
+                    className="rounded-2xl border border-zinc-200/60 bg-zinc-50/50 p-5 transition-all hover:bg-white hover:shadow-sm"
+                  >
+                    <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                      <h3 className="font-bold text-zinc-900">{exp.role}</h3>
+                      {(exp.startDate || exp.endDate) && (
+                        <span className="whitespace-nowrap rounded-md bg-zinc-100 px-2 py-1 text-xs font-medium text-zinc-500">
+                          {formatDateRange(exp.startDate, exp.endDate)}
+                        </span>
                       )}
                     </div>
+                    <p className="mb-2 text-sm font-medium text-purple-600">
+                      {exp.company}
+                      {exp.location ? ` · ${exp.location}` : ""}
+                    </p>
+                    {exp.description && (
+                      <DescriptionBlock
+                        text={exp.description}
+                        paragraphClassName="text-sm leading-relaxed text-zinc-600"
+                        listClassName="space-y-1 pl-4 text-sm leading-relaxed text-zinc-600 marker:text-zinc-400"
+                      />
+                    )}
                   </article>
                 ))}
               </CollapsibleList>
@@ -270,14 +277,23 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
               <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-2xl -ml-20 -mb-20" />
               <h2 className="text-xl font-bold text-white mb-6 relative z-10">Skills & Tools</h2>
-              <div className="flex flex-wrap gap-2 relative z-10">
-                {Object.values(groupedSkills).flat().map((name) => (
-                  <span
-                    key={name}
-                    className="rounded-xl bg-white/20 backdrop-blur-sm border border-white/10 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/30 transition-colors"
-                  >
-                    {name}
-                  </span>
+              <div className="space-y-5 relative z-10">
+                {Object.entries(groupedSkills).map(([category, names]) => (
+                  <div key={category}>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/70">
+                      {category}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {names.map((name) => (
+                        <span
+                          key={name}
+                          className="rounded-xl border border-white/10 bg-white/20 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+                        >
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>
@@ -376,67 +392,67 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Certifications and Achievements */}
           {(certifications.length > 0 || achievements.length > 0) && (
-             <div className="col-span-1 md:col-span-3 lg:col-span-4 flex flex-col gap-4">
-                {certifications.length > 0 && (
-                  <section className="rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
-                    <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
-                      <span className="w-3 h-3 rounded-full bg-yellow-500 mr-3" />
-                      Certifications
-                    </h2>
-                    <CollapsibleList
-                      initial={4}
-                      wrapperClassName="space-y-3"
-                      buttonClassName="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-600 transition-colors hover:bg-white hover:border-zinc-300"
-                    >
-                      {certifications.map((cert) => (
-                        <article key={cert.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-zinc-50 transition-colors">
-                          <div>
-                            <h3 className="font-semibold text-zinc-900 text-sm">
-                              {cert.url ? <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{cert.name}</a> : cert.name}
-                            </h3>
-                            <p className="text-xs text-zinc-500 mt-0.5">{cert.issuer}</p>
-                          </div>
-                          {cert.issueDate && (
-                            <span className="text-xs font-medium text-zinc-400 bg-zinc-100 px-2 py-1 rounded">
-                              {new Date(cert.issueDate).getFullYear()}
-                            </span>
-                          )}
-                        </article>
-                      ))}
-                    </CollapsibleList>
-                  </section>
-                )}
+            <>
+              {certifications.length > 0 && (
+                <section className="col-span-1 md:col-span-2 lg:col-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+                  <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
+                    <span className="w-3 h-3 rounded-full bg-yellow-500 mr-3" />
+                    Certifications
+                  </h2>
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-3"
+                    buttonClassName="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-600 transition-colors hover:bg-white hover:border-zinc-300"
+                  >
+                    {certifications.map((cert) => (
+                      <article key={cert.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-zinc-50 transition-colors">
+                        <div>
+                          <h3 className="font-semibold text-zinc-900 text-sm">
+                            {cert.url ? <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{cert.name}</a> : cert.name}
+                          </h3>
+                          <p className="text-xs text-zinc-500 mt-0.5">{cert.issuer}</p>
+                        </div>
+                        {cert.issueDate && (
+                          <span className="text-xs font-medium text-zinc-400 bg-zinc-100 px-2 py-1 rounded">
+                            {new Date(cert.issueDate).getFullYear()}
+                          </span>
+                        )}
+                      </article>
+                    ))}
+                  </CollapsibleList>
+                </section>
+              )}
 
-                {achievements.length > 0 && (
-                  <section className="rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
-                    <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
-                      <span className="w-3 h-3 rounded-full bg-red-500 mr-3" />
-                      Achievements
-                    </h2>
-                    <CollapsibleList
-                      initial={4}
-                      wrapperClassName="space-y-3"
-                      buttonClassName="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-600 transition-colors hover:bg-white hover:border-zinc-300"
-                    >
-                      {achievements.map((ach) => (
-                        <article key={ach.id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-zinc-50 transition-colors">
-                          <div className="mt-0.5 bg-red-100 p-1.5 rounded-lg text-red-600">
-                            <Trophy className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-zinc-900 text-sm">{ach.title}</p>
-                            {ach.date && (
-                              <p className="text-xs text-zinc-500 mt-0.5">
-                                {new Date(ach.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-                              </p>
-                            )}
-                          </div>
-                        </article>
-                      ))}
-                    </CollapsibleList>
-                  </section>
-                )}
-             </div>
+              {achievements.length > 0 && (
+                <section className="col-span-1 md:col-span-2 lg:col-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+                  <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
+                    <span className="w-3 h-3 rounded-full bg-red-500 mr-3" />
+                    Achievements
+                  </h2>
+                  <CollapsibleList
+                    initial={4}
+                    wrapperClassName="space-y-3"
+                    buttonClassName="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-600 transition-colors hover:bg-white hover:border-zinc-300"
+                  >
+                    {achievements.map((ach) => (
+                      <article key={ach.id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-zinc-50 transition-colors">
+                        <div className="mt-0.5 bg-red-100 p-1.5 rounded-lg text-red-600">
+                          <Trophy className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-zinc-900 text-sm">{ach.title}</p>
+                          {ach.date && (
+                            <p className="text-xs text-zinc-500 mt-0.5">
+                              {new Date(ach.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                            </p>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                  </CollapsibleList>
+                </section>
+              )}
+            </>
           )}
 
           {/* Custom Sections */}
@@ -454,6 +470,26 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
               />
             </section>
           ))}
+
+          {hasProfiles && (
+            <section
+              id="profiles"
+              className="col-span-1 md:col-span-3 lg:col-span-4 scroll-mt-24 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50"
+            >
+              <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
+                <span className="w-3 h-3 rounded-full bg-indigo-500 mr-3" />
+                Profiles
+              </h2>
+              <ProfileLinksSection
+                portfolio={portfolio}
+                profiles={socialProfiles}
+                chipClassName="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-all hover:border-zinc-300 hover:bg-white hover:shadow-sm"
+                pillClassName="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-all hover:border-zinc-300 hover:bg-white hover:shadow-sm"
+                titleClassName="font-semibold text-zinc-900"
+                textClassName="text-sm text-zinc-500"
+              />
+            </section>
+          )}
 
         </div>
       </div>

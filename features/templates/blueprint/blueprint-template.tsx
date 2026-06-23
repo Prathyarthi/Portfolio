@@ -18,7 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function BlueprintTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -129,7 +128,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
                 <img
                   src={portfolio.avatarUrl}
                   alt={portfolio.title}
-                  className="w-48 h-48 md:w-64 md:h-64 object-cover filter grayscale contrast-150 mix-blend-screen opacity-80"
+                  className="w-48 h-48 md:w-64 md:h-64 object-cover filter contrast-150 mix-blend-screen opacity-80"
                 />
               </div>
             </div>
@@ -161,31 +160,23 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
               buttonClassName="col-span-full mt-10 mx-auto block border-2 border-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#003366] transition-colors"
             >
               {visibleProjects.map((project, index) => (
-                <article key={project.id} className="border-2 border-white/50 bg-[#003366]/80 backdrop-blur-sm flex flex-col group hover:border-white transition-colors relative">
-                  <div className="absolute -top-3 -left-3 bg-[#003366] px-2 text-[10px] text-white/50 uppercase tracking-widest">
+                <article key={project.id} className="group relative flex flex-col overflow-hidden border-2 border-white/50 bg-[#003366]/80 backdrop-blur-sm transition-colors hover:border-white">
+                  <div className="absolute -top-3 -left-3 bg-[#003366] px-2 text-[10px] uppercase tracking-widest text-white/50">
                     REF.{index + 1}
                   </div>
-                  
-                  {project.liveUrl ? (
-                    <div className="relative h-56 border-b-2 border-white/50 overflow-hidden p-2">
-                      <div className="w-full h-full border border-dashed border-white/30 relative">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover object-top filter grayscale contrast-150 mix-blend-screen opacity-70 group-hover:opacity-100 transition-opacity"
-                          fallbackSrc="https://placehold.co/800x600/003366/ffffff?text=NO_VIEW"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="h-56 border-b-2 border-white/50 flex items-center justify-center p-2">
-                      <div className="w-full h-full border border-dashed border-white/30 flex items-center justify-center">
-                        <Box className="w-12 h-12 text-white/30" />
-                      </div>
-                    </div>
-                  )}
+
+                  <div className="border-b-2 border-white/50 p-2">
+                    <LivePreviewImage
+                      liveUrl={project.liveUrl ?? null}
+                      projectId={project.id}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      containerClassName="overflow-hidden border border-dashed border-white/30 bg-[#002244]"
+                      placeholderClassName="bg-[#002244] [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-white/70"
+                      className="h-full w-full object-cover object-top opacity-70 mix-blend-screen filter contrast-150 transition-opacity group-hover:opacity-100"
+                    />
+                  </div>
                   
                   <div className="p-6 flex flex-col grow">
                     <div className="flex items-start justify-between gap-4 mb-4">

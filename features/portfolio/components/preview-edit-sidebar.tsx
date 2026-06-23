@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PanelRightClose, Pencil, LayoutTemplate, Settings2, Check } from "lucide-react";
+import { Check, Loader2, PanelRightClose, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -19,7 +19,11 @@ type PreviewEditSidebarProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templateId?: string;
+  savedTemplateId?: string;
+  hasUnsavedTemplate?: boolean;
+  isSavingTemplate?: boolean;
   onTemplateChange?: (templateId: string) => void;
+  onTemplateSave?: () => void;
   templateOptions?: any[];
   isTemplateLocked?: (templateId: string) => boolean;
 };
@@ -65,7 +69,11 @@ function EditorBody({
   onStepChange,
   onClose,
   templateId,
+  savedTemplateId,
+  hasUnsavedTemplate,
+  isSavingTemplate,
   onTemplateChange,
+  onTemplateSave,
   templateOptions,
   isTemplateLocked,
 }: {
@@ -73,7 +81,11 @@ function EditorBody({
   onStepChange: (step: EditStepValue) => void;
   onClose?: () => void;
   templateId?: string;
+  savedTemplateId?: string;
+  hasUnsavedTemplate?: boolean;
+  isSavingTemplate?: boolean;
   onTemplateChange?: (templateId: string) => void;
+  onTemplateSave?: () => void;
   templateOptions?: any[];
   isTemplateLocked?: (templateId: string) => boolean;
 }) {
@@ -151,45 +163,83 @@ function EditorBody({
       </TabsContent>
 
       <TabsContent value="design" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
-        <div className="shrink-0 border-b border-border-default px-4 py-3">
-          <p className="text-label uppercase text-text-secondary">Theme settings</p>
-          <h2 className="mt-1 text-h4 text-text-primary">Templates</h2>
+        <div className="shrink-0 border-b border-white/8 px-4 py-3">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-600">
+            Theme Settings
+          </p>
+          <h2 className="mt-1 text-base font-semibold">Templates</h2>
+          <p className="mt-1 text-xs text-zinc-500">
+            Preview templates here. Save when you are ready to apply.
+          </p>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
           {templateOptions && onTemplateChange ? (
             <div className="grid grid-cols-2 gap-3">
               {templateOptions.map((t) => {
-                const isActive = templateId === t.id;
-                const isLocked = isTemplateLocked?.(t.id) ?? false;
+                const isPreviewing = templateId === t.id;
+                const isSaved = savedTemplateId === t.id;
 
                 return (
                   <button
                     key={t.id}
                     type="button"
-                    disabled={isLocked}
+                    disabled={isTemplateLocked?.(t.id) ?? false}
                     onClick={() => onTemplateChange(t.id)}
                     className={cn(
-                      "group relative flex flex-col gap-2 rounded-[var(--radius-md)] border p-2 text-left transition-all",
-                      isActive
-                        ? "border-brand-primary bg-brand-light"
-                        : "border-border-default bg-surface-base hover:border-border-strong",
-                      isLocked && "cursor-not-allowed opacity-50"
+                      "group relative flex flex-col gap-2 rounded-xl border p-2 text-left transition-all",
+                      isPreviewing
+                        ? "border-primary bg-primary/5"
+                        : "border-white/8 bg-white/3 hover:border-white/20 hover:bg-white/5",
+                      (isTemplateLocked?.(t.id) ?? false) &&
+                        "cursor-not-allowed opacity-50"
                     )}
                   >
                     <TemplatePreview templateId={t.id} />
                     <div className="flex w-full items-center justify-between">
-                      <span className="truncate pr-2 text-xs font-medium text-text-primary">{t.name}</span>
-                      {isActive && <Check className="h-3 w-3 shrink-0 text-brand-primary" aria-hidden />}
-                      {isLocked && <span className="shrink-0 text-[10px] text-text-muted">PRO</span>}
+                      <span className="truncate pr-2 text-xs font-medium">
+                        {t.name}
+                      </span>
+                      {isPreviewing ? (
+                        <Check className="h-3 w-3 shrink-0 text-primary" />
+                      ) : isSaved ? (
+                        <span className="shrink-0 text-[10px] text-zinc-500">
+                          Saved
+                        </span>
+                      ) : isTemplateLocked?.(t.id) ? (
+                        <span className="shrink-0 text-[10px] text-zinc-500">
+                          PRO
+                        </span>
+                      ) : null}
                     </div>
                   </button>
                 );
               })}
             </div>
           ) : (
-            <p className="py-8 text-center text-body-sm text-text-muted">Templates not available</p>
+            <p className="py-8 text-center text-sm text-zinc-500">
+              Templates not available
+            </p>
           )}
         </div>
+        {hasUnsavedTemplate && onTemplateSave ? (
+          <div className="shrink-0 border-t border-white/8 p-3">
+            <Button
+              type="button"
+              className="w-full rounded-full"
+              onClick={onTemplateSave}
+              disabled={isSavingTemplate}
+            >
+              {isSavingTemplate ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving…
+                </>
+              ) : (
+                "Save template"
+              )}
+            </Button>
+          </div>
+        ) : null}
       </TabsContent>
     </Tabs>
   );
@@ -199,7 +249,11 @@ export function PreviewEditSidebar({
   open, 
   onOpenChange,
   templateId,
+  savedTemplateId,
+  hasUnsavedTemplate,
+  isSavingTemplate,
   onTemplateChange,
+  onTemplateSave,
   templateOptions,
   isTemplateLocked
 }: PreviewEditSidebarProps) {
@@ -222,7 +276,11 @@ export function PreviewEditSidebar({
             onStepChange={setActiveStep}
             onClose={() => onOpenChange(false)}
             templateId={templateId}
+            savedTemplateId={savedTemplateId}
+            hasUnsavedTemplate={hasUnsavedTemplate}
+            isSavingTemplate={isSavingTemplate}
             onTemplateChange={onTemplateChange}
+            onTemplateSave={onTemplateSave}
             templateOptions={templateOptions}
             isTemplateLocked={isTemplateLocked}
           />
@@ -234,13 +292,17 @@ export function PreviewEditSidebar({
   if (!open) return null;
 
   return (
-    <aside className="sticky top-4 ml-4 h-[calc(100vh-2rem)] w-100 shrink-0 self-start overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-raised shadow-[var(--shadow-card)]">
+    <aside className="sticky top-4 h-[calc(100vh-2rem)] w-full shrink-0 self-start overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-raised shadow-[var(--shadow-card)] xl:ml-4 xl:w-80">
       <EditorBody
         activeStep={activeStep}
         onStepChange={setActiveStep}
         onClose={() => onOpenChange(false)}
         templateId={templateId}
+        savedTemplateId={savedTemplateId}
+        hasUnsavedTemplate={hasUnsavedTemplate}
+        isSavingTemplate={isSavingTemplate}
         onTemplateChange={onTemplateChange}
+        onTemplateSave={onTemplateSave}
         templateOptions={templateOptions}
         isTemplateLocked={isTemplateLocked}
       />

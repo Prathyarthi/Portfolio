@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
+import { stripBulletPrefix } from "@/lib/text";
 import { Layers } from "lucide-react";
+import ExpandableText from "@/components/expandable-text";
 import type {
   PortfolioCustomization,
   PortfolioData,
@@ -104,8 +106,13 @@ export function TemplateNavbar({
 export function splitDescription(text: string): string[] {
   return text
     .split(/\n+/)
-    .map((line) => line.replace(/^[-*]\s*/, "").trim())
+    .map(stripBulletPrefix)
     .filter(Boolean);
+}
+
+function stripLineClamp(className?: string) {
+  if (!className) return undefined;
+  return className.replace(/\bline-clamp-\d+\b/g, "").replace(/\s+/g, " ").trim();
 }
 
 export function DescriptionBlock({
@@ -120,7 +127,28 @@ export function DescriptionBlock({
   const lines = splitDescription(text);
 
   if (lines.length <= 1) {
+    const shouldExpand = text.length > 180;
+    if (shouldExpand) {
+      return (
+        <ExpandableText initialLines={3}>
+          <p className={stripLineClamp(paragraphClassName)}>{text}</p>
+        </ExpandableText>
+      );
+    }
+
     return <p className={paragraphClassName}>{text}</p>;
+  }
+
+  if (lines.length > 3) {
+    return (
+      <ExpandableText initialLines={3}>
+        <ul className={stripLineClamp(listClassName)}>
+          {lines.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </ExpandableText>
+    );
   }
 
   return (

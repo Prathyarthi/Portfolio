@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
+import { PublishDialog } from "@/features/portfolio/components/publish-dialog";
 import {
   getPortfolioPublicUrl,
   getPortfolioRootDomain,
@@ -41,16 +42,26 @@ export function PublishButton() {
   const [candidateSlug, setCandidateSlug] = useState("");
   const [checking, setChecking] = useState(false);
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+
+  const isPublished = portfolio?.isPublished ?? false;
+  const slug = portfolio?.slug ?? "";
+
+  useEffect(() => {
+    if (!slug) return;
+    setCandidateSlug(slug);
+    setSlugAvailable(null);
+  }, [slug]);
 
   async function handleToggle(checked: boolean) {
-    if (checked && !slug) {
-      toast.error("Choose a subdomain before publishing");
+    if (checked) {
+      setPublishDialogOpen(true);
       return;
     }
 
     try {
-      await publishPortfolio.mutateAsync(checked);
-      toast.success(checked ? "Portfolio published" : "Portfolio unpublished");
+      await publishPortfolio.mutateAsync(false);
+      toast.success("Portfolio unpublished");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to update publish status",
@@ -65,15 +76,6 @@ export function PublishButton() {
       </div>
     );
   }
-
-  const isPublished = portfolio?.isPublished ?? false;
-  const slug = portfolio?.slug ?? "";
-
-  useEffect(() => {
-    if (!slug) return;
-    setCandidateSlug(slug);
-    setSlugAvailable(null);
-  }, [slug]);
 
   async function checkDomainAvailability(nextSlug: string) {
     if (!nextSlug || nextSlug === slug) {
@@ -160,7 +162,7 @@ export function PublishButton() {
                 ? "Visitors can view your portfolio at the public URL."
                 : slug
                   ? "Turn on publishing when you are ready to go live."
-                  : "Choose your subdomain below before publishing."}
+                  : "Save a subdomain below before publishing."}
             </p>
           </div>
           <Switch
@@ -235,6 +237,12 @@ export function PublishButton() {
           </div>
         )}
       </CardContent>
+
+      <PublishDialog
+        open={publishDialogOpen}
+        onOpenChange={setPublishDialogOpen}
+        currentSlug={slug}
+      />
     </Card>
   );
 }

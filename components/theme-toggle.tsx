@@ -10,21 +10,27 @@ export function ThemeToggle({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time mount flag to avoid hydration mismatch
     setMounted(true);
   }, []);
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = mounted && resolvedTheme === "dark";
 
   return (
     <Button
       variant="ghost"
       size="icon"
+      type="button"
       className={className}
-      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      aria-label={
+        mounted
+          ? isDark
+            ? "Switch to light theme"
+            : "Switch to dark theme"
+          : "Toggle theme"
+      }
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      {mounted && isDark ? (
+      {isDark ? (
         <Sun className="h-5 w-5" aria-hidden />
       ) : (
         <Moon className="h-5 w-5" aria-hidden />

@@ -3,6 +3,11 @@ import { getServerSession } from "next-auth";
 import Razorpay from "razorpay";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth-options";
 import { prisma } from "@/lib/prisma";
+import {
+  getRazorpayPlanId,
+  isIntervalCheckoutReady,
+  parseBillingInterval,
+} from "@/lib/billing";
 
 type RazorpayFailure = {
   statusCode?: number;
@@ -49,22 +54,38 @@ export async function POST(req: Request) {
 
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  const planId = process.env.RAZORPAY_PRO_PLAN_ID;
 
-  if (!keyId || !keySecret || !planId) {
+  let interval = parseBillingInterval("monthly");
+  try {
+    const body = await req.json();
+    interval = parseBillingInterval(body?.interval) ?? interval;
+  } catch {
+    // Default to monthly when no JSON body is sent.
+  }
+
+  if (!interval) {
+    return NextResponse.json(
+      { error: "Invalid billing interval." },
+      { status: 400 }
+    );
+  }
+
+  if (!isIntervalCheckoutReady(interval)) {
     return NextResponse.json(
       {
         error:
-          "Razorpay is not configured for subscriptions (missing key/secret/plan).",
+          "Razorpay is not configured for this billing interval (missing key/secret/plan).",
       },
       { status: 503 }
     );
   }
 
+  const planId = getRazorpayPlanId(interval)!;
+
   try {
     const razorpay = new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
+      key_id: keyId!,
+      key_secret: keySecret!,
     });
 
     const subscription = await razorpay.subscriptions.create({
@@ -74,29 +95,23 @@ export async function POST(req: Request) {
       notes: {
         userId: session.user.id,
         plan: "pro",
+        interval,
       },
     });
 
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { subscriptionStatus: "pending" },
+      data: {
+        subscriptionStatus: "pending",
+        razorpaySubscriptionId: subscription.id,
+      },
     });
 
-    if (!subscription.short_url) {
-      return NextResponse.json(
-        { error: "Subscription checkout URL was not returned by Razorpay." },
-        { status: 502 }
-      );
-    }
-
-    const baseUrl =
-      process.env.NEXTAUTH_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
-    const callbackUrl = `${baseUrl}/dashboard/billing?payment_status=success`;
-    const checkoutUrl = `${subscription.short_url}?callback_url=${encodeURIComponent(callbackUrl)}`;
-
     return NextResponse.json({
-      checkoutUrl,
+      keyId,
       subscriptionId: subscription.id,
+      email: session.user.email,
+      interval,
     });
   } catch (error) {
     const checkoutError = getCheckoutError(error);
@@ -107,6 +122,7 @@ export async function POST(req: Request) {
       reason: checkoutError.reason,
       field: checkoutError.field,
       userId: session.user.id,
+      interval,
       hasKeyId: Boolean(keyId),
       hasKeySecret: Boolean(keySecret),
       hasPlanId: Boolean(planId),

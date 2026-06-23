@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { siteConfig } from "@/lib/site";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -15,9 +16,9 @@ const LINKS = [
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2" aria-label="Foliofy home">
+    <Link href="/" className="flex items-center gap-2" aria-label={`${siteConfig.name} home`}>
       <span className="font-display text-[20px] font-bold tracking-[-0.01em] text-brand-primary">
-        Foliofy
+        {siteConfig.name}
       </span>
     </Link>
   );

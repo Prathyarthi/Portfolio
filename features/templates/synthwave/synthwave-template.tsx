@@ -18,7 +18,6 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { LivePreviewImage } from "@/components/live-preview-image";
-import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 
 export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -146,27 +145,22 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
               buttonClassName="col-span-full mt-10 mx-auto block bg-[#26004c] border border-[#00f0ff] px-8 py-4 text-sm font-bold text-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.3)] hover:bg-[#00f0ff] hover:text-[#0d0221] transition-all uppercase tracking-widest"
             >
               {visibleProjects.map((project) => (
-                <article key={project.id} className="group bg-[#1a0b2e]/90 border border-[#ff007f]/50 hover:border-[#ff007f] p-1 shadow-[0_0_15px_rgba(255,0,127,0.1)] hover:shadow-[0_0_25px_rgba(255,0,127,0.4)] transition-all duration-300 flex flex-col">
-                  <div className="bg-[#0d0221] h-full flex flex-col p-5">
-                    {project.liveUrl ? (
-                      <div className="relative h-48 overflow-hidden mb-6 border-b-2 border-[#00f0ff]">
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl}
-                          enabled={isLivePreviewEnabledForProject(project.id, livePreviewProjectIds)}
-                          alt={project.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover object-top filter contrast-125 saturate-150 transition-transform duration-700 group-hover:scale-110"
-                          fallbackSrc="https://placehold.co/800x600/1a0b2e/00f0ff?text=VHS_TAPE"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-t from-[#ff007f]/40 to-transparent mix-blend-overlay" />
-                      </div>
-                    ) : (
-                      <div className="h-48 bg-[#1a0b2e] border-b-2 border-[#00f0ff] flex items-center justify-center mb-6 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,240,255,0.1)_50%)] bg-size-[100%_4px]" />
-                        <span className="text-sm font-bold text-[#ff007f] uppercase tracking-widest z-10">NO SIGNAL</span>
-                      </div>
-                    )}
-                    
+                <article key={project.id} className="group flex flex-col overflow-hidden border border-[#ff007f]/50 bg-[#1a0b2e]/90 p-1 shadow-[0_0_15px_rgba(255,0,127,0.1)] transition-all duration-300 hover:border-[#ff007f] hover:shadow-[0_0_25px_rgba(255,0,127,0.4)]">
+                  <div className="relative border-b-2 border-[#00f0ff]">
+                    <LivePreviewImage
+                      liveUrl={project.liveUrl ?? null}
+                      projectId={project.id}
+                      livePreviewProjectIds={livePreviewProjectIds}
+                      alt={project.title}
+                      loading="lazy"
+                      containerClassName="overflow-hidden bg-[#0d0221]"
+                      placeholderClassName="bg-[#0d0221] [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-wider [&_p]:text-[#00f0ff]"
+                      className="h-full w-full object-cover object-top filter contrast-125 saturate-150 transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#ff007f]/40 to-transparent mix-blend-overlay" />
+                  </div>
+
+                  <div className="flex h-full flex-col bg-[#0d0221] p-5">
                     <div className="flex flex-col grow">
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <h3 className="text-2xl font-black text-white uppercase tracking-wider group-hover:text-[#00f0ff] transition-colors drop-shadow-[0_0_5px_rgba(0,240,255,0.5)]">

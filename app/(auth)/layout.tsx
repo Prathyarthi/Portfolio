@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteConfig } from "@/lib/site";
 
 export default function AuthLayout({
   children,
@@ -10,11 +11,11 @@ export default function AuthLayout({
       <div className="hero-blob" aria-hidden />
       <div className="relative w-full max-w-md space-y-6">
         <div className="text-center">
-          <Link href="/" aria-label="Foliofy home">
+          <Link href="/" aria-label={`${siteConfig.name} home`}>
             <span
               className="font-display text-[24px] font-bold tracking-[-0.01em] text-brand-primary"
             >
-              Foliofy
+              {siteConfig.name}
             </span>
           </Link>
         </div>

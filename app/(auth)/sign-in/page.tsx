@@ -14,8 +14,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { siteConfig } from "@/lib/site";
 import { GithubIcon as Github } from "@/components/icons";
+import { Loader2 } from "lucide-react";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function SignInPage() {
     <Card>
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-        <CardDescription>Sign in to your Foliofy account</CardDescription>
+        <CardDescription>Sign in to your {siteConfig.name} account</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <Button

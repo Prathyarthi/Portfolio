@@ -8,32 +8,56 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
+import { CancelSubscriptionDialog } from "@/components/cancel-subscription-dialog";
+import {
+  formatProPriceLabel,
+  type BillingInterval,
+} from "@/lib/pricing";
+import { BillingIntervalToggle } from "@/features/subscriptions/components/billing-interval-toggle";
+import { startProCheckout } from "@/features/subscriptions/lib/checkout";
+import { getIntervalCheckoutUnavailableMessage } from "@/lib/billing";
 
 interface BillingState {
   razorpayReady: boolean;
+  availableIntervals?: BillingInterval[];
   subscription: { status: "ACTIVE" | "PENDING" } | null;
   access: {
     tier: "free" | "trial" | "pro";
     trialDaysRemaining: number;
     canUsePremiumTemplates: boolean;
     canUseImports: boolean;
+    canUseAnalytics: boolean;
   } | null;
 }
 
 export default function BillingPage() {
   const searchParams = useSearchParams();
-  const paymentSuccess = searchParams.get("payment_status") === "success";
+  const returning = searchParams.has("return");
+  const cancelled = searchParams.has("cancelled");
 
   const [billing, setBilling] = useState<BillingState | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [billingInterval, setBillingInterval] =
+    useState<BillingInterval>("monthly");
+  const [checkoutIntervals, setCheckoutIntervals] = useState<BillingInterval[]>([
+    "monthly",
+  ]);
 
   const loadBilling = useCallback(async () => {
     try {
       const res = await fetch("/api/billing/me", { cache: "no-store" });
       const data = await res.json();
       setBilling(data);
+      const intervals =
+        data.availableIntervals?.length
+          ? data.availableIntervals
+          : (["monthly"] as BillingInterval[]);
+      setCheckoutIntervals(intervals);
     } catch {
       // silent
     } finally {
@@ -45,23 +69,50 @@ export default function BillingPage() {
     loadBilling();
   }, [loadBilling]);
 
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => setRazorpayLoaded(true);
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const subscribe = async () => {
     setError(null);
     setSubscribing(true);
     try {
-      const res = await fetch("/api/billing/checkout", { method: "POST" });
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body.error ?? "Checkout could not be started.");
-        return;
-      }
-      if (body.checkoutUrl) {
-        window.location.href = body.checkoutUrl;
-      }
+      await startProCheckout({
+        interval: billingInterval,
+        razorpayLoaded,
+        onError: setError,
+      });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setSubscribing(false);
+    }
+  };
+
+  const cancelSubscription = async () => {
+    setError(null);
+    setCancelling(true);
+    try {
+      const res = await fetch("/api/billing/cancel", { method: "POST" });
+      const body = await res.json();
+      if (!res.ok) {
+        setError(body.error ?? "Failed to cancel subscription.");
+        setCancelling(false);
+        setShowCancelDialog(false);
+        return;
+      }
+      window.location.href = "/dashboard/billing?cancelled=true";
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setCancelling(false);
+      setShowCancelDialog(false);
     }
   };
 
@@ -80,6 +131,7 @@ export default function BillingPage() {
   const trialDays = billing?.access?.trialDaysRemaining ?? 0;
   const paymentsReady = billing?.razorpayReady ?? false;
   const isPending = billing?.subscription?.status === "PENDING";
+  const intervalCheckoutReady = checkoutIntervals.includes(billingInterval);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 pb-6">
@@ -90,11 +142,20 @@ export default function BillingPage() {
         </p>
       </div>
 
-      {paymentSuccess && (
-        <div className="flex items-center gap-3 rounded-[var(--radius-md)] bg-success-bg px-4 py-3 text-body-sm text-success">
-          <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden />
-          Payment received — your subscription is being activated. This page will
-          reflect the change shortly.
+      {returning && isPending && (
+        <div className="rounded-xl border border-blue-500/25 bg-blue-500/10 px-4 py-3 text-sm text-blue-300">
+          <p className="font-medium">Payment is being processed</p>
+          <p className="mt-1 text-xs text-blue-400/70">
+            Your subscription will be activated once payment is confirmed. Refresh
+            this page in a few moments to see the updated status.
+          </p>
+        </div>
+      )}
+
+      {cancelled && (
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          Your Pro subscription has been cancelled successfully.
         </div>
       )}
 
@@ -118,10 +179,10 @@ export default function BillingPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {isPro && (
-            <div className="flex items-start gap-3 rounded-[var(--radius-md)] bg-success-bg px-4 py-3">
-              <Crown className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
-              <div>
-                <p className="text-body-sm font-medium text-text-primary">
+            <div className="flex items-start gap-3 rounded-xl border border-teal-500/20 bg-teal-500/8 px-4 py-3">
+              <Crown className="mt-0.5 h-4 w-4 shrink-0 text-teal-400" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-teal-200">
                   Pro subscription is active
                 </p>
                 <p className="mt-0.5 text-body-sm text-text-secondary">
@@ -129,6 +190,17 @@ export default function BillingPage() {
                 </p>
               </div>
             </div>
+          )}
+
+          {isPro && (
+            <Button
+              variant="outline"
+              className="w-full rounded-full border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+              disabled={cancelling}
+              onClick={() => setShowCancelDialog(true)}
+            >
+              Cancel Subscription
+            </Button>
           )}
 
           {isTrial && (
@@ -159,7 +231,7 @@ export default function BillingPage() {
           {isPending && (
             <p className="text-body-sm text-text-secondary">
               Payment pending confirmation. If you have completed checkout, it
-              may take a moment to reflect here.
+              may take a moment to reflect here. Refresh the page to see updates.
             </p>
           )}
 
@@ -189,6 +261,18 @@ export default function BillingPage() {
               </span>
             </div>
             <div className="flex items-center justify-between py-2">
+              <span className="text-zinc-400">Portfolio visit analytics</span>
+              <span
+                className={
+                  billing?.access?.canUseAnalytics
+                    ? "text-teal-400"
+                    : "text-zinc-600"
+                }
+              >
+                {billing?.access?.canUseAnalytics ? "Unlocked" : "Locked"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between py-2">
               <span className="text-text-secondary">Live preview slots</span>
               <span className="text-text-primary">
                 {isPro ? "Unlimited" : "2 included"}
@@ -197,17 +281,29 @@ export default function BillingPage() {
           </div>
 
           {!isPro && paymentsReady && (
-            <Button
-              className="w-full"
-              disabled={subscribing || isPending}
-              onClick={subscribe}
-            >
-              {subscribing
-                ? "Opening checkout…"
-                : isPending
-                  ? "Payment pending…"
-                  : "Upgrade to Pro — ₹599/month"}
-            </Button>
+            <div className="space-y-4">
+              <BillingIntervalToggle
+                value={billingInterval}
+                onChange={setBillingInterval}
+                className="w-full justify-center"
+              />
+              {!intervalCheckoutReady && (
+                <p className="text-center text-xs text-zinc-500">
+                  {getIntervalCheckoutUnavailableMessage(billingInterval)}
+                </p>
+              )}
+              <Button
+                className="w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
+                disabled={subscribing || isPending || !intervalCheckoutReady}
+                onClick={subscribe}
+              >
+                {subscribing
+                  ? "Opening checkout…"
+                  : isPending
+                    ? "Payment pending…"
+                    : `Upgrade to Pro — ${formatProPriceLabel(billingInterval)}`}
+              </Button>
+            </div>
           )}
 
           {!isPro && !paymentsReady && (
@@ -231,6 +327,13 @@ export default function BillingPage() {
       <FlowFooter
         previous={{ href: "/dashboard/settings", label: "Settings" }}
         next={{ href: "/dashboard", label: "Dashboard" }}
+      />
+
+      <CancelSubscriptionDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        onConfirm={cancelSubscription}
+        cancelling={cancelling}
       />
     </div>
   );

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Minus, ArrowRight } from "lucide-react";
 import { pricingPlans } from "@/lib/pricing";
+import { PlanPrice } from "@/features/subscriptions/components/plan-price";
 import { cn } from "@/lib/utils";
 
 export function Pricing() {
@@ -32,7 +33,7 @@ export function Pricing() {
             >
               {plan.badge && (
                 <div className="absolute right-6 top-0 -translate-y-1/2">
-                  <Badge variant="brand">Most popular</Badge>
+                  <Badge variant="brand">{plan.badge}</Badge>
                 </div>
               )}
 
@@ -41,22 +42,18 @@ export function Pricing() {
               </p>
               <h3 className="mt-1.5 text-h2 text-text-primary">{plan.name}</h3>
 
-              <div className="mt-4 flex items-baseline gap-1.5">
-                <span className="text-display text-text-primary">
-                  {plan.monthlyPrice}
-                </span>
-                {plan.pricePeriod && (
-                  <span className="text-body-sm text-text-muted">
-                    {plan.pricePeriod}
-                  </span>
-                )}
-              </div>
+              <PlanPrice
+                amount={plan.monthlyAmount}
+                period={plan.pricePeriod}
+                size="sm"
+                className="mt-4"
+              />
 
               <p className="prose-measure mt-3 text-body-sm text-text-secondary">
                 {plan.description}
               </p>
 
-              <ul className="mt-6 mb-7 flex flex-col gap-3">
+              <ul className="mb-7 mt-6 flex flex-col gap-3">
                 {plan.features.map((f) => (
                   <li
                     key={f.label}
@@ -108,7 +105,7 @@ export function Pricing() {
           <span className="mx-2" aria-hidden>
             &middot;
           </span>
-          Prices in INR &middot; Secure checkout via Razorpay
+          USD &amp; INR pricing &middot; Secure checkout via Razorpay
         </p>
       </div>
     </section>

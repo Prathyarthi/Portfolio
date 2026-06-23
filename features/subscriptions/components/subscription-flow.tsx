@@ -2,8 +2,15 @@
 
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
-import { pricingPlans } from "@/lib/pricing";
+import {
+  BILLING_INTERVALS,
+  BILLING_INTERVAL_LABELS,
+  pricingPlans,
+  type BillingInterval,
+} from "@/lib/pricing";
+import { BillingIntervalToggle } from "./billing-interval-toggle";
 import { PricingCards } from "./pricing-cards";
+import { startProCheckout } from "../lib/checkout";
 
 export function SubscriptionFlow() {
   const { data: session, status } = useSession();
@@ -14,16 +21,34 @@ export function SubscriptionFlow() {
   const [banner, setBanner] = useState<string | null>(null);
   const [billingLoading, setBillingLoading] = useState(false);
   const [paymentsReady, setPaymentsReady] = useState(false);
+  const [checkoutIntervals, setCheckoutIntervals] = useState<BillingInterval[]>([
+    "monthly",
+  ]);
+  const [billingInterval, setBillingInterval] =
+    useState<BillingInterval>("monthly");
   const [paidActive, setPaidActive] = useState(false);
   const [paidPending, setPaidPending] = useState(false);
   const [accessTier, setAccessTier] = useState<"free" | "trial" | "pro" | null>(
     null
   );
   const [trialDaysRemaining, setTrialDaysRemaining] = useState(0);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => setRazorpayLoaded(true);
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     if (!user) {
       setPaymentsReady(false);
+      setCheckoutIntervals(["monthly"]);
       setPaidActive(false);
       setPaidPending(false);
       setAccessTier(null);
@@ -38,12 +63,19 @@ export function SubscriptionFlow() {
         const res = await fetch("/api/billing/me", { cache: "no-store" });
         const data = (await res.json().catch(() => ({}))) as {
           razorpayReady?: boolean;
+          availableIntervals?: BillingInterval[];
           subscription?: { status?: string } | null;
           access?: { tier?: "free" | "trial" | "pro"; trialDaysRemaining?: number };
         };
         if (cancelled) return;
 
+        const intervals =
+          data.availableIntervals?.length
+            ? data.availableIntervals
+            : (["monthly"] as BillingInterval[]);
+
         setPaymentsReady(Boolean(data.razorpayReady));
+        setCheckoutIntervals(intervals);
         setPaidActive(data.subscription?.status === "ACTIVE");
         setPaidPending(data.subscription?.status === "PENDING");
         setAccessTier(data.access?.tier ?? null);
@@ -51,6 +83,7 @@ export function SubscriptionFlow() {
       } catch {
         if (cancelled) return;
         setPaymentsReady(false);
+        setCheckoutIntervals(["monthly"]);
         setPaidActive(false);
         setPaidPending(false);
         setAccessTier(null);
@@ -70,32 +103,17 @@ export function SubscriptionFlow() {
     setBanner(null);
     setSubscribing(true);
     try {
-      const res = await fetch("/api/billing/checkout", { method: "POST" });
-      const body = (await res.json().catch(() => ({}))) as {
-        error?: string;
-        checkoutUrl?: string;
-      };
-      if (!res.ok) {
-        setBanner(
-          typeof body.error === "string"
-            ? body.error
-            : "Checkout could not be started."
-        );
-        return;
-      }
-
-      if (body.checkoutUrl) {
-        window.location.href = body.checkoutUrl;
-        return;
-      }
-
-      setBanner("Checkout link was not returned by server.");
+      await startProCheckout({
+        interval: billingInterval,
+        razorpayLoaded,
+        onError: setBanner,
+      });
     } catch {
       setBanner("Something went wrong. Please try again.");
     } finally {
       setSubscribing(false);
     }
-  }, []);
+  }, [billingInterval, razorpayLoaded]);
 
   if (authLoading || billingLoading) {
     return (
@@ -132,6 +150,23 @@ export function SubscriptionFlow() {
           for imports (resume, GitHub, LeetCode) and premium templates.
         </p>
       )}
+
+      <div className="flex flex-col items-center gap-2">
+        <BillingIntervalToggle
+          value={billingInterval}
+          onChange={setBillingInterval}
+        />
+        {user &&
+          paymentsReady &&
+          !checkoutIntervals.includes(billingInterval) && (
+            <p className="max-w-md text-center text-xs text-zinc-500">
+              {billingInterval === "quarterly" || billingInterval === "yearly"
+                ? `${BILLING_INTERVAL_LABELS[billingInterval]} checkout is not set up on this server yet. You can still compare prices — use Monthly to subscribe today.`
+                : "This billing period is not available for checkout yet."}
+            </p>
+          )}
+      </div>
+
       <PricingCards
         plans={pricingPlans}
         loggedIn={Boolean(user)}
@@ -139,6 +174,8 @@ export function SubscriptionFlow() {
         paidPending={paidPending}
         paymentsReady={paymentsReady}
         subscribing={subscribing}
+        billingInterval={billingInterval}
+        checkoutIntervals={checkoutIntervals}
         onSubscribePaid={subscribeToPaid}
       />
     </div>
