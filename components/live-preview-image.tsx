@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { getPreviewImage } from "@/lib/link-preview-code";
 import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
+import { GenerativeProjectCover } from "@/features/templates/corporate/generativeprojectcover";
 import { cn } from "@/lib/utils";
 
 interface LivePreviewImageProps {
   liveUrl?: string | null;
+  imageUrl?: string | null;
   alt: string;
   projectId?: string;
   livePreviewProjectIds?: string[] | null;
@@ -19,6 +20,7 @@ interface LivePreviewImageProps {
 
 export function LivePreviewImage({
   liveUrl,
+  imageUrl,
   alt,
   projectId,
   livePreviewProjectIds,
@@ -36,8 +38,9 @@ export function LivePreviewImage({
       ? isLivePreviewEnabledForProject(projectId, livePreviewProjectIds)
       : false);
 
-  const showPreview = enabled && Boolean(liveUrl?.trim()) && !imageFailed;
-  const src = showPreview ? getPreviewImage(liveUrl!) : undefined;
+  const coverSeed = projectId ?? alt;
+  const cachedSrc =
+    enabled && imageUrl?.trim() && !imageFailed ? imageUrl.trim() : null;
 
   return (
     <div
@@ -46,25 +49,18 @@ export function LivePreviewImage({
         containerClassName
       )}
     >
-      {src ? (
+      {cachedSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={src}
+          src={cachedSrc}
           alt={alt}
           loading={loading}
           className={cn("block h-full w-full object-cover object-top", className)}
           onError={() => setImageFailed(true)}
         />
       ) : (
-        <div
-          className={cn(
-            "flex h-full w-full items-center justify-center bg-stone-100/90 px-4",
-            placeholderClassName
-          )}
-        >
-          <p className="line-clamp-2 text-center text-sm font-medium leading-snug text-stone-500">
-            {alt}
-          </p>
+        <div className={cn("h-full w-full", placeholderClassName)}>
+          <GenerativeProjectCover seed={coverSeed} />
         </div>
       )}
     </div>

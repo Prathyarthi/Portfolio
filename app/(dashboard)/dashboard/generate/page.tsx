@@ -94,6 +94,7 @@ function parsedResumeToPortfolioData(r: ParsedResume): PortfolioData {
       label: s.label,
       items: s.items,
     })),
+    livePreviewProjectIds: [],
   };
 }
 
