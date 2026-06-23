@@ -123,6 +123,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
                       <LivePreviewImage
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
+                        imageUrl={project.imageUrl}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         containerClassName="overflow-hidden border-b-4 border-[#264653] bg-[#264653]/10"

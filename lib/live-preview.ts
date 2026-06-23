@@ -1,5 +1,5 @@
 export const FREE_TRIAL_MAX_LIVE_PREVIEWS = 2;
-export const ACTIVE_MAX_LIVE_PREVIEWS = 50;
+export const ACTIVE_MAX_LIVE_PREVIEWS = 7;
 
 export function getMaxLivePreviews(
   subscriptionStatus: string | null | undefined

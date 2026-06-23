@@ -89,11 +89,11 @@ export function ProjectLivePreviewControls({
             <Link href="/dashboard/billing" className="underline">
               Upgrade to Pro
             </Link>{" "}
-            for unlimited slots.
+            for more preview slots.
           </p>
         )}
         <p className="text-xs text-muted-foreground">
-          {isPro ? "Pro — unlimited slots" : `Free — ${maxAllowed} slots included`}
+          {isPro ? `Pro — ${maxAllowed} slots` : `Free — ${maxAllowed} slots included`}
         </p>
       </div>
     );
@@ -122,8 +122,8 @@ export function ProjectLivePreviewControls({
           </div>
           <p className="text-sm text-muted-foreground">
             {editEnabled
-              ? "This project’s live URL will be sent to Microlink on your public templates."
-              : "Turn on to show a Microlink screenshot for this project."}{" "}
+              ? "A cached live screenshot will show on your portfolio templates."
+              : "Turn on to generate a live preview screenshot for this project."}{" "}
             ({enabledCount}/{maxAllowed} used)
           </p>
         </div>
@@ -145,12 +145,12 @@ export function ProjectLivePreviewControls({
           <Link href="/dashboard/billing" className="underline">
             Upgrade to Pro
           </Link>{" "}
-          for unlimited slots.
+          for more preview slots.
         </p>
       )}
       <p className="text-xs text-muted-foreground">
         {isPro
-          ? "Pro — unlimited slots · saves when you click Save"
+          ? `Pro — ${maxAllowed} slots · saves when you click Save`
           : `Free — ${maxAllowed} slots included · saves when you click Save`}
       </p>
     </div>

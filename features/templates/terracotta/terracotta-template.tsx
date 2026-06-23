@@ -119,6 +119,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
                       <LivePreviewImage
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
+                        imageUrl={project.imageUrl}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         containerClassName="overflow-hidden bg-[#F4F1DE]"

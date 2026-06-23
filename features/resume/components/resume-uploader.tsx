@@ -8,6 +8,7 @@ import {
   useClearImportableContent,
   useCreatePortfolio,
   usePortfolio,
+  useUpdateLivePreview,
   useUpdatePortfolio,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
@@ -73,10 +74,14 @@ export function ResumeUploader() {
   const [clearBeforeImport, setClearBeforeImport] = useState(true);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [importPreviewSelection, setImportPreviewSelection] = useState<
+    string[] | null
+  >(null);
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(
     null
   );
 
+  const updateLivePreview = useUpdateLivePreview();
   const parseResume = useParseResume();
   const { data: portfolio } = usePortfolio();
   const createPortfolio = useCreatePortfolio();
@@ -107,6 +112,17 @@ export function ResumeUploader() {
       cancelled = true;
     };
   }, []);
+
+  const parsedLivePreviewCandidates = useMemo<LivePreviewCandidate[]>(() => {
+    if (!parsedData) return [];
+    return parsedData.projects
+      .map((project, index) => ({
+        id: String(index),
+        title: project.title,
+        liveUrl: normalizeUrl(project.liveUrl) ?? "",
+      }))
+      .filter((project) => project.liveUrl.trim());
+  }, [parsedData]);
 
   const livePreviewCandidates = useMemo<LivePreviewCandidate[]>(() => {
     return (
@@ -167,7 +183,17 @@ export function ResumeUploader() {
     [parseResume]
   );
 
-  const handleImport = async () => {
+  const handleImportClick = () => {
+    if (!parsedData) return;
+    if (parsedLivePreviewCandidates.length > 0) {
+      setImportPreviewSelection(null);
+      setPreviewDialogOpen(true);
+      return;
+    }
+    void handleImport();
+  };
+
+  const handleImport = async (previewCandidateIds?: string[]) => {
     if (!parsedData) return;
     setImporting(true);
 
@@ -326,18 +352,38 @@ export function ResumeUploader() {
         },
       });
 
-      toast.success("Resume data imported to your portfolio");
+      const selection =
+        previewCandidateIds ??
+        importPreviewSelection ??
+        [];
 
-      const importedLiveProjects =
-        refreshedPortfolio?.projects?.some(
-          (project: { liveUrl?: string | null }) => project.liveUrl
-        ) ?? false;
+      if (selection.length > 0 && refreshedPortfolio?.projects?.length) {
+        const projectIds: string[] = [];
+        for (const candidateId of selection) {
+          const index = Number.parseInt(candidateId, 10);
+          const parsedProject = parsedData.projects[index];
+          if (!parsedProject) continue;
 
-      if (importedLiveProjects) {
-        setPreviewDialogOpen(true);
+          const parsedLiveUrl = normalizeUrl(parsedProject.liveUrl);
+          const match = refreshedPortfolio.projects.find(
+            (project: {
+              title?: string;
+              liveUrl?: string | null;
+            }) =>
+              project.title === parsedProject.title &&
+              normalizeUrl(project.liveUrl) === parsedLiveUrl
+          );
+          if (match?.id) projectIds.push(match.id);
+        }
+
+        if (projectIds.length > 0) {
+          await updateLivePreview.mutateAsync(projectIds);
+        }
       }
 
+      toast.success("Resume data imported to your portfolio");
       setParsedData(null);
+      setImportPreviewSelection(null);
     } catch (error: any) {
       toast.error(error.message || "Failed to import data");
     } finally {
@@ -492,9 +538,15 @@ export function ResumeUploader() {
       <LivePreviewSelectionDialog
         open={previewDialogOpen}
         onOpenChange={setPreviewDialogOpen}
-        candidates={livePreviewCandidates}
+        candidates={parsedData ? parsedLivePreviewCandidates : livePreviewCandidates}
         selectedProjectIds={selectedLivePreviewProjectIds}
         subscriptionStatus={subscriptionStatus}
+        variant={parsedData ? "pre-import" : "save"}
+        isConfirming={importing}
+        onConfirm={async (projectIds) => {
+          setImportPreviewSelection(projectIds);
+          await handleImport(projectIds);
+        }}
         onSaved={() => {
           toast.success("Live preview selection saved");
         }}
@@ -742,7 +794,7 @@ export function ResumeUploader() {
           )}
 
           <div className="flex justify-end pt-4">
-            <Button onClick={handleImport} disabled={importing} size="lg">
+            <Button onClick={handleImportClick} disabled={importing} size="lg">
               {importing ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (

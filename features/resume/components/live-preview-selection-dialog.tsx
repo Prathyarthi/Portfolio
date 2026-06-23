@@ -18,6 +18,7 @@ import { useUpdateLivePreview } from "@/features/portfolio/api/use-portfolio";
 import {
   getMaxLivePreviews,
   isProSubscriptionStatus,
+  sanitizeLivePreviewProjectIds,
 } from "@/lib/live-preview";
 import { toast } from "sonner";
 
@@ -33,7 +34,11 @@ interface LivePreviewSelectionDialogProps {
   candidates: LivePreviewCandidate[];
   selectedProjectIds: string[];
   subscriptionStatus: string | null;
+  /** save = persist to API; pre-import = return selection to parent (e.g. before resume import) */
+  variant?: "save" | "pre-import";
+  onConfirm?: (projectIds: string[]) => void | Promise<void>;
   onSaved?: () => void;
+  isConfirming?: boolean;
 }
 
 export function LivePreviewSelectionDialog({
@@ -42,7 +47,10 @@ export function LivePreviewSelectionDialog({
   candidates,
   selectedProjectIds,
   subscriptionStatus,
+  variant = "save",
+  onConfirm,
   onSaved,
+  isConfirming = false,
 }: LivePreviewSelectionDialogProps) {
   const maxAllowed = getMaxLivePreviews(subscriptionStatus);
   const isPro = isProSubscriptionStatus(subscriptionStatus);
@@ -79,9 +87,34 @@ export function LivePreviewSelectionDialog({
     });
   }
 
+  function buildSanitizedIds(): string[] {
+    return sanitizeLivePreviewProjectIds(
+      selectedIds,
+      eligibleCandidates.map((item) => ({
+        id: item.id,
+        liveUrl: item.liveUrl,
+      })),
+      maxAllowed
+    );
+  }
+
   async function handleSave() {
+    const sanitized = buildSanitizedIds();
+
+    if (variant === "pre-import") {
+      try {
+        await onConfirm?.(sanitized);
+        onOpenChange(false);
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to continue import"
+        );
+      }
+      return;
+    }
+
     try {
-      await updateLivePreview.mutateAsync(selectedIds);
+      await updateLivePreview.mutateAsync(sanitized);
       onSaved?.();
       onOpenChange(false);
     } catch (error) {
@@ -93,13 +126,19 @@ export function LivePreviewSelectionDialog({
     }
   }
 
+  const isPending = variant === "pre-import" ? isConfirming : updateLivePreview.isPending;
+  const confirmLabel =
+    variant === "pre-import" ? "Import to portfolio" : "Save selection";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Choose live preview links</DialogTitle>
           <DialogDescription>
-            Choose which projects should show a live preview in the Projects section.
+            {variant === "pre-import"
+              ? "Select which imported projects should show a live preview. You can change this later in Projects."
+              : "Choose which projects should show a live preview in the Projects section."}
           </DialogDescription>
         </DialogHeader>
 
@@ -123,7 +162,7 @@ export function LivePreviewSelectionDialog({
           </p>
           {exceedsPlan && (
             <p className="text-destructive">
-              Please upgrade the plan for more preview links.
+              Only the first {maxAllowed} selections will be used on your plan.
             </p>
           )}
         </div>
@@ -161,8 +200,7 @@ export function LivePreviewSelectionDialog({
                     </a>
                     {isOverLimit && (
                       <p className="text-xs text-destructive">
-                        Exceeds your plan limit — please upgrade the plan for more
-                        preview links.
+                        Exceeds your plan limit.
                       </p>
                     )}
                   </div>
@@ -204,14 +242,12 @@ export function LivePreviewSelectionDialog({
           <Button
             type="button"
             onClick={handleSave}
-            disabled={
-              eligibleCandidates.length === 0 || updateLivePreview.isPending
-            }
+            disabled={eligibleCandidates.length === 0 || isPending}
           >
-            {updateLivePreview.isPending ? (
+            {isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
-            Save selection
+            {confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,6 @@
 import { encode } from 'qss';
 
+/** @deprecated Use server-cached project.imageUrl instead of client-side Microlink URLs. */
 export function getPreviewImage(url: string): string {
   const params = encode({
     url,

@@ -199,6 +199,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                       <LivePreviewImage
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
+                        imageUrl={project.imageUrl}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         loading="lazy"

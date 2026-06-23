@@ -13,6 +13,7 @@ import {
   getMaxLivePreviews,
   sanitizeLivePreviewProjectIds,
 } from "@/lib/live-preview";
+import { syncLivePreviewImages, healMissingLivePreviewImages } from "@/lib/sync-live-preview-images";
 
 function toDateOrThrow(value: string) {
   const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -107,6 +108,18 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       if (!existing) {
         ctx.set.status = 404;
         return { error: "Portfolio not found" };
+      }
+
+      const healed = await healMissingLivePreviewImages(
+        existing.id,
+        existing.livePreviewProjectIds ?? []
+      );
+      if (healed) {
+        const refreshed = await prisma.portfolio.findUnique({
+          where: { userId: session.userId },
+          include: portfolioInclude,
+        });
+        return refreshed ?? existing;
       }
 
       return existing;
@@ -816,10 +829,28 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 401;
         return { error: "Unauthorized" };
       }
-      return prisma.project.update({
+      const updated = await prisma.project.update({
         where: { id: ctx.params.id },
         data: ctx.body,
       });
+
+      if ("liveUrl" in ctx.body) {
+        const portfolio = await prisma.portfolio.findFirst({
+          where: {
+            userId: session.userId,
+            projects: { some: { id: ctx.params.id } },
+          },
+          select: { id: true, livePreviewProjectIds: true },
+        });
+        if (portfolio) {
+          await syncLivePreviewImages(
+            portfolio.id,
+            portfolio.livePreviewProjectIds
+          );
+        }
+      }
+
+      return updated;
     },
     {
       body: t.Partial(
@@ -1230,7 +1261,14 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         include: portfolioInclude,
       });
 
-      return updated;
+      await syncLivePreviewImages(portfolio.id, livePreviewProjectIds);
+
+      const synced = await prisma.portfolio.findUnique({
+        where: { id: portfolio.id },
+        include: portfolioInclude,
+      });
+
+      return synced ?? updated;
     },
     {
       body: t.Object({
