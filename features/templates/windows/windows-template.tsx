@@ -1,5 +1,6 @@
 import type { PortfolioData } from "../types";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -13,7 +14,13 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
   SocialPills,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -50,7 +57,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#3a6ea5] text-black font-sans selection:bg-[#000080] selection:text-white pb-16 relative">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#3a6ea5] text-black font-sans selection:bg-[#000080] selection:text-white pb-16 relative")}>
       <div className="mx-auto max-w-5xl p-4 md:p-8 space-y-8">
 
         {/* Header Window */}
@@ -102,11 +109,11 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
           <Window id="work" title="Explorer - Projects" icon={<FolderOpen className="w-4 h-4" />}>
             <CollapsibleList
               initial={4}
-              wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
+              wrapperClassName={cn(PROJECTS_GRID_2, "gap-4")}
               buttonClassName="col-span-full mt-4 win95-button px-4 py-1 text-sm font-bold mx-auto block"
             >
               {visibleProjects.map((project) => (
-                <div key={project.id} className="win95-outset bg-[#c0c0c0] flex flex-col">
+                <div key={project.id} className={cn(PROJECT_CARD, "win95-outset bg-[#c0c0c0] flex flex-col")}>
                   <div className="group m-2">
                     <LivePreviewImage
                       liveUrl={project.liveUrl ?? null}
@@ -120,8 +127,8 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
                     />
                   </div>
                   <div className="p-3 flex flex-col grow">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-sm truncate pr-2">{project.title}</h3>
+                    <div className={cn(PROJECT_CARD_HEADER, "mb-2")}>
+                      <h3 className={cn(PROJECT_CARD_TITLE, "font-bold text-sm pr-2")}>{project.title}</h3>
                       {project.featured && (
                         <span className="bg-[#000080] text-white text-[10px] px-1">★</span>
                       )}
@@ -307,7 +314,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
           <Window id="writing" title="Internet Explorer - Links" icon={<Globe className="w-4 h-4" />}>
             <CollapsibleList
               initial={4}
-              wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
+              wrapperClassName={cn(PROJECTS_GRID_2, "gap-4")}
               buttonClassName="col-span-full mt-4 win95-button px-4 py-1 text-sm font-bold mx-auto block"
             >
               {articles.map((article) => (

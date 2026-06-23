@@ -12,6 +12,11 @@ import {
   CustomSectionItems,
   DescriptionBlock,
   ProfileLinksSection,
+  PROJECT_CARD,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
+  TEMPLATE_CONTAINER,
 } from "../shared";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import {
@@ -51,9 +56,9 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
     socialProfiles.length > 0 ||
     Boolean(
       portfolio.contactEmail ||
-        portfolio.phone ||
-        portfolio.websiteUrl ||
-        portfolio.location
+      portfolio.phone ||
+      portfolio.websiteUrl ||
+      portfolio.location
     );
 
   useEffect(() => {
@@ -135,7 +140,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
       <div
         id="top"
-        className="spotlight-root min-h-screen bg-[#fbfffe] text-gray-950"
+        className={cn(TEMPLATE_CONTAINER, "spotlight-root min-h-screen bg-[#fbfffe] text-gray-950")}
         style={{
           fontFamily: "'Made Tommy', 'Made Tommy 2', ui-sans-serif, system-ui, sans-serif",
         }}
@@ -287,8 +292,8 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
               <CollapsibleList
                 initial={4}
-                wrapperClassName="mb-16 grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2"
-                buttonClassName="md:col-span-2 rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
+                wrapperClassName={cn(PROJECTS_GRID_2, "mb-16 gap-8")}
+                buttonClassName="@md:col-span-2 rounded-full border border-gray-200 bg-white px-6 py-2 text-sm font-medium text-gray-950 transition-colors hover:border-[hsl(45,100%,60%)]"
               >
                 {projects.map((project) => (
                   <ProjectCard
@@ -624,7 +629,7 @@ function ProjectCard({
   const hasLinks = Boolean(project.liveUrl || project.sourceUrl);
 
   return (
-    <article className="group flex h-full w-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(45,100%,60%)] hover:shadow-lg">
+    <article className={cn(PROJECT_CARD, "group flex h-full w-full flex-col rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[hsl(45,100%,60%)] hover:shadow-lg")}>
       <div className="h-1 w-full bg-[hsl(45,100%,60%)]/70" />
 
       <LivePreviewImage
@@ -636,8 +641,8 @@ function ProjectCard({
       />
 
       <div className="flex flex-1 flex-col gap-4 p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="text-lg font-semibold tracking-tight text-gray-950">{project.title}</h3>
+        <div className={PROJECT_CARD_HEADER}>
+          <h3 className={cn(PROJECT_CARD_TITLE, "text-lg font-semibold tracking-tight text-gray-950")}>{project.title}</h3>
           {hasLinks ? (
             <ExternalLink size={18} className="mt-0.5 shrink-0 text-gray-700 transition-colors group-hover:text-gray-950" />
           ) : null}

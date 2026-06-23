@@ -10,7 +10,11 @@ import {
   buildTemplateSections,
   SocialPills,
   ContactChips,
-  CustomSectionItems
+  CustomSectionItems,
+  PROJECT_CARD,
+  PROJECT_CARD_TITLE,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
 } from "../shared";
 import { LivePreviewImage } from "@/components/live-preview-image";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -39,9 +43,9 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
   const contributionCalendar = parseContributionCalendar(githubStats?.contributionCalendar);
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#3D405B] font-serif overflow-x-hidden">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#FDFBF7] text-[#3D405B] font-serif overflow-x-hidden")}>
       <div className="mx-auto max-w-6xl px-6 py-16 sm:px-12 md:py-24">
-        
+
         <header className="mb-24 flex flex-col md:flex-row md:items-center gap-12">
           {portfolio.avatarUrl && (
             <motion.div
@@ -75,7 +79,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
                 {portfolio.headline}
               </motion.p>
             )}
-            
+
             <div className="mt-8 flex flex-col items-start gap-4">
               <ContactChips portfolio={portfolio} chipClassName="text-sm uppercase tracking-widest text-[#E07A5F]" />
               <SocialPills profiles={socialProfiles} className="text-[#3D405B] hover:text-[#E07A5F] transition-colors p-2" />
@@ -112,9 +116,9 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
               <h2 className="mb-12 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
                 Selected Work <span className="h-px flex-1 bg-[#3D405B]/10" />
               </h2>
-              <CollapsibleList initial={4} wrapperClassName="grid gap-12 lg:grid-cols-2" buttonClassName="mt-12 mx-auto block uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
+              <CollapsibleList initial={4} wrapperClassName={cn("grid min-w-0 grid-cols-1 gap-12", "@lg:grid-cols-2")} buttonClassName="mt-12 mx-auto block uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
                 {projects.map((project) => (
-                  <article key={project.id} className="group flex flex-col gap-6">
+                  <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col gap-6")}>
                     <div className="overflow-hidden rounded-t-[50px]">
                       <LivePreviewImage
                         liveUrl={project.liveUrl ?? null}
@@ -127,7 +131,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
                       />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-medium text-[#3D405B] mb-3">{project.title}</h3>
+                      <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-medium text-[#3D405B] mb-3")}>{project.title}</h3>
                       {project.description && (
                         <p className="mb-6 text-lg leading-relaxed font-light text-[#3D405B]/80">{project.description}</p>
                       )}
@@ -187,7 +191,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
             </section>
           )}
 
-          <div className="grid gap-16 md:grid-cols-2">
+          <div className={STACKED_SECTIONS}>
             {skills.length > 0 && (
               <section className="scroll-mt-32">
                 <h2 className="mb-8 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
@@ -231,7 +235,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
           </div>
 
           {(certifications.length > 0 || achievements.length > 0) && (
-            <div className="grid gap-16 md:grid-cols-2">
+            <div className={STACKED_SECTIONS}>
               {certifications.length > 0 && (
                 <section>
                   <h2 className="mb-8 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">

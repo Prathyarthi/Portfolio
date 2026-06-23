@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,15 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
   SocialPills,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,8 +58,8 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#003366] text-white font-mono selection:bg-white selection:text-[#003366] overflow-hidden relative pb-20">
-      
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#003366] text-white font-mono selection:bg-white selection:text-[#003366] overflow-hidden relative pb-20")}>
+
       {/* Blueprint Grid Background */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20"
         style={{
@@ -65,7 +74,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
       <div className="absolute inset-0 z-0 pointer-events-none border border-white/30 m-[22px] md:m-[38px]" />
 
       <div className="mx-auto max-w-6xl px-8 md:px-16 py-20 relative z-10 space-y-24">
-        
+
         {navbarEnabled && (
           <div className="sticky top-12 z-50 flex justify-center mb-16">
             <TemplateNavbar
@@ -79,17 +88,17 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
         <header className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center border-b-2 border-white/50 pb-16 relative">
           <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white" />
           <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white" />
-          
+
           <div className="md:col-span-8">
             <div className="inline-flex items-center gap-2 border border-white/50 px-3 py-1 text-[10px] uppercase tracking-widest mb-8">
               <Crosshair className="w-3 h-3" />
               <span>FIG. 1: MAIN_PROFILE</span>
             </div>
-            
+
             <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-tighter mb-6">
               {portfolio.title}
             </h1>
-            
+
             {portfolio.headline && (
               <p className="text-xl md:text-2xl text-white/80 uppercase tracking-widest max-w-2xl mb-10">
                 {portfolio.headline}
@@ -156,11 +165,11 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
             <SectionHeading number="02">SCHEMATICS</SectionHeading>
             <CollapsibleList
               initial={4}
-              wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-8"
+              wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
               buttonClassName="col-span-full mt-10 mx-auto block border-2 border-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#003366] transition-colors"
             >
               {visibleProjects.map((project, index) => (
-                <article key={project.id} className="group relative flex flex-col overflow-hidden border-2 border-white/50 bg-[#003366]/80 backdrop-blur-sm transition-colors hover:border-white">
+                <article key={project.id} className={cn(PROJECT_CARD, "group relative flex flex-col border-2 border-white/50 bg-[#003366]/80 backdrop-blur-sm transition-colors hover:border-white")}>
                   <div className="absolute -top-3 -left-3 bg-[#003366] px-2 text-[10px] uppercase tracking-widest text-white/50">
                     REF.{index + 1}
                   </div>
@@ -177,25 +186,27 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
                       className="h-full w-full object-cover object-top opacity-70 mix-blend-screen filter contrast-150 transition-opacity group-hover:opacity-100"
                     />
                   </div>
-                  
-                  <div className="p-6 flex flex-col grow">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <h3 className="text-xl font-bold uppercase tracking-wider">
-                        {project.title}
-                      </h3>
-                      {project.featured && (
-                        <span className="border border-white text-[10px] font-bold px-2 py-1 uppercase tracking-widest shrink-0">
-                          PRIORITY
-                        </span>
-                      )}
+
+                  <div className={cn(PROJECT_CARD_BODY, "flex flex-col grow")}>
+                    <div className={cn(PROJECT_CARD_HEADER, "mb-4")}>
+                      <div className={PROJECT_CARD_META}>
+                        <h3 className={cn(PROJECT_CARD_TITLE, "text-xl font-bold uppercase tracking-wider")}>
+                          {project.title}
+                        </h3>
+                        {project.featured && (
+                          <span className="border border-white text-[10px] font-bold px-2 py-1 uppercase tracking-widest shrink-0">
+                            PRIORITY
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    
+
                     {project.description && (
                       <p className="text-sm text-white/70 leading-relaxed mb-6 grow">
                         {project.description}
                       </p>
                     )}
-                    
+
                     <div className="flex flex-wrap gap-2 mb-6">
                       {project.techStack.map((tech) => (
                         <span key={tech} className="bg-white/10 text-[10px] uppercase tracking-widest px-2 py-1">
@@ -203,7 +214,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
                         </span>
                       ))}
                     </div>
-                    
+
                     <div className="mt-auto pt-4 border-t border-white/30 flex gap-4">
                       <ProjectActions
                         liveUrl={project.liveUrl}
@@ -309,7 +320,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
         </div>
 
         {(certifications.length > 0 || achievements.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+          <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
                 <SectionHeading number="06">CERTIFICATES</SectionHeading>
@@ -424,7 +435,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
               <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white" />
               <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-white" />
               <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white" />
-              
+
               <h2 className="text-2xl font-bold uppercase tracking-widest mb-8">NETWORK_LINKS</h2>
               <div className="flex justify-center">
                 <ProfileLinksSection

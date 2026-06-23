@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,15 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
   SocialPills,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,7 +58,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#050505] text-[#00ff00] font-mono selection:bg-[#ff00ff] selection:text-white overflow-hidden relative pb-20">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#050505] text-[#00ff00] font-mono selection:bg-[#ff00ff] selection:text-white overflow-hidden relative pb-20")}>
       {/* Grid Background */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20"
         style={{
@@ -149,11 +158,11 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
             <SectionHeading icon={<Zap className="w-5 h-5" />}>Execute.Projects()</SectionHeading>
             <CollapsibleList
               initial={4}
-              wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-6"
+              wrapperClassName={PROJECTS_GRID_2}
               buttonClassName="col-span-full mt-8 mx-auto block border border-[#00ffff] bg-transparent px-8 py-3 text-xs font-bold uppercase tracking-widest text-[#00ffff] transition-colors hover:bg-[#00ffff] hover:text-black shadow-[0_0_15px_rgba(0,255,255,0.3)]"
             >
               {visibleProjects.map((project) => (
-                <article key={project.id} className="group relative border border-[#00ff00]/30 bg-[#050505] overflow-hidden hover:border-[#00ff00] transition-colors">
+                <article key={project.id} className={cn(PROJECT_CARD, "group relative border border-[#00ff00]/30 bg-[#050505] hover:border-[#00ff00] transition-colors")}>
                   <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#00ff00] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                   <div className="relative border-b border-[#00ff00]/30">
@@ -170,16 +179,18 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
                     <div className="pointer-events-none absolute inset-0 bg-[#00ff00]/10 mix-blend-overlay" />
                   </div>
 
-                  <div className="p-6 flex flex-col grow">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <h3 className="text-xl font-bold text-white uppercase tracking-wider group-hover:text-[#00ff00] transition-colors">
-                        {project.title}
-                      </h3>
-                      {project.featured && (
-                        <span className="text-[10px] font-bold uppercase tracking-widest bg-[#ff00ff] text-white px-2 py-1 shrink-0 shadow-[0_0_10px_rgba(255,0,255,0.5)]">
-                          Prime
-                        </span>
-                      )}
+                  <div className={cn(PROJECT_CARD_BODY, "flex flex-col grow")}>
+                    <div className={cn(PROJECT_CARD_HEADER, "mb-4")}>
+                      <div className={PROJECT_CARD_META}>
+                        <h3 className={cn(PROJECT_CARD_TITLE, "text-xl font-bold text-white uppercase tracking-wider group-hover:text-[#00ff00] transition-colors")}>
+                          {project.title}
+                        </h3>
+                        {project.featured && (
+                          <span className="text-[10px] font-bold uppercase tracking-widest bg-[#ff00ff] text-white px-2 py-1 shrink-0 shadow-[0_0_10px_rgba(255,0,255,0.5)]">
+                            Prime
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {project.description && (
@@ -296,7 +307,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
         {/* Certifications and Achievements */}
         {(certifications.length > 0 || achievements.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
                 <SectionHeading>Verify.Certs()</SectionHeading>

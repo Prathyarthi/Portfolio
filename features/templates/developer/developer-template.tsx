@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   formatDateRange,
   groupSkillsByCategory,
@@ -15,6 +16,12 @@ import {
   CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
+  PROJECT_CARD,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "@/features/templates/shared";
 import { CollapsibleList } from "@/features/templates/collapsible-list";
@@ -42,11 +49,8 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-green-400 font-mono selection:bg-green-400/20">
-      {/* Scanline overlay effect */}
-      <div className="pointer-events-none fixed inset-0 z-50 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.03)_2px,rgba(0,0,0,0.03)_4px)]" />
-
-      {/* Hero / whoami */}
+    <div className={cn(TEMPLATE_CONTAINER, "relative min-h-screen overflow-hidden bg-gray-950 font-mono text-green-400 selection:bg-green-400/20")}>
+      <div className="pointer-events-none absolute inset-0 z-50 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.03)_2px,rgba(0,0,0,0.03)_4px)]" />
       <header className="relative border-b border-green-900/50 bg-gray-950">
         <div className="mx-auto max-w-5xl px-5 py-14 sm:px-6 md:py-20">
           <div className="mb-2 text-sm text-gray-600">
@@ -302,15 +306,18 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
             </p>
             <CollapsibleList
               initial={4}
-              wrapperClassName="grid gap-5 md:grid-cols-2 md:gap-6"
+              wrapperClassName={cn(PROJECTS_GRID_2, "gap-5 @md:gap-6")}
               showLabel="cat ./more ({n})"
               hideLabel="collapse"
-              buttonClassName="md:col-span-2 mt-2 rounded border border-green-900/40 bg-gray-900/50 px-4 py-2 font-mono text-xs text-green-500 hover:border-green-700/60 hover:text-green-300 transition-colors"
+              buttonClassName="@md:col-span-2 mt-2 rounded border border-green-900/40 bg-gray-900/50 px-4 py-2 font-mono text-xs text-green-500 hover:border-green-700/60 hover:text-green-300 transition-colors"
             >
               {projects.map((project) => (
                 <div
                   key={project.id}
-                  className="group overflow-hidden rounded-lg border border-green-900/40 bg-gray-900/50 hover:border-green-700/60 hover:bg-gray-900/80 transition-all duration-300"
+                  className={cn(
+                    PROJECT_CARD,
+                    "group rounded-lg border border-green-900/40 bg-gray-900/50 hover:border-green-700/60 hover:bg-gray-900/80 transition-all duration-300"
+                  )}
                 >
                   <LivePreviewImage
                     liveUrl={project.liveUrl ?? null}
@@ -321,10 +328,10 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                     placeholderClassName="bg-gray-900/80"
                   />
                   <div className="p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-base font-semibold text-green-300 group-hover:text-green-200 transition-colors truncate">
+                    <div className={PROJECT_CARD_HEADER}>
+                      <div className="min-w-0 flex-1">
+                        <div className={PROJECT_CARD_META}>
+                          <h3 className={cn(PROJECT_CARD_TITLE, "text-base font-semibold text-green-300 group-hover:text-green-200 transition-colors")}>
                             {project.title}
                           </h3>
                           {project.featured && (

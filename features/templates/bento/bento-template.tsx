@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,15 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_3,
   SocialPills,
+  BENTO_GRID,
+  SPLIT_CARD_ROW,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,7 +58,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-zinc-50 text-zinc-900 font-sans")}>
       <div className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 md:px-8 md:pb-24 md:pt-12">
         {navbarEnabled && (
           <div className="mb-8 flex justify-center">
@@ -61,9 +70,9 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]">
+        <div className={BENTO_GRID}>
           {/* Hero Bento Box */}
-          <header className="col-span-1 md:col-span-2 lg:col-span-3 row-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50 flex flex-col justify-between relative overflow-hidden group">
+          <header className="col-span-1 @md:col-span-2 @lg:col-span-3 row-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50 flex flex-col justify-between relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-blue-100/40 to-purple-100/40 rounded-full blur-3xl -mr-20 -mt-20 transition-transform duration-700 group-hover:scale-110" />
             <div className="relative z-10">
               <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-zinc-900 mb-4">
@@ -89,7 +98,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Avatar Bento Box */}
           {portfolio.avatarUrl && (
-            <div className="col-span-1 row-span-1 md:row-span-2 rounded-3xl bg-white shadow-sm border border-zinc-200/50 overflow-hidden relative group">
+            <div className="col-span-1 row-span-1 @md:row-span-2 rounded-3xl bg-white shadow-sm border border-zinc-200/50 overflow-hidden relative group">
               <img
                 src={portfolio.avatarUrl}
                 alt={portfolio.title}
@@ -101,7 +110,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* About Bento Box */}
           {portfolio.summary && (
-            <section id="about" className="col-span-1 md:col-span-3 lg:col-span-2 row-span-1 rounded-3xl bg-zinc-900 text-zinc-50 p-8 shadow-sm overflow-hidden relative">
+            <section id="about" className="col-span-1 @md:col-span-3 @lg:col-span-2 row-span-1 rounded-3xl bg-zinc-900 text-zinc-50 p-8 shadow-sm overflow-hidden relative">
               <div className="absolute -right-10 -bottom-10 opacity-10">
                 <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
               </div>
@@ -119,7 +128,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Social Links Bento Box */}
           {socialProfiles.length > 0 && (
-            <div className="col-span-1 lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50 flex flex-col justify-center">
+            <div className="col-span-1 @lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50 flex flex-col justify-center">
               <h2 className="text-lg font-semibold text-zinc-400 mb-4 flex items-center">
                 <span className="w-2 h-2 rounded-full bg-zinc-300 mr-2" />
                 Connect
@@ -134,23 +143,26 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Work Bento Box (Spans full width) */}
           {visibleProjects.length > 0 && (
-            <section id="work" className="col-span-1 md:col-span-3 lg:col-span-4 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+            <section id="work" className="col-span-1 @md:col-span-3 @lg:col-span-4 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold text-zinc-900 flex items-center">
                   <span className="w-3 h-3 rounded-full bg-blue-500 mr-3" />
                   Selected Work
                 </h2>
               </div>
-              
+
               <CollapsibleList
                 initial={4}
-                wrapperClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                wrapperClassName={PROJECTS_GRID_3}
                 buttonClassName="col-span-full mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-600 transition-colors hover:bg-white hover:border-zinc-300"
               >
                 {visibleProjects.map((project) => (
                   <article
                     key={project.id}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200/60 bg-zinc-50/50 transition-all hover:border-zinc-300/80 hover:bg-white hover:shadow-md"
+                    className={cn(
+                      PROJECT_CARD,
+                      "group flex flex-col rounded-2xl border border-zinc-200/60 bg-zinc-50/50 transition-all hover:border-zinc-300/80 hover:bg-white hover:shadow-md"
+                    )}
                   >
                     <LivePreviewImage
                       liveUrl={project.liveUrl ?? null}
@@ -162,10 +174,10 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                       placeholderClassName="bg-zinc-100 [&_p]:text-sm [&_p]:font-semibold [&_p]:text-zinc-500"
                       className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="flex flex-col grow p-5">
-                      <div className="mb-3 flex items-start justify-between gap-3">
+                    <div className={cn(PROJECT_CARD_BODY, "flex flex-col grow p-5")}>
+                      <div className={cn(PROJECT_CARD_HEADER, "mb-3")}>
                         <div className="min-w-0 flex-1">
-                          <h3 className="text-lg font-bold text-zinc-900 transition-colors group-hover:text-blue-600">
+                          <h3 className={cn(PROJECT_CARD_TITLE, "text-lg font-bold text-zinc-900 transition-colors group-hover:text-blue-600")}>
                             {project.title}
                           </h3>
                           {project.language && (
@@ -192,27 +204,27 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                       {(project.techStack.length > 0 ||
                         project.githubStars !== null ||
                         project.githubForks !== null) && (
-                        <div className="mb-4 flex flex-wrap gap-2">
-                          {project.techStack.map((tech) => (
-                            <span
-                              key={tech}
-                              className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                          {project.githubStars !== null && (
-                            <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
-                              {project.githubStars} stars
-                            </span>
-                          )}
-                          {project.githubForks !== null && (
-                            <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
-                              {project.githubForks} forks
-                            </span>
-                          )}
-                        </div>
-                      )}
+                          <div className="mb-4 flex flex-wrap gap-2">
+                            {project.techStack.map((tech) => (
+                              <span
+                                key={tech}
+                                className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600"
+                              >
+                                {tech}
+                              </span>
+                            ))}
+                            {project.githubStars !== null && (
+                              <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
+                                {project.githubStars} stars
+                              </span>
+                            )}
+                            {project.githubForks !== null && (
+                              <span className="rounded-md bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600">
+                                {project.githubForks} forks
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                       <div className="mt-auto border-t border-zinc-100 pt-4">
                         <ProjectActions
@@ -231,7 +243,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Experience Bento Box */}
           {experiences.length > 0 && (
-            <section id="experience" className="col-span-1 md:col-span-2 lg:col-span-2 row-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+            <section id="experience" className="col-span-1 @md:col-span-2 @lg:col-span-2 row-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-purple-500 mr-3" />
                 Experience
@@ -273,7 +285,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Skills Bento Box */}
           {skills.length > 0 && (
-            <section className="col-span-1 md:col-span-1 lg:col-span-2 row-span-1 rounded-3xl bg-blue-600 p-8 shadow-sm text-white overflow-hidden relative">
+            <section className="col-span-1 @md:col-span-1 @lg:col-span-2 row-span-1 rounded-3xl bg-blue-600 p-8 shadow-sm text-white overflow-hidden relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
               <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-2xl -ml-20 -mb-20" />
               <h2 className="text-xl font-bold text-white mb-6 relative z-10">Skills & Tools</h2>
@@ -301,7 +313,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Education Bento Box */}
           {educations.length > 0 && (
-            <section className="col-span-1 md:col-span-2 lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+            <section className="col-span-1 @md:col-span-2 @lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-orange-500 mr-3" />
                 Education
@@ -334,7 +346,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Articles Bento Box */}
           {articles.length > 0 && (
-            <section id="writing" className="col-span-1 md:col-span-1 lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+            <section id="writing" className="col-span-1 @md:col-span-1 @lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-green-500 mr-3" />
                 Writing
@@ -373,7 +385,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* GitHub Activity Bento Box */}
           {contributionCalendar && (
-            <section className="col-span-1 md:col-span-3 lg:col-span-4 rounded-3xl bg-zinc-900 p-8 shadow-sm text-white">
+            <section className="col-span-1 @md:col-span-3 @lg:col-span-4 rounded-3xl bg-zinc-900 p-8 shadow-sm text-white">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-zinc-500 mr-3" />
                 GitHub Activity
@@ -394,7 +406,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
           {(certifications.length > 0 || achievements.length > 0) && (
             <>
               {certifications.length > 0 && (
-                <section className="col-span-1 md:col-span-2 lg:col-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+                <section className="col-span-full rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
                   <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                     <span className="w-3 h-3 rounded-full bg-yellow-500 mr-3" />
                     Certifications
@@ -405,8 +417,8 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                     buttonClassName="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-zinc-600 transition-colors hover:bg-white hover:border-zinc-300"
                   >
                     {certifications.map((cert) => (
-                      <article key={cert.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-zinc-50 transition-colors">
-                        <div>
+                      <article key={cert.id} className={cn(SPLIT_CARD_ROW, "p-3 rounded-xl hover:bg-zinc-50 transition-colors")}>
+                        <div className="min-w-0">
                           <h3 className="font-semibold text-zinc-900 text-sm">
                             {cert.url ? <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{cert.name}</a> : cert.name}
                           </h3>
@@ -424,7 +436,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {achievements.length > 0 && (
-                <section className="col-span-1 md:col-span-2 lg:col-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+                <section className="col-span-full rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
                   <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                     <span className="w-3 h-3 rounded-full bg-red-500 mr-3" />
                     Achievements
@@ -457,7 +469,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
           {/* Custom Sections */}
           {customSections.length > 0 && customSections.map((cs) => (
-            <section key={cs.id} className="col-span-1 md:col-span-2 lg:col-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
+            <section key={cs.id} className="col-span-1 @md:col-span-2 @lg:col-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-teal-500 mr-3" />
                 {cs.label}
@@ -474,7 +486,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
           {hasProfiles && (
             <section
               id="profiles"
-              className="col-span-1 md:col-span-3 lg:col-span-4 scroll-mt-24 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50"
+              className="col-span-1 @md:col-span-3 @lg:col-span-4 scroll-mt-24 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50"
             >
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-indigo-500 mr-3" />

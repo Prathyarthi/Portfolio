@@ -20,6 +20,38 @@ const TEMPLATE_SECTION_LABELS: Record<TemplateSectionId, string> = {
 
 const HERO_PROFILE_PLATFORMS = ["github", "linkedin"] as const;
 
+/** Enables container-query breakpoints inside templates (mobile preview, narrow embeds). */
+export const TEMPLATE_CONTAINER = "@container min-w-0 w-full overflow-x-clip";
+
+/** Project grids sized by template width, not viewport. */
+export const PROJECTS_GRID_2 =
+  "grid min-w-0 grid-cols-1 gap-6 @md:grid-cols-2 [&>*]:min-w-0";
+export const PROJECTS_GRID_3 =
+  "grid min-w-0 grid-cols-1 gap-6 @md:grid-cols-2 @lg:grid-cols-3 [&>*]:min-w-0";
+
+export const PROJECT_CARD = "min-w-0 overflow-hidden";
+export const PROJECT_CARD_BODY = "min-w-0 p-5 @sm:p-6";
+export const PROJECT_CARD_HEADER =
+  "flex min-w-0 flex-col gap-3 @md:flex-row @md:items-start @md:justify-between";
+export const PROJECT_CARD_TITLE = "min-w-0 text-balance [overflow-wrap:anywhere]";
+export const PROJECT_CARD_META = "min-w-0 flex flex-wrap items-center gap-2";
+export const PROJECT_CARD_ACTIONS = "shrink-0";
+
+/** Stack related sections vertically (certifications, achievements, etc.). */
+export const STACKED_SECTIONS = "flex min-w-0 flex-col gap-8 @lg:gap-12";
+
+/** Two related sections side-by-side only when the template is wide enough. */
+export const SPLIT_SECTIONS_GRID =
+  "grid min-w-0 grid-cols-1 gap-8 @md:grid-cols-2 [&>*]:min-w-0";
+
+/** Certification / achievement card header row. */
+export const SPLIT_CARD_ROW =
+  "flex min-w-0 flex-col gap-3 @md:flex-row @md:items-center @md:justify-between";
+
+/** Bento template main grid — sized by template width, not viewport. */
+export const BENTO_GRID =
+  "grid min-w-0 grid-cols-1 gap-4 auto-rows-[minmax(180px,auto)] @md:grid-cols-3 @lg:grid-cols-4 [&>*]:min-w-0";
+
 export function getTemplateNavbarCustomization(
   customization: PortfolioCustomization | Record<string, unknown> | null | undefined
 ): TemplateNavbarCustomization {
@@ -88,7 +120,7 @@ export function TemplateNavbar({
   return (
     <nav
       className={cn(
-        "sticky top-0 z-30 overflow-x-auto border backdrop-blur-xl",
+        "sticky top-0 z-30 w-full min-w-0 max-w-full overflow-x-auto border backdrop-blur-xl",
         className
       )}
     >

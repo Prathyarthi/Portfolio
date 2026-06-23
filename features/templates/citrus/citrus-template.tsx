@@ -10,7 +10,11 @@ import {
   buildTemplateSections,
   SocialPills,
   ContactChips,
-  CustomSectionItems
+  CustomSectionItems,
+  PROJECT_CARD,
+  PROJECT_CARD_TITLE,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
 } from "../shared";
 import { LivePreviewImage } from "@/components/live-preview-image";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -39,9 +43,9 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
   const contributionCalendar = parseContributionCalendar(githubStats?.contributionCalendar);
 
   return (
-    <div className="min-h-screen bg-[#FFFCF2] text-[#264653] font-sans font-medium overflow-x-hidden">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#FFFCF2] text-[#264653] font-sans font-medium overflow-x-hidden")}>
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8 md:py-20">
-        
+
         {navbarEnabled && (
           <nav className="mb-16">
             <TemplateNavbar
@@ -55,7 +59,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
         <header className="mb-24 relative">
           <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 bg-[#E9C46A] rounded-full mix-blend-multiply blur-2xl opacity-60 pointer-events-none" />
           <div className="absolute top-20 right-40 w-48 h-48 bg-[#F4A261] rounded-full mix-blend-multiply blur-2xl opacity-60 pointer-events-none" />
-          
+
           <div className="relative z-10 flex flex-col md:flex-row gap-12 items-start">
             <div className="flex-1">
               <motion.h1
@@ -75,13 +79,13 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
                   {portfolio.headline}
                 </motion.p>
               )}
-              
+
               <div className="mt-8 flex flex-col gap-4">
                 <ContactChips portfolio={portfolio} chipClassName="text-sm font-bold text-[#264653] bg-[#E9C46A]/30 px-3 py-1.5 rounded" />
                 <SocialPills profiles={socialProfiles} className="bg-[#264653] hover:bg-[#F4A261] text-white rounded p-2 transition-colors" />
               </div>
             </div>
-            
+
             {portfolio.avatarUrl && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -115,9 +119,9 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
           {projects.length > 0 && (
             <section id="work" className="scroll-mt-32">
               <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">Projects</h2>
-              <CollapsibleList initial={4} wrapperClassName="grid gap-12 lg:grid-cols-2" buttonClassName="mt-12 mx-auto bg-[#264653] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#F4A261] transition-colors">
+              <CollapsibleList initial={4} wrapperClassName={cn("grid min-w-0 grid-cols-1 gap-12", "@lg:grid-cols-2")} buttonClassName="mt-12 mx-auto bg-[#264653] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#F4A261] transition-colors">
                 {projects.map((project) => (
-                  <article key={project.id} className="group relative">
+                  <article key={project.id} className={cn(PROJECT_CARD, "group relative")}>
                     <div className="absolute inset-0 bg-[#E9C46A] translate-x-3 translate-y-3 rounded-2xl transition-transform group-hover:translate-x-4 group-hover:translate-y-4" />
                     <div className="relative flex flex-col overflow-hidden rounded-2xl border-4 border-[#264653] bg-white h-full">
                       <LivePreviewImage
@@ -130,7 +134,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
                         className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="p-8 flex-1 flex flex-col">
-                        <h3 className="text-2xl font-black text-[#264653] mb-4 uppercase">{project.title}</h3>
+                        <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-black text-[#264653] mb-4 uppercase")}>{project.title}</h3>
                         {project.description && (
                           <p className="mb-6 text-lg text-[#264653]/80">{project.description}</p>
                         )}
@@ -185,7 +189,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
             </section>
           )}
 
-          <div className="grid gap-16 md:grid-cols-2">
+          <div className={STACKED_SECTIONS}>
             {skills.length > 0 && (
               <section className="scroll-mt-32">
                 <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">Skills</h2>
@@ -225,7 +229,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
           </div>
 
           {(certifications.length > 0 || achievements.length > 0) && (
-            <div className="grid gap-16 md:grid-cols-2">
+            <div className={STACKED_SECTIONS}>
               {certifications.length > 0 && (
                 <section>
                   <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">Certs</h2>

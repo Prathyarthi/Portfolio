@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,15 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
   SocialPills,
+  SPLIT_CARD_ROW,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,7 +58,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#030014] text-slate-300 font-sans selection:bg-cyan-500/30 overflow-hidden relative">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#030014] text-slate-300 font-sans selection:bg-cyan-500/30 overflow-hidden relative")}>
       {/* Deep Space Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-600/10 blur-[150px]" />
@@ -79,16 +88,16 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
               />
             </div>
           )}
-          
+
           <div className="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-950/30 px-4 py-1.5 text-sm font-medium text-cyan-300 mb-6 backdrop-blur-sm shadow-[0_0_15px_rgba(6,182,212,0.2)]">
             <Rocket className="w-4 h-4 mr-2" />
             Mission Control
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-slate-400 mb-6">
             {portfolio.title}
           </h1>
-          
+
           {portfolio.headline && (
             <p className="text-xl md:text-2xl text-cyan-100/60 font-medium max-w-3xl mb-10 leading-relaxed">
               {portfolio.headline}
@@ -136,13 +145,16 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
               <SectionHeading>Projects</SectionHeading>
               <CollapsibleList
                 initial={4}
-                wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-8"
+                wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
                 buttonClassName="col-span-full mt-8 mx-auto rounded-full border border-cyan-500/30 bg-cyan-950/30 px-8 py-3 text-sm font-semibold uppercase tracking-wider text-cyan-400 transition-all hover:bg-cyan-900/50 hover:border-cyan-400/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
               >
                 {visibleProjects.map((project) => (
                   <article
                     key={project.id}
-                    className="group flex flex-col overflow-hidden rounded-3xl border border-cyan-900/30 bg-[#0B0F19]/60 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                    className={cn(
+                      PROJECT_CARD,
+                      "group flex flex-col rounded-3xl border border-cyan-900/30 bg-[#0B0F19]/60 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                    )}
                   >
                     <div className="relative">
                       <LivePreviewImage
@@ -157,9 +169,9 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
                       />
                       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#0B0F19] via-transparent to-transparent opacity-80" />
                     </div>
-                    <div className="relative z-20 flex flex-col grow p-8">
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <h3 className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">
+                    <div className={cn(PROJECT_CARD_BODY, "relative z-20 flex flex-col grow p-8")}>
+                      <div className={cn(PROJECT_CARD_HEADER, "mb-4")}>
+                        <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors")}>
                           {project.title}
                         </h3>
                         <ProjectActions
@@ -169,7 +181,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
                           sourceClassName="rounded-full bg-white/5 p-2 text-slate-300 hover:bg-white/20 transition-colors border border-white/10"
                         />
                       </div>
-                      
+
                       {project.description && (
                         <p className="text-slate-400 leading-relaxed mb-6 grow">
                           {project.description}
@@ -300,7 +312,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
 
           {/* Certifications and Achievements */}
           {(certifications.length > 0 || achievements.length > 0) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className={STACKED_SECTIONS}>
               {certifications.length > 0 && (
                 <section>
                   <SectionHeading>Certifications</SectionHeading>
@@ -312,9 +324,9 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
                     {certifications.map((cert) => (
                       <article
                         key={cert.id}
-                        className="rounded-2xl bg-[#0B0F19]/60 backdrop-blur-xl border border-cyan-900/30 p-6 flex items-center justify-between transition-all hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                        className={cn(SPLIT_CARD_ROW, "rounded-2xl bg-[#0B0F19]/60 backdrop-blur-xl border border-cyan-900/30 p-6 transition-all hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]")}
                       >
-                        <div>
+                        <div className="min-w-0">
                           <h3 className="text-sm font-bold text-white">
                             {cert.url ? (
                               <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">

@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,15 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
   SocialPills,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,8 +58,8 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#0b132b] text-[#e5e5e5] font-sans selection:bg-[#d4af37] selection:text-[#0b132b] overflow-hidden relative pb-20">
-      
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#0b132b] text-[#e5e5e5] font-sans selection:bg-[#d4af37] selection:text-[#0b132b] overflow-hidden relative pb-20")}>
+
       {/* Art Deco Background Pattern */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03]"
         style={{
@@ -62,7 +71,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
       <div className="absolute inset-0 z-0 pointer-events-none border-16 border-double border-[#d4af37]/20 m-4 md:m-8" />
 
       <div className="mx-auto max-w-5xl px-6 md:px-12 py-16 relative z-10 space-y-24">
-        
+
         {navbarEnabled && (
           <div className="sticky top-8 z-50 flex justify-center mb-16">
             <TemplateNavbar
@@ -87,17 +96,17 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
               />
             </div>
           )}
-          
+
           <div className="flex items-center gap-4 mb-8">
             <div className="h-px w-12 bg-[#d4af37]" />
             <Diamond className="w-4 h-4 text-[#d4af37]" />
             <div className="h-px w-12 bg-[#d4af37]" />
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-serif text-[#d4af37] mb-6 tracking-wider uppercase font-light">
             {portfolio.title}
           </h1>
-          
+
           {portfolio.headline && (
             <p className="text-lg md:text-xl text-[#a0a0a0] font-light mb-12 tracking-[0.15em] uppercase max-w-2xl">
               {portfolio.headline}
@@ -147,11 +156,11 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
             <SectionHeading className="mb-12">Selected Works</SectionHeading>
             <CollapsibleList
               initial={4}
-              wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-10"
+              wrapperClassName={cn(PROJECTS_GRID_2, "gap-10")}
               buttonClassName="col-span-full mt-12 mx-auto block bg-transparent border border-[#d4af37] px-10 py-3 text-xs font-bold text-[#d4af37] hover:bg-[#d4af37] hover:text-[#0b132b] transition-all uppercase tracking-[0.2em]"
             >
               {visibleProjects.map((project) => (
-                <article key={project.id} className="group flex flex-col overflow-hidden border border-[#d4af37]/20 bg-[#111c3d] p-2 transition-all duration-500 hover:border-[#d4af37]">
+                <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col border border-[#d4af37]/20 bg-[#111c3d] p-2 transition-all duration-500 hover:border-[#d4af37]")}>
                   <div className="relative border-b border-[#d4af37]/30">
                     <LivePreviewImage
                       liveUrl={project.liveUrl ?? null}
@@ -165,9 +174,10 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
                     />
                   </div>
 
-                  <div className="flex h-full flex-col border border-[#d4af37]/10 p-4">
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <h3 className="text-2xl font-serif text-[#d4af37] uppercase tracking-widest">
+                  <div className={cn(PROJECT_CARD_BODY, "flex h-full flex-col border border-[#d4af37]/10 p-4")}>
+                    <div className={cn(PROJECT_CARD_HEADER, "mb-4")}>
+                      <div className={PROJECT_CARD_META}>
+                        <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-serif text-[#d4af37] uppercase tracking-widest")}>
                           {project.title}
                         </h3>
                         {project.featured && (
@@ -176,30 +186,31 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
                           </span>
                         )}
                       </div>
-                      
-                      {project.description && (
-                        <p className="text-[#a0a0a0] leading-relaxed mb-8 grow font-light">
-                          {project.description}
-                        </p>
-                      )}
-                      
-                      <div className="flex flex-wrap gap-3 mb-8 justify-center">
-                        {project.techStack.map((tech) => (
-                          <span key={tech} className="text-[#888] text-[10px] font-bold uppercase tracking-[0.15em] flex items-center gap-2">
-                            <span className="w-1 h-1 bg-[#d4af37] rotate-45" />
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <div className="mt-auto pt-6 border-t border-[#d4af37]/20 flex justify-center">
-                        <ProjectActions
-                          liveUrl={project.liveUrl}
-                          sourceUrl={project.sourceUrl}
-                          liveClassName="bg-[#d4af37] text-[#0b132b] text-xs font-bold px-6 py-2 hover:bg-white transition-colors mr-4 uppercase tracking-[0.15em]"
-                          sourceClassName="border border-[#d4af37] text-[#d4af37] text-xs font-bold px-6 py-2 hover:bg-[#d4af37] hover:text-[#0b132b] transition-colors uppercase tracking-[0.15em]"
-                        />
-                      </div>
+                    </div>
+
+                    {project.description && (
+                      <p className="text-[#a0a0a0] leading-relaxed mb-8 grow font-light">
+                        {project.description}
+                      </p>
+                    )}
+
+                    <div className="flex flex-wrap gap-3 mb-8 justify-center">
+                      {project.techStack.map((tech) => (
+                        <span key={tech} className="text-[#888] text-[10px] font-bold uppercase tracking-[0.15em] flex items-center gap-2">
+                          <span className="w-1 h-1 bg-[#d4af37] rotate-45" />
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-auto pt-6 border-t border-[#d4af37]/20 flex justify-center">
+                      <ProjectActions
+                        liveUrl={project.liveUrl}
+                        sourceUrl={project.sourceUrl}
+                        liveClassName="bg-[#d4af37] text-[#0b132b] text-xs font-bold px-6 py-2 hover:bg-white transition-colors mr-4 uppercase tracking-[0.15em]"
+                        sourceClassName="border border-[#d4af37] text-[#d4af37] text-xs font-bold px-6 py-2 hover:bg-[#d4af37] hover:text-[#0b132b] transition-colors uppercase tracking-[0.15em]"
+                      />
+                    </div>
                   </div>
                 </article>
               ))}
@@ -295,7 +306,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
         </div>
 
         {(certifications.length > 0 || achievements.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+          <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
                 <SectionHeading className="mb-10">Credentials</SectionHeading>

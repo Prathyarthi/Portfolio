@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,13 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
   SocialPills,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,8 +56,8 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-white text-black font-sans selection:bg-black selection:text-white">
-      
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-white text-black font-sans selection:bg-black selection:text-white")}>
+
       {navbarEnabled && (
         <div className="sticky top-0 z-50 bg-white border-b border-black">
           <div className="mx-auto max-w-7xl px-4 md:px-8 py-4 flex justify-between items-center">
@@ -65,7 +72,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
       )}
 
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-12 md:py-24 space-y-32">
-        
+
         <header className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
           <div className="lg:col-span-8">
             <h1 className="text-6xl md:text-8xl lg:text-[9rem] font-black uppercase tracking-tighter leading-[0.85] mb-8">
@@ -77,7 +84,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
               </p>
             )}
           </div>
-          
+
           <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-8">
             {portfolio.avatarUrl && (
               <img
@@ -86,7 +93,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
                 className="w-48 h-48 md:w-64 md:h-64 object-cover filter"
               />
             )}
-            
+
             <div className="flex flex-col items-start lg:items-end gap-4 w-full">
               <ContactChips
                 portfolio={portfolio}
@@ -127,11 +134,11 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
             <SectionHeading className="mb-12">Selected Works</SectionHeading>
             <CollapsibleList
               initial={4}
-              wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-16"
+              wrapperClassName={cn(PROJECTS_GRID_2, "gap-x-8 gap-y-16")}
               buttonClassName="col-span-full mt-16 mx-auto block border border-black bg-white px-12 py-4 text-sm font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors"
             >
               {visibleProjects.map((project) => (
-                <article key={project.id} className="group flex flex-col">
+                <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col")}>
                   <LivePreviewImage
                     liveUrl={project.liveUrl ?? null}
                     projectId={project.id}
@@ -144,8 +151,8 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
                   />
 
                   <div className="flex flex-col grow">
-                    <div className="mb-4 flex items-start justify-between gap-4">
-                      <h3 className="min-w-0 flex-1 text-3xl font-black uppercase tracking-tighter">
+                    <div className={cn(PROJECT_CARD_HEADER, "mb-4")}>
+                      <h3 className={cn(PROJECT_CARD_TITLE, "flex-1 text-3xl font-black uppercase tracking-tighter")}>
                         {project.title}
                       </h3>
                       {project.featured && (
@@ -162,7 +169,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
                         listClassName="mb-6 grow space-y-2 pl-5 text-gray-600 leading-relaxed marker:text-black"
                       />
                     )}
-                    
+
                     <div className="flex flex-wrap gap-2 mb-8">
                       {project.techStack.map((tech) => (
                         <span key={tech} className="text-xs font-bold uppercase tracking-widest text-gray-500">
@@ -170,7 +177,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
                         </span>
                       ))}
                     </div>
-                    
+
                     <div className="mt-auto flex gap-4">
                       <ProjectActions
                         liveUrl={project.liveUrl}

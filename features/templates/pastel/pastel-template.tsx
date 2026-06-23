@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,16 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
   SocialPills,
+  SPLIT_CARD_ROW,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,7 +59,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#fff5f8] text-[#4a4a4a] font-sans selection:bg-[#ffb3ba] selection:text-white overflow-hidden relative pb-20">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#fff5f8] text-[#4a4a4a] font-sans selection:bg-[#ffb3ba] selection:text-white overflow-hidden relative pb-20")}>
       {/* Soft Blobs Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[#ffdfba] opacity-40 blur-[100px] animate-[pulse_8s_ease-in-out_infinite]" />
@@ -58,7 +68,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-12 relative z-10 space-y-20">
-        
+
         {navbarEnabled && (
           <div className="sticky top-6 z-50 flex justify-center mb-16">
             <TemplateNavbar
@@ -83,15 +93,15 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
               </div>
             </div>
           )}
-          
+
           <div className="inline-flex items-center bg-white px-5 py-2 rounded-full text-sm font-bold text-[#ffb3ba] mb-6 shadow-sm border border-pink-50">
             Welcome to my world
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-extrabold text-[#2d2d2d] mb-6 tracking-tight">
             {portfolio.title}
           </h1>
-          
+
           {portfolio.headline && (
             <p className="text-xl md:text-2xl text-[#888] font-medium mb-10 leading-relaxed">
               {portfolio.headline}
@@ -141,11 +151,11 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
             <SectionHeading className="justify-center text-center mb-12">Selected Projects</SectionHeading>
             <CollapsibleList
               initial={4}
-              wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-8"
+              wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
               buttonClassName="col-span-full mt-10 mx-auto block bg-white px-8 py-4 rounded-full text-sm font-bold text-[#ffb3ba] shadow-sm hover:shadow-md transition-all hover:scale-105"
             >
               {visibleProjects.map((project) => (
-                <article key={project.id} className="group flex flex-col overflow-hidden rounded-[2.5rem] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(255,179,186,0.2)]">
+                <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col rounded-[2.5rem] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(255,179,186,0.2)]")}>
                   <LivePreviewImage
                     liveUrl={project.liveUrl ?? null}
                     projectId={project.id}
@@ -157,9 +167,9 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
                     className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
 
-                  <div className="flex flex-col grow px-4 pb-4">
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <h3 className="text-2xl font-extrabold text-[#2d2d2d] group-hover:text-[#ffb3ba] transition-colors">
+                  <div className={cn(PROJECT_CARD_BODY, "flex flex-col grow px-4 pb-4")}>
+                    <div className={cn(PROJECT_CARD_HEADER, "mb-3")}>
+                      <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-extrabold text-[#2d2d2d] group-hover:text-[#ffb3ba] transition-colors")}>
                         {project.title}
                       </h3>
                       {project.featured && (
@@ -168,13 +178,13 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
                         </span>
                       )}
                     </div>
-                    
+
                     {project.description && (
                       <p className="text-[#888] leading-relaxed mb-6 grow font-medium">
                         {project.description}
                       </p>
                     )}
-                    
+
                     <div className="flex flex-wrap gap-2 mb-6">
                       {project.techStack.map((tech) => (
                         <span key={tech} className="bg-[#f4f4f4] text-[#666] text-xs font-bold px-3 py-1.5 rounded-xl">
@@ -182,7 +192,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
                         </span>
                       ))}
                     </div>
-                    
+
                     <div className="mt-auto pt-4 border-t border-gray-100">
                       <ProjectActions
                         liveUrl={project.liveUrl}
@@ -284,7 +294,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
 
         {/* Certifications and Achievements */}
         {(certifications.length > 0 || achievements.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
                 <SectionHeading>Certifications</SectionHeading>
@@ -294,8 +304,8 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
                   buttonClassName="mt-6 bg-white px-6 py-3 rounded-full text-sm font-bold text-[#ffb3ba] shadow-sm hover:shadow-md transition-all"
                 >
                   {certifications.map((cert) => (
-                    <article key={cert.id} className="bg-white rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.02)] flex items-center justify-between">
-                      <div>
+                    <article key={cert.id} className={cn(SPLIT_CARD_ROW, "bg-white rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.02)]")}>
+                      <div className="min-w-0">
                         <h3 className="text-base font-extrabold text-[#2d2d2d]">
                           {cert.url ? (
                             <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:text-[#ffb3ba] transition-colors">

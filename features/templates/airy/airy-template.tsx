@@ -10,7 +10,14 @@ import {
   buildTemplateSections,
   SocialPills,
   ContactChips,
-  CustomSectionItems
+  CustomSectionItems,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
 } from "../shared";
 import { LivePreviewImage } from "@/components/live-preview-image";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -39,7 +46,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
   const contributionCalendar = parseContributionCalendar(githubStats?.contributionCalendar);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans overflow-x-hidden relative">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#F8FAFC] text-slate-900 font-sans overflow-x-hidden relative")}>
       <div className="absolute top-0 right-0 w-full h-[600px] bg-linear-to-b from-sky-100/50 to-transparent pointer-events-none" />
 
       <div className="relative mx-auto max-w-5xl px-6 py-16 sm:px-12 md:py-24">
@@ -105,9 +112,9 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
           {projects.length > 0 && (
             <section id="work" className="scroll-mt-32">
               <h2 className="mb-8 text-3xl font-bold text-slate-800 px-2">Projects</h2>
-              <CollapsibleList initial={4} wrapperClassName="grid gap-6 md:grid-cols-2" buttonClassName="mt-6 mx-auto bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
+              <CollapsibleList initial={4} wrapperClassName={PROJECTS_GRID_2} buttonClassName="mt-6 mx-auto bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                 {projects.map((project) => (
-                  <article key={project.id} className="group overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-xs transition-all hover:shadow-md">
+                  <article key={project.id} className={cn(PROJECT_CARD, "group rounded-3xl border border-slate-100 bg-white shadow-xs transition-all hover:shadow-md")}>
                     <LivePreviewImage
                       liveUrl={project.liveUrl ?? null}
                       projectId={project.id}
@@ -118,8 +125,8 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
                       placeholderClassName="bg-slate-50 [&_p]:text-sm [&_p]:font-medium [&_p]:text-slate-500"
                       className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-slate-800 mb-2">{project.title}</h3>
+                    <div className={PROJECT_CARD_BODY}>
+                      <h3 className={cn(PROJECT_CARD_TITLE, "text-xl font-bold text-slate-800 mb-2")}>{project.title}</h3>
                       {project.description && (
                         <p className="mb-4 text-sm leading-relaxed text-slate-600">{project.description}</p>
                       )}
@@ -173,7 +180,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
             </section>
           )}
 
-          <div className="grid gap-12 md:grid-cols-2">
+          <div className={STACKED_SECTIONS}>
             {skills.length > 0 && (
               <section className="scroll-mt-32">
                 <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">Skills</h2>
@@ -213,7 +220,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
           </div>
 
           {(certifications.length > 0 || achievements.length > 0) && (
-            <div className="grid gap-12 md:grid-cols-2">
+            <div className={STACKED_SECTIONS}>
               {certifications.length > 0 && (
                 <section>
                   <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">Certifications</h2>

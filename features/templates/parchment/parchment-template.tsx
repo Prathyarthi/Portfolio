@@ -10,7 +10,11 @@ import {
   buildTemplateSections,
   SocialPills,
   ContactChips,
-  CustomSectionItems
+  CustomSectionItems,
+  PROJECT_CARD,
+  PROJECT_CARD_TITLE,
+  STACKED_SECTIONS,
+  TEMPLATE_CONTAINER,
 } from "../shared";
 import { LivePreviewImage } from "@/components/live-preview-image";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -39,13 +43,13 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
   const contributionCalendar = parseContributionCalendar(githubStats?.contributionCalendar);
 
   return (
-    <div className="min-h-screen bg-[#F1EEDC] text-[#2B2B2B] font-serif overflow-x-hidden selection:bg-[#8C2727] selection:text-[#F1EEDC]">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#F1EEDC] text-[#2B2B2B] font-serif overflow-x-hidden selection:bg-[#8C2727] selection:text-[#F1EEDC]")}>
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-8 md:py-16">
-        
+
         <header className="mb-16 border-b-4 border-double border-[#2B2B2B] pb-12 text-center relative">
           <div className="absolute top-0 left-0 w-full h-1 border-b border-[#2B2B2B]" />
           <div className="absolute top-2 left-0 w-full h-px bg-[#2B2B2B]" />
-          
+
           <div className="pt-12">
             {portfolio.avatarUrl && (
               <motion.img
@@ -74,7 +78,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
                 {portfolio.headline}
               </motion.p>
             )}
-            
+
             <div className="mt-10 flex flex-col items-center gap-6">
               <ContactChips portfolio={portfolio} chipClassName="text-sm font-semibold tracking-widest uppercase border-b border-[#2B2B2B] pb-1" />
               <SocialPills profiles={socialProfiles} className="text-[#2B2B2B] border border-[#2B2B2B] p-2 hover:bg-[#2B2B2B] hover:text-[#F1EEDC] transition-all" />
@@ -117,8 +121,8 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
               </div>
               <CollapsibleList initial={3} wrapperClassName="space-y-16" buttonClassName="mt-12 mx-auto block uppercase tracking-[0.2em] font-bold border-2 border-[#2B2B2B] px-8 py-3 hover:bg-[#2B2B2B] hover:text-[#F1EEDC] transition-colors">
                 {projects.map((project, idx) => (
-                  <article key={project.id} className="grid md:grid-cols-12 gap-8 items-start">
-                    <div className={cn("md:col-span-5", idx % 2 !== 0 && "md:order-last")}>
+                  <article key={project.id} className={cn(PROJECT_CARD, "grid grid-cols-1 min-w-0 @md:grid-cols-12 gap-8 items-start")}>
+                    <div className={cn("@md:col-span-5", idx % 2 !== 0 && "@md:order-last")}>
                       <div className="border-2 border-[#2B2B2B] bg-white p-1">
                         <LivePreviewImage
                           liveUrl={project.liveUrl ?? null}
@@ -131,9 +135,9 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
                         />
                       </div>
                     </div>
-                    
-                    <div className="md:col-span-7 flex flex-col h-full justify-center">
-                      <h3 className="text-4xl font-black uppercase mb-4 text-[#8C2727]">{project.title}</h3>
+
+                    <div className="@md:col-span-7 flex flex-col h-full justify-center">
+                      <h3 className={cn(PROJECT_CARD_TITLE, "text-4xl font-black uppercase mb-4 text-[#8C2727]")}>{project.title}</h3>
                       {project.description && (
                         <p className="mb-6 text-xl leading-relaxed text-justify">{project.description}</p>
                       )}
@@ -188,7 +192,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
             </section>
           )}
 
-          <div className="grid gap-16 md:grid-cols-2">
+          <div className={STACKED_SECTIONS}>
             {skills.length > 0 && (
               <section className="scroll-mt-32">
                 <div className="flex items-center gap-6 mb-10">
@@ -234,7 +238,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
           </div>
 
           {(certifications.length > 0 || achievements.length > 0) && (
-            <div className="grid gap-16 md:grid-cols-2">
+            <div className={STACKED_SECTIONS}>
               {certifications.length > 0 && (
                 <section>
                   <div className="flex items-center gap-6 mb-10">
