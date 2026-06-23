@@ -27,10 +27,10 @@ export function FlowFooter({
 }: FlowFooterProps) {
   return (
     <div
-      className={`flex flex-col gap-3 border-t border-white/6 pt-5 sm:flex-row sm:items-center sm:justify-between ${className ?? ""}`}
+      className={`flex flex-col gap-3 border-t border-border-default pt-5 sm:flex-row sm:items-center sm:justify-between ${className ?? ""}`}
     >
       {message ? (
-        <div className="flex-1 text-sm text-muted-foreground">{message}</div>
+        <div className="flex-1 text-body-sm text-text-secondary">{message}</div>
       ) : (
         <div className="flex-1" />
       )}

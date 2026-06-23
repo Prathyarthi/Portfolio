@@ -77,21 +77,21 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-2xl pb-6 mx-auto w-full h-screen">
+    <div className="mx-auto w-full max-w-2xl space-y-8 pb-6">
       <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="mt-1 text-muted-foreground">Manage your account and portfolio settings.</p>
+        <h1 className="text-h2 text-text-primary">Settings</h1>
+        <p className="mt-1 text-body-sm text-text-secondary">Manage your account and portfolio settings.</p>
       </div>
 
       {!portfolio && (
-        <Card className="glass-card rounded-[2rem] border-white/8 bg-white/3">
+        <Card className="p-2">
           <CardHeader>
-            <CardTitle className="text-zinc-100">Create your portfolio first</CardTitle>
-            <CardDescription className="text-zinc-400">
+            <CardTitle className="text-h3 text-text-primary">Create your portfolio first</CardTitle>
+            <CardDescription className="text-body-sm text-text-secondary">
               Settings are available after a portfolio has been created.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col items-start gap-4">
             <CreatePortfolioPrompt />
             <Button variant="outline" asChild>
               <Link href="/dashboard">Go to Overview</Link>
@@ -127,10 +127,10 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-background/40 px-4 py-3">
+          <div className="flex items-center justify-between rounded-[var(--radius-md)] border border-border-default bg-surface-sunken px-4 py-3">
             <div className="space-y-1">
               <Label htmlFor="navbar-enabled">Show navbar</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-body-sm text-text-secondary">
                 When enabled, visitors can jump to visible sections on the page.
               </p>
             </div>

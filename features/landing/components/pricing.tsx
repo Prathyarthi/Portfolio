@@ -1,119 +1,114 @@
-"use client";
-
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Check, Minus, ArrowRight } from "lucide-react";
 import { pricingPlans } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
-import { landingSurfaceInteractive } from "@/features/landing/surface";
-import {
-  landingGridContainerVariants,
-  landingGridItemVariants,
-  landingSectionHeaderProps,
-} from "@/features/landing/motion-presets";
 
-/** Homepage teaser — two plans; full comparison on /pricing */
 export function Pricing() {
-  const reducedMotion = useReducedMotion();
-  const reduce = Boolean(reducedMotion);
-  const containerVariants = landingGridContainerVariants(reduce);
-  const tileVariants = landingGridItemVariants(reduce);
-  const headerMotion = landingSectionHeaderProps(reduce);
-
   return (
-    <section id="pricing" className="scroll-mt-20 px-4 py-20 md:px-6">
-      <div className="mx-auto max-w-5xl">
-        <motion.div {...headerMotion} className="mb-12 text-center">
-          <h2 className="mb-3 text-2xl font-semibold tracking-tight md:text-3xl">
-            <span className="gradient-text">Pricing</span>
+    <section id="pricing" className="scroll-mt-16 px-6 py-[var(--space-9)]">
+      <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="eyebrow uppercase">Pricing</p>
+          <h2 className="mt-3 text-h1 text-text-primary">
+            Start free. Upgrade when it counts.
           </h2>
-          <p className="mx-auto max-w-md text-sm leading-relaxed text-zinc-500 md:text-[15px]">
-            Two plans—start free, or open the full page when you want Pro details and
-            checkout.
+          <p className="prose-measure mx-auto mt-4 text-body text-text-secondary">
+            Full access for your first month — no credit card, no catch.
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4"
-          variants={containerVariants}
-          initial={reduce ? false : "hidden"}
-          whileInView={reduce ? undefined : "show"}
-          viewport={{ once: true, margin: "-40px", amount: 0.12 }}
-        >
+        <div className="mt-[var(--space-6)] grid grid-cols-1 gap-[var(--space-5)] md:grid-cols-2">
           {pricingPlans.map((plan) => (
-            <motion.div key={plan.slug} variants={tileVariants}>
-              <Card
-                className={cn(
-                  landingSurfaceInteractive,
-                  "relative overflow-hidden p-0 shadow-none",
-                  plan.highlight &&
-                    "border-teal-500/25 shadow-[0_0_0_1px_rgba(45,212,191,0.08)]"
+            <div
+              key={plan.slug}
+              className={cn(
+                "relative flex flex-col rounded-[var(--radius-lg)] bg-surface-raised p-7 shadow-[var(--shadow-card)] transition-all duration-200 ease-[var(--ease-out)]",
+                plan.highlight
+                  ? "border-2 border-brand-secondary"
+                  : "border border-border-default hover:border-border-strong"
+              )}
+            >
+              {plan.badge && (
+                <div className="absolute right-6 top-0 -translate-y-1/2">
+                  <Badge variant="brand">Most popular</Badge>
+                </div>
+              )}
+
+              <p className="text-label uppercase text-text-secondary">
+                {plan.eyebrow}
+              </p>
+              <h3 className="mt-1.5 text-h2 text-text-primary">{plan.name}</h3>
+
+              <div className="mt-4 flex items-baseline gap-1.5">
+                <span className="text-display text-text-primary">
+                  {plan.monthlyPrice}
+                </span>
+                {plan.pricePeriod && (
+                  <span className="text-body-sm text-text-muted">
+                    {plan.pricePeriod}
+                  </span>
                 )}
-              >
-                {plan.badge ? (
-                  <div className="absolute -top-2.5 right-4">
-                    <Badge className="rounded-full border border-teal-400/30 bg-teal-500/15 text-[10px] uppercase tracking-wider text-teal-200">
-                      {plan.badge}
-                    </Badge>
-                  </div>
-                ) : null}
-                <CardContent className="relative flex flex-col gap-4 p-6">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-zinc-600">
-                      {plan.eyebrow}
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold tracking-tight text-zinc-100">
-                      {plan.name}
-                    </h3>
-                    <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                      <p className="gradient-text text-2xl font-semibold tabular-nums md:text-3xl">
-                        {plan.monthlyPrice}
-                      </p>
-                      {plan.pricePeriod ? (
-                        <span className="text-sm text-zinc-500">{plan.pricePeriod}</span>
-                      ) : null}
-                    </div>
-                    <p className="mt-3 text-sm leading-relaxed text-zinc-500">
-                      {plan.description}
-                    </p>
-                  </div>
+              </div>
 
-                  <div className="flex flex-col gap-2">
-                    {plan.features.slice(0, 4).map((feature) => (
-                      <div key={feature.label} className="text-sm text-zinc-500">
-                        {feature.included ? "✓" : "–"} {feature.label}
-                      </div>
-                    ))}
-                  </div>
+              <p className="prose-measure mt-3 text-body-sm text-text-secondary">
+                {plan.description}
+              </p>
 
-                  <Button
-                    asChild
-                    variant={plan.highlight ? "default" : "outline"}
-                    className={
-                      plan.highlight
-                        ? "mt-auto rounded-full"
-                        : "mt-auto rounded-full border-white/10 text-zinc-400 hover:bg-white/[0.05]"
-                    }
+              <ul className="mt-6 mb-7 flex flex-col gap-3">
+                {plan.features.map((f) => (
+                  <li
+                    key={f.label}
+                    className={cn(
+                      "flex items-start gap-2.5 text-body-sm",
+                      f.included ? "text-text-primary" : "text-text-muted"
+                    )}
                   >
-                    <Link href={plan.ctaHref}>{plan.ctaLabel}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
+                    <span
+                      className={cn(
+                        "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full",
+                        f.included ? "bg-success-bg" : "bg-surface-sunken"
+                      )}
+                    >
+                      {f.included ? (
+                        <Check className="h-3 w-3 text-success" aria-hidden />
+                      ) : (
+                        <Minus className="h-3 w-3 text-text-muted" aria-hidden />
+                      )}
+                    </span>
+                    {f.label}
+                  </li>
+                ))}
+              </ul>
 
-        <p className="mx-auto mt-8 max-w-md text-center text-xs text-zinc-600 md:text-sm">
+              <div className="mt-auto">
+                <Button
+                  asChild
+                  variant={plan.highlight ? "accent" : "outline"}
+                  className="w-full"
+                >
+                  <Link href={plan.ctaHref}>
+                    {plan.ctaLabel}
+                    <ArrowRight className="h-4 w-4" aria-hidden />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-6 text-center text-body-sm text-text-muted">
           <Link
             href="/pricing"
-            className="text-teal-400/90 underline-offset-4 hover:text-teal-300 hover:underline"
+            className="font-medium text-brand-primary hover:text-brand-dark"
           >
-            Full plan details and subscribe
+            Full plan comparison
           </Link>
-          <span className="text-zinc-700"> · </span>
-          Prices in INR.
+          <span className="mx-2" aria-hidden>
+            &middot;
+          </span>
+          Prices in INR &middot; Secure checkout via Razorpay
         </p>
       </div>
     </section>

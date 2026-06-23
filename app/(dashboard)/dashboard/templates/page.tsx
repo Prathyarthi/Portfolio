@@ -124,25 +124,25 @@ export default function TemplatesPage() {
   if (isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
       </div>
     );
   }
 
   if (!portfolio) {
     return (
-      <div className="space-y-6">
-        <Card className="glass-card rounded-[2rem] border border-white/8 bg-white/3">
+      <div className="mx-auto max-w-xl space-y-6">
+        <Card className="p-2">
           <CardHeader>
-            <CardTitle className="text-zinc-100">
+            <CardTitle className="text-h3 text-text-primary">
               Create your portfolio before choosing a template
             </CardTitle>
-            <CardDescription className="text-zinc-400">
+            <CardDescription className="text-body-sm text-text-secondary">
               Create your portfolio first so your template selection can be
               saved.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col items-start gap-4">
             <CreatePortfolioPrompt />
             <Button variant="outline" asChild>
               <Link href="/dashboard/edit">Back to Edit</Link>
@@ -163,29 +163,27 @@ export default function TemplatesPage() {
 
   return (
     <div className="space-y-8 pb-6">
-      <div className="glass-card rounded-[2rem] border border-white/8 p-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-          Templates
-        </p>
-        <h1 className="mt-3 text-3xl font-bold">
+      <div className="rounded-[var(--radius-lg)] border border-border-default bg-surface-raised p-6 shadow-[var(--shadow-card)]">
+        <p className="eyebrow uppercase">Templates</p>
+        <h1 className="mt-3 text-h1 text-text-primary">
           Choose a presentation system
         </h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
+        <p className="mt-2 max-w-2xl text-body text-text-secondary">
           Pick the visual language that best fits your work. Content stays the
           same while layout, rhythm, and tone shift with the template.
         </p>
         {accessTier === "trial" && (
-          <p className="mt-3 text-sm text-emerald-400/90">
+          <p className="mt-3 text-body-sm text-success">
             Free trial active — {trialDaysRemaining} day
             {trialDaysRemaining === 1 ? "" : "s"} left to use all templates.
           </p>
         )}
         {accessTier === "free" && (
-          <p className="mt-3 text-sm text-amber-300/90">
+          <p className="mt-3 text-body-sm text-text-secondary">
             Your free trial ended. Minimal stays available.{" "}
             <Link
               href="/dashboard/billing"
-              className="underline underline-offset-4 hover:text-amber-200"
+              className="text-brand-primary underline underline-offset-4 hover:text-brand-dark"
             >
               Upgrade to Pro
             </Link>{" "}
@@ -204,51 +202,38 @@ export default function TemplatesPage() {
           return (
             <Card
               key={template.id}
-              className={`glass-card relative overflow-hidden rounded-[1.75rem] border-white/8 bg-white/3 transition-all ${
+              className={`relative overflow-hidden p-0 transition-all duration-200 ease-[var(--ease-out)] ${
                 isActive
-                  ? "ring-2 ring-primary"
+                  ? "border-brand-primary ring-1 ring-brand-primary"
                   : isLocked
                     ? "opacity-75"
-                    : "hover:-translate-y-1 hover:ring-1 hover:ring-border"
+                    : "hover:-translate-y-1 hover:border-border-strong"
               }`}
             >
-              <div className="relative border-b border-white/8 p-4">
+              <div className="relative border-b border-border-default p-4">
                 <TemplatePreview templateId={template.id} />
                 {isLocked && (
-                  <div className="absolute inset-0 flex items-center justify-center rounded-t-[1.75rem] bg-black/40 backdrop-blur-[2px]">
-                    <Lock className="h-6 w-6 text-zinc-300" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-text-primary/40 backdrop-blur-[2px]">
+                    <Lock className="h-6 w-6 text-white" aria-hidden />
                   </div>
                 )}
               </div>
-              <CardHeader className="pb-3">
+              <CardHeader className="px-5 pt-5 pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg text-zinc-100">
+                  <CardTitle className="text-h4 text-text-primary">
                     {template.name}
                   </CardTitle>
-                  <Badge
-                    variant={isActive ? "default" : "secondary"}
-                    className={
-                      isLocked
-                        ? "border-teal-400/30 bg-teal-500/15 text-teal-300"
-                        : !isActive
-                          ? "bg-white/6 text-zinc-300"
-                          : undefined
-                    }
-                  >
+                  <Badge variant={isLocked ? "brand" : isActive ? "success" : "neutral"}>
                     {isLocked ? "Pro" : isActive ? "Active" : template.category}
                   </Badge>
                 </div>
-                <CardDescription className="text-zinc-400">
+                <CardDescription className="text-body-sm text-text-secondary">
                   {template.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-5 pb-5">
                 {isLocked ? (
-                  <Button
-                    asChild
-                    className="w-full rounded-full bg-teal-500/15 text-teal-300 hover:bg-teal-500/25 border border-teal-500/20"
-                    variant="outline"
-                  >
+                  <Button asChild className="w-full" variant="outline">
                     <Link href="/dashboard/billing">Upgrade to unlock</Link>
                   </Button>
                 ) : (
@@ -260,11 +245,11 @@ export default function TemplatesPage() {
                   >
                     {isActive ? (
                       <>
-                        <Check className="mr-2 h-4 w-4" />
-                        Current Template
+                        <Check className="h-4 w-4" />
+                        Current template
                       </>
                     ) : (
-                      "Use Template"
+                      "Use template"
                     )}
                   </Button>
                 )}

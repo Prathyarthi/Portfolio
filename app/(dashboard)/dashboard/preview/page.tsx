@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Loader2, Share2, Globe } from "lucide-react";
+import { Loader2, Share2, Globe, Monitor, Smartphone } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +33,7 @@ export default function PreviewPage() {
   );
   const isMobile = useIsMobile();
   const [editOpen, setEditOpen] = useState(false);
+  const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
 
   useEffect(() => {
     setEditOpen(!isMobile);
@@ -115,15 +117,17 @@ export default function PreviewPage() {
 
   if (!portfolio) {
     return (
-      <div className="space-y-6">
-        <Card className="glass-card rounded-[2rem] border border-white/8 bg-white/3">
+      <div className="mx-auto max-w-xl space-y-6">
+        <Card className="p-2">
           <CardHeader>
-            <CardTitle className="text-zinc-100">Create your portfolio before previewing it</CardTitle>
-            <CardDescription className="text-zinc-400">
+            <CardTitle className="text-h3 text-text-primary">
+              Create your portfolio before previewing it
+            </CardTitle>
+            <CardDescription className="text-body-sm text-text-secondary">
               Preview depends on your saved portfolio content. Create the portfolio first, then continue through the flow.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col items-start gap-4">
             <CreatePortfolioPrompt />
             <Button variant="outline" asChild>
               <Link href="/dashboard/import">Back to Import</Link>
@@ -153,12 +157,43 @@ export default function PreviewPage() {
   return (
     <div className="flex gap-0">
       <div className="min-w-0 flex-1 space-y-4">
-        <div className="glass-card flex flex-col gap-4 rounded-2xl border border-white/8 p-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border-default bg-surface-raised p-3 shadow-[var(--shadow-card)] lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-2 px-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-sm font-medium">Portfolio Builder</span>
+            <span className="h-2 w-2 rounded-full bg-success" aria-hidden />
+            <span className="text-body-sm font-medium text-text-primary">
+              Portfolio builder
+            </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            {/* Device toggle */}
+            <div
+              className="flex items-center gap-1 rounded-[var(--radius-md)] bg-surface-sunken p-0.5"
+              role="group"
+              aria-label="Preview device"
+            >
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="ghost"
+                aria-label="Desktop preview"
+                aria-pressed={device === "desktop"}
+                onClick={() => setDevice("desktop")}
+                className={cn(device === "desktop" && "bg-surface-base text-brand-primary")}
+              >
+                <Monitor className="h-4 w-4" aria-hidden />
+              </Button>
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="ghost"
+                aria-label="Mobile preview"
+                aria-pressed={device === "mobile"}
+                onClick={() => setDevice("mobile")}
+                className={cn(device === "mobile" && "bg-surface-base text-brand-primary")}
+              >
+                <Smartphone className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
             <PreviewEditToggle open={editOpen} onOpenChange={setEditOpen} />
             <Button
               type="button"
@@ -166,31 +201,33 @@ export default function PreviewPage() {
               variant={isPublished ? "outline" : "default"}
               onClick={() => handlePublishToggle(!isPublished)}
               disabled={publishPortfolio.isPending || (!isPublished && !slug)}
-              className={
-                isPublished
-                  ? "rounded-full border-white/8 bg-white/4 text-zinc-200 h-8 text-xs"
-                  : "rounded-full bg-emerald-500 text-white hover:bg-emerald-600 h-8 text-xs"
-              }
             >
               {publishPortfolio.isPending ? (
-                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <Globe className="mr-2 h-3 w-3" />
+                <Globe className="h-3.5 w-3.5" />
               )}
               {isPublished ? "Unpublish" : "Publish"}
             </Button>
             {slug && (
               <ShareDialog slug={slug} isPublished={isPublished}>
-                <Button variant="outline" size="sm" className="rounded-full border-white/8 bg-white/4 h-8 text-xs">
-                  <Share2 className="mr-2 h-3 w-3" />
+                <Button variant="outline" size="sm">
+                  <Share2 className="h-3.5 w-3.5" />
                   Share
                 </Button>
               </ShareDialog>
             )}
           </div>
         </div>
-        <div className="overflow-hidden rounded-[1.75rem] border border-white/8 bg-black/10 shadow-2xl">
-          <TemplateComponent data={data} />
+        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-3 shadow-[var(--shadow-modal)]">
+          <div
+            className={cn(
+              "mx-auto overflow-hidden rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
+              device === "mobile" ? "max-w-[390px]" : "max-w-full"
+            )}
+          >
+            <TemplateComponent data={data} />
+          </div>
         </div>
 
         <FlowFooter

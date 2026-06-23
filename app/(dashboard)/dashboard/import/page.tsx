@@ -44,19 +44,19 @@ export default function ImportPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Import Data</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-h2 text-text-primary">Import data</h1>
+        <p className="mt-1 text-body-sm text-text-secondary">
           Import your professional data from various sources to quickly build
           your portfolio.
         </p>
       </div>
 
       {!canUseImports && (
-        <div className="rounded-lg border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
-          <p className="font-medium text-amber-50">
+        <div className="rounded-[var(--radius-lg)] border border-border-default bg-warning-bg p-4 text-body-sm">
+          <p className="font-medium text-text-primary">
             Imports are available during your free month and with Pro.
           </p>
-          <p className="mt-2 text-amber-100/90">
+          <p className="mt-2 text-text-secondary">
             After the trial, you can still edit and publish on the Minimal
             template—upgrade to import from resume, GitHub, Medium, or LeetCode again.
           </p>

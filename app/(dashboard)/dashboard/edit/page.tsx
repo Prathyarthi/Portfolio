@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, Share2, FileText } from "lucide-react";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,15 +55,17 @@ export default function EditPortfolioPage() {
 
   if (!portfolio) {
     return (
-      <div className="space-y-6">
-        <Card className="glass-card rounded-[2rem] border-white/8 bg-white/3">
+      <div className="mx-auto max-w-xl space-y-6">
+        <Card className="p-2">
           <CardHeader>
-            <CardTitle className="text-zinc-100">Create your portfolio first</CardTitle>
-            <CardDescription className="text-zinc-400">
+            <CardTitle className="text-h3 text-text-primary">
+              Create your portfolio first
+            </CardTitle>
+            <CardDescription className="text-body-sm text-text-secondary">
               Create your portfolio first, then you can edit sections, pick a template, and preview.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col items-start gap-4">
             <CreatePortfolioPrompt />
             <Button variant="outline" asChild>
               <Link href="/dashboard">Back to Overview</Link>
@@ -77,21 +78,19 @@ export default function EditPortfolioPage() {
 
   return (
     <div className="space-y-6 pb-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Portfolio</h1>
-          <p className="mt-1 text-muted-foreground">
+          <h1 className="text-h2 text-text-primary">Edit portfolio</h1>
+          <p className="mt-1 text-body-sm text-text-secondary">
             Build your portfolio here, or scan a PDF resume on Import to pre-fill
             sections.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {portfolio.isPublished ? (
-            <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-              Published
-            </Badge>
+            <Badge variant="success">Published</Badge>
           ) : (
-            <Badge variant="secondary">Draft</Badge>
+            <Badge variant="neutral">Draft</Badge>
           )}
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/import">

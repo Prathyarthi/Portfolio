@@ -1,63 +1,36 @@
 import { Hero } from "@/features/landing/components/hero";
+import { SocialProof } from "@/features/landing/components/social-proof";
 import { Features } from "@/features/landing/components/features";
 import { TemplateShowcase } from "@/features/landing/components/template-showcase";
 import { Pricing } from "@/features/landing/components/pricing";
 import { CTA } from "@/features/landing/components/cta";
 import { Footer } from "@/features/landing/components/footer";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { LandingNav } from "@/features/landing/components/landing-nav";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden">
-      <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#080b14]/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold gradient-text tracking-wide">
-              Foliofy
-            </span>
-            <span className="rounded-full border border-white/8 bg-white/4 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-zinc-400">
-              Beta
-            </span>
-          </Link>
+    <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-[var(--radius-md)] focus:bg-brand-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+      >
+        Skip to main content
+      </a>
 
-          <nav className="flex items-center gap-1 sm:gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="hidden rounded-full text-zinc-400 hover:bg-white/5 hover:text-zinc-100 sm:inline-flex"
-            >
-              <Link href="#features">Features</Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="rounded-full text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
-            >
-              <Link href="/pricing">Pricing</Link>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              asChild
-              className="rounded-full text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
-            >
-              <Link href="/sign-in">Sign In</Link>
-            </Button>
-            <Button size="sm" asChild className="rounded-full px-5">
-              <Link href="/sign-up">Get Started</Link>
-            </Button>
-          </nav>
-        </div>
-      </header>
-      <Hero />
-      <Features />
-      <TemplateShowcase />
-      <Pricing />
-      <CTA />
-      <Footer />
-    </div>
+      <div className="min-h-screen overflow-x-hidden bg-surface-base">
+        <LandingNav />
+
+        <main id="main">
+          <Hero />
+          <SocialProof />
+          <Features />
+          <TemplateShowcase />
+          <Pricing />
+          <CTA />
+        </main>
+
+        <Footer />
+      </div>
+    </>
   );
 }
