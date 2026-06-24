@@ -318,7 +318,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                     livePreviewProjectIds={livePreviewProjectIds}
                     alt={project.title}
                     loading="lazy"
-                    placeholderClassName="bg-gray-900/80"
+                    placeholderVariant="dark"
                   />
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-3">

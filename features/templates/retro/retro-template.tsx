@@ -160,8 +160,8 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                           livePreviewProjectIds={livePreviewProjectIds}
                           alt={project.title}
                           loading="lazy"
+                          placeholderVariant="retro"
                           containerClassName="border-b-4 border-black"
-                          placeholderClassName="bg-gray-200 [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-gray-500"
                           className="h-full w-full object-cover object-top filter transition-all duration-500"
                         />
                         <div className="p-6">

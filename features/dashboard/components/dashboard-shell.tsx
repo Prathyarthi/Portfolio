@@ -136,8 +136,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       }
     >
       <AppSidebar />
-      <SidebarInset className="min-w-0 overflow-x-hidden bg-surface-base">
-        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b border-border-default bg-surface-base px-4">
+      <SidebarInset className="relative min-w-0 overflow-x-hidden bg-surface-base">
+        <div className="glass-ambient" aria-hidden />
+        <header className="glass-nav sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 px-4">
           <SidebarTrigger className="size-9" />
           <Link href="/dashboard" className="font-display text-lg font-bold text-brand-primary md:hidden">
             {siteConfig.name}
@@ -146,7 +147,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <ThemeToggle className="size-9" />
           </div>
         </header>
-        <main className="min-w-0 flex-1 overflow-x-hidden p-[var(--space-5)]">
+        <main className="relative z-[1] min-w-0 flex-1 overflow-x-hidden p-[var(--space-5)]">
           {children}
         </main>
       </SidebarInset>

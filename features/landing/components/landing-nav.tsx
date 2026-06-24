@@ -28,14 +28,7 @@ export function LandingNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header
-      className="sticky top-0 z-[100] border-b border-border-default"
-      style={{
-        backgroundColor: "color-mix(in srgb, var(--color-surface-base) 90%, transparent)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-      }}
-    >
+    <header className="glass-nav sticky top-0 z-[100]">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
         <Logo />
 
@@ -84,7 +77,7 @@ export function LandingNav() {
       {/* Mobile drawer */}
       <div
         className={cn(
-          "overflow-hidden border-t border-border-default bg-surface-base transition-[max-height] duration-200 ease-[var(--ease-out)] md:hidden",
+          "overflow-hidden border-t border-border-default glass transition-[max-height] duration-200 ease-[var(--ease-out)] md:hidden",
           open ? "max-h-96" : "max-h-0 border-t-0"
         )}
       >

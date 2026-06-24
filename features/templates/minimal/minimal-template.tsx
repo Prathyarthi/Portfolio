@@ -162,6 +162,7 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         loading="lazy"
+                        placeholderVariant="minimal"
                         containerClassName="overflow-hidden bg-stone-100"
                       />
                       <div className="p-6">

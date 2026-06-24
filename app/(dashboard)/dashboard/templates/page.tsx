@@ -21,44 +21,7 @@ import {
 } from "@/features/portfolio/api/use-portfolio";
 import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import { templateRegistry } from "@/features/templates/registry";
-
-function TemplatePreview({ templateId }: { templateId: string }) {
-  const theme: Record<string, string> = {
-    minimal: "from-stone-100 to-stone-200",
-    modern: "from-violet-500/50 to-cyan-400/40",
-    developer: "from-green-500/40 to-emerald-400/30",
-    creative: "from-pink-500/40 to-orange-400/30",
-    corporate: "from-sky-500/40 to-slate-300/30",
-    spotlight: "from-[#fc3]/50 to-[#fbfffe]",
-    retro: "from-[#ff90e8]/80 to-[#ffc900]/80",
-    bento: "from-zinc-100 to-zinc-200",
-    vibrant: "from-fuchsia-600/60 to-cyan-500/60",
-    space: "from-[#030014] to-[#0B0F19]",
-    windows: "from-[#3a6ea5] to-[#3a6ea5]",
-    paper: "from-[#f4f1ea] to-[#e8e4db]",
-    cyberpunk: "from-[#050505] to-[#050505]",
-    pastel: "from-[#fff5f8] to-[#ffdfba]",
-    monochrome: "from-white to-gray-100",
-    synthwave: "from-[#120458] to-[#000000]",
-    artdeco: "from-[#0b132b] to-[#111c3d]",
-    blueprint: "from-[#003366] to-[#002244]",
-  };
-
-  return (
-    <div
-      className={`aspect-4/3 rounded-3xl bg-linear-to-br ${theme[templateId] ?? theme.minimal} p-4`}
-    >
-      <div className="h-full rounded-2xl border border-white/20 bg-black/10 p-4">
-        <div className="h-3 w-24 rounded-full bg-white/40" />
-        <div className="mt-4 h-16 rounded-2xl bg-white/15" />
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="h-16 rounded-2xl bg-white/15" />
-          <div className="h-16 rounded-2xl bg-white/15" />
-        </div>
-      </div>
-    </div>
-  );
-}
+import { TemplateLivePreview } from "@/features/templates/template-live-preview";
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -211,7 +174,7 @@ export default function TemplatesPage() {
               }`}
             >
               <div className="relative border-b border-border-default p-4">
-                <TemplatePreview templateId={template.id} />
+                <TemplateLivePreview templateId={template.id} />
                 {isLocked && (
                   <div className="absolute inset-0 flex items-center justify-center bg-text-primary/40 backdrop-blur-[2px]">
                     <Lock className="h-6 w-6 text-white" aria-hidden />

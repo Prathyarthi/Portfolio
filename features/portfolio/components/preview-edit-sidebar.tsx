@@ -15,11 +15,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EDIT_STEPS, type EditStepValue } from "@/features/portfolio/constants/edit-steps";
 import { EditStepContent } from "@/features/portfolio/components/edit-step-content";
 
+import { TemplateLivePreview } from "@/features/templates/template-live-preview";
+
 type PreviewEditSidebarProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templateId?: string;
   savedTemplateId?: string;
+  isPublished?: boolean;
   hasUnsavedTemplate?: boolean;
   isSavingTemplate?: boolean;
   onTemplateChange?: (templateId: string) => void;
@@ -28,48 +31,13 @@ type PreviewEditSidebarProps = {
   isTemplateLocked?: (templateId: string) => boolean;
 };
 
-function TemplatePreview({ templateId }: { templateId: string }) {
-  const theme: Record<string, string> = {
-    minimal: "from-stone-100 to-stone-200",
-    modern: "from-violet-500/50 to-cyan-400/40",
-    developer: "from-green-500/40 to-emerald-400/30",
-    creative: "from-pink-500/40 to-orange-400/30",
-    corporate: "from-sky-500/40 to-slate-300/30",
-    spotlight: "from-[#fc3]/50 to-[#fbfffe]",
-    retro: "from-[#ff90e8]/80 to-[#ffc900]/80",
-    bento: "from-zinc-100 to-zinc-200",
-    vibrant: "from-fuchsia-600/60 to-cyan-500/60",
-    space: "from-[#030014] to-[#0B0F19]",
-    windows: "from-[#3a6ea5] to-[#3a6ea5]",
-    paper: "from-[#f4f1ea] to-[#e8e4db]",
-    cyberpunk: "from-[#050505] to-[#050505]",
-    pastel: "from-[#fff5f8] to-[#ffdfba]",
-    monochrome: "from-white to-gray-100",
-    synthwave: "from-[#120458] to-[#000000]",
-    artdeco: "from-[#0b132b] to-[#111c3d]",
-    blueprint: "from-[#003366] to-[#002244]",
-  };
-
-  return (
-    <div className={`aspect-4/3 rounded-xl bg-linear-to-br ${theme[templateId] ?? theme.minimal} p-2`}>
-      <div className="h-full rounded-lg border border-white/20 bg-black/10 p-2">
-        <div className="h-2 w-12 rounded-full bg-white/40" />
-        <div className="mt-2 h-8 rounded-lg bg-white/15" />
-        <div className="mt-2 grid grid-cols-2 gap-1.5">
-          <div className="h-8 rounded-lg bg-white/15" />
-          <div className="h-8 rounded-lg bg-white/15" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function EditorBody({
   activeStep,
   onStepChange,
   onClose,
   templateId,
   savedTemplateId,
+  isPublished,
   hasUnsavedTemplate,
   isSavingTemplate,
   onTemplateChange,
@@ -82,6 +50,7 @@ function EditorBody({
   onClose?: () => void;
   templateId?: string;
   savedTemplateId?: string;
+  isPublished?: boolean;
   hasUnsavedTemplate?: boolean;
   isSavingTemplate?: boolean;
   onTemplateChange?: (templateId: string) => void;
@@ -92,7 +61,7 @@ function EditorBody({
   const activeStepInfo = EDIT_STEPS.find((step) => step.value === activeStep);
 
   return (
-    <Tabs defaultValue="content" className="flex h-full min-h-0 flex-col bg-surface-raised text-text-primary">
+    <Tabs defaultValue="content" className="flex h-full min-h-0 flex-col bg-transparent text-text-primary">
       <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border-default px-4 py-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -169,7 +138,7 @@ function EditorBody({
           </p>
           <h2 className="mt-1 text-base font-semibold">Templates</h2>
           <p className="mt-1 text-xs text-zinc-500">
-            Preview templates here. Save when you are ready to apply.
+            Preview templates here. Apply one to use it on your portfolio.
           </p>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
@@ -194,16 +163,20 @@ function EditorBody({
                         "cursor-not-allowed opacity-50"
                     )}
                   >
-                    <TemplatePreview templateId={t.id} />
+                    <TemplateLivePreview templateId={t.id} compact />
                     <div className="flex w-full items-center justify-between">
                       <span className="truncate pr-2 text-xs font-medium">
                         {t.name}
                       </span>
                       {isPreviewing ? (
                         <Check className="h-3 w-3 shrink-0 text-primary" />
+                      ) : isSaved && isPublished ? (
+                        <span className="shrink-0 text-[10px] font-medium text-success">
+                          Live
+                        </span>
                       ) : isSaved ? (
                         <span className="shrink-0 text-[10px] text-zinc-500">
-                          Saved
+                          Active
                         </span>
                       ) : isTemplateLocked?.(t.id) ? (
                         <span className="shrink-0 text-[10px] text-zinc-500">
@@ -234,8 +207,10 @@ function EditorBody({
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving…
                 </>
+              ) : isPublished ? (
+                "Apply & go live"
               ) : (
-                "Save template"
+                "Apply template"
               )}
             </Button>
           </div>
@@ -250,6 +225,7 @@ export function PreviewEditSidebar({
   onOpenChange,
   templateId,
   savedTemplateId,
+  isPublished,
   hasUnsavedTemplate,
   isSavingTemplate,
   onTemplateChange,
@@ -266,7 +242,7 @@ export function PreviewEditSidebar({
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="w-full border-border-default bg-surface-raised p-0 sm:max-w-md"
+          className="w-full glass-modal p-0 sm:max-w-md"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Edit portfolio</SheetTitle>
@@ -277,6 +253,7 @@ export function PreviewEditSidebar({
             onClose={() => onOpenChange(false)}
             templateId={templateId}
             savedTemplateId={savedTemplateId}
+            isPublished={isPublished}
             hasUnsavedTemplate={hasUnsavedTemplate}
             isSavingTemplate={isSavingTemplate}
             onTemplateChange={onTemplateChange}
@@ -292,13 +269,14 @@ export function PreviewEditSidebar({
   if (!open) return null;
 
   return (
-    <aside className="sticky top-4 h-[calc(100vh-2rem)] w-full shrink-0 self-start overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-raised shadow-[var(--shadow-card)] xl:ml-4 xl:w-80">
+    <aside className="glass-panel hidden h-full w-full shrink-0 flex-col overflow-hidden xl:ml-4 xl:flex xl:w-80">
       <EditorBody
         activeStep={activeStep}
         onStepChange={setActiveStep}
         onClose={() => onOpenChange(false)}
         templateId={templateId}
         savedTemplateId={savedTemplateId}
+        isPublished={isPublished}
         hasUnsavedTemplate={hasUnsavedTemplate}
         isSavingTemplate={isSavingTemplate}
         onTemplateChange={onTemplateChange}

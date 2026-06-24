@@ -1,61 +1,58 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { templateRegistry } from "@/features/templates/registry";
+import type { TemplateComponent } from "@/features/templates/types";
+import { TemplateLivePreview } from "@/features/templates/template-live-preview";
 
-type Preview = {
-  name: string;
-  role: string;
-  template: string;
-  hue: string;
-};
+const SHOWCASE_TEMPLATE_IDS = [
+  "minimal",
+  "developer",
+  "modern",
+  "corporate",
+  "creative",
+  "retro",
+  "blueprint",
+  "spotlight",
+] as const;
 
-const PREVIEWS: Preview[] = [
-  { name: "Maya Chen", role: "Product Designer", template: "Minimal", hue: "#6c5ce7" },
-  { name: "Dev Patel", role: "Frontend Engineer", template: "Developer", hue: "#00b894" },
-  { name: "Sara Lind", role: "Marketing Lead", template: "Modern", hue: "#a29bfe" },
-  { name: "Omar Reed", role: "Data Scientist", template: "Corporate", hue: "#4834d4" },
-  { name: "Ivy Nakamura", role: "Illustrator", template: "Creative", hue: "#e17055" },
-  { name: "Leo Martins", role: "Full-stack Dev", template: "Spotlight", hue: "#fdcb6e" },
-];
-
-function PreviewCard({ p }: { p: Preview }) {
+function ShowcaseCard({ template }: { template: TemplateComponent }) {
   return (
     <Link
       href="/sign-up"
-      className="group flex w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-[var(--radius-xl)] border border-border-default bg-surface-raised shadow-[var(--shadow-card)] outline-none transition-all duration-200 ease-[var(--ease-out)] hover:-translate-y-1 hover:border-border-strong focus-visible:shadow-[var(--shadow-focus)]"
+      className="group flex w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-[var(--radius-xl)] glass-panel outline-none transition-all duration-200 ease-[var(--ease-out)] hover:-translate-y-1 hover:border-border-strong focus-visible:shadow-[var(--shadow-focus)]"
     >
-      {/* Mock portfolio thumbnail */}
-      <div className="relative h-[150px] overflow-hidden bg-surface-base">
-        <div className="h-14 w-full" style={{ background: p.hue, opacity: 0.16 }} />
-        <div
-          className="absolute left-4 top-7 h-12 w-12 rounded-full border-4 border-surface-raised"
-          style={{ background: p.hue }}
-        />
-        <div className="space-y-2 px-4 pt-7">
-          <div className="h-2.5 w-1/2 rounded-full bg-text-primary/70" />
-          <div className="h-2 w-1/3 rounded-full" style={{ background: p.hue, opacity: 0.6 }} />
-          <div className="flex gap-1.5 pt-1">
-            <div className="h-4 w-10 rounded-[var(--radius-sm)] bg-surface-sunken" />
-            <div className="h-4 w-12 rounded-[var(--radius-sm)] bg-surface-sunken" />
-            <div className="h-4 w-8 rounded-[var(--radius-sm)] bg-surface-sunken" />
-          </div>
-        </div>
+      <div className="border-b border-border-default p-4">
+        <TemplateLivePreview templateId={template.id} />
       </div>
 
-      <div className="flex items-center justify-between border-t border-border-default px-4 py-3.5">
-        <div>
-          <p className="text-h4 text-text-primary">{p.name}</p>
-          <p className="text-body-sm text-text-secondary">{p.role}</p>
+      <div className="flex flex-1 flex-col gap-3 px-4 py-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-h4 text-text-primary">{template.name}</p>
+            <p className="mt-1 line-clamp-2 text-body-sm text-text-secondary">
+              {template.description}
+            </p>
+          </div>
+          <ArrowUpRight
+            className="mt-0.5 h-4 w-4 shrink-0 text-text-muted transition-colors group-hover:text-brand-primary"
+            aria-hidden
+          />
         </div>
-        <ArrowUpRight
-          className="h-4 w-4 text-text-muted transition-colors group-hover:text-brand-primary"
-          aria-hidden
-        />
+        <Badge variant="neutral" className="w-fit capitalize">
+          {template.category}
+        </Badge>
       </div>
     </Link>
   );
 }
 
 export function TemplateShowcase() {
+  const templates = SHOWCASE_TEMPLATE_IDS.map(
+    (id) => templateRegistry[id] ?? templateRegistry.minimal
+  );
+  const templateCount = Object.keys(templateRegistry).length;
+
   return (
     <section
       id="showcase"
@@ -77,7 +74,7 @@ export function TemplateShowcase() {
             href="/sign-up"
             className="inline-flex shrink-0 items-center gap-1 text-body-sm font-medium text-brand-primary hover:text-brand-dark"
           >
-            Browse all 18 templates
+            Browse all {templateCount} templates
             <ArrowUpRight className="h-4 w-4" aria-hidden />
           </Link>
         </div>
@@ -85,8 +82,8 @@ export function TemplateShowcase() {
 
       <div className="mt-[var(--space-6)]">
         <div className="mx-auto flex max-w-[1200px] snap-x gap-[var(--space-5)] overflow-x-auto px-6 pb-4 [scrollbar-width:thin]">
-          {PREVIEWS.map((p) => (
-            <PreviewCard key={p.name} p={p} />
+          {templates.map((template) => (
+            <ShowcaseCard key={template.id} template={template} />
           ))}
         </div>
       </div>
