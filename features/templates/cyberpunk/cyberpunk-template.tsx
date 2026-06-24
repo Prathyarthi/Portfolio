@@ -163,6 +163,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
+                      placeholderVariant="dark"
                       containerClassName="bg-[#050505]"
                       placeholderClassName="bg-[#050505] [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-wider [&_p]:text-[#00ff00]"
                       className="h-full w-full object-cover object-top opacity-70 filter contrast-125 transition-all duration-500 group-hover:opacity-100"

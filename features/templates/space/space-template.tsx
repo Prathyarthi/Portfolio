@@ -151,6 +151,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         loading="lazy"
+                        placeholderVariant="dark"
                         containerClassName="overflow-hidden bg-[#030014]"
                         placeholderClassName="bg-[#030014] [&_p]:text-sm [&_p]:font-medium [&_p]:text-slate-400"
                         className="h-full w-full object-cover object-top opacity-80 transition-transform duration-700 group-hover:scale-110 group-hover:opacity-100"

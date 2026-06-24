@@ -153,6 +153,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
+                      placeholderVariant="dark"
                       containerClassName="overflow-hidden bg-[#0d0221]"
                       placeholderClassName="bg-[#0d0221] [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-wider [&_p]:text-[#00f0ff]"
                       className="h-full w-full object-cover object-top filter contrast-125 saturate-150 transition-transform duration-700 group-hover:scale-110"

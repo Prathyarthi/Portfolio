@@ -4,6 +4,10 @@ import { useState } from "react";
 import { getPreviewImage } from "@/lib/link-preview-code";
 import { isLivePreviewEnabledForProject } from "@/lib/live-preview";
 import { cn } from "@/lib/utils";
+import {
+  ProjectPreviewPlaceholderGraphic,
+  type PreviewPlaceholderVariant,
+} from "@/components/project-preview-placeholder-graphic";
 
 interface LivePreviewImageProps {
   liveUrl?: string | null;
@@ -14,6 +18,7 @@ interface LivePreviewImageProps {
   className?: string;
   containerClassName?: string;
   placeholderClassName?: string;
+  placeholderVariant?: PreviewPlaceholderVariant;
   loading?: "lazy" | "eager";
 }
 
@@ -26,6 +31,7 @@ export function LivePreviewImage({
   className,
   containerClassName,
   placeholderClassName,
+  placeholderVariant = "default",
   loading = "lazy",
 }: LivePreviewImageProps) {
   const [imageFailed, setImageFailed] = useState(false);
@@ -56,16 +62,12 @@ export function LivePreviewImage({
           onError={() => setImageFailed(true)}
         />
       ) : (
-        <div
-          className={cn(
-            "flex h-full w-full items-center justify-center bg-stone-100/90 px-4",
-            placeholderClassName
-          )}
-        >
-          <p className="line-clamp-2 text-center text-sm font-medium leading-snug text-stone-500">
-            {alt}
-          </p>
-        </div>
+        <ProjectPreviewPlaceholderGraphic
+          title={alt}
+          seedKey={projectId ?? alt}
+          variant={placeholderVariant}
+          className={placeholderClassName}
+        />
       )}
     </div>
   );
