@@ -15,7 +15,41 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EDIT_STEPS, type EditStepValue } from "@/features/portfolio/constants/edit-steps";
 import { EditStepContent } from "@/features/portfolio/components/edit-step-content";
 
-import { TemplateLivePreview } from "@/features/templates/template-live-preview";
+export function TemplatePreview({ templateId }: { templateId: string }) {
+  const theme: Record<string, string> = {
+    minimal: "from-stone-100 to-stone-200",
+    modern: "from-violet-500/50 to-cyan-400/40",
+    developer: "from-green-500/40 to-emerald-400/30",
+    creative: "from-pink-500/40 to-orange-400/30",
+    corporate: "from-sky-500/40 to-slate-300/30",
+    spotlight: "from-[#fc3]/50 to-[#fbfffe]",
+    retro: "from-[#ff90e8]/80 to-[#ffc900]/80",
+    bento: "from-zinc-100 to-zinc-200",
+    vibrant: "from-fuchsia-600/60 to-cyan-500/60",
+    space: "from-[#030014] to-[#0B0F19]",
+    windows: "from-[#3a6ea5] to-[#3a6ea5]",
+    paper: "from-[#f4f1ea] to-[#e8e4db]",
+    cyberpunk: "from-[#050505] to-[#050505]",
+    pastel: "from-[#fff5f8] to-[#ffdfba]",
+    monochrome: "from-white to-gray-100",
+    synthwave: "from-[#120458] to-[#000000]",
+    artdeco: "from-[#0b132b] to-[#111c3d]",
+    blueprint: "from-[#003366] to-[#002244]",
+  };
+
+  return (
+    <div className={`aspect-4/3 rounded-xl bg-linear-to-br ${theme[templateId] ?? theme.minimal} p-2`}>
+      <div className="h-full rounded-lg border border-white/20 bg-black/10 p-2">
+        <div className="h-2 w-12 rounded-full bg-white/40" />
+        <div className="mt-2 h-8 rounded-lg bg-white/15" />
+        <div className="mt-2 grid grid-cols-2 gap-1.5">
+          <div className="h-8 rounded-lg bg-white/15" />
+          <div className="h-8 rounded-lg bg-white/15" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 type PreviewEditSidebarProps = {
   open: boolean;
@@ -163,7 +197,7 @@ function EditorBody({
                         "cursor-not-allowed opacity-50"
                     )}
                   >
-                    <TemplateLivePreview templateId={t.id} compact />
+                    <TemplatePreview templateId={t.id} />
                     <div className="flex w-full items-center justify-between">
                       <span className="truncate pr-2 text-xs font-medium">
                         {t.name}

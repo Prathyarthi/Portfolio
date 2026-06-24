@@ -21,7 +21,7 @@ import {
 } from "@/features/portfolio/api/use-portfolio";
 import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import { templateRegistry } from "@/features/templates/registry";
-import { TemplateLivePreview } from "@/features/templates/template-live-preview";
+import  {TemplatePreview } from "@/features/portfolio/components/preview-edit-sidebar";
 
 export default function TemplatesPage() {
   const router = useRouter();
@@ -174,7 +174,7 @@ export default function TemplatesPage() {
               }`}
             >
               <div className="relative border-b border-border-default p-4">
-                <TemplateLivePreview templateId={template.id} />
+                <TemplatePreview templateId={template.id} />
                 {isLocked && (
                   <div className="absolute inset-0 flex items-center justify-center bg-text-primary/40 backdrop-blur-[2px]">
                     <Lock className="h-6 w-6 text-white" aria-hidden />
