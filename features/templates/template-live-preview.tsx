@@ -87,6 +87,3 @@ export function TemplateLivePreview({
     </div>
   );
 }
-
-/** @deprecated Use TemplateLivePreview */
-export const TemplatePreviewThumbnail = TemplateLivePreview;

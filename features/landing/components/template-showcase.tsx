@@ -3,7 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { templateRegistry } from "@/features/templates/registry";
 import type { TemplateComponent } from "@/features/templates/types";
-import { TemplateLivePreview } from "@/features/templates/template-live-preview";
+import { TemplatePreviewThumbnail } from "@/features/templates/template-preview-thumbnail";
 
 const SHOWCASE_TEMPLATE_IDS = [
   "minimal",
@@ -23,7 +23,7 @@ function ShowcaseCard({ template }: { template: TemplateComponent }) {
       className="group flex w-[280px] shrink-0 snap-start flex-col overflow-hidden rounded-[var(--radius-xl)] glass-panel outline-none transition-all duration-200 ease-[var(--ease-out)] hover:-translate-y-1 hover:border-border-strong focus-visible:shadow-[var(--shadow-focus)]"
     >
       <div className="border-b border-border-default p-4">
-        <TemplateLivePreview templateId={template.id} />
+        <TemplatePreviewThumbnail templateId={template.id} />
       </div>
 
       <div className="flex flex-1 flex-col gap-3 px-4 py-4">
