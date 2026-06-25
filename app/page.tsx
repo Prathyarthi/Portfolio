@@ -16,7 +16,9 @@ export default function LandingPage() {
         Skip to main content
       </a>
 
-      <div className="min-h-screen overflow-x-hidden bg-surface-base">
+      <div className="min-h-screen overflow-x-hidden bg-surface-base relative">
+        <div className="glass-ambient" aria-hidden />
+        <div className="relative z-[1]">
         <LandingNav />
 
         <main id="main">
@@ -27,6 +29,7 @@ export default function LandingPage() {
           <Pricing />
           <CTA />
         </main>
+        </div>
       </div>
     </>
   );

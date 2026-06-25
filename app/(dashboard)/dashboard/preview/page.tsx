@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Loader2, Share2, Globe, Monitor, Smartphone, BarChart3 } from "lucide-react";
+import { Loader2, Share2, Globe, Monitor, Smartphone, BarChart3, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,12 @@ export default function PreviewPage() {
     try {
       await updateTemplate.mutateAsync(templateToSave);
       setPreviewTemplate(null);
-      toast.success("Template saved");
+      const appliedName = getTemplate(templateToSave).name;
+      if (portfolio?.isPublished) {
+        toast.success(`${appliedName} is now live on your portfolio`);
+      } else {
+        toast.success(`${appliedName} template applied`);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to save template");
     }
@@ -98,6 +103,8 @@ export default function PreviewPage() {
 
   const handlePublishClick = async () => {
     if (!portfolio) return;
+
+    if (previewTemplate && previewTemplate !== savedTemplateId) return;
 
     if (portfolio.isPublished) {
       try {
@@ -163,20 +170,46 @@ export default function PreviewPage() {
     templateId !== (portfolio.templateId ?? "minimal");
   const template = getTemplate(templateId);
   const TemplateComponent = template.component;
+  const liveTemplate = getTemplate(savedTemplateId);
   const data = portfolioToTemplateData(portfolio);
 
   const isPublished = portfolio.isPublished ?? false;
   const slug = portfolio.slug ?? "";
 
   return (
-    <div className="flex min-w-0 w-full max-w-full flex-col gap-4 xl:flex-row xl:items-start">
-      <div className="min-w-0 w-full flex-1 space-y-4">
-        <div className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-border-default bg-surface-raised p-3 shadow-[var(--shadow-card)] lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-2 px-2">
-            <span className="h-2 w-2 rounded-full bg-success" aria-hidden />
-            <span className="text-body-sm font-medium text-text-primary">
-              Portfolio builder
-            </span>
+    <div className="flex min-w-0 w-full max-w-full flex-col gap-4 xl:h-[calc(100dvh-4rem-3rem)] xl:min-h-0 xl:flex-row xl:overflow-hidden">
+      <div className="min-w-0 w-full flex-1 space-y-4 xl:min-h-0 xl:overflow-y-auto xl:pr-1">
+        <div className="flex flex-col gap-4 rounded-[var(--radius-lg)] glass-panel p-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0 px-2">
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "h-2 w-2 shrink-0 rounded-full",
+                  hasUnsavedTemplate && isPublished
+                    ? "bg-warning"
+                    : isPublished
+                      ? "bg-success"
+                      : "bg-text-muted"
+                )}
+                aria-hidden
+              />
+              <span className="text-body-sm font-medium text-text-primary">
+                {hasUnsavedTemplate
+                  ? `Previewing ${template.name}`
+                  : isPublished
+                    ? `${liveTemplate.name} is live`
+                    : "Portfolio builder"}
+              </span>
+            </div>
+            {hasUnsavedTemplate && isPublished ? (
+              <p className="mt-1 pl-4 text-xs text-text-muted">
+                Your live site still uses {liveTemplate.name}. Apply this template to switch.
+              </p>
+            ) : hasUnsavedTemplate ? (
+              <p className="mt-1 pl-4 text-xs text-text-muted">
+                Apply this template before publishing.
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {/* Device toggle */}
@@ -209,32 +242,48 @@ export default function PreviewPage() {
               </Button>
             </div>
             <PreviewEditToggle open={editOpen} onOpenChange={setEditOpen} />
-            <Button
-              type="button"
-              size="sm"
-              variant={isPublished ? "outline" : "default"}
-              onClick={() => void handlePublishClick()}
-              disabled={
-                publishPortfolio.isPending || (!isPublished && !slug)
-              }
-              className={
-                isPublished
-                  ? "rounded-full border-white/8 bg-white/4 text-zinc-200 h-8 text-xs"
-                  : "rounded-full bg-emerald-500 text-white hover:bg-emerald-600 h-8 text-xs"
-              }
-            >
-              {publishPortfolio.isPending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Globe className="h-3.5 w-3.5" />
-              )}
-              {isPublished ? "Unpublish" : "Publish"}
-            </Button>
-            {isPublished && (
+            {hasUnsavedTemplate ? (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => void handleTemplateSave()}
+                disabled={updateTemplate.isPending}
+                className="bg-success text-white hover:bg-success/90"
+              >
+                {updateTemplate.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Check className="h-3.5 w-3.5" />
+                )}
+                {isPublished ? `Apply ${template.name}` : `Use ${template.name}`}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                variant={isPublished ? "outline" : "default"}
+                onClick={() => void handlePublishClick()}
+                disabled={
+                  publishPortfolio.isPending || (!isPublished && !slug)
+                }
+                className={
+                  isPublished
+                    ? undefined
+                    : "bg-success text-white hover:bg-success/90"
+                }
+              >
+                {publishPortfolio.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Globe className="h-3.5 w-3.5" />
+                )}
+                {isPublished ? "Unpublish" : "Publish"}
+              </Button>
+            )}
+            {isPublished && !hasUnsavedTemplate && (
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-full border-white/8 bg-white/4 h-8 text-xs"
                 asChild
               >
                 <Link href="/dashboard/analytics">
@@ -282,6 +331,7 @@ export default function PreviewPage() {
         onOpenChange={setEditOpen}
         templateId={templateId}
         savedTemplateId={portfolio.templateId ?? "minimal"}
+        isPublished={isPublished}
         hasUnsavedTemplate={hasUnsavedTemplate}
         isSavingTemplate={updateTemplate.isPending}
         onTemplateChange={handleTemplatePreview}

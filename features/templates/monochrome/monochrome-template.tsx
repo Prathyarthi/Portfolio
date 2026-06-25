@@ -145,6 +145,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
                     livePreviewProjectIds={livePreviewProjectIds}
                     alt={project.title}
                     loading="lazy"
+                    placeholderVariant="minimal"
                     containerClassName="mb-6 overflow-hidden bg-gray-100"
                     placeholderClassName="bg-gray-100 [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-gray-500"
                     className="h-full w-full object-cover object-top filter transition-all duration-700 group-hover:scale-105"

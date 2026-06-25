@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "razorpay:setup-plans": "node scripts/razorpay-setup-plans.mjs",
+    "razorpay:list-plans": "node scripts/razorpay-setup-plans.mjs --list"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.71",

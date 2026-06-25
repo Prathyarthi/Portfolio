@@ -1,21 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getPortfolioSubdomainHost } from "@/lib/domain";
 
 type Phase = "idle" | "parsing" | "live";
 
-const STEPS: Record<Phase, React.ReactNode> = {
+const EXAMPLE_LIVE_HOST = getPortfolioSubdomainHost("yourname");
+
+function LiveStep() {
+  return (
+    <>
+      resume.pdf <span className="transform-rail__arrow">→</span>{" "}
+      <span className="bracket-chip bracket-chip--live">{EXAMPLE_LIVE_HOST}</span>
+    </>
+  );
+}
+
+const STEPS: Record<Exclude<Phase, "live">, React.ReactNode> = {
   idle: <>resume.pdf</>,
   parsing: (
     <>
       resume.pdf <span className="transform-rail__arrow">→</span>{" "}
       <span className="transform-rail__step">[ parsing ]</span>
-    </>
-  ),
-  live: (
-    <>
-      resume.pdf <span className="transform-rail__arrow">→</span>{" "}
-      <span className="bracket-chip bracket-chip--live">folio.live/you</span>
     </>
   ),
 };
@@ -58,7 +64,9 @@ export function TransformRail({ className }: { className?: string }) {
       aria-live="polite"
       aria-label="Portfolio generation progress"
     >
-      <span className="transform-rail__file">{STEPS[phase]}</span>
+      <span className="transform-rail__file">
+        {phase === "live" ? <LiveStep /> : STEPS[phase]}
+      </span>
       {phase !== "live" && (
         <span className="transform-rail__cursor" aria-hidden>
           ▊

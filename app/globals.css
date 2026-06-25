@@ -178,35 +178,103 @@
   --sidebar-ring: var(--color-brand-primary);
 }
 
-/* ─── Design Tokens — DARK (token swap, not invert) ────────────── */
+/* ─── Design Tokens — DARK (warm studio night) ─────────────────── */
 .dark,
 [data-theme="dark"] {
-  --color-brand-primary: #c4bfd8;
-  --color-brand-secondary: #e86a5a;
-  --color-brand-dark: #ddd8f0;
-  --color-brand-light: #2a2838;
+  /* Brand — terracotta leads on dark; cream for soft accents */
+  --color-brand-primary: #ed7a6d;
+  --color-brand-secondary: #f09588;
+  --color-brand-dark: #f5a89e;
+  --color-brand-light: #252320;
 
-  --color-surface-base: #12111a;
-  --color-surface-raised: #1c1b26;
-  --color-surface-sunken: #15141f;
-  --color-border-default: #2e2c3d;
-  --color-border-strong: #4a4760;
-  --color-text-primary: #f2f0fa;
-  --color-text-secondary: #9895a8;
-  --color-text-muted: #6b6878;
+  /* Warm charcoal surfaces (no purple cast) */
+  --color-surface-base: #111010;
+  --color-surface-raised: #1a1917;
+  --color-surface-sunken: #141312;
+  --color-border-default: #2c2a26;
+  --color-border-strong: #433f3a;
+  --color-text-primary: #f4f1ea;
+  --color-text-secondary: #b0a99f;
+  --color-text-muted: #7d756c;
 
-  /* Semantic backgrounds toned down for dark surfaces */
-  --color-success-bg: rgba(92, 191, 168, 0.14);
-  --color-warning-bg: rgba(232, 184, 74, 0.12);
-  --color-danger-bg: rgba(216, 67, 50, 0.14);
+  /* Semantic — slightly brighter for dark backgrounds */
+  --color-success: #62c9ae;
+  --color-warning: #e5bb52;
+  --color-danger: #e86658;
+  --color-success-bg: rgba(98, 201, 174, 0.12);
+  --color-warning-bg: rgba(229, 187, 82, 0.1);
+  --color-danger-bg: rgba(232, 102, 88, 0.12);
 
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.45);
-  --shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.45), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-modal: 0 12px 40px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-focus: 0 0 0 3px rgba(237, 122, 109, 0.35);
 
-  --primary-foreground: #ffffff;
+  /* shadcn semantic mapping */
+  --background: var(--color-surface-base);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-surface-raised);
+  --card-foreground: var(--color-text-primary);
   --popover: var(--color-surface-raised);
-  --secondary-foreground: var(--color-brand-secondary);
-  --accent-foreground: var(--color-brand-secondary);
+  --popover-foreground: var(--color-text-primary);
+  --primary: var(--color-brand-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-brand-light);
+  --secondary-foreground: var(--color-text-primary);
+  --muted: var(--color-surface-sunken);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-brand-light);
+  --accent-foreground: var(--color-text-primary);
+  --destructive: var(--color-danger);
+  --border: var(--color-border-default);
+  --input: var(--color-border-default);
+  --ring: var(--color-brand-primary);
+
+  --sidebar: var(--color-surface-raised);
+  --sidebar-foreground: var(--color-text-primary);
+  --sidebar-primary: var(--color-brand-primary);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--color-brand-light);
+  --sidebar-accent-foreground: var(--color-text-primary);
+  --sidebar-border: var(--color-border-default);
+  --sidebar-ring: var(--color-brand-primary);
+}
+
+.dark ::selection,
+[data-theme="dark"] ::selection {
+  background: rgba(237, 122, 109, 0.35);
+  color: var(--color-text-primary);
+}
+
+/* ─── Glass effect tokens ──────────────────────────────────────── */
+:root {
+  --glass-blur: 20px;
+  --glass-saturate: 1.65;
+  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 68%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--color-surface-raised) 84%, transparent);
+  --glass-border: color-mix(in srgb, var(--color-border-default) 55%, transparent);
+  --glass-highlight: color-mix(in srgb, #ffffff 65%, transparent);
+  --glass-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    0 4px 24px color-mix(in srgb, var(--color-text-primary) 7%, transparent);
+  --glass-shadow-lg:
+    inset 0 1px 0 var(--glass-highlight),
+    0 12px 40px color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+}
+
+.dark,
+[data-theme="dark"] {
+  --glass-blur: 24px;
+  --glass-saturate: 1.5;
+  --glass-bg: color-mix(in srgb, var(--color-surface-raised) 52%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--color-surface-raised) 68%, transparent);
+  --glass-border: color-mix(in srgb, var(--color-border-strong) 35%, transparent);
+  --glass-highlight: color-mix(in srgb, #ffffff 10%, transparent);
+  --glass-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    0 8px 32px rgba(0, 0, 0, 0.42);
+  --glass-shadow-lg:
+    inset 0 1px 0 var(--glass-highlight),
+    0 16px 48px rgba(0, 0, 0, 0.55);
 }
 
 /* ─── Base ─────────────────────────────────────────────────────── */
@@ -336,6 +404,93 @@ body {
     .text-display { font-size: 36px; }
     .text-h1 { font-size: 28px; }
   }
+
+  /* ── Glass surfaces ── */
+  .glass {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  }
+
+  .glass-nav {
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-panel {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-sidebar {
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    border-color: var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-modal {
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 8px)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(calc(var(--glass-blur) + 8px)) saturate(var(--glass-saturate));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow-lg);
+  }
+
+  .glass-overlay {
+    background: color-mix(in srgb, var(--color-text-primary) 28%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    backdrop-filter: blur(10px) saturate(1.2);
+  }
+
+  .glass-ambient {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .glass-ambient::before,
+  .glass-ambient::after {
+    content: "";
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(72px);
+  }
+
+  .glass-ambient::before {
+    top: -8rem;
+    right: -4rem;
+    width: 22rem;
+    height: 22rem;
+    background: color-mix(in srgb, var(--color-brand-secondary) 14%, transparent);
+  }
+
+  .glass-ambient::after {
+    bottom: -6rem;
+    left: -3rem;
+    width: 18rem;
+    height: 18rem;
+    background: color-mix(in srgb, var(--color-brand-primary) 10%, transparent);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass,
+    .glass-nav,
+    .glass-panel,
+    .glass-sidebar,
+    .glass-modal {
+      background: var(--color-surface-raised);
+    }
+  }
 }
 
 /* ─── Skeleton shimmer ─────────────────────────────────────────── */
@@ -390,6 +545,11 @@ body {
   filter: blur(80px);
   opacity: 0.7;
   pointer-events: none;
+}
+.dark .hero-blob,
+[data-theme="dark"] .hero-blob {
+  background: var(--color-brand-primary);
+  opacity: 0.08;
 }
 
 /* ─── Marquee (social proof logos) ─────────────────────────────── */
