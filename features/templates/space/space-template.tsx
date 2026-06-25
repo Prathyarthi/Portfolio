@@ -77,7 +77,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <header className="relative flex flex-col items-center text-center mb-24">
+        <header className="relative mb-24 flex min-w-0 w-full flex-col items-center text-center">
           {portfolio.avatarUrl && (
             <div className="relative mb-8 group">
               <div className="absolute -inset-1 rounded-full bg-linear-to-r from-cyan-500 to-violet-500 opacity-50 blur-lg group-hover:opacity-80 transition-opacity duration-700 animate-pulse" />
@@ -94,12 +94,12 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
             Mission Control
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-slate-400 mb-6">
+          <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-slate-400 mb-6">
             {portfolio.title}
           </h1>
 
           {portfolio.headline && (
-            <p className="text-xl md:text-2xl text-cyan-100/60 font-medium max-w-3xl mb-10 leading-relaxed">
+            <p className="text-base @md:text-lg @lg:text-2xl text-cyan-100/60 font-medium max-w-3xl mb-10 leading-relaxed">
               {portfolio.headline}
             </p>
           )}

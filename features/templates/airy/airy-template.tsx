@@ -60,7 +60,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
           </nav>
         )}
 
-        <header className="mb-24 flex flex-col items-center text-center">
+        <header className="mb-24 flex min-w-0 w-full flex-col items-center text-center">
           {portfolio.avatarUrl && (
             <motion.img
               initial={{ scale: 0.9, opacity: 0 }}
@@ -73,7 +73,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
           <motion.h1
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="mb-4 text-4xl font-extrabold tracking-tight text-slate-800 md:text-6xl"
+            className="mb-4 min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-3xl @md:text-4xl @lg:text-6xl font-extrabold tracking-tight text-slate-800"
           >
             {portfolio.title}
           </motion.h1>
@@ -82,7 +82,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="max-w-2xl text-lg text-slate-600 md:text-xl font-medium"
+              className="max-w-2xl text-base @md:text-lg @lg:text-xl text-slate-600 font-medium"
             >
               {portfolio.headline}
             </motion.p>

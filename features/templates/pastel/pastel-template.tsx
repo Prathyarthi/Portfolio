@@ -98,12 +98,12 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
             Welcome to my world
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold text-[#2d2d2d] mb-6 tracking-tight">
+          <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-extrabold text-[#2d2d2d] mb-6 tracking-tight">
             {portfolio.title}
           </h1>
 
           {portfolio.headline && (
-            <p className="text-xl md:text-2xl text-[#888] font-medium mb-10 leading-relaxed">
+            <p className="text-base @md:text-lg @lg:text-2xl text-[#888] font-medium mb-10 leading-relaxed">
               {portfolio.headline}
             </p>
           )}

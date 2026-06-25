@@ -16,6 +16,10 @@ import {
   PROJECT_CARD_HEADER,
   PROJECT_CARD_META,
   PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_7XL,
   PROJECTS_GRID_2,
   SocialPills,
   TEMPLATE_CONTAINER,
@@ -54,17 +58,23 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
         <div className="pointer-events-none absolute left-1/3 top-64 h-72 w-72 rounded-full bg-fuchsia-100/25 blur-3xl" />
 
         <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
-          <header className="overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_80px_rgba(190,24,93,0.08)] backdrop-blur-xl md:p-10">
-            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-              <div>
+          <header className="overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_80px_rgba(190,24,93,0.08)] backdrop-blur-xl @md:p-10">
+            <div className="grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1.1fr_0.9fr] @lg:items-center">
+              <div className={HERO_HEADER_COLUMN}>
                 <p className="text-xs font-medium uppercase tracking-[0.28em] text-rose-400">
                   Creative Portfolio
                 </p>
-                <h1 className="mt-4 max-w-3xl text-5xl font-semibold tracking-tight text-stone-950 md:text-7xl">
+                <h1
+                  className={cn(
+                    HERO_TITLE_BASE,
+                    HERO_TITLE_SCALE_7XL,
+                    "mt-4 max-w-3xl font-semibold tracking-tight text-stone-950"
+                  )}
+                >
                   {portfolio.title}
                 </h1>
                 {portfolio.headline && (
-                  <p className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-600 md:text-xl">
+                  <p className={cn(HERO_HEADLINE_SCALE, "mt-5 max-w-2xl text-stone-600")}>
                     {portfolio.headline}
                   </p>
                 )}

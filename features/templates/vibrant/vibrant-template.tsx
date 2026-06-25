@@ -94,12 +94,12 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
             Portfolio
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 mb-6">
+          <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 mb-6">
             {portfolio.title}
           </h1>
 
           {portfolio.headline && (
-            <p className="text-xl md:text-2xl text-slate-400 font-medium max-w-3xl mb-10 leading-relaxed">
+            <p className="text-base @md:text-lg @lg:text-2xl text-slate-400 font-medium max-w-3xl mb-10 leading-relaxed">
               {portfolio.headline}
             </p>
           )}

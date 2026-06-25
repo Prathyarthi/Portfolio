@@ -72,14 +72,14 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
 
         <div className={BENTO_GRID}>
           {/* Hero Bento Box */}
-          <header className="col-span-1 @md:col-span-2 @lg:col-span-3 row-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50 flex flex-col justify-between relative overflow-hidden group">
+          <header className="col-span-1 @md:col-span-2 @lg:col-span-3 row-span-2 rounded-3xl bg-white p-5 @md:p-8 shadow-sm border border-zinc-200/50 flex min-w-0 flex-col justify-between relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-blue-100/40 to-purple-100/40 rounded-full blur-3xl -mr-20 -mt-20 transition-transform duration-700 group-hover:scale-110" />
             <div className="relative z-10">
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-zinc-900 mb-4">
+              <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-3xl @md:text-4xl @lg:text-6xl font-bold tracking-tight text-zinc-900 mb-4">
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
-                <p className="text-xl md:text-2xl text-zinc-500 font-medium max-w-2xl mb-8">
+                <p className="text-base @md:text-lg @lg:text-2xl text-zinc-500 font-medium max-w-2xl mb-8">
                   {portfolio.headline}
                 </p>
               )}

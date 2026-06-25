@@ -18,6 +18,10 @@ import {
   PROJECT_CARD_HEADER,
   PROJECT_CARD_META,
   PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_7XL,
   PROJECTS_GRID_2,
   SocialPills,
   TEMPLATE_CONTAINER,
@@ -60,18 +64,24 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
   return (
     <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.14),transparent_34%),linear-gradient(180deg,#f8f7f4_0%,#efede6_100%)] text-stone-800")}>
       <div className="mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
-        <header className="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl md:p-10">
+        <header className="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl @md:p-10">
           <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-stone-300/70 to-transparent" />
-          <div className="grid gap-8 md:gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-            <div>
+          <div className="grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1.2fr_0.8fr] @lg:items-start">
+            <div className={HERO_HEADER_COLUMN}>
               <p className="text-xs font-medium uppercase tracking-[0.3em] text-stone-400">
                 Modern Minimal
               </p>
-              <h1 className="mt-4 max-w-3xl font-serif text-5xl font-semibold tracking-tight text-stone-950 md:text-7xl">
+              <h1
+                className={cn(
+                  HERO_TITLE_BASE,
+                  HERO_TITLE_SCALE_7XL,
+                  "mt-4 max-w-3xl font-serif font-semibold tracking-tight text-stone-950"
+                )}
+              >
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
-                <p className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-600 md:text-xl">
+                <p className={cn(HERO_HEADLINE_SCALE, "mt-5 max-w-2xl text-stone-600")}>
                   {portfolio.headline}
                 </p>
               )}

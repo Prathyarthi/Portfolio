@@ -65,7 +65,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-6xl md:text-8xl font-black tracking-tighter text-[#264653] uppercase leading-none"
+                className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-6xl @lg:text-8xl font-black tracking-tighter text-[#264653] uppercase leading-none"
               >
                 {portfolio.title}
               </motion.h1>

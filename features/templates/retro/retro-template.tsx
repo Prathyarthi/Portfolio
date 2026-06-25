@@ -18,10 +18,15 @@ import {
   PROJECT_CARD_HEADER,
   PROJECT_CARD_META,
   PROJECT_CARD_TITLE,
-  PROJECTS_GRID_2,
+  HERO_HEADER_COLUMN,
+  HERO_HEADER_GRID,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_7XL,
   SocialPills,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  PROJECTS_GRID_2,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -59,17 +64,28 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
   return (
     <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#f4f0ea] font-mono text-black")}>
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 md:px-8 md:pb-24 md:pt-14">
-        <header className="relative border-4 border-black bg-[#ff90e8] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-10">
-          <div className="grid gap-8 md:gap-10 lg:grid-cols-[1fr_300px] lg:items-start">
-            <div>
+        <header className="relative border-4 border-black bg-[#ff90e8] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] @md:p-10">
+          <div className={HERO_HEADER_GRID}>
+            <div className={HERO_HEADER_COLUMN}>
               <div className="inline-block border-2 border-black bg-white px-3 py-1 text-xs font-bold uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 Retro Edition
               </div>
-              <h1 className="mt-6 font-sans text-5xl font-black uppercase tracking-tight text-black md:text-7xl">
+              <h1
+                className={cn(
+                  HERO_TITLE_BASE,
+                  HERO_TITLE_SCALE_7XL,
+                  "mt-6 font-sans font-black uppercase tracking-tight text-black"
+                )}
+              >
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
-                <p className="mt-5 max-w-2xl border-l-4 border-black pl-4 text-lg font-bold leading-relaxed text-black md:text-xl">
+                <p
+                  className={cn(
+                    HERO_HEADLINE_SCALE,
+                    "mt-5 max-w-2xl border-l-4 border-black pl-4 font-bold text-black"
+                  )}
+                >
                   {portfolio.headline}
                 </p>
               )}

@@ -68,7 +68,7 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
               <p className="mb-1 text-gray-500 text-xs tracking-widest uppercase">
                 $ whoami
               </p>
-              <h1 className="text-4xl font-bold text-green-300 md:text-5xl">
+              <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-xl @sm:text-2xl @md:text-3xl @lg:text-5xl font-bold text-green-300">
                 {portfolio.title}
               </h1>
               <p className="mt-3 text-lg text-green-500/80">

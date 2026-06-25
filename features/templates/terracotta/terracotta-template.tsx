@@ -46,7 +46,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
     <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#FDFBF7] text-[#3D405B] font-serif overflow-x-hidden")}>
       <div className="mx-auto max-w-6xl px-6 py-16 sm:px-12 md:py-24">
 
-        <header className="mb-24 flex flex-col md:flex-row md:items-center gap-12">
+        <header className="mb-24 flex min-w-0 w-full flex-col @md:flex-row @md:items-center gap-12">
           {portfolio.avatarUrl && (
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -61,11 +61,11 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
               />
             </motion.div>
           )}
-          <div>
+          <div className="min-w-0">
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-5xl md:text-7xl font-medium tracking-tight text-[#E07A5F]"
+              className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-medium tracking-tight text-[#E07A5F]"
             >
               {portfolio.title}
             </motion.h1>
@@ -74,7 +74,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="mt-4 text-xl md:text-2xl text-[#3D405B]/80 font-light italic"
+                className="mt-4 text-base @md:text-lg @lg:text-2xl text-[#3D405B]/80 font-light italic"
               >
                 {portfolio.headline}
               </motion.p>

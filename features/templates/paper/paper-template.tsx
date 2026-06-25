@@ -68,7 +68,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="text-center space-y-6">
-          <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-widest leading-tight">
+          <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-bold uppercase tracking-widest leading-tight">
             {portfolio.title}
           </h1>
           {portfolio.headline && (

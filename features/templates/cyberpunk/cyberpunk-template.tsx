@@ -92,7 +92,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
                 <Terminal className="w-3 h-3 mr-2" />
                 System.Init()
               </div>
-              <h1 className="text-5xl md:text-7xl font-black uppercase tracking-tighter text-white drop-shadow-[0_0_10px_rgba(0,255,0,0.8)] mb-4">
+              <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-black uppercase tracking-tighter text-white drop-shadow-[0_0_10px_rgba(0,255,0,0.8)] mb-4">
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
@@ -454,7 +454,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
 function SectionHeading({ children, icon }: { children: React.ReactNode, icon?: React.ReactNode }) {
   return (
-    <h2 className="text-xl md:text-2xl font-bold uppercase tracking-widest text-white mb-8 flex items-center gap-3">
+    <h2 className="text-base @md:text-lg @lg:text-2xl font-bold uppercase tracking-widest text-white mb-8 flex items-center gap-3">
       <span className="text-[#00ff00]">{icon || <Terminal className="w-5 h-5" />}</span>
       {children}
       <span className="ml-4 h-px grow bg-[linear-gradient(90deg,#00ff00_0%,transparent_100%)] opacity-50" />

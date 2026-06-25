@@ -85,22 +85,22 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
           </div>
         )}
 
-        <header className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center border-b-2 border-white/50 pb-16 relative">
+        <header className="grid min-w-0 grid-cols-1 @md:grid-cols-12 gap-12 items-center border-b-2 border-white/50 pb-16 relative">
           <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white" />
           <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white" />
 
-          <div className="md:col-span-8">
+          <div className="min-w-0 @md:col-span-8">
             <div className="inline-flex items-center gap-2 border border-white/50 px-3 py-1 text-[10px] uppercase tracking-widest mb-8">
               <Crosshair className="w-3 h-3" />
               <span>FIG. 1: MAIN_PROFILE</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-tighter mb-6">
+            <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-bold uppercase tracking-tighter mb-6">
               {portfolio.title}
             </h1>
 
             {portfolio.headline && (
-              <p className="text-xl md:text-2xl text-white/80 uppercase tracking-widest max-w-2xl mb-10">
+              <p className="text-base @md:text-lg @lg:text-2xl text-white/80 uppercase tracking-widest max-w-2xl mb-10">
                 {portfolio.headline}
               </p>
             )}
@@ -472,7 +472,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
 
 function SectionHeading({ children, number }: { children: React.ReactNode, number: string }) {
   return (
-    <h2 className="text-xl md:text-2xl font-bold flex items-center gap-4 uppercase tracking-widest mb-8">
+    <h2 className="text-base @md:text-lg @lg:text-2xl font-bold flex items-center gap-4 uppercase tracking-widest mb-8">
       <span className="text-sm font-normal border border-white/50 px-2 py-1">{number}</span>
       {children}
       <span className="h-[2px] grow bg-white/30" />

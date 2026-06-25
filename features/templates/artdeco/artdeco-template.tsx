@@ -73,11 +73,11 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
       <div className="mx-auto max-w-5xl px-6 md:px-12 py-16 relative z-10 space-y-24">
 
         {navbarEnabled && (
-          <div className="sticky top-8 z-50 flex justify-center mb-16">
+          <div className="sticky top-8 z-50 mb-16 flex min-w-0 w-full justify-center px-2">
             <TemplateNavbar
               items={sections}
-              className="flex gap-4 bg-[#0b132b] border-y-2 border-[#d4af37] px-8 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
-              linkClassName="px-2 py-1 text-xs font-bold text-[#d4af37] hover:text-white transition-all uppercase tracking-[0.2em] relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#d4af37] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-center"
+              className="w-full max-w-full @md:w-auto border-y-2 border-[#d4af37] bg-[#0b132b] px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.5)] @md:px-8"
+              linkClassName="px-2 py-1 text-[10px] @md:text-xs font-bold text-[#d4af37] hover:text-white transition-all uppercase tracking-[0.2em] relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#d4af37] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-center"
             />
           </div>
         )}
@@ -103,7 +103,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
             <div className="h-px w-12 bg-[#d4af37]" />
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-serif text-[#d4af37] mb-6 tracking-wider uppercase font-light">
+          <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-serif text-[#d4af37] mb-6 tracking-wider uppercase font-light">
             {portfolio.title}
           </h1>
 

@@ -18,6 +18,10 @@ import {
   PROJECT_CARD_HEADER,
   PROJECT_CARD_META,
   PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_6XL,
   PROJECTS_GRID_2,
   SocialPills,
   TEMPLATE_CONTAINER,
@@ -60,16 +64,22 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#f3f6fb] text-slate-900 antialiased")}>
       <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 md:px-10 md:py-12">
         <header className="overflow-hidden rounded-[2.2rem] border border-slate-200/40 bg-[#0f172a] text-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
-          <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="p-6 md:p-10">
+          <div className="grid min-w-0 gap-0 @lg:grid-cols-[1.1fr_0.9fr]">
+            <div className={cn(HERO_HEADER_COLUMN, "p-6 @md:p-10")}>
               <p className="text-xs uppercase tracking-[0.3em] text-sky-300/70">
                 Executive Portfolio
               </p>
-              <h1 className="mt-4 max-w-3xl text-5xl font-semibold tracking-tight md:text-6xl">
+              <h1
+                className={cn(
+                  HERO_TITLE_BASE,
+                  HERO_TITLE_SCALE_6XL,
+                  "mt-4 max-w-3xl font-semibold tracking-tight text-white"
+                )}
+              >
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
-                <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">
+                <p className={cn(HERO_HEADLINE_SCALE, "mt-5 max-w-2xl text-slate-300")}>
                   {portfolio.headline}
                 </p>
               )}
@@ -99,7 +109,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
               )}
             </div>
 
-            <div className="border-t border-white/10 bg-linear-to-br from-sky-500/18 via-transparent to-white/5 p-6 lg:border-l lg:border-t-0 md:p-10">
+            <div className="border-t border-white/10 bg-linear-to-br from-sky-500/18 via-transparent to-white/5 p-6 @md:p-10 @lg:border-l @lg:border-t-0">
               <div className="grid gap-4">
                 {portfolio.avatarUrl && (
                   <div className="rounded-[1.9rem] border border-white/10 bg-white/5 p-3">

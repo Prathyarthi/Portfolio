@@ -80,11 +80,11 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
       <div className="mx-auto max-w-5xl px-4 py-12 relative z-10 space-y-20">
 
         {navbarEnabled && (
-          <div className="sticky top-6 z-50 flex justify-center mb-16">
+          <div className="sticky top-6 z-50 mb-16 flex min-w-0 w-full justify-center px-2">
             <TemplateNavbar
               items={sections}
-              className="flex gap-2 bg-[#0d0221]/80 backdrop-blur-md border border-[#ff007f] p-2 rounded-full shadow-[0_0_15px_rgba(255,0,127,0.5)]"
-              linkClassName="px-5 py-2 text-sm font-bold text-[#00f0ff] hover:bg-[#ff007f] hover:text-white transition-all rounded-full uppercase tracking-widest"
+              className="w-full max-w-full @md:w-auto rounded-full border border-[#ff007f] bg-[#0d0221]/80 p-2 shadow-[0_0_15px_rgba(255,0,127,0.5)] backdrop-blur-md"
+              linkClassName="px-4 py-2 text-xs @md:px-5 @md:text-sm font-bold text-[#00f0ff] hover:bg-[#ff007f] hover:text-white transition-all rounded-full uppercase tracking-widest"
             />
           </div>
         )}
@@ -101,12 +101,12 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
             </div>
           )}
 
-          <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-linear-to-b from-[#00f0ff] to-[#ff007f] mb-4 tracking-tighter drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]" style={{ WebkitTextStroke: '1px #ffffff' }}>
+          <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-6xl @lg:text-8xl font-black text-transparent bg-clip-text bg-linear-to-b from-[#00f0ff] to-[#ff007f] mb-4 tracking-tighter drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]" style={{ WebkitTextStroke: '1px #ffffff' }}>
             {portfolio.title}
           </h1>
 
           {portfolio.headline && (
-            <p className="text-xl md:text-3xl text-[#ffbc00] font-bold mb-10 tracking-widest uppercase drop-shadow-[0_0_8px_rgba(255,188,0,0.8)]">
+            <p className="text-base @md:text-xl @lg:text-3xl text-[#ffbc00] font-bold mb-10 tracking-widest uppercase drop-shadow-[0_0_8px_rgba(255,188,0,0.8)]">
               {portfolio.headline}
             </p>
           )}

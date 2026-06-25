@@ -63,7 +63,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-6xl md:text-8xl font-black tracking-tight uppercase"
+              className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-6xl @lg:text-8xl font-black tracking-tight uppercase"
               style={{ fontVariant: "small-caps" }}
             >
               {portfolio.title}
@@ -73,7 +73,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="mt-6 text-2xl md:text-3xl font-normal italic text-[#8C2727] px-8"
+                className="mt-6 text-lg @md:text-xl @lg:text-3xl font-normal italic text-[#8C2727] px-4 @md:px-8"
               >
                 {portfolio.headline}
               </motion.p>

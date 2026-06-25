@@ -19,6 +19,10 @@ import {
   PROJECT_CARD_HEADER,
   PROJECT_CARD_META,
   PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_7XL,
   PROJECTS_GRID_2,
   SocialPills,
   TEMPLATE_CONTAINER,
@@ -66,17 +70,23 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.18]" />
 
         <div className="relative mx-auto min-w-0 max-w-6xl overflow-x-clip px-5 pb-14 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-16">
-          <header className="rounded-[2.1rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_28px_100px_rgba(6,8,22,0.48)] backdrop-blur-2xl md:p-10">
-            <div className="grid gap-8 md:gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-              <div>
+          <header className="rounded-[2.1rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_28px_100px_rgba(6,8,22,0.48)] backdrop-blur-2xl @md:p-10">
+            <div className="grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1.15fr_0.85fr] @lg:items-end">
+              <div className={HERO_HEADER_COLUMN}>
                 <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-zinc-500">
                   Modern Interface
                 </p>
-                <h1 className="mt-4 text-5xl font-black tracking-tight text-white md:text-7xl">
+                <h1
+                  className={cn(
+                    HERO_TITLE_BASE,
+                    HERO_TITLE_SCALE_7XL,
+                    "mt-4 font-black tracking-tight text-white"
+                  )}
+                >
                   {portfolio.title}
                 </h1>
                 {portfolio.headline && (
-                  <p className="mt-5 max-w-2xl text-lg leading-relaxed text-zinc-300/95">
+                  <p className={cn(HERO_HEADLINE_SCALE, "mt-5 max-w-2xl text-zinc-300/95")}>
                     {portfolio.headline}
                   </p>
                 )}

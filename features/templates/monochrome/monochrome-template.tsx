@@ -73,19 +73,19 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
 
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-12 md:py-24 space-y-32">
 
-        <header className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
-          <div className="lg:col-span-8">
-            <h1 className="text-6xl md:text-8xl lg:text-[9rem] font-black uppercase tracking-tighter leading-[0.85] mb-8">
+        <header className="grid min-w-0 grid-cols-1 @lg:grid-cols-12 gap-12 items-end">
+          <div className="min-w-0 @lg:col-span-8">
+            <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-6xl @lg:text-8xl @xl:text-[9rem] font-black uppercase tracking-tighter leading-[0.85] mb-8">
               {portfolio.title}
             </h1>
             {portfolio.headline && (
-              <p className="text-2xl md:text-4xl font-medium tracking-tight max-w-3xl">
+              <p className="text-lg @md:text-2xl @lg:text-4xl font-medium tracking-tight max-w-3xl">
                 {portfolio.headline}
               </p>
             )}
           </div>
 
-          <div className="lg:col-span-4 flex flex-col items-start lg:items-end gap-8">
+          <div className="min-w-0 @lg:col-span-4 flex flex-col items-start @lg:items-end gap-8">
             {portfolio.avatarUrl && (
               <img
                 src={portfolio.avatarUrl}
