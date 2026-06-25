@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GithubIcon, TwitterIcon, LinkedinIcon } from "@/components/icons";
+import { Logo } from "@/components/logo";
 import { siteConfig } from "@/lib/site";
 
 const NAV = {
@@ -42,11 +43,7 @@ export function Footer() {
       <div className="mx-auto max-w-[1200px]">
         <div className="grid grid-cols-2 gap-6 md:grid-cols-[2fr_1fr_1fr_1fr] md:gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" aria-label={`${siteConfig.name} home`}>
-              <span className="font-display text-[18px] font-bold text-white">
-                {siteConfig.name}
-              </span>
-            </Link>
+            <Logo variant="light" />
             <p className="mt-2 max-w-[260px] text-xs leading-relaxed text-white/60">
               {siteConfig.tagline}
             </p>

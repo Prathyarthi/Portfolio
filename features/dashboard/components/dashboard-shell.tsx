@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Logo, LogoMark } from "@/components/logo";
 import { siteConfig } from "@/lib/site";
 import {
   Sidebar,
@@ -59,9 +60,11 @@ function AppSidebar() {
           className="flex h-8 items-center gap-2 overflow-hidden px-2"
           aria-label={`${siteConfig.name} home`}
         >
-          <span className="font-display text-lg font-bold text-brand-primary">
-            <span className="group-data-[collapsible=icon]:hidden">{siteConfig.name}</span>
-            <span className="hidden group-data-[collapsible=icon]:inline">L</span>
+          <LogoMark className="h-8 w-8" />
+          <span
+            className="font-display text-lg font-bold text-brand-primary group-data-[collapsible=icon]:hidden"
+          >
+            {siteConfig.name}
           </span>
         </Link>
       </SidebarHeader>
@@ -140,9 +143,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <div className="glass-ambient" aria-hidden />
         <header className="glass-nav sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 px-4">
           <SidebarTrigger className="size-9" />
-          <Link href="/dashboard" className="font-display text-lg font-bold text-brand-primary md:hidden">
-            {siteConfig.name}
-          </Link>
+          <Logo href="/dashboard" className="md:hidden" />
           <div className="ml-auto flex items-center gap-1 md:hidden">
             <ThemeToggle className="size-9" />
           </div>

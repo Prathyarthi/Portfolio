@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
+import { Logo } from "@/components/logo";
 
 interface MarketingPageShellProps {
   children: React.ReactNode;
@@ -10,14 +10,12 @@ export function MarketingPageShell({ children }: MarketingPageShellProps) {
     <div className="min-h-screen overflow-x-hidden">
       <header className="sticky top-0 z-50 border-b border-white/6 bg-[#080b14]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="gradient-text text-xl font-bold tracking-wide">
-              {siteConfig.name}
-            </span>
+          <div className="flex items-center gap-2">
+            <Logo />
             <span className="rounded-full border border-white/8 bg-white/4 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-zinc-400">
               Beta
             </span>
-          </Link>
+          </div>
 
           <nav className="flex items-center gap-2 sm:gap-3">
             <Link

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PricingPlansSection } from "./pricing-plans-section";
-import { siteConfig } from "@/lib/site";
+import { Logo } from "@/components/logo";
 
 export function PricingPageShell() {
   const { data: session } = useSession();
@@ -23,15 +23,7 @@ export function PricingPageShell() {
         }}
       >
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
-          <Link
-            href="/"
-            className="flex items-center gap-2"
-            aria-label={`${siteConfig.name} home`}
-          >
-            <span className="font-display text-[20px] font-bold tracking-[-0.01em] text-brand-primary">
-              {siteConfig.name}
-            </span>
-          </Link>
+          <Logo />
 
           <nav className="flex items-center gap-1.5">
             <ThemeToggle />

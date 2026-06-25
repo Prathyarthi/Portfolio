@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
+import { Logo } from "@/components/logo";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -14,16 +14,6 @@ const LINKS = [
   { label: "Templates", href: "#showcase" },
   { label: "Pricing", href: "#pricing" },
 ];
-
-function Logo() {
-  return (
-    <Link href="/" className="flex items-center gap-2" aria-label={`${siteConfig.name} home`}>
-      <span className="font-display text-[20px] font-bold tracking-[-0.01em] text-brand-primary">
-        {siteConfig.name}
-      </span>
-    </Link>
-  );
-}
 
 export function LandingNav() {
   const [open, setOpen] = useState(false);
