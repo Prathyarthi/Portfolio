@@ -15,7 +15,7 @@ const STEPS = [
   {
     icon: Rocket,
     title: "Publish",
-    body: "Pick a layout and go live on your own link. Share it with recruiters in one click.",
+    body: "Pick a layout and go live on your own link. Optionally connect GitHub, Medium, and LeetCode to keep it updated.",
   },
 ];
 
@@ -32,8 +32,9 @@ export function Features() {
             From resume to live site in three steps
           </h2>
           <p className="prose-measure mx-auto mt-4 text-body text-text-secondary">
-            No templates to wrangle, no blank canvas. Foliofy does the heavy
-            lifting so you can ship something you are proud of.
+            No templates to wrangle, no blank canvas. Livefolio does the heavy
+            lifting from your resume — then you can layer in integrations when
+            you are ready.
           </p>
         </div>
 

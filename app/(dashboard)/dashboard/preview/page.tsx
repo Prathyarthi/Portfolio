@@ -248,7 +248,6 @@ export default function PreviewPage() {
                 size="sm"
                 onClick={() => void handleTemplateSave()}
                 disabled={updateTemplate.isPending}
-                className="bg-success text-white hover:bg-success/90"
               >
                 {updateTemplate.isPending ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -265,11 +264,6 @@ export default function PreviewPage() {
                 onClick={() => void handlePublishClick()}
                 disabled={
                   publishPortfolio.isPending || (!isPublished && !slug)
-                }
-                className={
-                  isPublished
-                    ? undefined
-                    : "bg-success text-white hover:bg-success/90"
                 }
               >
                 {publishPortfolio.isPending ? (

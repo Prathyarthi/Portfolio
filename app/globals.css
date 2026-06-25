@@ -149,7 +149,7 @@
   --card-foreground: var(--color-text-primary);
   --popover: var(--color-surface-base);
   --popover-foreground: var(--color-text-primary);
-  --primary: var(--color-brand-primary);
+  --primary: var(--color-brand-secondary);
   --primary-foreground: #ffffff;
   --secondary: var(--color-brand-light);
   --secondary-foreground: var(--color-brand-dark);
@@ -170,7 +170,7 @@
 
   --sidebar: var(--color-surface-raised);
   --sidebar-foreground: var(--color-text-primary);
-  --sidebar-primary: var(--color-brand-primary);
+  --sidebar-primary: var(--color-brand-secondary);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: var(--color-brand-light);
   --sidebar-accent-foreground: var(--color-brand-dark);
@@ -216,7 +216,7 @@
   --card-foreground: var(--color-text-primary);
   --popover: var(--color-surface-raised);
   --popover-foreground: var(--color-text-primary);
-  --primary: var(--color-brand-primary);
+  --primary: var(--color-brand-secondary);
   --primary-foreground: #ffffff;
   --secondary: var(--color-brand-light);
   --secondary-foreground: var(--color-text-primary);
@@ -231,7 +231,7 @@
 
   --sidebar: var(--color-surface-raised);
   --sidebar-foreground: var(--color-text-primary);
-  --sidebar-primary: var(--color-brand-primary);
+  --sidebar-primary: var(--color-brand-secondary);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: var(--color-brand-light);
   --sidebar-accent-foreground: var(--color-text-primary);
@@ -614,6 +614,23 @@ body {
   background: var(--color-success-bg);
   border-color: transparent;
   color: var(--color-success);
+}
+
+.integration-cycle {
+  display: inline-flex;
+  align-items: baseline;
+  min-width: 8.5ch;
+  font-weight: 600;
+  color: var(--color-brand-secondary);
+}
+
+.integration-cycle__word {
+  white-space: nowrap;
+}
+
+.integration-cycle__cursor {
+  color: var(--color-brand-secondary);
+  animation: rail-cursor-blink 1s step-end infinite;
 }
 
 /* ─── Reduced motion ───────────────────────────────────────────── */

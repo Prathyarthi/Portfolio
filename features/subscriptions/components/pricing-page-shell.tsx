@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { SubscriptionFlow } from "./subscription-flow";
+import { PricingPlansSection } from "./pricing-plans-section";
 import { siteConfig } from "@/lib/site";
 
 export function PricingPageShell() {
@@ -54,21 +54,9 @@ export function PricingPageShell() {
       </header>
 
       <div className="min-h-[calc(100vh-4rem)] px-6 py-[var(--space-9)]">
-        <div className="mx-auto flex max-w-4xl flex-col gap-12">
-          <header className="mx-auto max-w-2xl space-y-4 text-center">
-            <p className="eyebrow uppercase">Pricing</p>
-            <h1 className="text-h1 text-text-primary md:text-display">
-              Two simple plans
-            </h1>
-            <p className="prose-measure mx-auto text-body text-text-secondary">
-              Start with a one-month free trial of all core workflows. After
-              that, stay on free essentials or upgrade to Pro — billed monthly,
-              quarterly, or yearly.
-            </p>
-          </header>
+        <PricingPlansSection />
 
-          <SubscriptionFlow />
-
+        <div className="mx-auto mt-12 max-w-4xl">
           <Card>
             <CardContent className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="max-w-xl">

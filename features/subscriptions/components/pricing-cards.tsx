@@ -72,13 +72,13 @@ export function PricingCards({
           <div key={plan.slug} className="relative">
             {plan.badge && (
               <div className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 md:left-auto md:right-6 md:translate-x-0">
-                <Badge variant="brand">Most popular</Badge>
+                <Badge variant="brand">{plan.badge}</Badge>
               </div>
             )}
             <Card
               className={`h-full ${
                 plan.highlight
-                  ? "border-2 border-brand-primary"
+                  ? "border-2 border-brand-secondary"
                   : "border-border-default"
               }`}
             >
@@ -97,11 +97,11 @@ export function PricingCards({
                     className="mt-5"
                   />
                   {isPaid && savings != null && savings > 0 && (
-                    <p className="mt-2 text-xs font-medium text-teal-400/90">
+                    <p className="mt-2 text-xs font-medium text-success">
                       Save {savings}% vs monthly
                     </p>
                   )}
-                  <p className="mt-4 text-sm leading-relaxed text-zinc-500">
+                  <p className="mt-4 text-sm leading-relaxed text-text-secondary">
                     {plan.description}
                   </p>
                   {isPaid && paidActive && (
@@ -171,7 +171,7 @@ export function PricingCards({
                   <Button
                     asChild
                     variant="outline"
-                    className="mt-auto w-full rounded-full border-white/15 bg-white/[0.03] text-zinc-100 hover:bg-white/10"
+                    className="mt-auto w-full"
                   >
                     <Link href="/dashboard/billing">Manage billing</Link>
                   </Button>
@@ -203,7 +203,7 @@ export function PricingCards({
                   <Button
                     type="button"
                     variant="outline"
-                    className="mt-auto w-full rounded-full border-white/15 bg-white/[0.03] text-zinc-300 opacity-90"
+                    className="mt-auto w-full"
                     disabled
                   >
                     {BILLING_INTERVAL_LABELS[billingInterval]} checkout unavailable
