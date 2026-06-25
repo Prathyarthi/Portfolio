@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -10,7 +11,18 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_7XL,
+  PROJECTS_GRID_2,
   SocialPills,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "@/features/templates/shared";
 import { CollapsibleList } from "@/features/templates/collapsible-list";
@@ -39,24 +51,30 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf7_0%,#fff7fb_45%,#ffffff_100%)] text-stone-900 selection:bg-rose-200/50">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[linear-gradient(180deg,#fffaf7_0%,#fff7fb_45%,#ffffff_100%)] text-stone-900 selection:bg-rose-200/50")}>
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute -left-24 top-0 h-80 w-80 rounded-full bg-rose-200/35 blur-3xl" />
         <div className="pointer-events-none absolute right-0 top-24 h-96 w-96 rounded-full bg-orange-100/45 blur-3xl" />
         <div className="pointer-events-none absolute left-1/3 top-64 h-72 w-72 rounded-full bg-fuchsia-100/25 blur-3xl" />
 
         <div className="relative mx-auto max-w-6xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
-          <header className="overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_80px_rgba(190,24,93,0.08)] backdrop-blur-xl md:p-10">
-            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-              <div>
+          <header className="overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_80px_rgba(190,24,93,0.08)] backdrop-blur-xl @md:p-10">
+            <div className="grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1.1fr_0.9fr] @lg:items-center">
+              <div className={HERO_HEADER_COLUMN}>
                 <p className="text-xs font-medium uppercase tracking-[0.28em] text-rose-400">
                   Creative Portfolio
                 </p>
-                <h1 className="mt-4 max-w-3xl text-5xl font-semibold tracking-tight text-stone-950 md:text-7xl">
+                <h1
+                  className={cn(
+                    HERO_TITLE_BASE,
+                    HERO_TITLE_SCALE_7XL,
+                    "mt-4 max-w-3xl font-semibold tracking-tight text-stone-950"
+                  )}
+                >
                   {portfolio.title}
                 </h1>
                 {portfolio.headline && (
-                  <p className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-600 md:text-xl">
+                  <p className={cn(HERO_HEADLINE_SCALE, "mt-5 max-w-2xl text-stone-600")}>
                     {portfolio.headline}
                   </p>
                 )}
@@ -134,13 +152,16 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   <SectionHeading accent="orange">Selected Work</SectionHeading>
                   <CollapsibleList
                     initial={4}
-                    wrapperClassName="grid grid-cols-1 gap-6 md:grid-cols-2"
+                    wrapperClassName={PROJECTS_GRID_2}
                     buttonClassName="col-span-full mt-2 rounded-full border border-rose-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.22em] text-stone-600 transition-colors hover:border-rose-300 hover:text-stone-900"
                   >
                     {visibleProjects.map((project, index) => (
                       <article
                         key={project.id}
-                        className="overflow-hidden rounded-[1.6rem] border border-rose-100/80 bg-[#fffaf7] shadow-[0_14px_40px_rgba(190,24,93,0.05)]"
+                        className={cn(
+                          PROJECT_CARD,
+                          "rounded-[1.6rem] border border-rose-100/80 bg-[#fffaf7] shadow-[0_14px_40px_rgba(190,24,93,0.05)]"
+                        )}
                       >
                         <LivePreviewImage
                           liveUrl={project.liveUrl ?? null}
@@ -149,11 +170,11 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                           alt={project.title}
                           loading="lazy"
                         />
-                        <div className="p-6">
-                          <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="text-2xl font-semibold tracking-tight text-stone-950">
+                        <div className={PROJECT_CARD_BODY}>
+                          <div className={PROJECT_CARD_HEADER}>
+                            <div className="min-w-0 flex-1">
+                              <div className={PROJECT_CARD_META}>
+                                <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-semibold tracking-tight text-stone-950")}>
                                   {project.title}
                                 </h3>
                                 {project.featured && (

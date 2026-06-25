@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,18 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_7XL,
+  PROJECTS_GRID_2,
   SocialPills,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -50,20 +62,26 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.14),transparent_34%),linear-gradient(180deg,#f8f7f4_0%,#efede6_100%)] text-stone-800">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[radial-gradient(circle_at_top,rgba(148,163,184,0.14),transparent_34%),linear-gradient(180deg,#f8f7f4_0%,#efede6_100%)] text-stone-800")}>
       <div className="mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
-        <header className="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl md:p-10">
+        <header className="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl @md:p-10">
           <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-stone-300/70 to-transparent" />
-          <div className="grid gap-8 md:gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-            <div>
+          <div className="grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1.2fr_0.8fr] @lg:items-start">
+            <div className={HERO_HEADER_COLUMN}>
               <p className="text-xs font-medium uppercase tracking-[0.3em] text-stone-400">
                 Modern Minimal
               </p>
-              <h1 className="mt-4 max-w-3xl font-serif text-5xl font-semibold tracking-tight text-stone-950 md:text-7xl">
+              <h1
+                className={cn(
+                  HERO_TITLE_BASE,
+                  HERO_TITLE_SCALE_7XL,
+                  "mt-4 max-w-3xl font-serif font-semibold tracking-tight text-stone-950"
+                )}
+              >
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
-                <p className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-600 md:text-xl">
+                <p className={cn(HERO_HEADLINE_SCALE, "mt-5 max-w-2xl text-stone-600")}>
                   {portfolio.headline}
                 </p>
               )}
@@ -148,13 +166,16 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                 <SectionHeading>Work</SectionHeading>
                 <CollapsibleList
                   initial={4}
-                  wrapperClassName="grid grid-cols-1 gap-6 md:grid-cols-2"
+                  wrapperClassName={PROJECTS_GRID_2}
                   buttonClassName="col-span-full mt-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-stone-600 transition-colors hover:border-stone-300 hover:text-stone-900"
                 >
                   {visibleProjects.map((project) => (
                     <article
                       key={project.id}
-                      className="overflow-hidden rounded-[1.6rem] border border-stone-200/80 bg-[#fffdf9] shadow-[0_14px_40px_rgba(28,25,23,0.05)] transition-transform duration-300 hover:-translate-y-1"
+                      className={cn(
+                        PROJECT_CARD,
+                        "rounded-[1.6rem] border border-stone-200/80 bg-[#fffdf9] shadow-[0_14px_40px_rgba(28,25,23,0.05)] transition-transform duration-300 hover:-translate-y-1"
+                      )}
                     >
                       <LivePreviewImage
                         liveUrl={project.liveUrl ?? null}
@@ -165,11 +186,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                         placeholderVariant="minimal"
                         containerClassName="overflow-hidden bg-stone-100"
                       />
-                      <div className="p-6">
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-serif text-2xl font-semibold text-stone-950">
+                      <div className={PROJECT_CARD_BODY}>
+                        <div className={PROJECT_CARD_HEADER}>
+                          <div className="min-w-0 flex-1">
+                            <div className={PROJECT_CARD_META}>
+                              <h3 className={cn(PROJECT_CARD_TITLE, "font-serif text-2xl font-semibold text-stone-950")}>
                                 {project.title}
                               </h3>
                               {project.featured && (

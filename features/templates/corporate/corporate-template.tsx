@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,18 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_6XL,
+  PROJECTS_GRID_2,
   SocialPills,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,19 +61,25 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#f3f6fb] text-slate-900 antialiased">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#f3f6fb] text-slate-900 antialiased")}>
       <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 md:px-10 md:py-12">
         <header className="overflow-hidden rounded-[2.2rem] border border-slate-200/40 bg-[#0f172a] text-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
-          <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="p-6 md:p-10">
+          <div className="grid min-w-0 gap-0 @lg:grid-cols-[1.1fr_0.9fr]">
+            <div className={cn(HERO_HEADER_COLUMN, "p-6 @md:p-10")}>
               <p className="text-xs uppercase tracking-[0.3em] text-sky-300/70">
                 Executive Portfolio
               </p>
-              <h1 className="mt-4 max-w-3xl text-5xl font-semibold tracking-tight md:text-6xl">
+              <h1
+                className={cn(
+                  HERO_TITLE_BASE,
+                  HERO_TITLE_SCALE_6XL,
+                  "mt-4 max-w-3xl font-semibold tracking-tight text-white"
+                )}
+              >
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
-                <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">
+                <p className={cn(HERO_HEADLINE_SCALE, "mt-5 max-w-2xl text-slate-300")}>
                   {portfolio.headline}
                 </p>
               )}
@@ -85,13 +103,13 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                   <SocialPills
                     profiles={socialProfiles}
                     showUsername
-                      className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:bg-white/12"
+                    className="rounded-full border border-white/10 bg-white/6 px-3 py-1.5 text-sm text-slate-200 transition-colors hover:bg-white/12"
                   />
                 </div>
               )}
             </div>
 
-            <div className="border-t border-white/10 bg-linear-to-br from-sky-500/18 via-transparent to-white/5 p-6 lg:border-l lg:border-t-0 md:p-10">
+            <div className="border-t border-white/10 bg-linear-to-br from-sky-500/18 via-transparent to-white/5 p-6 @md:p-10 @lg:border-l @lg:border-t-0">
               <div className="grid gap-4">
                 {portfolio.avatarUrl && (
                   <div className="rounded-[1.9rem] border border-white/10 bg-white/5 p-3">
@@ -188,13 +206,16 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 <SectionHeading>Work</SectionHeading>
                 <CollapsibleList
                   initial={4}
-                  wrapperClassName="grid gap-5 sm:grid-cols-2"
+                  wrapperClassName={cn(PROJECTS_GRID_2, "gap-5")}
                   buttonClassName="col-span-full mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
                 >
                   {visibleProjects.map((project) => (
                     <article
                       key={project.id}
-                      className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
+                      className={cn(
+                        PROJECT_CARD,
+                        "rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
+                      )}
                     >
                       <LivePreviewImage
                         liveUrl={project.liveUrl ?? null}
@@ -203,11 +224,11 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                         alt={project.title}
                         loading="lazy"
                       />
-                      <div className="p-5">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-lg font-semibold text-slate-900">
+                      <div className={PROJECT_CARD_BODY}>
+                        <div className={PROJECT_CARD_HEADER}>
+                          <div className="min-w-0 flex-1">
+                            <div className={PROJECT_CARD_META}>
+                              <h3 className={cn(PROJECT_CARD_TITLE, "text-lg font-semibold text-slate-900")}>
                                 {project.title}
                               </h3>
                               {project.featured && (

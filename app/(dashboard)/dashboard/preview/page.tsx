@@ -299,7 +299,7 @@ export default function PreviewPage() {
         <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-3 shadow-[var(--shadow-modal)]">
           <div
             className={cn(
-              "mx-auto min-w-0 overflow-x-auto rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
+              "@container mx-auto min-w-0 overflow-x-clip rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
               device === "mobile" ? "max-w-[390px]" : "w-full max-w-full"
             )}
           >
@@ -320,9 +320,9 @@ export default function PreviewPage() {
         />
       </div>
 
-      <PreviewEditSidebar 
-        open={editOpen} 
-        onOpenChange={setEditOpen} 
+      <PreviewEditSidebar
+        open={editOpen}
+        onOpenChange={setEditOpen}
         templateId={templateId}
         savedTemplateId={portfolio.templateId ?? "minimal"}
         isPublished={isPublished}

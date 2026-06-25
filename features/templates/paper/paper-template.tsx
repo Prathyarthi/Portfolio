@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -11,7 +12,12 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
   SocialPills,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -48,9 +54,9 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#f4f1ea] text-[#2c2c2c] font-serif selection:bg-[#2c2c2c] selection:text-[#f4f1ea]">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#f4f1ea] text-[#2c2c2c] font-serif selection:bg-[#2c2c2c] selection:text-[#f4f1ea]")}>
       <div className="mx-auto max-w-4xl px-6 py-12 md:py-20 space-y-16">
-        
+
         {navbarEnabled && (
           <div className="flex justify-center border-b-2 border-[#2c2c2c] pb-4 mb-12">
             <TemplateNavbar
@@ -62,7 +68,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="text-center space-y-6">
-          <h1 className="text-5xl md:text-7xl font-bold uppercase tracking-widest leading-tight">
+          <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-bold uppercase tracking-widest leading-tight">
             {portfolio.title}
           </h1>
           {portfolio.headline && (
@@ -70,7 +76,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
               {portfolio.headline}
             </p>
           )}
-          
+
           {portfolio.avatarUrl && (
             <div className="mt-8 flex justify-center">
               <img
@@ -125,8 +131,8 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
               buttonClassName="mt-8 mx-auto block border border-[#2c2c2c] bg-transparent px-8 py-3 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
             >
               {visibleProjects.map((project) => (
-                <article key={project.id} className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-                  <div className="md:col-span-5">
+                <article key={project.id} className={cn(PROJECT_CARD, "grid grid-cols-1 min-w-0 @md:grid-cols-12 gap-8 items-start")}>
+                  <div className="@md:col-span-5">
                     <div className="border border-[#2c2c2c] bg-white p-1">
                       <LivePreviewImage
                         liveUrl={project.liveUrl ?? null}
@@ -140,9 +146,9 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
                       />
                     </div>
                   </div>
-                  <div className="md:col-span-7 space-y-4">
-                    <div className="flex items-baseline justify-between">
-                      <h3 className="text-2xl font-bold leading-tight">{project.title}</h3>
+                  <div className="@md:col-span-7 space-y-4">
+                    <div className={PROJECT_CARD_HEADER}>
+                      <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-bold leading-tight")}>{project.title}</h3>
                       {project.featured && (
                         <span className="text-[10px] font-sans uppercase tracking-widest border border-[#2c2c2c] px-2 py-1 ml-4 shrink-0">
                           Featured
@@ -253,78 +259,78 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
           </div>
         </div>
 
-          {/* Certifications and Achievements */}
-          {(certifications.length > 0 || achievements.length > 0) && (
-            <div className="flex flex-col gap-12 md:gap-16">
-              {certifications.length > 0 && (
-                <section>
-                  <SectionHeading>Certifications</SectionHeading>
-                  <CollapsibleList
-                    initial={4}
-                    wrapperClassName="space-y-6"
-                    buttonClassName="mt-6 border border-[#2c2c2c] bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
-                  >
-                    {certifications.map((cert) => (
-                      <article key={cert.id} className="border-b border-[#2c2c2c]/30 pb-4">
-                        <h3 className="text-lg font-bold">
-                          {cert.url ? (
-                            <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4">
-                              {cert.name}
-                            </a>
-                          ) : (
-                            cert.name
-                          )}
-                        </h3>
-                        <p className="text-[#555] italic mt-1">{cert.issuer}</p>
-                        {cert.issueDate && (
-                          <div className="mt-2 text-xs font-sans uppercase tracking-widest text-[#888]">
-                            {new Date(cert.issueDate).getFullYear()}
-                          </div>
+        {/* Certifications and Achievements */}
+        {(certifications.length > 0 || achievements.length > 0) && (
+          <div className="flex flex-col gap-12 md:gap-16">
+            {certifications.length > 0 && (
+              <section>
+                <SectionHeading>Certifications</SectionHeading>
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-6"
+                  buttonClassName="mt-6 border border-[#2c2c2c] bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
+                >
+                  {certifications.map((cert) => (
+                    <article key={cert.id} className="border-b border-[#2c2c2c]/30 pb-4">
+                      <h3 className="text-lg font-bold">
+                        {cert.url ? (
+                          <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:underline underline-offset-4">
+                            {cert.name}
+                          </a>
+                        ) : (
+                          cert.name
                         )}
-                      </article>
-                    ))}
-                  </CollapsibleList>
-                </section>
-              )}
+                      </h3>
+                      <p className="text-[#555] italic mt-1">{cert.issuer}</p>
+                      {cert.issueDate && (
+                        <div className="mt-2 text-xs font-sans uppercase tracking-widest text-[#888]">
+                          {new Date(cert.issueDate).getFullYear()}
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </CollapsibleList>
+              </section>
+            )}
 
-              {achievements.length > 0 && (
-                <section>
-                  <SectionHeading>Honors & Awards</SectionHeading>
-                  <CollapsibleList
-                    initial={4}
-                    wrapperClassName="space-y-6"
-                    buttonClassName="mt-6 border border-[#2c2c2c] bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
-                  >
-                    {achievements.map((ach) => (
-                      <article key={ach.id} className="border-b border-[#2c2c2c]/30 pb-4">
-                        <h3 className="text-lg font-bold">{ach.title}</h3>
-                        {ach.date && (
-                          <div className="mt-2 text-xs font-sans uppercase tracking-widest text-[#888]">
-                            {new Date(ach.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-                          </div>
-                        )}
-                      </article>
-                    ))}
-                  </CollapsibleList>
-                </section>
-              )}
+            {achievements.length > 0 && (
+              <section>
+                <SectionHeading>Honors & Awards</SectionHeading>
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-6"
+                  buttonClassName="mt-6 border border-[#2c2c2c] bg-transparent px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#f4f1ea]"
+                >
+                  {achievements.map((ach) => (
+                    <article key={ach.id} className="border-b border-[#2c2c2c]/30 pb-4">
+                      <h3 className="text-lg font-bold">{ach.title}</h3>
+                      {ach.date && (
+                        <div className="mt-2 text-xs font-sans uppercase tracking-widest text-[#888]">
+                          {new Date(ach.date).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </CollapsibleList>
+              </section>
+            )}
+          </div>
+        )}
+
+        {/* Custom Sections */}
+        {customSections.length > 0 && customSections.map((cs) => (
+          <section key={cs.id} className="scroll-mt-12">
+            <SectionHeading>{cs.label}</SectionHeading>
+            <div className="border border-[#2c2c2c] p-8 bg-white">
+              <CustomSectionItems
+                items={cs.items}
+                titleClassName="text-xl font-bold mb-2"
+                textClassName="text-[#555] leading-relaxed"
+                chipClassName="text-xs font-sans uppercase tracking-wider text-[#666] bg-[#e8e4db] px-2 py-1"
+              />
             </div>
-          )}
-
-          {/* Custom Sections */}
-          {customSections.length > 0 && customSections.map((cs) => (
-            <section key={cs.id} className="scroll-mt-12">
-              <SectionHeading>{cs.label}</SectionHeading>
-              <div className="border border-[#2c2c2c] p-8 bg-white">
-                <CustomSectionItems
-                  items={cs.items}
-                  titleClassName="text-xl font-bold mb-2"
-                  textClassName="text-[#555] leading-relaxed"
-                  chipClassName="text-xs font-sans uppercase tracking-wider text-[#666] bg-[#e8e4db] px-2 py-1"
-                />
-              </div>
-            </section>
-          ))}
+          </section>
+        ))}
 
         {articles.length > 0 && (
           <section id="writing" className="scroll-mt-12">

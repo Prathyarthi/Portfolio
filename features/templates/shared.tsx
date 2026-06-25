@@ -20,6 +20,61 @@ const TEMPLATE_SECTION_LABELS: Record<TemplateSectionId, string> = {
 
 const HERO_PROFILE_PLATFORMS = ["github", "linkedin"] as const;
 
+/** Enables container-query breakpoints inside templates (mobile preview, narrow embeds). */
+export const TEMPLATE_CONTAINER =
+  "@container min-w-0 w-full overflow-x-clip [&_h1]:text-inherit [&_h2]:text-inherit";
+
+/** Hero title overflow + fluid type scaled to template width (not viewport). */
+export const HERO_TITLE_BASE = "min-w-0 text-balance [overflow-wrap:anywhere]";
+export const HERO_TITLE_SCALE_5XL =
+  "text-xl @sm:text-2xl @md:text-3xl @lg:text-5xl";
+export const HERO_TITLE_SCALE_6XL =
+  "text-2xl @sm:text-3xl @md:text-4xl @lg:text-6xl";
+export const HERO_TITLE_SCALE_7XL =
+  "text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl";
+export const HERO_TITLE_SCALE_8XL =
+  "text-2xl @sm:text-4xl @md:text-6xl @lg:text-8xl";
+export const HERO_TITLE_SCALE_9XL =
+  "text-2xl @sm:text-4xl @md:text-6xl @lg:text-8xl @xl:text-[9rem]";
+
+/** Hero headline / subcopy — scales with template container. */
+export const HERO_HEADLINE_SCALE =
+  "text-base leading-relaxed @md:text-lg @lg:text-xl";
+
+/** Two-column hero header (title + avatar/summary). */
+export const HERO_HEADER_GRID =
+  "grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1fr_300px] @lg:items-start";
+export const HERO_HEADER_COLUMN = "min-w-0";
+
+/** Project grids sized by template width, not viewport. */
+export const PROJECTS_GRID_2 =
+  "grid min-w-0 grid-cols-1 gap-6 @md:grid-cols-2 [&>*]:min-w-0";
+export const PROJECTS_GRID_3 =
+  "grid min-w-0 grid-cols-1 gap-6 @md:grid-cols-2 @lg:grid-cols-3 [&>*]:min-w-0";
+
+export const PROJECT_CARD = "min-w-0 overflow-hidden";
+export const PROJECT_CARD_BODY = "min-w-0 p-5 @sm:p-6";
+export const PROJECT_CARD_HEADER =
+  "flex min-w-0 flex-col gap-3 @md:flex-row @md:items-start @md:justify-between";
+export const PROJECT_CARD_TITLE = "min-w-0 text-balance [overflow-wrap:anywhere]";
+export const PROJECT_CARD_META = "min-w-0 flex flex-wrap items-center gap-2";
+export const PROJECT_CARD_ACTIONS = "shrink-0";
+
+/** Stack related sections vertically (certifications, achievements, etc.). */
+export const STACKED_SECTIONS = "flex min-w-0 flex-col gap-8 @lg:gap-12";
+
+/** Two related sections side-by-side only when the template is wide enough. */
+export const SPLIT_SECTIONS_GRID =
+  "grid min-w-0 grid-cols-1 gap-8 @md:grid-cols-2 [&>*]:min-w-0";
+
+/** Certification / achievement card header row. */
+export const SPLIT_CARD_ROW =
+  "flex min-w-0 flex-col gap-3 @md:flex-row @md:items-center @md:justify-between";
+
+/** Bento template main grid — sized by template width, not viewport. */
+export const BENTO_GRID =
+  "grid min-w-0 grid-cols-1 gap-4 auto-rows-[minmax(180px,auto)] @md:grid-cols-3 @lg:grid-cols-4 [&>*]:min-w-0";
+
 export function getTemplateNavbarCustomization(
   customization: PortfolioCustomization | Record<string, unknown> | null | undefined
 ): TemplateNavbarCustomization {
@@ -88,11 +143,11 @@ export function TemplateNavbar({
   return (
     <nav
       className={cn(
-        "sticky top-0 z-30 overflow-x-auto border backdrop-blur-xl",
+        "sticky top-0 z-30 w-full min-w-0 max-w-full border backdrop-blur-xl scrollbar-none",
         className
       )}
     >
-      <div className="flex min-w-max items-center gap-2 p-2">
+      <div className="flex w-full max-w-full flex-wrap items-center justify-center gap-2 p-2 @md:w-max @md:flex-nowrap @md:justify-start">
         {items.map((item) => (
           <a key={item.id} href={`#${item.id}`} className={linkClassName}>
             {item.label}
@@ -177,9 +232,12 @@ export function ContactChips({
   if (items.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex min-w-0 flex-wrap gap-2">
       {items.map((item) => (
-        <span key={item} className={chipClassName}>
+        <span
+          key={item}
+          className={cn(chipClassName, "max-w-full min-w-0 [overflow-wrap:anywhere]")}
+        >
           {item}
         </span>
       ))}

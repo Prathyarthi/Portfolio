@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,8 +13,20 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADER_GRID,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_7XL,
   SocialPills,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
+  PROJECTS_GRID_2,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -49,19 +62,30 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#f4f0ea] font-mono text-black">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#f4f0ea] font-mono text-black")}>
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 md:px-8 md:pb-24 md:pt-14">
-        <header className="relative border-4 border-black bg-[#ff90e8] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-10">
-          <div className="grid gap-8 md:gap-10 lg:grid-cols-[1fr_300px] lg:items-start">
-            <div>
+        <header className="relative border-4 border-black bg-[#ff90e8] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] @md:p-10">
+          <div className={HERO_HEADER_GRID}>
+            <div className={HERO_HEADER_COLUMN}>
               <div className="inline-block border-2 border-black bg-white px-3 py-1 text-xs font-bold uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 Retro Edition
               </div>
-              <h1 className="mt-6 font-sans text-5xl font-black uppercase tracking-tight text-black md:text-7xl">
+              <h1
+                className={cn(
+                  HERO_TITLE_BASE,
+                  HERO_TITLE_SCALE_7XL,
+                  "mt-6 font-sans font-black uppercase tracking-tight text-black"
+                )}
+              >
                 {portfolio.title}
               </h1>
               {portfolio.headline && (
-                <p className="mt-5 max-w-2xl border-l-4 border-black pl-4 text-lg font-bold leading-relaxed text-black md:text-xl">
+                <p
+                  className={cn(
+                    HERO_HEADLINE_SCALE,
+                    "mt-5 max-w-2xl border-l-4 border-black pl-4 font-bold text-black"
+                  )}
+                >
                   {portfolio.headline}
                 </p>
               )}
@@ -146,63 +170,66 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                 <SectionHeading>Work</SectionHeading>
                 <CollapsibleList
                   initial={4}
-                  wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-6"
+                  wrapperClassName={PROJECTS_GRID_2}
                   buttonClassName="mt-4 border-4 border-black bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
                 >
-                    {visibleProjects.map((project) => (
-                      <article
-                        key={project.id}
-                        className="overflow-hidden border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-2"
-                      >
-                        <LivePreviewImage
-                          liveUrl={project.liveUrl ?? null}
-                          projectId={project.id}
-                          livePreviewProjectIds={livePreviewProjectIds}
-                          alt={project.title}
-                          loading="lazy"
-                          placeholderVariant="retro"
-                          containerClassName="border-b-4 border-black"
-                          className="h-full w-full object-cover object-top filter transition-all duration-500"
-                        />
-                        <div className="p-6">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="font-sans text-2xl font-black uppercase leading-tight text-black">
-                                  {project.title}
-                                </h3>
-                                {project.featured && (
-                                  <span className="shrink-0 border-2 border-black bg-[#ff90e8] px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                    Featured
-                                  </span>
-                                )}
-                              </div>
-                              {project.language && (
-                                <p className="mt-2 text-xs font-bold uppercase tracking-widest text-gray-600">
-                                  {project.language}
-                                </p>
+                  {visibleProjects.map((project) => (
+                    <article
+                      key={project.id}
+                      className={cn(
+                        PROJECT_CARD,
+                        "border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-2"
+                      )}
+                    >
+                      <LivePreviewImage
+                        liveUrl={project.liveUrl ?? null}
+                        projectId={project.id}
+                        livePreviewProjectIds={livePreviewProjectIds}
+                        alt={project.title}
+                        loading="lazy"
+                        containerClassName="border-b-4 border-black"
+                        placeholderClassName="bg-gray-200 [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-gray-500"
+                        className="h-full w-full object-cover object-top filter transition-all duration-500"
+                      />
+                      <div className={PROJECT_CARD_BODY}>
+                        <div className={PROJECT_CARD_HEADER}>
+                          <div className="min-w-0 flex-1">
+                            <div className={PROJECT_CARD_META}>
+                              <h3 className={cn(PROJECT_CARD_TITLE, "font-sans text-2xl font-black uppercase leading-tight text-black")}>
+                                {project.title}
+                              </h3>
+                              {project.featured && (
+                                <span className="shrink-0 border-2 border-black bg-[#ff90e8] px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                  Featured
+                                </span>
                               )}
                             </div>
-
-                            <div className="relative z-10 shrink-0">
-                              <ProjectActions
-                                liveUrl={project.liveUrl}
-                                sourceUrl={project.sourceUrl}
-                                liveClassName="border-2 border-black bg-[#23a094] px-4 py-2 text-xs font-bold uppercase text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
-                                sourceClassName="border-2 border-black bg-white px-4 py-2 text-xs font-bold uppercase text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
-                              />
-                            </div>
+                            {project.language && (
+                              <p className="mt-2 text-xs font-bold uppercase tracking-widest text-gray-600">
+                                {project.language}
+                              </p>
+                            )}
                           </div>
 
-                          {project.description && (
-                            <p className="mt-4 text-sm font-medium leading-7 text-black">
-                              {project.description}
-                            </p>
-                          )}
+                          <div className="relative z-10 shrink-0">
+                            <ProjectActions
+                              liveUrl={project.liveUrl}
+                              sourceUrl={project.sourceUrl}
+                              liveClassName="border-2 border-black bg-[#23a094] px-4 py-2 text-xs font-bold uppercase text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
+                              sourceClassName="border-2 border-black bg-white px-4 py-2 text-xs font-bold uppercase text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
+                            />
+                          </div>
+                        </div>
 
-                          {(project.techStack.length > 0 ||
-                            project.githubStars !== null ||
-                            project.githubForks !== null) && (
+                        {project.description && (
+                          <p className="mt-4 text-sm font-medium leading-7 text-black">
+                            {project.description}
+                          </p>
+                        )}
+
+                        {(project.techStack.length > 0 ||
+                          project.githubStars !== null ||
+                          project.githubForks !== null) && (
                             <div className="mt-5 flex flex-wrap items-center gap-2">
                               {project.techStack.map((tech) => (
                                 <span
@@ -224,9 +251,9 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                               )}
                             </div>
                           )}
-                        </div>
-                      </article>
-                    ))}
+                      </div>
+                    </article>
+                  ))}
                 </CollapsibleList>
               </section>
             )}
@@ -326,7 +353,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                       {article.tags.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
                           {article.tags.map((tag) => (
-                           <span
+                            <span
                               key={tag}
                               className="border-2 border-black bg-gray-200 px-3 py-1 text-xs font-bold text-black"
                             >

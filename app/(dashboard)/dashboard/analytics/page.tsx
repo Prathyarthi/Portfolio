@@ -44,6 +44,9 @@ function formatDayLabel(dateKey: string): string {
   return date.toLocaleDateString(undefined, { weekday: "short" });
 }
 
+const statCardClassName =
+  "border-border-default bg-surface-raised shadow-[var(--shadow-card)]";
+
 function StatCard({
   title,
   value,
@@ -56,14 +59,18 @@ function StatCard({
   icon: React.ComponentType<{ className?: string }>;
 }) {
   return (
-    <Card className="border-white/8 bg-white/3">
+    <Card className={statCardClassName}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-zinc-400">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-zinc-500" />
+        <CardTitle className="text-body-sm font-medium text-text-secondary">
+          {title}
+        </CardTitle>
+        <Icon className="h-4 w-4 text-text-muted" aria-hidden />
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-semibold text-zinc-50">{value}</p>
-        {hint ? <p className="mt-1 text-xs text-zinc-500">{hint}</p> : null}
+        <p className="text-3xl font-semibold tabular-nums tracking-tight text-text-primary md:text-4xl">
+          {value}
+        </p>
+        {hint ? <p className="mt-1 text-xs text-text-muted">{hint}</p> : null}
       </CardContent>
     </Card>
   );
@@ -72,8 +79,8 @@ function StatCard({
 function WeekChangeBadge({ change }: { change: number | null }) {
   if (change === null) {
     return (
-      <span className="inline-flex items-center gap-1 text-xs text-zinc-500">
-        <Minus className="h-3 w-3" />
+      <span className="inline-flex items-center gap-1 text-xs text-text-muted">
+        <Minus className="h-3 w-3" aria-hidden />
         No prior week data
       </span>
     );
@@ -86,9 +93,9 @@ function WeekChangeBadge({ change }: { change: number | null }) {
     <span
       className={cn(
         "inline-flex items-center gap-1 text-xs font-medium",
-        positive && "text-emerald-400",
-        neutral && "text-zinc-500",
-        !positive && !neutral && "text-rose-400"
+        positive && "text-success",
+        neutral && "text-text-muted",
+        !positive && !neutral && "text-danger"
       )}
     >
       {positive ? (
@@ -156,13 +163,9 @@ export default function AnalyticsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8 py-2 md:py-6">
       <header className="space-y-1">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">
-          Insights
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50 md:text-3xl">
-          Portfolio analytics
-        </h1>
-        <p className="text-sm text-zinc-500">
+        <p className="eyebrow uppercase">Insights</p>
+        <h1 className="text-h2 text-text-primary">Portfolio analytics</h1>
+        <p className="text-body-sm text-text-secondary">
           See how many people visit your live portfolio and how traffic trends
           over time.
         </p>
@@ -171,7 +174,7 @@ export default function AnalyticsPage() {
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="border-white/8 bg-white/3">
+            <Card key={i} className={statCardClassName}>
               <CardHeader className="pb-2">
                 <Skeleton className="h-4 w-24" />
               </CardHeader>
@@ -182,13 +185,13 @@ export default function AnalyticsPage() {
           ))}
         </div>
       ) : locked ? (
-        <Card className="border-white/8 bg-white/3">
+        <Card className={statCardClassName}>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Lock className="h-4 w-4 text-amber-300" />
-              <CardTitle className="text-lg text-zinc-100">Pro feature</CardTitle>
+              <Lock className="h-4 w-4 text-warning" aria-hidden />
+              <CardTitle className="text-h4 text-text-primary">Pro feature</CardTitle>
             </div>
-            <CardDescription className="text-zinc-400">
+            <CardDescription className="text-text-secondary">
               Visit analytics is included with Pro. Upgrade to see view counts
               and trends for your portfolio.
             </CardDescription>
@@ -202,9 +205,9 @@ export default function AnalyticsPage() {
       ) : stats ? (
         <div className="space-y-6">
           {!stats.isPublished && (
-            <div className="rounded-xl border border-amber-400/20 bg-amber-400/8 px-4 py-3 text-sm text-amber-100">
-              <p className="font-medium text-amber-50">Portfolio not live yet</p>
-              <p className="mt-1 text-amber-100/80">
+            <div className="rounded-[var(--radius-md)] border border-warning/30 bg-warning-bg px-4 py-3 text-body-sm">
+              <p className="font-medium text-text-primary">Portfolio not live yet</p>
+              <p className="mt-1 text-text-secondary">
                 Publish your portfolio to start collecting visits. Views are
                 recorded when someone opens your public link.
               </p>
@@ -230,18 +233,18 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Card className="border-white/8 bg-white/3">
+            <Card className={statCardClassName}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-zinc-400">
+                <CardTitle className="text-body-sm font-medium text-text-secondary">
                   Last 7 days
                 </CardTitle>
-                <TrendingUp className="h-4 w-4 text-zinc-500" />
+                <TrendingUp className="h-4 w-4 text-text-muted" aria-hidden />
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold text-zinc-50">
+                <p className="text-3xl font-semibold tabular-nums tracking-tight text-text-primary md:text-4xl">
                   {stats.last7Days.toLocaleString()}
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-text-muted">
                   {stats.avgDaily7Days}/day average
                 </p>
                 <div className="mt-2">
@@ -261,10 +264,10 @@ export default function AnalyticsPage() {
             />
           </div>
 
-          <Card className="border-white/8 bg-white/3">
+          <Card className={statCardClassName}>
             <CardHeader>
-              <CardTitle className="text-base text-zinc-100">Last 7 days</CardTitle>
-              <CardDescription className="text-zinc-500">
+              <CardTitle className="text-h4 text-text-primary">Last 7 days</CardTitle>
+              <CardDescription className="text-text-secondary">
                 Daily visits to your portfolio
               </CardDescription>
             </CardHeader>
@@ -277,20 +280,20 @@ export default function AnalyticsPage() {
                   >
                     <Badge
                       variant="secondary"
-                      className="rounded-full border-white/10 bg-white/5 px-2 text-[10px] text-zinc-400"
+                      className="rounded-full border-border-default bg-surface-sunken px-2 text-xs font-medium tabular-nums text-text-primary"
                     >
                       {day.count}
                     </Badge>
                     <div className="flex h-24 w-full items-end justify-center">
                       <div
-                        className="w-full max-w-8 rounded-t-md bg-teal-500/80 transition-all"
+                        className="w-full max-w-8 rounded-t-md bg-brand-primary/80 transition-all"
                         style={{
                           height: `${Math.max(8, (day.count / maxDaily) * 100)}%`,
                         }}
                         title={`${day.count} view${day.count === 1 ? "" : "s"}`}
                       />
                     </div>
-                    <span className="text-[10px] text-zinc-500">
+                    <span className="text-[10px] text-text-muted">
                       {formatDayLabel(day.date)}
                     </span>
                   </div>
@@ -300,8 +303,8 @@ export default function AnalyticsPage() {
           </Card>
         </div>
       ) : (
-        <Card className="border-white/8 bg-white/3">
-          <CardContent className="py-8 text-center text-sm text-zinc-500">
+        <Card className={statCardClassName}>
+          <CardContent className="py-8 text-center text-body-sm text-text-secondary">
             Could not load analytics. Try refreshing the page.
           </CardContent>
         </Card>

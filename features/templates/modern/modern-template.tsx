@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,19 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_ACTIONS,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_META,
+  PROJECT_CARD_TITLE,
+  HERO_HEADER_COLUMN,
+  HERO_HEADLINE_SCALE,
+  HERO_TITLE_BASE,
+  HERO_TITLE_SCALE_7XL,
+  PROJECTS_GRID_2,
   SocialPills,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -50,24 +63,30 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-[#060816] text-zinc-100">
-      <div className="relative overflow-hidden">
-        <div className="absolute -left-40 -top-32 h-112 w-md rounded-full bg-violet-500/16 blur-3xl" />
-        <div className="absolute -right-32 top-20 h-96 w-[24rem] rounded-full bg-cyan-400/12 blur-3xl" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.18]" />
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#060816] text-zinc-100")}>
+      <div className="relative w-full max-w-full overflow-x-clip">
+        <div className="pointer-events-none absolute -left-40 -top-32 h-96 w-96 rounded-full bg-violet-500/16 blur-3xl" />
+        <div className="pointer-events-none absolute -right-32 top-20 h-96 w-96 rounded-full bg-cyan-400/12 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.18]" />
 
-        <div className="relative mx-auto max-w-6xl px-5 pb-14 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-16">
-          <header className="rounded-[2.1rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_28px_100px_rgba(6,8,22,0.48)] backdrop-blur-2xl md:p-10">
-            <div className="grid gap-8 md:gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-              <div>
+        <div className="relative mx-auto min-w-0 max-w-6xl overflow-x-clip px-5 pb-14 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-16">
+          <header className="rounded-[2.1rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_28px_100px_rgba(6,8,22,0.48)] backdrop-blur-2xl @md:p-10">
+            <div className="grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1.15fr_0.85fr] @lg:items-end">
+              <div className={HERO_HEADER_COLUMN}>
                 <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-zinc-500">
                   Modern Interface
                 </p>
-                <h1 className="mt-4 text-5xl font-black tracking-tight text-white md:text-7xl">
+                <h1
+                  className={cn(
+                    HERO_TITLE_BASE,
+                    HERO_TITLE_SCALE_7XL,
+                    "mt-4 font-black tracking-tight text-white"
+                  )}
+                >
                   {portfolio.title}
                 </h1>
                 {portfolio.headline && (
-                  <p className="mt-5 max-w-2xl text-lg leading-relaxed text-zinc-300/95">
+                  <p className={cn(HERO_HEADLINE_SCALE, "mt-5 max-w-2xl text-zinc-300/95")}>
                     {portfolio.headline}
                   </p>
                 )}
@@ -82,7 +101,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                 <div className="mt-4">
                   <HeroProfileButtons
                     profiles={socialProfiles}
-                  className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-zinc-200 transition-colors hover:bg-white/[0.1]"
+                    className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-zinc-200 transition-colors hover:bg-white/[0.1]"
                   />
                 </div>
 
@@ -115,14 +134,14 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
             <div className="mt-6">
               <TemplateNavbar
                 items={sections}
-              className="rounded-full border-white/10 bg-white/[0.05] shadow-[0_14px_40px_rgba(6,8,22,0.32)]"
-              linkClassName="rounded-full px-4 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/[0.1] hover:text-white"
+                className="rounded-full border-white/10 bg-white/[0.05] shadow-[0_14px_40px_rgba(6,8,22,0.32)]"
+                linkClassName="rounded-full px-4 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/[0.1] hover:text-white"
               />
             </div>
           )}
 
-          <div className="mt-8 grid gap-8 md:mt-10 md:gap-10">
-            <main className="space-y-8 md:space-y-10">
+          <div className="mt-8 grid min-w-0 gap-8 md:mt-10 md:gap-10">
+            <main className="min-w-0 space-y-8 md:space-y-10">
               {portfolio.summary && (
                 <section
                   id="about"
@@ -140,18 +159,21 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {leadProjects.length > 0 && (
                 <section
                   id="work"
-                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
+                  className="scroll-mt-24 min-w-0 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
                 >
                   <SectionHeading>Selected Projects</SectionHeading>
                   <CollapsibleList
                     initial={4}
-                    wrapperClassName="grid grid-cols-1 gap-6 md:grid-cols-2"
+                    wrapperClassName={PROJECTS_GRID_2}
                     buttonClassName="col-span-full mt-2 rounded-full border border-white/12 bg-white/[0.04] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-zinc-300 transition-colors hover:bg-white/[0.08]"
                   >
                     {leadProjects.map((project) => (
                       <article
                         key={project.id}
-                        className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-black/20 shadow-[0_16px_50px_rgba(2,6,23,0.36)] transition-transform duration-300 hover:-translate-y-1"
+                        className={cn(
+                          PROJECT_CARD,
+                          "rounded-[1.6rem] border border-white/10 bg-black/20 shadow-[0_16px_50px_rgba(2,6,23,0.36)] transition-transform duration-300 hover:-translate-y-1"
+                        )}
                       >
                         <LivePreviewImage
                           liveUrl={project.liveUrl ?? null}
@@ -162,11 +184,11 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                           placeholderClassName="bg-white/[0.04]"
                         />
 
-                        <div className="p-5 md:p-6">
-                          <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-2xl font-semibold text-white">
+                        <div className={PROJECT_CARD_BODY}>
+                          <div className={PROJECT_CARD_HEADER}>
+                            <div className="min-w-0 flex-1">
+                              <div className={PROJECT_CARD_META}>
+                                <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-semibold text-white")}>
                                   {project.title}
                                 </h3>
                                 {project.featured && (
@@ -182,12 +204,14 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                               )}
                             </div>
 
-                            <ProjectActions
-                              liveUrl={project.liveUrl}
-                              sourceUrl={project.sourceUrl}
-                              liveClassName="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-900 transition-colors hover:bg-zinc-200"
-                              sourceClassName="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:bg-white/[0.08]"
-                            />
+                            <div className={PROJECT_CARD_ACTIONS}>
+                              <ProjectActions
+                                liveUrl={project.liveUrl}
+                                sourceUrl={project.sourceUrl}
+                                liveClassName="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-900 transition-colors hover:bg-zinc-200"
+                                sourceClassName="rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-zinc-300 transition-colors hover:bg-white/[0.08]"
+                              />
+                            </div>
                           </div>
 
                           {project.description && (
@@ -331,7 +355,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
 
             </main>
 
-            <aside className="space-y-8 md:space-y-10">
+            <aside className="min-w-0 space-y-8 md:space-y-10">
               {skills.length > 0 && (
                 <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
                   <SectionHeading>Skills</SectionHeading>

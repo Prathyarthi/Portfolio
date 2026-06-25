@@ -1,4 +1,5 @@
 import type { PortfolioData } from "../types";
+import { cn } from "@/lib/utils";
 import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
@@ -12,7 +13,14 @@ import {
   HeroProfileButtons,
   ProfileLinksSection,
   ProjectActions,
+  PROJECT_CARD,
+  PROJECT_CARD_BODY,
+  PROJECT_CARD_HEADER,
+  PROJECT_CARD_TITLE,
+  PROJECTS_GRID_2,
   SocialPills,
+  SPLIT_CARD_ROW,
+  TEMPLATE_CONTAINER,
   TemplateNavbar,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
@@ -49,7 +57,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-fuchsia-500/30 selection:text-fuchsia-200 overflow-hidden relative">
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-fuchsia-500/30 selection:text-fuchsia-200 overflow-hidden relative")}>
       {/* Dynamic Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-fuchsia-600/20 blur-[120px]" />
@@ -86,12 +94,12 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
             Portfolio
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 mb-6">
+          <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 mb-6">
             {portfolio.title}
           </h1>
 
           {portfolio.headline && (
-            <p className="text-xl md:text-2xl text-slate-400 font-medium max-w-3xl mb-10 leading-relaxed">
+            <p className="text-base @md:text-lg @lg:text-2xl text-slate-400 font-medium max-w-3xl mb-10 leading-relaxed">
               {portfolio.headline}
             </p>
           )}
@@ -138,13 +146,16 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
               <SectionHeading>Featured Work</SectionHeading>
               <CollapsibleList
                 initial={4}
-                wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-8"
+                wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
                 buttonClassName="col-span-full mt-6 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
               >
                 {visibleProjects.map((project) => (
                   <article
                     key={project.id}
-                    className="group flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-fuchsia-500/50 hover:shadow-[0_0_40px_rgba(217,70,239,0.15)]"
+                    className={cn(
+                      PROJECT_CARD,
+                      "group flex flex-col rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-fuchsia-500/50 hover:shadow-[0_0_40px_rgba(217,70,239,0.15)]"
+                    )}
                   >
                     <div className="relative">
                       <LivePreviewImage
@@ -159,9 +170,9 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
                       />
                       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent opacity-60" />
                     </div>
-                    <div className="relative z-20 flex flex-col grow p-8">
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <h3 className="text-2xl font-bold text-white group-hover:text-fuchsia-400 transition-colors">
+                    <div className={cn(PROJECT_CARD_BODY, "relative z-20 flex flex-col grow p-8")}>
+                      <div className={cn(PROJECT_CARD_HEADER, "mb-4")}>
+                        <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-bold text-white group-hover:text-fuchsia-400 transition-colors")}>
                           {project.title}
                         </h3>
                         <ProjectActions
@@ -314,9 +325,9 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
                     {certifications.map((cert) => (
                       <article
                         key={cert.id}
-                        className="rounded-2xl bg-slate-900/40 backdrop-blur-xl border border-white/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                        className={cn(SPLIT_CARD_ROW, "rounded-2xl bg-slate-900/40 backdrop-blur-xl border border-white/10 p-6")}
                       >
-                        <div>
+                        <div className="min-w-0">
                           <h3 className="text-lg font-bold text-white">
                             {cert.url ? (
                               <a href={cert.url} target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors">
