@@ -38,7 +38,7 @@ export function ImportSourceSelector({
                 <span
                   aria-hidden
                   className={cn(
-                    "absolute left-5 top-10 z-0 h-[calc(100%-1.25rem)] w-0.5 -translate-x-1/2",
+                    "absolute left-[1.125rem] top-9 z-0 h-[calc(100%-1rem)] w-0.5 -translate-x-1/2",
                     isCurrent || isConnected
                       ? "bg-brand-primary/35"
                       : "bg-border-default"
@@ -52,14 +52,14 @@ export function ImportSourceSelector({
                 disabled={disabled}
                 aria-current={isCurrent ? "step" : undefined}
                 className={cn(
-                  "group relative z-10 flex w-full items-start gap-3 rounded-xl py-2 pr-2 text-left transition-colors",
+                  "group relative z-10 flex w-full items-start gap-2.5 rounded-xl py-2 pr-2 text-left transition-colors",
                   "hover:bg-surface-sunken/80 disabled:pointer-events-none disabled:opacity-50",
                   isCurrent && "bg-surface-sunken/60"
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
                     isCurrent &&
                       "border-brand-primary bg-brand-primary text-white shadow-[0_0_0_4px_var(--color-brand-light)]",
                     isConnected &&
@@ -77,7 +77,7 @@ export function ImportSourceSelector({
                   )}
                 </span>
 
-                <span className="min-w-0 pt-1.5">
+                <span className="min-w-0 pt-1">
                   <span
                     className={cn(
                       "block text-sm font-medium leading-tight",

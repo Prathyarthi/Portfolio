@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2, PanelRightClose, Pencil } from "lucide-react";
+import { Check, Loader2, PanelLeftClose, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -15,6 +15,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EDIT_STEPS, type EditStepValue } from "@/features/portfolio/constants/edit-steps";
 import { EditStepContent } from "@/features/portfolio/components/edit-step-content";
 import { TemplatePreviewThumbnail } from "@/features/templates/template-preview-thumbnail";
+import {
+  DASHBOARD_FORM_COMPACT_CLASS,
+  PREVIEW_EDIT_SIDEBAR_CLASS,
+} from "@/features/dashboard/constants/panel-layout";
 
 type PreviewEditSidebarProps = {
   open: boolean;
@@ -79,21 +83,21 @@ function EditorBody({
             onClick={onClose}
             aria-label="Close editor"
           >
-            <PanelRightClose className="h-4 w-4" aria-hidden />
+            <PanelLeftClose className="h-4 w-4" aria-hidden />
           </Button>
         ) : null}
       </div>
 
       <div className="shrink-0 border-b border-border-default px-3 py-2">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
-          <TabsTrigger value="design" className="text-xs">Design</TabsTrigger>
+          <TabsTrigger value="content" className="text-sm">Content</TabsTrigger>
+          <TabsTrigger value="design" className="text-sm">Design</TabsTrigger>
         </TabsList>
       </div>
 
       <TabsContent value="content" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
         <div className="shrink-0 border-b border-border-default px-3 py-3">
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-4 gap-2">
             {EDIT_STEPS.map((step) => {
               const Icon = step.icon;
               return (
@@ -103,14 +107,14 @@ function EditorBody({
                   onClick={() => onStepChange(step.value)}
                   aria-pressed={activeStep === step.value}
                   className={cn(
-                    "flex min-w-0 flex-col items-center gap-1 rounded-[var(--radius-md)] border px-1.5 py-2 text-[11px] leading-none transition-colors",
+                    "flex min-w-0 flex-col items-center gap-1.5 rounded-[var(--radius-md)] border px-1.5 py-2.5 text-xs leading-none transition-colors",
                     activeStep === step.value
                       ? "border-transparent bg-brand-light text-brand-primary"
                       : "border-transparent text-text-muted hover:bg-surface-sunken hover:text-text-primary"
                   )}
                   title={step.label}
                 >
-                  <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                  <Icon className="h-5 w-5 shrink-0" aria-hidden />
                   <span className="max-w-full truncate">{step.short}</span>
                 </button>
               );
@@ -123,8 +127,10 @@ function EditorBody({
           <h2 className="mt-1 text-h4 text-text-primary">{activeStepInfo?.label}</h2>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
-          <div className="preview-edit-form [&_button]:text-xs [&_input]:text-xs [&_textarea]:min-h-20 [&_textarea]:text-xs">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
+          <div
+            className={`preview-edit-form [&_button]:text-sm [&_input]:text-sm [&_textarea]:min-h-24 [&_textarea]:text-sm ${DASHBOARD_FORM_COMPACT_CLASS}`}
+          >
             <EditStepContent step={activeStep} />
           </div>
         </div>
@@ -241,7 +247,7 @@ export function PreviewEditSidebar({
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="w-full glass-modal p-0 sm:max-w-md"
+          className="w-full glass-modal p-0 sm:max-w-lg"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Edit portfolio</SheetTitle>
@@ -268,7 +274,7 @@ export function PreviewEditSidebar({
   if (!open) return null;
 
   return (
-    <aside className="glass-panel hidden h-full w-full shrink-0 flex-col overflow-hidden xl:ml-4 xl:flex xl:w-80">
+    <aside className={cn("glass-panel", PREVIEW_EDIT_SIDEBAR_CLASS, "lg:mr-4")}>
       <EditorBody
         activeStep={activeStep}
         onStepChange={setActiveStep}
@@ -302,7 +308,7 @@ export function PreviewEditToggle({
       onClick={() => onOpenChange(!open)}
     >
       {open ? (
-        <PanelRightClose className="h-3.5 w-3.5" aria-hidden />
+        <PanelLeftClose className="h-3.5 w-3.5" aria-hidden />
       ) : (
         <Pencil className="h-3.5 w-3.5" aria-hidden />
       )}

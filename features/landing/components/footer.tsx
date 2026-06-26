@@ -36,15 +36,12 @@ const SOCIAL = [
 
 export function Footer() {
   return (
-    <footer
-      className="px-6 py-8"
-      style={{ background: "var(--color-footer-bg)" }}
-    >
+    <footer className="marketing-footer px-6 py-8">
       <div className="mx-auto max-w-[1200px]">
         <div className="grid grid-cols-2 gap-6 md:grid-cols-[2fr_1fr_1fr_1fr] md:gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Logo variant="light" />
-            <p className="mt-2 max-w-[260px] text-xs leading-relaxed text-white/60">
+            <Logo wordmarkClassName="mf-heading" />
+            <p className="mf-text mt-2 max-w-[260px] text-xs leading-relaxed">
               {siteConfig.tagline}
             </p>
             <div className="mt-3 flex items-center gap-1.5">
@@ -55,7 +52,7 @@ export function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={label}
-                  className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+                  className="mf-social flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)]"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -65,16 +62,13 @@ export function Footer() {
 
           {Object.entries(NAV).map(([title, links]) => (
             <nav key={title} aria-label={title}>
-              <p className="text-[11px] font-medium uppercase tracking-wide text-white/40">
+              <p className="mf-muted text-[11px] font-medium uppercase tracking-wide">
                 {title}
               </p>
               <ul className="mt-2.5 flex flex-col gap-2">
                 {links.map(({ label, href }) => (
                   <li key={label}>
-                    <Link
-                      href={href}
-                      className="text-xs text-white/60 transition-colors hover:text-white"
-                    >
+                    <Link href={href} className="mf-link text-xs">
                       {label}
                     </Link>
                   </li>
@@ -84,8 +78,8 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-4 sm:flex-row">
-          <p className="text-xs text-white/40">
+        <div className="mf-divider mt-8 flex flex-col items-center justify-between gap-3 border-t pt-4 sm:flex-row">
+          <p className="mf-muted text-xs">
             &copy; {new Date().getFullYear()} {siteConfig.legalEntity}. All rights
             reserved.
           </p>
@@ -94,11 +88,7 @@ export function Footer() {
             aria-label="Legal"
           >
             {LEGAL_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-xs text-white/40 transition-colors hover:text-white"
-              >
+              <Link key={link.href} href={link.href} className="mf-link text-xs">
                 {link.label}
               </Link>
             ))}

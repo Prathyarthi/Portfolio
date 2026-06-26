@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Logo, LogoMark } from "@/components/logo";
 import { siteConfig } from "@/lib/site";
+import { Footer } from "@/features/landing/components/footer";
 import {
   Sidebar,
   SidebarContent,
@@ -32,7 +33,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
@@ -57,10 +57,10 @@ function AppSidebar() {
       <SidebarHeader className="h-16 justify-center border-b border-sidebar-border">
         <Link
           href="/dashboard"
-          className="flex h-8 items-center gap-2 overflow-hidden px-2"
+          className="flex h-8 items-center gap-2 overflow-hidden px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
           aria-label={`${siteConfig.name} home`}
         >
-          <LogoMark className="h-8 w-8" />
+          <LogoMark className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8" />
           <span
             className="font-display text-lg font-bold text-brand-primary group-data-[collapsible=icon]:hidden"
           >
@@ -70,9 +70,9 @@ function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
+        <SidebarGroup className="group-data-[collapsible=icon]:p-1.5">
           <SidebarGroupContent>
-            <SidebarMenu className="gap-1.5">
+            <SidebarMenu className="gap-1.5 group-data-[collapsible=icon]:gap-1">
               {NAV.map(({ title, href, icon: Icon }) => {
                 const active =
                   href === "/dashboard"
@@ -85,7 +85,7 @@ function AppSidebar() {
                       isActive={active}
                       size="lg"
                       tooltip={title}
-                      className="gap-3 text-base [&_svg]:size-5 group-data-[collapsible=icon]:size-10!"
+                      className="gap-3 text-base [&_svg]:size-5 group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:[&_span]:hidden group-data-[collapsible=icon]:[&_svg]:size-5"
                     >
                       <Link href={href}>
                         <Icon aria-hidden />
@@ -100,9 +100,9 @@ function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
-        <div className="flex items-center gap-2 rounded-md p-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1">
-          <Avatar className="h-8 w-8 shrink-0">
+      <SidebarFooter className="border-t border-sidebar-border group-data-[collapsible=icon]:p-1">
+        <div className="flex items-center gap-2 rounded-md p-2 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-1.5 group-data-[collapsible=icon]:p-1">
+          <Avatar className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
             <AvatarImage src={user?.avatar} alt="" />
             <AvatarFallback className="bg-brand-light text-brand-dark">
               {user?.name?.charAt(0)?.toUpperCase() ?? (
@@ -116,21 +116,20 @@ function AppSidebar() {
             </p>
             <p className="truncate text-xs text-text-muted">{user?.email}</p>
           </div>
-          <div className="flex shrink-0 items-center gap-0.5 group-data-[collapsible=icon]:flex-col">
-            <ThemeToggle className="size-8" />
+          <div className="flex shrink-0 items-center gap-0.5 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-1">
+            <ThemeToggle className="size-8 group-data-[collapsible=icon]:size-8" />
             <Button
               variant="ghost"
               size="icon-sm"
+              className="group-data-[collapsible=icon]:size-8"
               aria-label="Sign out"
               onClick={() => signOut({ callbackUrl: "/" })}
             >
-              <LogOut className="h-4 w-4" aria-hidden />
+              <LogOut className="h-4 w-4 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5" aria-hidden />
             </Button>
           </div>
         </div>
       </SidebarFooter>
-
-      <SidebarRail />
     </Sidebar>
   );
 }
@@ -141,6 +140,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       style={
         {
           "--sidebar-width": "17.5rem",
+          "--sidebar-width-icon": "4rem",
         } as React.CSSProperties
       }
     >
@@ -157,6 +157,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <main className="relative z-[1] min-w-0 flex-1 overflow-x-hidden p-[var(--space-5)]">
           {children}
         </main>
+        <Footer />
       </SidebarInset>
     </SidebarProvider>
   );

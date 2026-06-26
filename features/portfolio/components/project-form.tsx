@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   usePortfolio,
   useAddProject,
@@ -10,7 +10,7 @@ import {
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -41,6 +41,12 @@ import {
   getMaxLivePreviews,
   isLivePreviewEnabledForProject,
 } from "@/lib/live-preview";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import {
+  fieldsDiffer,
+  fieldDiffers,
+  hasNonEmptyStringValues,
+} from "@/features/portfolio/lib/edit-step-dirty";
 
 interface ProjectEntry {
   id?: string;
@@ -317,6 +323,94 @@ export function ProjectForm() {
     }
   }
 
+  const projects = portfolio?.projects ?? [];
+
+  const isDirty = useMemo(() => {
+    if (!isAdding && !editingId) return false;
+    if (isAdding) {
+      return (
+        hasNonEmptyStringValues({
+          title: form.title,
+          description: form.description,
+          liveUrl: form.liveUrl,
+          sourceUrl: form.sourceUrl,
+        }) ||
+        form.techStack.length > 0 ||
+        techInput.trim() !== "" ||
+        form.featured ||
+        enableLivePreviewOnSave
+      );
+    }
+
+    const original = projects.find((project) => project.id === editingId);
+    if (!original || !editingId) return true;
+
+    const fieldsChanged = fieldsDiffer(
+      form,
+      {
+        title: original.title,
+        description: original.description ?? "",
+        liveUrl: original.liveUrl ?? "",
+        sourceUrl: original.sourceUrl ?? "",
+      },
+      ["title", "description", "liveUrl", "sourceUrl"]
+    );
+    const techChanged =
+      JSON.stringify(form.techStack) !==
+      JSON.stringify(original.techStack ?? []);
+    const featuredChanged = form.featured !== (original.featured ?? false);
+    const previewChanged =
+      editLivePreviewEnabled !==
+      isLivePreviewEnabledForProject(editingId, livePreviewProjectIds);
+
+    return (
+      fieldsChanged ||
+      techChanged ||
+      featuredChanged ||
+      previewChanged ||
+      techInput.trim() !== ""
+    );
+  }, [
+    isAdding,
+    editingId,
+    form,
+    techInput,
+    enableLivePreviewOnSave,
+    editLivePreviewEnabled,
+    projects,
+    livePreviewProjectIds,
+  ]);
+
+  useEditStepDirty("projects", isDirty);
+
+  const savedForm = useMemo((): ProjectEntry => {
+    if (isAdding) return emptyEntry;
+    if (!editingId) return emptyEntry;
+    const original = projects.find((project) => project.id === editingId);
+    if (!original) return emptyEntry;
+    return {
+      title: original.title ?? "",
+      description: original.description ?? "",
+      liveUrl: original.liveUrl ?? "",
+      sourceUrl: original.sourceUrl ?? "",
+      techStack: original.techStack ?? [],
+      featured: original.featured ?? false,
+    };
+  }, [isAdding, editingId, projects]);
+
+  const isFieldUnsaved = (key: keyof Omit<ProjectEntry, "techStack" | "featured">) =>
+    isAdding || editingId
+      ? fieldDiffers(form[key] ?? "", savedForm[key] ?? "")
+      : false;
+
+  const isFeaturedUnsaved =
+    (isAdding || editingId) && form.featured !== savedForm.featured;
+
+  const isTechUnsaved =
+    (isAdding || editingId) &&
+    (JSON.stringify(form.techStack) !== JSON.stringify(savedForm.techStack) ||
+      techInput.trim() !== "");
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -325,7 +419,6 @@ export function ProjectForm() {
     );
   }
 
-  const projects = portfolio?.projects ?? [];
   const isMutating =
     addProject.isPending ||
     updateProject.isPending ||
@@ -368,7 +461,9 @@ export function ProjectForm() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="proj-title">Title *</Label>
+                <FieldLabel htmlFor="proj-title" unsaved={isFieldUnsaved("title")}>
+                  Title *
+                </FieldLabel>
                 <Input
                   id="proj-title"
                   name="title"
@@ -385,18 +480,17 @@ export function ProjectForm() {
                     setForm((prev) => ({ ...prev, featured: checked }))
                   }
                 />
-                <Label
-                  htmlFor="featured"
-                  className="flex items-center gap-1.5 cursor-pointer"
-                >
+                <FieldLabel htmlFor="featured" unsaved={isFeaturedUnsaved}>
                   <Star className="h-4 w-4 text-amber-500" />
                   Featured project
-                </Label>
+                </FieldLabel>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="proj-description">Description *</Label>
+              <FieldLabel htmlFor="proj-description" unsaved={isFieldUnsaved("description")}>
+                Description *
+              </FieldLabel>
               <Textarea
                 id="proj-description"
                 name="description"
@@ -409,10 +503,10 @@ export function ProjectForm() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="liveUrl" className="flex items-center gap-2">
+                <FieldLabel htmlFor="liveUrl" unsaved={isFieldUnsaved("liveUrl")}>
                   <ExternalLink className="h-4 w-4 text-muted-foreground" />
                   Live URL
-                </Label>
+                </FieldLabel>
                 <Input
                   id="liveUrl"
                   name="liveUrl"
@@ -423,10 +517,10 @@ export function ProjectForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="sourceUrl" className="flex items-center gap-2">
+                <FieldLabel htmlFor="sourceUrl" unsaved={isFieldUnsaved("sourceUrl")}>
                   <Github className="h-4 w-4 text-muted-foreground" />
                   Source URL
-                </Label>
+                </FieldLabel>
                 <Input
                   id="sourceUrl"
                   name="sourceUrl"
@@ -467,7 +561,7 @@ export function ProjectForm() {
 
             {/* Tech Stack Tags */}
             <div className="space-y-2">
-              <Label>Tech Stack</Label>
+              <FieldLabel unsaved={isTechUnsaved}>Tech Stack</FieldLabel>
               <div className="flex gap-2">
                 <Input
                   value={techInput}

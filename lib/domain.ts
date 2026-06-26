@@ -27,7 +27,9 @@ export const RESERVED_SUBDOMAINS = new Set([
 
 export function getPortfolioRootDomain(): string {
   const fromEnv = process.env.NEXT_PUBLIC_PORTFOLIO_ROOT_DOMAIN?.trim();
-  return fromEnv && fromEnv.length > 0 ? fromEnv : DEFAULT_ROOT_DOMAIN;
+  if (fromEnv && fromEnv.length > 0) return fromEnv;
+  if (process.env.NODE_ENV === "development") return "localhost";
+  return DEFAULT_ROOT_DOMAIN;
 }
 
 export function getAppOrigin(): string {
@@ -126,6 +128,22 @@ export const INTERNAL_PORTFOLIO_PATH_PREFIX = "/sites";
 
 export function getInternalPortfolioPath(slug: string): string {
   return `${INTERNAL_PORTFOLIO_PATH_PREFIX}/${slug}`;
+}
+
+/** True when the request is for a published portfolio (subdomain or /sites rewrite). */
+export function isPortfolioRequest(pathname: string, host: string): boolean {
+  if (extractPortfolioSubdomain(host)) return true;
+  return (
+    pathname === INTERNAL_PORTFOLIO_PATH_PREFIX ||
+    pathname.startsWith(`${INTERNAL_PORTFOLIO_PATH_PREFIX}/`)
+  );
+}
+
+export function shouldShowMarketingFooter(
+  pathname: string,
+  host: string,
+): boolean {
+  return !isPortfolioRequest(pathname, host);
 }
 
 /** App routes that should not be served from portfolio subdomains. */

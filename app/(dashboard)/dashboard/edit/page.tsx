@@ -10,6 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
+import {
+  DASHBOARD_CONTENT_FRAME_CLASS,
+  DASHBOARD_CONTENT_INNER_CLASS,
+  DASHBOARD_MAIN_COLUMN_CLASS,
+  DASHBOARD_TRACKER_ASIDE_CLASS,
+} from "@/features/dashboard/constants/panel-layout";
 import { usePortfolio } from "@/features/portfolio/api/use-portfolio";
 import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
 import { EditStepContent } from "@/features/portfolio/components/edit-step-content";
@@ -24,7 +30,7 @@ import {
   type EditStepValue,
 } from "@/features/portfolio/constants/edit-steps";
 
-export default function EditPortfolioPage() {
+function EditPortfolioPageContent() {
   const router = useRouter();
   const { data: portfolio, isLoading } = usePortfolio();
   const [activeStep, setActiveStep] = useState<EditStepValue>("basic");
@@ -92,8 +98,8 @@ export default function EditPortfolioPage() {
           <div>
             <h1 className="text-h2 text-text-primary">Edit portfolio</h1>
             <p className="mt-1 max-w-2xl text-body-sm text-text-secondary">
-              Work through one section at a time. Use the progress tracker on the
-              right to jump between steps.
+            Work through one section at a time. Use the progress tracker on the
+            left to jump between steps.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -128,49 +134,55 @@ export default function EditPortfolioPage() {
         <Separator />
       </div>
 
-      <div className="grid min-h-0 w-full flex-1 grid-cols-1 pt-6 lg:grid-cols-[1fr_auto] lg:gap-12 lg:overflow-hidden xl:gap-20">
-        <div className="min-h-0 overflow-y-auto overscroll-contain pb-6 pr-1">
-          <div className="mx-auto w-full max-w-3xl">
-          <EditStepProgressBar activeStep={activeStep} />
-
-          <div className="mb-6">
-            <p className="eyebrow hidden lg:block">
-              Step {activeIndex + 1} of {EDIT_STEPS.length}
-            </p>
-            <h2 className="mt-1 text-h3 text-text-primary">{currentStep.label}</h2>
-            <p className="mt-1 text-body-sm text-text-secondary">
-              {EDIT_STEP_DESCRIPTIONS[activeStep]}
-            </p>
-          </div>
-
-          <EditStepContent step={activeStep} />
-
-          <FlowFooter
-            message={null}
-            previous={
-              activeIndex <= 0
-                ? { href: "/dashboard", label: "Back to Overview" }
-                : { label: "Previous", onClick: goPrevious }
-            }
-            next={{
-              label:
-                activeIndex === EDIT_STEPS.length - 1
-                  ? "Next: Templates"
-                  : "Next section",
-              onClick: goNext,
-            }}
-          />
-          </div>
-        </div>
-
-        <aside className="hidden shrink-0 self-start lg:block lg:w-56 lg:pr-2 xl:w-64 xl:pr-4">
+      <div className="flex min-h-0 w-full flex-1 flex-col pt-6 lg:flex-row lg:gap-0 lg:overflow-hidden">
+        <aside className={DASHBOARD_TRACKER_ASIDE_CLASS}>
           <EditStepTracker
             activeStep={activeStep}
             onStepChange={setActiveStep}
             portfolio={portfolio}
           />
         </aside>
+
+        <div className={DASHBOARD_MAIN_COLUMN_CLASS}>
+          <EditStepProgressBar activeStep={activeStep} />
+
+          <div className="shrink-0">
+            <p className="eyebrow hidden lg:block">
+              Step {activeIndex + 1} of {EDIT_STEPS.length}
+            </p>
+            <h2 className="text-h3 text-text-primary">{currentStep.label}</h2>
+            <p className="mt-0.5 text-body-sm text-text-secondary">
+              {EDIT_STEP_DESCRIPTIONS[activeStep]}
+            </p>
+          </div>
+
+          <div className={DASHBOARD_CONTENT_FRAME_CLASS}>
+            <div className={DASHBOARD_CONTENT_INNER_CLASS}>
+              <EditStepContent step={activeStep} />
+            </div>
+          </div>
+
+          <div className="shrink-0 pb-2">
+            <FlowFooter
+              message={null}
+              previous={
+                activeIndex <= 0
+                  ? { href: "/dashboard", label: "Back to Overview" }
+                  : { label: "Previous", onClick: goPrevious }
+              }
+              next={{
+                label:
+                  activeIndex === EDIT_STEPS.length - 1
+                    ? "Next: Templates"
+                    : "Next section",
+                onClick: goNext,
+              }}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+export default EditPortfolioPageContent;

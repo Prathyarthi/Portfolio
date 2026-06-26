@@ -23,7 +23,7 @@ export function EditStepTracker({
 
   return (
     <nav aria-label="Portfolio sections">
-      <p className="mb-5 text-label font-medium uppercase tracking-wide text-text-muted">
+      <p className="mb-4 text-label font-medium uppercase tracking-wide text-text-muted">
         Your progress
       </p>
       <ol className="space-y-0">
@@ -40,7 +40,7 @@ export function EditStepTracker({
                 <span
                   aria-hidden
                   className={cn(
-                    "absolute left-5 top-10 z-0 h-[calc(100%-1.25rem)] w-0.5 -translate-x-1/2",
+                    "absolute left-[1.125rem] top-9 z-0 h-[calc(100%-1rem)] w-0.5 -translate-x-1/2",
                     lineActive ? "bg-brand-primary/35" : "bg-border-default"
                   )}
                 />
@@ -51,14 +51,14 @@ export function EditStepTracker({
                 onClick={() => onStepChange(step.value)}
                 aria-current={isCurrent ? "step" : undefined}
                 className={cn(
-                  "group relative z-10 flex w-full items-start gap-3 rounded-xl py-2 pr-2 text-left transition-colors",
+                  "group relative z-10 flex w-full max-w-full items-start gap-2 rounded-lg py-1.5 pr-1 text-left transition-colors",
                   "hover:bg-surface-sunken/80",
                   isCurrent && "bg-surface-sunken/60"
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
                     isCurrent &&
                       "border-brand-primary bg-brand-primary text-white shadow-[0_0_0_4px_var(--color-brand-light)]",
                     isComplete &&
@@ -76,7 +76,7 @@ export function EditStepTracker({
                   )}
                 </span>
 
-                <span className="min-w-0 pt-1.5">
+                <span className="min-w-0 pt-1">
                   <span
                     className={cn(
                       "block text-sm font-medium leading-tight",

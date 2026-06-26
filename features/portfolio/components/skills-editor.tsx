@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
 import {
   usePortfolio,
   useAddSkill,
@@ -9,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -50,6 +52,8 @@ export function SkillsEditor() {
 
   const [skillName, setSkillName] = useState("");
   const [category, setCategory] = useState<string>("language");
+
+  useEditStepDirty("skills", skillName.trim() !== "");
 
   async function handleAdd() {
     const name = skillName.trim();
@@ -137,7 +141,9 @@ export function SkillsEditor() {
         <CardContent>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1 space-y-2">
-              <Label htmlFor="skill-name">Skill Name</Label>
+              <FieldLabel htmlFor="skill-name" unsaved={skillName.trim() !== ""}>
+                Skill Name
+              </FieldLabel>
               <Input
                 id="skill-name"
                 value={skillName}

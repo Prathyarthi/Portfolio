@@ -5,6 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
+import {
+  DASHBOARD_CONTENT_FRAME_CLASS,
+  DASHBOARD_CONTENT_INNER_CLASS,
+  DASHBOARD_MAIN_COLUMN_CLASS,
+  DASHBOARD_TRACKER_ASIDE_CLASS,
+} from "@/features/dashboard/constants/panel-layout";
 import { usePortfolio } from "@/features/portfolio/api/use-portfolio";
 import { ImportSourceContent } from "@/features/portfolio/components/import-source-content";
 import {
@@ -55,8 +61,8 @@ export default function ImportPage() {
         <div>
           <h1 className="text-h2 text-text-primary">Import data</h1>
           <p className="mt-1 max-w-2xl text-body-sm text-text-secondary">
-            Choose a platform on the right, then import into your portfolio one
-            source at a time.
+          Choose a platform on the left, then import into your portfolio one
+          source at a time.
           </p>
         </div>
 
@@ -77,16 +83,24 @@ export default function ImportPage() {
         )}
       </div>
 
-      <div className="grid min-h-0 w-full flex-1 grid-cols-1 pt-6 lg:grid-cols-[1fr_auto] lg:gap-12 lg:overflow-hidden xl:gap-20">
-        <div className="min-h-0 overflow-y-auto overscroll-contain pb-6 pr-1">
-          <div className="mx-auto w-full max-w-3xl">
+      <div className="flex min-h-0 w-full flex-1 flex-col pt-6 lg:flex-row lg:gap-0 lg:overflow-hidden">
+        <aside className={DASHBOARD_TRACKER_ASIDE_CLASS}>
+          <ImportSourceSelector
+            activeSource={activeSource}
+            onSourceChange={setActiveSource}
+            portfolio={portfolio}
+            disabled={!canUseImports}
+          />
+        </aside>
+
+        <div className={DASHBOARD_MAIN_COLUMN_CLASS}>
           <ImportSourcePicker
             activeSource={activeSource}
             onSourceChange={setActiveSource}
             disabled={!canUseImports}
           />
 
-          <div className="mb-6">
+          <div className="shrink-0">
             <p className="eyebrow hidden lg:block">Selected source</p>
             <h2 className="mt-1 text-h3 text-text-primary">
               {currentSource.label}
@@ -96,33 +110,29 @@ export default function ImportPage() {
             </p>
           </div>
 
-          <ImportSourceContent
-            source={activeSource}
-            canUseImports={canUseImports}
-          />
+          <div className={DASHBOARD_CONTENT_FRAME_CLASS}>
+            <div className={DASHBOARD_CONTENT_INNER_CLASS}>
+              <ImportSourceContent
+                source={activeSource}
+                canUseImports={canUseImports}
+              />
+            </div>
+          </div>
 
-          <FlowFooter
-            message={null}
-            previous={{
-              href: "/dashboard/templates",
-              label: "Previous: Templates",
-            }}
-            next={{
-              label: "Next: Preview",
-              onClick: () => router.push("/dashboard/preview"),
-            }}
-          />
+          <div className="shrink-0 pb-2">
+            <FlowFooter
+              message={null}
+              previous={{
+                href: "/dashboard/templates",
+                label: "Previous: Templates",
+              }}
+              next={{
+                label: "Next: Preview",
+                onClick: () => router.push("/dashboard/preview"),
+              }}
+            />
           </div>
         </div>
-
-        <aside className="hidden shrink-0 self-start lg:block lg:w-56 lg:pr-2 xl:w-64 xl:pr-4">
-          <ImportSourceSelector
-            activeSource={activeSource}
-            onSourceChange={setActiveSource}
-            portfolio={portfolio}
-            disabled={!canUseImports}
-          />
-        </aside>
       </div>
     </div>
   );

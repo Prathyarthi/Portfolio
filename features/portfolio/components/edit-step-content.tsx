@@ -1,6 +1,7 @@
 "use client";
 
 import { Separator } from "@/components/ui/separator";
+import { EDIT_FORM_STACK_CLASS } from "@/features/dashboard/constants/form-layout";
 import { EDIT_STEPS, type EditStepValue } from "@/features/portfolio/constants/edit-steps";
 import { AchievementForm } from "@/features/portfolio/components/achievement-form";
 import { CustomSectionEditor } from "@/features/portfolio/components/custom-section-editor";
@@ -16,7 +17,7 @@ export function EditStepContent({ step }: { step: EditStepValue }) {
   switch (step) {
     case "basic":
       return (
-        <div className="space-y-4 [&_h3]:text-base">
+        <div className={`${EDIT_FORM_STACK_CLASS} [&_h3]:text-base`}>
           <PortfolioForm />
           <Separator />
           <PublishButton />
