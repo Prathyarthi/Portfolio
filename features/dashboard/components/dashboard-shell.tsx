@@ -72,7 +72,7 @@ function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1.5">
               {NAV.map(({ title, href, icon: Icon }) => {
                 const active =
                   href === "/dashboard"
@@ -80,7 +80,13 @@ function AppSidebar() {
                     : pathname.startsWith(href);
                 return (
                   <SidebarMenuItem key={href}>
-                    <SidebarMenuButton asChild isActive={active} tooltip={title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={active}
+                      size="lg"
+                      tooltip={title}
+                      className="gap-3 text-base [&_svg]:size-5 group-data-[collapsible=icon]:size-10!"
+                    >
                       <Link href={href}>
                         <Icon aria-hidden />
                         <span>{title}</span>
@@ -134,7 +140,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "15rem",
+          "--sidebar-width": "17.5rem",
         } as React.CSSProperties
       }
     >
