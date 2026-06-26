@@ -77,7 +77,7 @@ export function Hero() {
           <p className="eyebrow uppercase">Resume → portfolio</p>
 
           <h1 className="text-display mt-3 text-balance text-text-primary">
-            Your resume. Your portfolio. Done.
+            Your resume. <br /> Your portfolio. Done.
           </h1>
 
           <p className="prose-measure mx-auto mt-5 text-body-lg text-text-secondary">
