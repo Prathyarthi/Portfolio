@@ -30,8 +30,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-// import { getPreviewImage } from "@/lib/link-preview-code";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { getPreviewImage } from "@/lib/link-preview-code";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
 
 export function ModernTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -175,13 +175,12 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                           "rounded-[1.6rem] border border-white/10 bg-black/20 shadow-[0_16px_50px_rgba(2,6,23,0.36)] transition-transform duration-300 hover:-translate-y-1"
                         )}
                       >
-                        <LivePreviewImage
+                        <TemplateProjectPreview templateId="modern"
                           liveUrl={project.liveUrl ?? null}
                           projectId={project.id}
                           livePreviewProjectIds={livePreviewProjectIds}
                           alt={project.title}
                           loading="lazy"
-                          placeholderClassName="bg-white/[0.04]"
                         />
 
                         <div className={PROJECT_CARD_BODY}>

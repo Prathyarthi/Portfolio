@@ -22,7 +22,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function PaperTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -134,14 +135,13 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
                 <article key={project.id} className={cn(PROJECT_CARD, "grid grid-cols-1 min-w-0 @md:grid-cols-12 gap-8 items-start")}>
                   <div className="@md:col-span-5">
                     <div className="border border-[#2c2c2c] bg-white p-1">
-                      <LivePreviewImage
+                      <TemplateProjectPreview templateId="paper"
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         loading="lazy"
                         containerClassName="overflow-hidden bg-[#f4f1ea]"
-                        placeholderClassName="bg-[#f4f1ea] [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-[#2c2c2c]"
                         className="h-full w-full object-cover object-top filter transition-all duration-500"
                       />
                     </div>

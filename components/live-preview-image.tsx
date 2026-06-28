@@ -19,6 +19,7 @@ interface LivePreviewImageProps {
   containerClassName?: string;
   placeholderClassName?: string;
   placeholderVariant?: PreviewPlaceholderVariant;
+  templateId?: string;
   loading?: "lazy" | "eager";
 }
 
@@ -32,6 +33,7 @@ export function LivePreviewImage({
   containerClassName,
   placeholderClassName,
   placeholderVariant = "default",
+  templateId,
   loading = "lazy",
 }: LivePreviewImageProps) {
   const [imageFailed, setImageFailed] = useState(false);
@@ -66,6 +68,7 @@ export function LivePreviewImage({
           title={alt}
           seedKey={projectId ?? alt}
           variant={placeholderVariant}
+          templateId={templateId}
           className={placeholderClassName}
         />
       )}

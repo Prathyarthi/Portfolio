@@ -637,6 +637,7 @@ function ProjectCard({
         projectId={project.id}
         livePreviewProjectIds={livePreviewProjectIds}
         alt={project.title}
+        templateId="spotlight"
         loading="lazy"
       />
 

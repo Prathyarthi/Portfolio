@@ -25,7 +25,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function VibrantTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -158,14 +159,13 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
                     )}
                   >
                     <div className="relative">
-                      <LivePreviewImage
+                      <TemplateProjectPreview templateId="vibrant"
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         loading="lazy"
                         containerClassName="overflow-hidden bg-slate-800"
-                        placeholderClassName="bg-slate-800 [&_p]:text-sm [&_p]:font-medium [&_p]:text-slate-400"
                         className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
                       />
                       <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent opacity-60" />

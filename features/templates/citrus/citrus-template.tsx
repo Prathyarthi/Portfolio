@@ -16,10 +16,11 @@ import {
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
 } from "../shared";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { GitHubContributionHeatmap, parseContributionCalendar } from "../github-contribution-heatmap";
 import { motion } from "motion/react";
+
 
 export function CitrusTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -124,13 +125,12 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
                   <article key={project.id} className={cn(PROJECT_CARD, "group relative")}>
                     <div className="absolute inset-0 bg-[#E9C46A] translate-x-3 translate-y-3 rounded-2xl transition-transform group-hover:translate-x-4 group-hover:translate-y-4" />
                     <div className="relative flex flex-col overflow-hidden rounded-2xl border-4 border-[#264653] bg-white h-full">
-                      <LivePreviewImage
+                      <TemplateProjectPreview templateId="citrus"
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         containerClassName="overflow-hidden border-b-4 border-[#264653] bg-[#264653]/10"
-                        placeholderClassName="bg-[#264653]/10 [&_p]:text-sm [&_p]:font-black [&_p]:uppercase [&_p]:text-[#264653]"
                         className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="p-8 flex-1 flex flex-col">

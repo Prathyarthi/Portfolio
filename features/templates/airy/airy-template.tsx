@@ -19,10 +19,11 @@ import {
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
 } from "../shared";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { GitHubContributionHeatmap, parseContributionCalendar } from "../github-contribution-heatmap";
 import { motion } from "motion/react";
+
 
 export function AiryTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -115,14 +116,13 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
               <CollapsibleList initial={4} wrapperClassName={PROJECTS_GRID_2} buttonClassName="mt-6 mx-auto bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                 {projects.map((project) => (
                   <article key={project.id} className={cn(PROJECT_CARD, "group rounded-3xl border border-slate-100 bg-white shadow-xs transition-all hover:shadow-md")}>
-                    <LivePreviewImage
+                    <TemplateProjectPreview templateId="airy"
                       liveUrl={project.liveUrl ?? null}
                       projectId={project.id}
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
                       containerClassName="overflow-hidden border-b border-slate-50 bg-slate-50"
-                      placeholderClassName="bg-slate-50 [&_p]:text-sm [&_p]:font-medium [&_p]:text-slate-500"
                       className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className={PROJECT_CARD_BODY}>

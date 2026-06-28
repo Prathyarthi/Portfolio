@@ -26,7 +26,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function BentoTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -164,14 +165,13 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                       "group flex flex-col rounded-2xl border border-zinc-200/60 bg-zinc-50/50 transition-all hover:border-zinc-300/80 hover:bg-white hover:shadow-md"
                     )}
                   >
-                    <LivePreviewImage
+                    <TemplateProjectPreview templateId="bento"
                       liveUrl={project.liveUrl ?? null}
                       projectId={project.id}
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
                       containerClassName="overflow-hidden bg-zinc-200"
-                      placeholderClassName="bg-zinc-100 [&_p]:text-sm [&_p]:font-semibold [&_p]:text-zinc-500"
                       className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className={cn(PROJECT_CARD_BODY, "flex flex-col grow p-5")}>

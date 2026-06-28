@@ -16,10 +16,11 @@ import {
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
 } from "../shared";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { GitHubContributionHeatmap, parseContributionCalendar } from "../github-contribution-heatmap";
 import { motion } from "motion/react";
+
 
 export function ParchmentTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -124,13 +125,12 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
                   <article key={project.id} className={cn(PROJECT_CARD, "grid grid-cols-1 min-w-0 @md:grid-cols-12 gap-8 items-start")}>
                     <div className={cn("@md:col-span-5", idx % 2 !== 0 && "@md:order-last")}>
                       <div className="border-2 border-[#2B2B2B] bg-white p-1">
-                        <LivePreviewImage
+                        <TemplateProjectPreview templateId="parchment"
                           liveUrl={project.liveUrl ?? null}
                           projectId={project.id}
                           livePreviewProjectIds={livePreviewProjectIds}
                           alt={project.title}
                           containerClassName="overflow-hidden bg-white"
-                          placeholderClassName="bg-[#F4F1DE] [&_p]:text-sm [&_p]:font-bold [&_p]:uppercase [&_p]:text-[#8C2727]"
                           className="h-full w-full object-cover object-top filter transition-all duration-700"
                         />
                       </div>

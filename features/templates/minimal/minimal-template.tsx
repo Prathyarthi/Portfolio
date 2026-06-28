@@ -30,7 +30,8 @@ import {
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 // import { getPreviewImage } from "@/lib/link-preview-code";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function MinimalTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -177,13 +178,12 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                         "rounded-[1.6rem] border border-stone-200/80 bg-[#fffdf9] shadow-[0_14px_40px_rgba(28,25,23,0.05)] transition-transform duration-300 hover:-translate-y-1"
                       )}
                     >
-                      <LivePreviewImage
+                      <TemplateProjectPreview templateId="minimal"
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         loading="lazy"
-                        placeholderVariant="minimal"
                         containerClassName="overflow-hidden bg-stone-100"
                       />
                       <div className={PROJECT_CARD_BODY}>

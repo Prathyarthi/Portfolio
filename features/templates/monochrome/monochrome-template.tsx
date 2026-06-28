@@ -24,7 +24,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function MonochromeTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -139,15 +140,13 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
             >
               {visibleProjects.map((project) => (
                 <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col")}>
-                  <LivePreviewImage
+                  <TemplateProjectPreview templateId="monochrome"
                     liveUrl={project.liveUrl ?? null}
                     projectId={project.id}
                     livePreviewProjectIds={livePreviewProjectIds}
                     alt={project.title}
                     loading="lazy"
-                    placeholderVariant="minimal"
                     containerClassName="mb-6 overflow-hidden bg-gray-100"
-                    placeholderClassName="bg-gray-100 [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-gray-500"
                     className="h-full w-full object-cover object-top filter transition-all duration-700 group-hover:scale-105"
                   />
 
