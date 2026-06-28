@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type FlowAction = {
   href?: string;
@@ -17,6 +18,8 @@ type FlowFooterProps = {
   className?: string;
   /** Short hint shown on the left; omit for none. */
   message?: string | null;
+  /** Pin navigation above content (`top`) or below (`bottom`, default). */
+  placement?: "top" | "bottom";
 };
 
 export function FlowFooter({
@@ -24,10 +27,20 @@ export function FlowFooter({
   next,
   className,
   message = "Use the buttons below to move through the portfolio flow.",
+  placement = "bottom",
 }: FlowFooterProps) {
+  const edgeClass =
+    placement === "top"
+      ? "border-b border-border-default pb-4"
+      : "border-t border-border-default pt-5";
+
   return (
     <div
-      className={`flex flex-col gap-3 border-t border-border-default pt-5 sm:flex-row sm:items-center sm:justify-between ${className ?? ""}`}
+      className={cn(
+        "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
+        edgeClass,
+        className
+      )}
     >
       {message ? (
         <div className="flex-1 text-body-sm text-text-secondary">{message}</div>

@@ -50,18 +50,16 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
     <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#F8FAFC] text-slate-900 font-sans overflow-x-hidden relative")}>
       <div className="absolute top-0 right-0 w-full h-[600px] bg-linear-to-b from-sky-100/50 to-transparent pointer-events-none" />
 
-      <div className="relative mx-auto max-w-5xl px-6 py-16 sm:px-12 md:py-24">
+      <div className="relative mx-auto max-w-5xl px-4 py-10 @md:px-8 @md:py-16 @lg:px-12 @lg:py-24">
         {navbarEnabled && (
-          <nav className="mb-16 sticky top-4 z-50 rounded-full border border-sky-100 bg-white/80 p-2 shadow-xs backdrop-blur-md transition-all">
-            <TemplateNavbar
-              items={sections}
-              className="justify-center gap-2 md:gap-6 border-none"
-              linkClassName="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded-full transition-all"
-            />
-          </nav>
+          <TemplateNavbar
+            items={sections}
+            className="mb-12 sticky top-4 z-50 rounded-full border border-sky-100 bg-white/80 shadow-xs backdrop-blur-md"
+            linkClassName="px-3 py-1.5 text-xs @sm:px-4 @sm:py-2 @sm:text-sm font-semibold text-slate-600 hover:text-sky-600 hover:bg-sky-50 rounded-full transition-all"
+          />
         )}
 
-        <header className="mb-24 flex min-w-0 w-full flex-col items-center text-center">
+        <header className="mb-16 flex min-w-0 w-full flex-col items-center text-center @md:mb-24">
           <motion.h1
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -80,7 +78,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
             </motion.p>
           )}
 
-          <div className="mt-8 flex flex-col items-center gap-4">
+          <div className="mt-6 flex flex-col items-center gap-3 sm:mt-8">
             <ContactChips portfolio={portfolio} chipClassName="text-sm font-medium text-slate-500 bg-white px-3 py-1 rounded-full shadow-xs border border-slate-100" />
             <SocialPills profiles={socialProfiles} className="bg-white hover:bg-sky-50 text-sky-600 border border-sky-100 rounded-full px-4 py-2 shadow-xs transition-all" />
           </div>

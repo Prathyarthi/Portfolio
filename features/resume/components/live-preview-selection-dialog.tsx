@@ -95,104 +95,108 @@ export function LivePreviewSelectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Choose live preview links</DialogTitle>
-          <DialogDescription>
-            Choose which projects should show a live preview in the Projects section.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
+        <div className="space-y-4 overflow-y-auto px-6 pt-6 pb-4">
+          <DialogHeader className="space-y-1.5">
+            <DialogTitle>Choose live preview links</DialogTitle>
+            <DialogDescription>
+              Choose which projects should show a live preview in the Projects section.
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-3 rounded-lg border border-border/60 bg-muted/20 p-3 text-sm">
-          <p>
-            Plan:{" "}
-            <span className="font-medium">
-              {isPro ? "Pro (active)" : "Free trial"}
-            </span>
-          </p>
-          <p>
-            Selected:{" "}
-            <span
-              className={
-                exceedsPlan ? "font-medium text-destructive" : "font-medium"
-              }
-            >
-              {selectedCount}
-            </span>{" "}
-            / {maxAllowed} allowed
-          </p>
-          {exceedsPlan && (
-            <p className="text-destructive">
-              Please upgrade the plan for more preview links.
+          <div className="rounded-lg border border-border/60 bg-muted/20 px-4 py-3 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+              <p>
+                Plan:{" "}
+                <span className="font-medium">
+                  {isPro ? "Pro (active)" : "Free trial"}
+                </span>
+              </p>
+              <p>
+                Selected:{" "}
+                <span
+                  className={
+                    exceedsPlan ? "font-medium text-destructive" : "font-medium"
+                  }
+                >
+                  {selectedCount}
+                </span>{" "}
+                / {maxAllowed} allowed
+              </p>
+            </div>
+            {exceedsPlan && (
+              <p className="mt-2 text-destructive">
+                Please upgrade the plan for more preview links.
+              </p>
+            )}
+          </div>
+
+          {eligibleCandidates.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No project live URLs found. Add live URLs to your projects first.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {eligibleCandidates.map((item, index) => {
+                const isSelected = selectedIds.includes(item.id);
+                const isOverLimit =
+                  isSelected && selectedIds.indexOf(item.id) >= maxAllowed;
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`flex items-center justify-between gap-4 rounded-lg border px-4 py-3 ${
+                      isOverLimit
+                        ? "border-destructive/50 bg-destructive/5"
+                        : "border-border/60"
+                    }`}
+                  >
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <p className="text-sm font-medium">{item.title}</p>
+                      <a
+                        href={item.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex max-w-full items-center gap-1 text-xs text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{item.liveUrl}</span>
+                      </a>
+                      {isOverLimit && (
+                        <p className="text-xs text-destructive">
+                          Exceeds your plan limit — please upgrade the plan for more
+                          preview links.
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 items-center">
+                      <Label htmlFor={`live-preview-${index}`} className="sr-only">
+                        Enable preview for {item.title}
+                      </Label>
+                      <Switch
+                        id={`live-preview-${index}`}
+                        checked={isSelected}
+                        onCheckedChange={(checked) =>
+                          toggleProject(item.id, checked)
+                        }
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {overLimitItems.length > 0 && (
+            <p className="text-sm text-destructive">
+              {overLimitItems.length} selected preview
+              {overLimitItems.length === 1 ? "" : "s"} exceed your plan. Only the
+              first {maxAllowed} will be saved unless you upgrade.
             </p>
           )}
         </div>
 
-        {eligibleCandidates.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No project live URLs found. Add live URLs to your projects first.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {eligibleCandidates.map((item, index) => {
-              const isSelected = selectedIds.includes(item.id);
-              const isOverLimit =
-                isSelected && selectedIds.indexOf(item.id) >= maxAllowed;
-
-              return (
-                <div
-                  key={item.id}
-                  className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${
-                    isOverLimit
-                      ? "border-destructive/50 bg-destructive/5"
-                      : "border-border/60"
-                  }`}
-                >
-                  <div className="min-w-0 space-y-1">
-                    <p className="text-sm font-medium">{item.title}</p>
-                    <a
-                      href={item.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                      <span className="truncate">{item.liveUrl}</span>
-                    </a>
-                    {isOverLimit && (
-                      <p className="text-xs text-destructive">
-                        Exceeds your plan limit — please upgrade the plan for more
-                        preview links.
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2 pt-0.5">
-                    <Label htmlFor={`live-preview-${index}`} className="sr-only">
-                      Enable preview for {item.title}
-                    </Label>
-                    <Switch
-                      id={`live-preview-${index}`}
-                      checked={isSelected}
-                      onCheckedChange={(checked) =>
-                        toggleProject(item.id, checked)
-                      }
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {overLimitItems.length > 0 && (
-          <p className="text-sm text-destructive">
-            {overLimitItems.length} selected preview
-            {overLimitItems.length === 1 ? "" : "s"} exceed your plan. Only the
-            first {maxAllowed} will be saved unless you upgrade.
-          </p>
-        )}
-
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2 border-t border-border/60 bg-muted/10 px-6 py-4 sm:justify-end">
           {!isPro && (
             <Button type="button" variant="outline" asChild>
               <Link href="/pricing">Upgrade plan</Link>

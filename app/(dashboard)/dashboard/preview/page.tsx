@@ -315,10 +315,10 @@ export default function PreviewPage() {
           <div
             className={cn(
               "@container mx-auto min-h-0 min-w-0 w-full flex-1 overflow-x-clip overflow-y-auto rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
-              device === "mobile" ? "max-w-[390px]" : "max-w-full"
+              device === "mobile" ? "max-w-[390px] px-1" : "max-w-full"
             )}
           >
-            <div className="min-w-0">
+            <div className="min-w-0 overflow-x-clip">
               <TemplateComponent data={data} />
             </div>
           </div>

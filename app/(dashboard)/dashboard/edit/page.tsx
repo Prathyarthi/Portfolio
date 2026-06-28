@@ -41,6 +41,9 @@ function EditPortfolioPageContent() {
   );
 
   const currentStep = EDIT_STEPS[activeIndex];
+  const previousStep = activeIndex > 0 ? EDIT_STEPS[activeIndex - 1] : null;
+  const nextStep =
+    activeIndex < EDIT_STEPS.length - 1 ? EDIT_STEPS[activeIndex + 1] : null;
 
   const goPrevious = () => {
     if (activeIndex <= 0) {
@@ -130,11 +133,30 @@ function EditPortfolioPageContent() {
             </Button>
           </div>
         </div>
-
-        <Separator className="lg:hidden" />
       </div>
 
-      <div className="flex min-h-0 w-full flex-1 flex-col pt-4 lg:flex-row lg:gap-0 lg:overflow-hidden">
+      <Separator className="mt-6" />
+
+      <div className="shrink-0 py-4">
+        <FlowFooter
+          className="border-0 p-0"
+          message={null}
+          previous={
+            activeIndex <= 0
+              ? { href: "/dashboard", label: "Back to Overview" }
+              : {
+                  label: `Previous: ${previousStep?.label ?? "section"}`,
+                  onClick: goPrevious,
+                }
+          }
+          next={{
+            label: nextStep ? `Next: ${nextStep.label}` : "Next: Templates",
+            onClick: goNext,
+          }}
+        />
+      </div>
+
+      <div className="flex min-h-0 w-full flex-1 flex-col lg:flex-row lg:gap-0 lg:overflow-hidden">
         <aside className={DASHBOARD_TRACKER_ASIDE_CLASS}>
           <EditStepTracker
             activeStep={activeStep}
@@ -160,24 +182,6 @@ function EditPortfolioPageContent() {
             <div className={DASHBOARD_CONTENT_INNER_CLASS}>
               <EditStepContent step={activeStep} />
             </div>
-          </div>
-
-          <div className="shrink-0 pb-2">
-            <FlowFooter
-              message={null}
-              previous={
-                activeIndex <= 0
-                  ? { href: "/dashboard", label: "Back to Overview" }
-                  : { label: "Previous", onClick: goPrevious }
-              }
-              next={{
-                label:
-                  activeIndex === EDIT_STEPS.length - 1
-                    ? "Next: Templates"
-                    : "Next section",
-                onClick: goNext,
-              }}
-            />
           </div>
         </div>
       </div>

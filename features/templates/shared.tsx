@@ -147,9 +147,13 @@ export function TemplateNavbar({
         className
       )}
     >
-      <div className="flex w-full max-w-full flex-wrap items-center justify-center gap-2 p-2 @md:w-max @md:flex-nowrap @md:justify-start">
+      <div className="flex w-full max-w-full flex-nowrap items-center justify-start gap-1.5 overflow-x-auto p-1.5 scrollbar-none @md:justify-center @md:gap-2 @md:p-2 @lg:w-max">
         {items.map((item) => (
-          <a key={item.id} href={`#${item.id}`} className={linkClassName}>
+          <a
+            key={item.id}
+            href={`#${item.id}`}
+            className={cn(linkClassName, "shrink-0 whitespace-nowrap")}
+          >
             {item.label}
           </a>
         ))}
@@ -185,8 +189,12 @@ export function DescriptionBlock({
     const shouldExpand = text.length > 180;
     if (shouldExpand) {
       return (
-        <ExpandableText initialLines={3}>
-          <p className={stripLineClamp(paragraphClassName)}>{text}</p>
+        <ExpandableText
+          as="p"
+          className={stripLineClamp(paragraphClassName)}
+          initialLines={3}
+        >
+          {text}
         </ExpandableText>
       );
     }
@@ -196,12 +204,14 @@ export function DescriptionBlock({
 
   if (lines.length > 3) {
     return (
-      <ExpandableText initialLines={3}>
-        <ul className={stripLineClamp(listClassName)}>
-          {lines.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
+      <ExpandableText
+        as="ul"
+        className={stripLineClamp(listClassName)}
+        initialLines={3}
+      >
+        {lines.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
       </ExpandableText>
     );
   }

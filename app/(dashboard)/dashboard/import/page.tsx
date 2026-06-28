@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 import {
   DASHBOARD_CONTENT_FRAME_CLASS,
@@ -83,7 +84,24 @@ export default function ImportPage() {
         )}
       </div>
 
-      <div className="flex min-h-0 w-full flex-1 flex-col pt-6 lg:flex-row lg:gap-0 lg:overflow-hidden">
+      <Separator className="mt-6" />
+
+      <div className="shrink-0 py-4">
+        <FlowFooter
+          className="border-0 p-0"
+          message={null}
+          previous={{
+            href: "/dashboard/templates",
+            label: "Previous: Templates",
+          }}
+          next={{
+            label: "Next: Preview",
+            onClick: () => router.push("/dashboard/preview"),
+          }}
+        />
+      </div>
+
+      <div className="flex min-h-0 w-full flex-1 flex-col lg:flex-row lg:gap-0 lg:overflow-hidden">
         <aside className={DASHBOARD_TRACKER_ASIDE_CLASS}>
           <ImportSourceSelector
             activeSource={activeSource}
@@ -117,20 +135,6 @@ export default function ImportPage() {
                 canUseImports={canUseImports}
               />
             </div>
-          </div>
-
-          <div className="shrink-0 pb-2">
-            <FlowFooter
-              message={null}
-              previous={{
-                href: "/dashboard/templates",
-                label: "Previous: Templates",
-              }}
-              next={{
-                label: "Next: Preview",
-                onClick: () => router.push("/dashboard/preview"),
-              }}
-            />
           </div>
         </div>
       </div>

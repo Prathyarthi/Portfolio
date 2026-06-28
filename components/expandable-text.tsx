@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Children,
-  cloneElement,
-  isValidElement,
-  useState,
-  type ReactNode,
-} from "react";
+import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const LINE_CLAMP: Record<number, string> = {
@@ -22,25 +16,21 @@ export default function ExpandableText({
   children,
   initialLines = 3,
   buttonClassName,
+  className,
+  as: Tag = "p",
 }: {
   children: ReactNode;
   initialLines?: number;
   buttonClassName?: string;
+  className?: string;
+  as?: "p" | "ul";
 }) {
   const [expanded, setExpanded] = useState(false);
   const clampClass = LINE_CLAMP[initialLines] ?? "line-clamp-3";
-  const child = Children.only(children);
-
-  const content =
-    isValidElement<{ className?: string }>(child) && !expanded
-      ? cloneElement(child, {
-          className: cn(child.props.className, clampClass),
-        })
-      : child;
 
   return (
     <div>
-      {content}
+      <Tag className={cn(className, !expanded && clampClass)}>{children}</Tag>
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
