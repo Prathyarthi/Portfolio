@@ -1,24 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   usePortfolio,
   useUpdatePortfolio,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
+import { FormField } from "@/features/portfolio/components/form-field";
+import { FormSection } from "@/features/portfolio/components/form-section";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Loader2, Save, Mail, Phone, MapPin, Link2 } from "lucide-react";
+import {
+  EDIT_FORM_GRID_CLASS,
+  EDIT_FORM_STACK_CLASS,
+} from "@/features/dashboard/constants/form-layout";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import { fieldsDiffer, fieldDiffers } from "@/features/portfolio/lib/edit-step-dirty";
 
 export function PortfolioForm() {
   const { data: portfolio, isLoading } = usePortfolio();
@@ -47,6 +49,49 @@ export function PortfolioForm() {
       });
     }
   }, [portfolio]);
+
+  const isDirty = useMemo(() => {
+    if (!portfolio) return false;
+    return fieldsDiffer(
+      form,
+      {
+        title: portfolio.title,
+        headline: portfolio.headline,
+        summary: portfolio.summary,
+        contactEmail: portfolio.contactEmail,
+        phone: portfolio.phone,
+        location: portfolio.location,
+        websiteUrl: portfolio.websiteUrl,
+      },
+      [
+        "title",
+        "headline",
+        "summary",
+        "contactEmail",
+        "phone",
+        "location",
+        "websiteUrl",
+      ]
+    );
+  }, [form, portfolio]);
+
+  useEditStepDirty("basic", isDirty, "portfolio-form");
+
+  const savedFields = useMemo(
+    () => ({
+      title: portfolio?.title ?? "",
+      headline: portfolio?.headline ?? "",
+      summary: portfolio?.summary ?? "",
+      contactEmail: portfolio?.contactEmail ?? "",
+      phone: portfolio?.phone ?? "",
+      location: portfolio?.location ?? "",
+      websiteUrl: portfolio?.websiteUrl ?? "",
+    }),
+    [portfolio]
+  );
+
+  const isFieldUnsaved = (key: keyof typeof form) =>
+    portfolio ? fieldDiffers(form[key], savedFields[key]) : false;
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -80,119 +125,127 @@ export function PortfolioForm() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={EDIT_FORM_STACK_CLASS}>
       <Card>
-        <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>
-            Your name, headline, and a short summary about yourself.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Full Name / Title</Label>
-            <Input
-              id="title"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              placeholder="John Doe"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="headline">Headline</Label>
-            <Input
-              id="headline"
-              name="headline"
-              value={form.headline}
-              onChange={handleChange}
-              placeholder="Full-Stack Developer | Open Source Enthusiast"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="summary">Summary</Label>
-            <Textarea
-              id="summary"
-              name="summary"
-              value={form.summary}
-              onChange={handleChange}
-              placeholder="Write a brief summary about yourself, your experience, and what you're passionate about..."
-              rows={5}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-          <CardDescription>
-            How potential employers or collaborators can reach you.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="contactEmail" className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                Email
-              </Label>
+        <CardContent className="flex flex-col gap-4">
+          <FormSection
+            title="Basic Information"
+            description="Your name, headline, and a short summary about yourself."
+          >
+            <FormField>
+              <FieldLabel htmlFor="title" unsaved={isFieldUnsaved("title")}>
+                Full Name / Title
+              </FieldLabel>
               <Input
-                id="contactEmail"
-                name="contactEmail"
-                type="email"
-                value={form.contactEmail}
+                id="title"
+                name="title"
+                value={form.title}
                 onChange={handleChange}
-                placeholder="john@example.com"
+                placeholder="John Doe"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                Phone
-              </Label>
+            </FormField>
+            <FormField>
+              <FieldLabel htmlFor="headline" unsaved={isFieldUnsaved("headline")}>
+                Headline
+              </FieldLabel>
               <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={form.phone}
+                id="headline"
+                name="headline"
+                value={form.headline}
                 onChange={handleChange}
-                placeholder="+1 (555) 000-0000"
+                placeholder="Full-Stack Developer | Open Source Enthusiast"
               />
-            </div>
-          </div>
+            </FormField>
+            <FormField>
+              <FieldLabel htmlFor="summary" unsaved={isFieldUnsaved("summary")}>
+                Summary
+              </FieldLabel>
+              <Textarea
+                id="summary"
+                name="summary"
+                value={form.summary}
+                onChange={handleChange}
+                placeholder="Write a brief summary about yourself, your experience, and what you're passionate about..."
+                rows={5}
+              />
+            </FormField>
+          </FormSection>
 
           <Separator />
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="location" className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                Location
-              </Label>
-              <Input
-                id="location"
-                name="location"
-                value={form.location}
-                onChange={handleChange}
-                placeholder="San Francisco, CA"
-              />
+          <FormSection
+            title="Contact Information"
+            description="How potential employers or collaborators can reach you."
+          >
+            <div className={EDIT_FORM_GRID_CLASS}>
+              <FormField>
+                <FieldLabel
+                  htmlFor="contactEmail"
+                  unsaved={isFieldUnsaved("contactEmail")}
+                >
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  Email
+                </FieldLabel>
+                <Input
+                  id="contactEmail"
+                  name="contactEmail"
+                  type="email"
+                  value={form.contactEmail}
+                  onChange={handleChange}
+                  placeholder="john@example.com"
+                />
+              </FormField>
+              <FormField>
+                <FieldLabel htmlFor="phone" unsaved={isFieldUnsaved("phone")}>
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  Phone
+                </FieldLabel>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="+1 (555) 000-0000"
+                />
+              </FormField>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="websiteUrl" className="flex items-center gap-2">
-                <Link2 className="h-4 w-4 text-muted-foreground" />
-                Website
-              </Label>
-              <Input
-                id="websiteUrl"
-                name="websiteUrl"
-                type="url"
-                value={form.websiteUrl}
-                onChange={handleChange}
-                placeholder="https://your-website.com"
-              />
+
+            <Separator />
+
+            <div className={EDIT_FORM_GRID_CLASS}>
+              <FormField>
+                <FieldLabel htmlFor="location" unsaved={isFieldUnsaved("location")}>
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  Location
+                </FieldLabel>
+                <Input
+                  id="location"
+                  name="location"
+                  value={form.location}
+                  onChange={handleChange}
+                  placeholder="San Francisco, CA"
+                />
+              </FormField>
+              <FormField>
+                <FieldLabel
+                  htmlFor="websiteUrl"
+                  unsaved={isFieldUnsaved("websiteUrl")}
+                >
+                  <Link2 className="h-4 w-4 text-muted-foreground" />
+                  Website
+                </FieldLabel>
+                <Input
+                  id="websiteUrl"
+                  name="websiteUrl"
+                  type="url"
+                  value={form.websiteUrl}
+                  onChange={handleChange}
+                  placeholder="https://your-website.com"
+                />
+              </FormField>
             </div>
-          </div>
+          </FormSection>
         </CardContent>
       </Card>
 

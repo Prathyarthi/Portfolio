@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   usePortfolio,
   useAddAchievement,
@@ -9,7 +9,7 @@ import {
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
 import {
   Card,
   CardContent,
@@ -28,6 +28,13 @@ import {
   X,
   Check,
 } from "lucide-react";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import {
+  fieldsDiffer,
+  fieldDiffers,
+  hasNonEmptyStringValues,
+  normalizeDate,
+} from "@/features/portfolio/lib/edit-step-dirty";
 
 interface AchievementEntry {
   id?: string;
@@ -116,6 +123,41 @@ export function AchievementForm() {
     }
   }
 
+  const achievements = portfolio?.achievements ?? [];
+
+  const isDirty = useMemo(() => {
+    if (!isAdding && !editingId) return false;
+    if (isAdding) return hasNonEmptyStringValues(form);
+    const original = achievements.find((ach) => ach.id === editingId);
+    if (!original) return true;
+    return fieldsDiffer(
+      form,
+      {
+        title: original.title,
+        date: normalizeDate(original.date),
+      },
+      ["title", "date"]
+    );
+  }, [isAdding, editingId, form, achievements]);
+
+  useEditStepDirty("achievements", isDirty);
+
+  const savedForm = useMemo((): AchievementEntry => {
+    if (isAdding) return emptyEntry;
+    if (!editingId) return emptyEntry;
+    const original = achievements.find((ach) => ach.id === editingId);
+    if (!original) return emptyEntry;
+    return {
+      title: original.title ?? "",
+      date: normalizeDate(original.date),
+    };
+  }, [isAdding, editingId, achievements]);
+
+  const isFieldUnsaved = (key: keyof AchievementEntry) =>
+    isAdding || editingId
+      ? fieldDiffers(form[key] ?? "", savedForm[key] ?? "")
+      : false;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -124,7 +166,6 @@ export function AchievementForm() {
     );
   }
 
-  const achievements = portfolio?.achievements ?? [];
   const isMutating =
     addAchievement.isPending ||
     updateAchievement.isPending ||
@@ -169,7 +210,9 @@ export function AchievementForm() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+              <FieldLabel htmlFor="title" unsaved={isFieldUnsaved("title")}>
+                Title *
+              </FieldLabel>
               <Input
                 id="title"
                 name="title"
@@ -180,10 +223,10 @@ export function AchievementForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date" className="flex items-center gap-2">
+              <FieldLabel htmlFor="date" unsaved={isFieldUnsaved("date")}>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 Date (optional)
-              </Label>
+              </FieldLabel>
               <Input
                 id="date"
                 name="date"

@@ -1,19 +1,8 @@
-"use client";
+import { headers } from "next/headers";
+import { GlobalFooterClient } from "@/components/global-footer-client";
 
-import { usePathname } from "next/navigation";
-import { Footer } from "@/features/landing/components/footer";
+export async function GlobalFooter() {
+  const host = (await headers()).get("host") ?? "";
 
-/** Hide marketing footer on published user portfolio pages. */
-function shouldShowFooter(pathname: string): boolean {
-  return !pathname.startsWith("/sites/");
-}
-
-export function GlobalFooter() {
-  const pathname = usePathname();
-
-  if (!shouldShowFooter(pathname)) {
-    return null;
-  }
-
-  return <Footer />;
+  return <GlobalFooterClient host={host} />;
 }

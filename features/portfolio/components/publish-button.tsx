@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
 import {
   Card,
   CardContent,
@@ -33,6 +34,7 @@ import {
   AlertCircle,
   Share2,
 } from "lucide-react";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
 
 export function PublishButton() {
   const { data: portfolio, isLoading } = usePortfolio();
@@ -52,6 +54,9 @@ export function PublishButton() {
     setCandidateSlug(slug);
     setSlugAvailable(null);
   }, [slug]);
+
+  const slugDirty = candidateSlug.trim() !== "" && candidateSlug !== slug;
+  useEditStepDirty("basic", slugDirty, "publish-slug");
 
   async function handleToggle(checked: boolean) {
     if (checked) {
@@ -175,7 +180,7 @@ export function PublishButton() {
 
         <div className="space-y-3 rounded-lg border p-4">
           <div className="space-y-1">
-            <p className="text-sm font-medium">Choose your subdomain</p>
+            <FieldLabel unsaved={slugDirty}>Choose your subdomain</FieldLabel>
             <p className="text-xs text-muted-foreground">
               This becomes your public portfolio address when you publish.
             </p>

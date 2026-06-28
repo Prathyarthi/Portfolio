@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   usePortfolio,
   useUpsertCustomSection,
@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
 import {
   Card,
   CardContent,
@@ -30,6 +30,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
 
 interface ItemField {
   key: string;
@@ -41,6 +42,17 @@ function toSlug(label: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
+}
+
+function itemFieldsToRecord(fields: ItemField[]): Record<string, string> {
+  const record: Record<string, string> = {};
+  for (const field of fields) {
+    const key = field.key.trim();
+    if (key) {
+      record[key] = field.value.trim();
+    }
+  }
+  return record;
 }
 
 export function CustomSectionEditor() {
@@ -217,6 +229,49 @@ export function CustomSectionEditor() {
     }
   }
 
+  const customSections = portfolio?.customSections ?? [];
+
+  const isDirty = useMemo(() => {
+    if (showAddSection && addingSectionLabel.trim()) return true;
+    if (!editingSectionId) return false;
+
+    const hasDraftField = itemFields.some(
+      (field) => field.key.trim() || field.value.trim()
+    );
+    if (isAddingItem) return hasDraftField;
+    if (editingItemIndex === null) return false;
+
+    const section = customSections.find(
+      (entry: { id: string }) => entry.id === editingSectionId
+    );
+    const original = section?.items?.[editingItemIndex] as
+      | Record<string, unknown>
+      | undefined;
+    if (!original) return hasDraftField;
+
+    const originalRecord = Object.fromEntries(
+      Object.entries(original).map(([key, value]) => [
+        key,
+        value != null ? String(value).trim() : "",
+      ])
+    );
+
+    return (
+      JSON.stringify(itemFieldsToRecord(itemFields)) !==
+      JSON.stringify(originalRecord)
+    );
+  }, [
+    showAddSection,
+    addingSectionLabel,
+    editingSectionId,
+    isAddingItem,
+    editingItemIndex,
+    itemFields,
+    customSections,
+  ]);
+
+  useEditStepDirty("custom", isDirty);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -224,8 +279,6 @@ export function CustomSectionEditor() {
       </div>
     );
   }
-
-  const customSections = portfolio?.customSections ?? [];
 
   return (
     <div className="space-y-6">
@@ -259,7 +312,12 @@ export function CustomSectionEditor() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="sectionLabel">Section Name *</Label>
+              <FieldLabel
+                htmlFor="sectionLabel"
+                unsaved={addingSectionLabel.trim() !== ""}
+              >
+                Section Name *
+              </FieldLabel>
               <Input
                 id="sectionLabel"
                 value={addingSectionLabel}

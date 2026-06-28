@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { DashboardShell } from "@/features/dashboard/components/dashboard-shell";
+import { EditDirtyProvider } from "@/features/portfolio/context/edit-dirty-context";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardLayout({
@@ -30,5 +31,9 @@ export default function DashboardLayout({
 
   if (status === "unauthenticated") return null;
 
-  return <DashboardShell>{children}</DashboardShell>;
+  return (
+    <EditDirtyProvider>
+      <DashboardShell>{children}</DashboardShell>
+    </EditDirtyProvider>
+  );
 }

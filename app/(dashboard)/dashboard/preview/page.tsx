@@ -177,9 +177,23 @@ export default function PreviewPage() {
   const slug = portfolio.slug ?? "";
 
   return (
-    <div className="flex min-w-0 w-full max-w-full flex-col gap-4 xl:h-[calc(100dvh-4rem-3rem)] xl:min-h-0 xl:flex-row xl:overflow-hidden">
-      <div className="min-w-0 w-full flex-1 space-y-4 xl:min-h-0 xl:overflow-y-auto xl:pr-1">
-        <div className="flex flex-col gap-4 rounded-[var(--radius-lg)] glass-panel p-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex min-w-0 w-full max-w-full flex-col gap-4 lg:h-[calc(100dvh-4rem-3rem)] lg:min-h-0 lg:flex-row lg:overflow-hidden">
+      <PreviewEditSidebar
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        templateId={templateId}
+        savedTemplateId={portfolio.templateId ?? "minimal"}
+        isPublished={isPublished}
+        hasUnsavedTemplate={hasUnsavedTemplate}
+        isSavingTemplate={updateTemplate.isPending}
+        onTemplateChange={handleTemplatePreview}
+        onTemplateSave={handleTemplateSave}
+        templateOptions={templateOptions}
+        isTemplateLocked={isTemplateLocked}
+      />
+
+      <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col gap-4 lg:overflow-hidden">
+        <div className="flex shrink-0 flex-col gap-4 rounded-[var(--radius-lg)] glass-panel p-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0 px-2">
             <div className="flex items-center gap-2">
               <span
@@ -296,11 +310,12 @@ export default function PreviewPage() {
             )}
           </div>
         </div>
-        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-3 shadow-[var(--shadow-modal)]">
+
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-2 shadow-[var(--shadow-modal)] sm:p-3">
           <div
             className={cn(
-              "@container mx-auto min-w-0 overflow-x-clip rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
-              device === "mobile" ? "max-w-[390px]" : "w-full max-w-full"
+              "@container mx-auto min-h-0 min-w-0 w-full flex-1 overflow-x-clip overflow-y-auto rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
+              device === "mobile" ? "max-w-[390px]" : "max-w-full"
             )}
           >
             <div className="min-w-0">
@@ -309,9 +324,11 @@ export default function PreviewPage() {
           </div>
         </div>
 
-        <FlowFooter
-          previous={{ href: "/dashboard/import", label: "Previous: Import" }}
-        />
+        <div className="shrink-0">
+          <FlowFooter
+            previous={{ href: "/dashboard/import", label: "Previous: Import" }}
+          />
+        </div>
 
         <PublishDialog
           open={publishDialogOpen}
@@ -319,20 +336,6 @@ export default function PreviewPage() {
           currentSlug={slug}
         />
       </div>
-
-      <PreviewEditSidebar
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        templateId={templateId}
-        savedTemplateId={portfolio.templateId ?? "minimal"}
-        isPublished={isPublished}
-        hasUnsavedTemplate={hasUnsavedTemplate}
-        isSavingTemplate={updateTemplate.isPending}
-        onTemplateChange={handleTemplatePreview}
-        onTemplateSave={handleTemplateSave}
-        templateOptions={templateOptions}
-        isTemplateLocked={isTemplateLocked}
-      />
     </div>
   );
 }
