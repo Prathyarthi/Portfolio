@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "postinstall": "prisma generate --config db/prisma.config.ts",
+    "build": "prisma generate --config db/prisma.config.ts && next build",
     "start": "next start",
     "lint": "eslint",
     "razorpay:setup-plans": "node scripts/razorpay-setup-plans.mjs",
