@@ -167,14 +167,14 @@ export function PublishButton() {
                 ? "Visitors can view your portfolio at the public URL."
                 : slug
                   ? "Turn on publishing when you are ready to go live."
-                  : "Save a subdomain below before publishing."}
+                  : "Choose a subdomain in the dialog when you publish."}
             </p>
           </div>
           <Switch
             id="publish-toggle"
             checked={isPublished}
             onCheckedChange={handleToggle}
-            disabled={publishPortfolio.isPending || (!isPublished && !slug)}
+            disabled={publishPortfolio.isPending}
           />
         </div>
 

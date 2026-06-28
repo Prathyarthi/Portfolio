@@ -151,7 +151,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       }
     >
       <AppSidebar />
-      <SidebarInset className="relative min-w-0 overflow-x-hidden bg-surface-base">
+      <SidebarInset
+        className={
+          hideFooter
+            ? "relative flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden bg-surface-base lg:h-svh lg:max-h-svh lg:overflow-hidden"
+            : "relative min-w-0 overflow-x-hidden bg-surface-base"
+        }
+      >
         <header className="glass-nav sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 px-4">
           <SidebarTrigger className="size-9" />
           <Logo href="/dashboard" className="md:hidden" />
@@ -159,7 +165,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <ThemeToggle className="size-9" />
           </div>
         </header>
-        <main className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden p-[var(--space-5)]">
+        <main
+          className={
+            hideFooter
+              ? "relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden p-[var(--space-5)] lg:overflow-hidden"
+              : "relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden p-[var(--space-5)]"
+          }
+        >
           {children}
         </main>
         {!hideFooter ? <Footer /> : null}

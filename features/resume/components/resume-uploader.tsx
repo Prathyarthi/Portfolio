@@ -378,7 +378,7 @@ export function ResumeUploader({
         ) : (
           <Check className="mr-2 h-4 w-4" />
         )}
-        Import All to Portfolio
+        Import to Portfolio
       </Button>
     );
 

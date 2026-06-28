@@ -104,8 +104,6 @@ export default function PreviewPage() {
   const handlePublishClick = async () => {
     if (!portfolio) return;
 
-    if (previewTemplate && previewTemplate !== savedTemplateId) return;
-
     if (portfolio.isPublished) {
       try {
         await publishPortfolio.mutateAsync(false);
@@ -270,24 +268,21 @@ export default function PreviewPage() {
                 )}
                 {isPublished ? `Apply ${template.name}` : `Use ${template.name}`}
               </Button>
-            ) : (
-              <Button
-                type="button"
-                size="sm"
-                variant={isPublished ? "outline" : "default"}
-                onClick={() => void handlePublishClick()}
-                disabled={
-                  publishPortfolio.isPending || (!isPublished && !slug)
-                }
-              >
-                {publishPortfolio.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Globe className="h-3.5 w-3.5" />
-                )}
-                {isPublished ? "Unpublish" : "Publish"}
-              </Button>
-            )}
+            ) : null}
+            <Button
+              type="button"
+              size="sm"
+              variant={isPublished ? "outline" : "default"}
+              onClick={() => void handlePublishClick()}
+              disabled={publishPortfolio.isPending}
+            >
+              {publishPortfolio.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Globe className="h-3.5 w-3.5" />
+              )}
+              {isPublished ? "Unpublish" : "Publish"}
+            </Button>
             {isPublished && !hasUnsavedTemplate && (
               <Button
                 variant="outline"

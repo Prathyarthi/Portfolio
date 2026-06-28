@@ -1,3 +1,10 @@
+/**
+ * Full-height dashboard panel shell (edit, import).
+ * Subtracts the sticky header (4rem) and main padding (3rem).
+ */
+export const DASHBOARD_PANEL_PAGE_CLASS =
+  "flex min-h-0 flex-1 flex-col lg:h-[calc(100svh-4rem-3rem)] lg:max-h-[calc(100svh-4rem-3rem)] lg:overflow-hidden";
+
 /** Left tracker / edit rail — edit & import progress stepper. */
 export const DASHBOARD_TRACKER_ASIDE_CLASS =
   "hidden h-full min-h-0 shrink-0 flex-col self-stretch overflow-y-auto overscroll-contain lg:flex lg:w-[15rem] lg:pl-4 lg:pr-3 xl:w-[16rem] xl:pl-4 xl:pr-3 2xl:w-[17rem]";
@@ -19,5 +26,5 @@ export const DASHBOARD_CONTENT_FRAME_CLASS =
   "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-2 shadow-[var(--shadow-modal)] sm:p-3";
 
 export const DASHBOARD_CONTENT_INNER_CLASS =
-  "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain rounded-[var(--radius-md)] bg-surface-base p-4 sm:p-5 " +
+  "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain rounded-[var(--radius-md)] bg-surface-base p-4 pb-6 sm:p-5 sm:pb-8 " +
   DASHBOARD_FORM_COMPACT_CLASS;

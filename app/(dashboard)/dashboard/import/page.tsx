@@ -10,6 +10,7 @@ import {
   DASHBOARD_CONTENT_FRAME_CLASS,
   DASHBOARD_CONTENT_INNER_CLASS,
   DASHBOARD_MAIN_COLUMN_CLASS,
+  DASHBOARD_PANEL_PAGE_CLASS,
   DASHBOARD_TRACKER_ASIDE_CLASS,
 } from "@/features/dashboard/constants/panel-layout";
 import { usePortfolio } from "@/features/portfolio/api/use-portfolio";
@@ -64,7 +65,7 @@ export default function ImportPage() {
   }, [activeSource]);
 
   return (
-    <div className="flex flex-col lg:h-[calc(100svh-4rem-3rem)] lg:max-h-[calc(100svh-4rem-3rem)] lg:overflow-hidden">
+    <div className={DASHBOARD_PANEL_PAGE_CLASS}>
       <div className="shrink-0 space-y-6">
         <div>
           <h1 className="text-h2 text-text-primary">Import data</h1>

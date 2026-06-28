@@ -14,6 +14,7 @@ import {
   DASHBOARD_CONTENT_FRAME_CLASS,
   DASHBOARD_CONTENT_INNER_CLASS,
   DASHBOARD_MAIN_COLUMN_CLASS,
+  DASHBOARD_PANEL_PAGE_CLASS,
   DASHBOARD_TRACKER_ASIDE_CLASS,
 } from "@/features/dashboard/constants/panel-layout";
 import { usePortfolio } from "@/features/portfolio/api/use-portfolio";
@@ -95,7 +96,7 @@ function EditPortfolioPageContent() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col lg:overflow-hidden">
+    <div className={DASHBOARD_PANEL_PAGE_CLASS}>
       <div className="shrink-0 space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
