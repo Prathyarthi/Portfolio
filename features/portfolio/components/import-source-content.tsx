@@ -4,16 +4,19 @@ import { ResumeUploader } from "@/features/resume/components/resume-uploader";
 import { GitHubImporter } from "@/features/profile/components/github-importer";
 import { LeetCodeImporter } from "@/features/profile/components/leetcode-importer";
 import { MediumImporter } from "@/features/profile/components/medium-importer";
+import type { ReactNode } from "react";
 import type { ImportSourceValue } from "@/features/portfolio/constants/import-sources";
 
 type ImportSourceContentProps = {
   source: ImportSourceValue;
   canUseImports: boolean;
+  onToolbarActionsChange?: (actions: ReactNode) => void;
 };
 
 export function ImportSourceContent({
   source,
   canUseImports,
+  onToolbarActionsChange,
 }: ImportSourceContentProps) {
   if (!canUseImports) {
     return (
@@ -32,7 +35,9 @@ export function ImportSourceContent({
 
   switch (source) {
     case "resume":
-      return <ResumeUploader />;
+      return (
+        <ResumeUploader onToolbarActionsChange={onToolbarActionsChange} />
+      );
     case "github":
       return <GitHubImporter />;
     case "medium":

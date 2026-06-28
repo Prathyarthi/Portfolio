@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,6 +28,7 @@ export default function ImportPage() {
   const { data: portfolio } = usePortfolio();
   const [canUseImports, setCanUseImports] = useState(true);
   const [activeSource, setActiveSource] = useState<ImportSourceValue>("resume");
+  const [toolbarActions, setToolbarActions] = useState<ReactNode>(null);
 
   const currentSource = useMemo(
     () => IMPORT_SOURCES.find((source) => source.value === activeSource)!,
@@ -55,6 +56,12 @@ export default function ImportPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (activeSource !== "resume") {
+      setToolbarActions(null);
+    }
+  }, [activeSource]);
 
   return (
     <div className="flex flex-col lg:h-[calc(100svh-4rem-3rem)] lg:max-h-[calc(100svh-4rem-3rem)] lg:overflow-hidden">
@@ -90,6 +97,7 @@ export default function ImportPage() {
         <FlowFooter
           className="border-0 p-0"
           message={null}
+          actions={toolbarActions}
           previous={{
             href: "/dashboard/templates",
             label: "Previous: Templates",
@@ -133,6 +141,9 @@ export default function ImportPage() {
               <ImportSourceContent
                 source={activeSource}
                 canUseImports={canUseImports}
+                onToolbarActionsChange={
+                  activeSource === "resume" ? setToolbarActions : undefined
+                }
               />
             </div>
           </div>

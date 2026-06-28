@@ -66,7 +66,11 @@ async function assertApiOk(res: Response, context: string) {
   throw new Error(`${context}: ${message} (${res.status})`);
 }
 
-export function ResumeUploader() {
+export function ResumeUploader({
+  onToolbarActionsChange,
+}: {
+  onToolbarActionsChange?: (actions: React.ReactNode) => void;
+} = {}) {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [parsedData, setParsedData] = useState<ParsedResume | null>(null);
@@ -355,6 +359,32 @@ export function ResumeUploader() {
     }
   };
 
+  useEffect(() => {
+    if (!onToolbarActionsChange) return;
+
+    if (!parsedData) {
+      onToolbarActionsChange(null);
+      return;
+    }
+
+    onToolbarActionsChange(
+      <Button
+        onClick={() => void handleImport()}
+        disabled={importing}
+        size="lg"
+      >
+        {importing ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Check className="mr-2 h-4 w-4" />
+        )}
+        Import All to Portfolio
+      </Button>
+    );
+
+    return () => onToolbarActionsChange(null);
+  }, [onToolbarActionsChange, parsedData, importing]);
+
   return (
     <div className="space-y-6">
       {/* Upload area */}
@@ -501,15 +531,13 @@ export function ResumeUploader() {
       {/* Parsed results */}
       {parsedData && (
         <div className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Parsed Data</h3>
-              {clearBeforeImport && (
-                <p className="text-sm text-muted-foreground">
-                  Import will replace existing resume sections first.
-                </p>
-              )}
-            </div>
+          <div>
+            <h3 className="text-lg font-semibold">Parsed Data</h3>
+            {clearBeforeImport && (
+              <p className="text-sm text-muted-foreground">
+                Import will replace existing resume sections first.
+              </p>
+            )}
           </div>
 
           {/* Basic Info */}
@@ -739,16 +767,6 @@ export function ResumeUploader() {
             </Card>
           )}
 
-          <div className="flex justify-end pt-4">
-            <Button onClick={handleImport} disabled={importing} size="lg">
-              {importing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Check className="mr-2 h-4 w-4" />
-              )}
-              Import All to Portfolio
-            </Button>
-          </div>
         </div>
       )}
     </div>

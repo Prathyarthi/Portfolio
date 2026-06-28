@@ -196,17 +196,18 @@ export function LivePreviewSelectionDialog({
           )}
         </div>
 
-        <DialogFooter className="gap-2 border-t border-border/60 bg-muted/10 px-6 py-4 sm:justify-end">
+        <DialogFooter className="justify-between gap-4 border-t border-border/60 bg-muted/10 px-6 py-4 sm:justify-end">
           {!isPro && (
-            <Button type="button" variant="outline" asChild>
+            <Button type="button" size="sm" variant="outline" asChild>
               <Link href="/pricing">Upgrade plan</Link>
             </Button>
           )}
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button type="button" size="sm" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
             type="button"
+            size="sm"
             onClick={handleSave}
             disabled={
               eligibleCandidates.length === 0 || updateLivePreview.isPending

@@ -5,6 +5,8 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import type { ReactNode } from "react";
+
 type FlowAction = {
   href?: string;
   label: string;
@@ -20,6 +22,8 @@ type FlowFooterProps = {
   message?: string | null;
   /** Pin navigation above content (`top`) or below (`bottom`, default). */
   placement?: "top" | "bottom";
+  /** Extra actions rendered beside the previous button (left cluster). */
+  actions?: ReactNode;
 };
 
 export function FlowFooter({
@@ -28,6 +32,7 @@ export function FlowFooter({
   className,
   message = "Use the buttons below to move through the portfolio flow.",
   placement = "bottom",
+  actions,
 }: FlowFooterProps) {
   const edgeClass =
     placement === "top"
@@ -42,12 +47,10 @@ export function FlowFooter({
         className
       )}
     >
-      {message ? (
-        <div className="flex-1 text-body-sm text-text-secondary">{message}</div>
-      ) : (
-        <div className="flex-1" />
-      )}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        {message ? (
+          <div className="text-body-sm text-text-secondary">{message}</div>
+        ) : null}
         {previous ? (
           previous.href ? (
             <Button variant="outline" asChild>
@@ -63,7 +66,10 @@ export function FlowFooter({
             </Button>
           )
         ) : null}
+        {actions}
+      </div>
 
+      <div className="flex flex-wrap items-center justify-end gap-3">
         {next ? (
           next.href ? (
             <Button asChild disabled={next.disabled}>
