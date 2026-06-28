@@ -52,15 +52,6 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
           <div className="absolute top-2 left-0 w-full h-px bg-[#2B2B2B]" />
 
           <div className="pt-12">
-            {portfolio.avatarUrl && (
-              <motion.img
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="mx-auto mb-8 h-40 w-40 rounded-full object-cover border-4 border-[#2B2B2B] p-1 filter sepia-20"
-              />
-            )}
             <motion.h1
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

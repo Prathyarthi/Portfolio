@@ -48,20 +48,6 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
       <div className="mx-auto max-w-6xl px-6 py-16 sm:px-12 md:py-24">
 
         <header className="mb-24 flex min-w-0 w-full flex-col @md:flex-row @md:items-center gap-12">
-          {portfolio.avatarUrl && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="relative shrink-0"
-            >
-              <div className="absolute -inset-4 rounded-t-[100px] border border-[#E07A5F]/30 bg-[#E07A5F]/5" />
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="relative z-10 h-48 w-48 rounded-t-full object-cover shadow-lg border-2 border-white"
-              />
-            </motion.div>
-          )}
           <div className="min-w-0">
             <motion.h1
               initial={{ opacity: 0, y: 10 }}

@@ -128,21 +128,6 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
             )}
           </div>
 
-          {portfolio.avatarUrl && (
-            <div className="md:col-span-4 flex justify-center md:justify-end relative">
-              <div className="relative p-2 border-2 border-dashed border-white/50">
-                <div className="absolute -top-1 -left-1 w-2 h-2 bg-white" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-white" />
-                <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-white" />
-                <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-white" />
-                <img
-                  src={portfolio.avatarUrl}
-                  alt={portfolio.title}
-                  className="w-48 h-48 md:w-64 md:h-64 object-cover filter contrast-150 mix-blend-screen opacity-80"
-                />
-              </div>
-            </div>
-          )}
         </header>
 
         {portfolio.summary && (

@@ -64,15 +64,6 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
         {/* Header Window */}
         <Window title="System Properties">
           <div className="flex flex-col md:flex-row gap-6 items-start">
-            {portfolio.avatarUrl && (
-              <div className="w-32 h-32 shrink-0 win95-inset p-1 bg-white">
-                <img
-                  src={portfolio.avatarUrl}
-                  alt={portfolio.title}
-                  className="w-full h-full object-cover filter"
-                />
-              </div>
-            )}
             <div className="grow">
               <h1 className="text-3xl font-bold mb-2">{portfolio.title}</h1>
               {portfolio.headline && (

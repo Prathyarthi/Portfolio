@@ -117,15 +117,6 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
             </div>
 
             <div className="space-y-6">
-              {portfolio.avatarUrl && (
-                <div className="border-4 border-black bg-white p-2 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                  <img
-                    src={portfolio.avatarUrl}
-                    alt={portfolio.title}
-                    className="h-64 w-full border-2 border-black object-cover filter"
-                  />
-                </div>
-              )}
               {portfolio.summary && (
                 <div className="border-4 border-black bg-[#90bcff] p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                   <p className="text-sm font-medium leading-relaxed text-black">

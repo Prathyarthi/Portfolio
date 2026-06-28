@@ -79,17 +79,6 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="relative mb-24 flex min-w-0 w-full flex-col items-center text-center">
-          {portfolio.avatarUrl && (
-            <div className="relative mb-8 group">
-              <div className="absolute -inset-1 rounded-full bg-linear-to-r from-cyan-500 to-violet-500 opacity-50 blur-lg group-hover:opacity-80 transition-opacity duration-700 animate-pulse" />
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="relative h-32 w-32 md:h-40 md:w-40 rounded-full object-cover border-2 border-[#030014] shadow-2xl"
-              />
-            </div>
-          )}
-
           <div className="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-950/30 px-4 py-1.5 text-sm font-medium text-cyan-300 mb-6 backdrop-blur-sm shadow-[0_0_15px_rgba(6,182,212,0.2)]">
             <Rocket className="w-4 h-4 mr-2" />
             Mission Control

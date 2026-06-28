@@ -41,7 +41,7 @@ export const HERO_TITLE_SCALE_9XL =
 export const HERO_HEADLINE_SCALE =
   "text-base leading-relaxed @md:text-lg @lg:text-xl";
 
-/** Two-column hero header (title + avatar/summary). */
+/** Two-column hero header (title + summary). */
 export const HERO_HEADER_GRID =
   "grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1fr_300px] @lg:items-start";
 export const HERO_HEADER_COLUMN = "min-w-0";
@@ -292,7 +292,7 @@ export function HeroProfileButtons({
     profiles.find((profile) => profile.platform.toLowerCase() === platform)
   ).filter(
     (profile): profile is NonNullable<(typeof profiles)[number]> =>
-      Boolean(profile) && profile.platform.toLowerCase() !== "unknown",
+      profile != null && profile.platform.toLowerCase() !== "unknown",
   );
 
   if (preferredProfiles.length === 0) return null;

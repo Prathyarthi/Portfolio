@@ -117,17 +117,6 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
               </div>
             </div>
 
-            {portfolio.avatarUrl && (
-              <div className="shrink-0 relative group">
-                <div className="absolute inset-0 bg-[#00ffff] translate-x-3 translate-y-3 opacity-50 mix-blend-screen" />
-                <div className="absolute inset-0 bg-[#ff00ff] -translate-x-3 -translate-y-3 opacity-50 mix-blend-screen" />
-                <img
-                  src={portfolio.avatarUrl}
-                  alt={portfolio.title}
-                  className="relative w-40 h-40 object-cover border-2 border-[#00ff00] filter contrast-150"
-                />
-              </div>
-            )}
           </div>
 
           {socialProfiles.length > 0 && (

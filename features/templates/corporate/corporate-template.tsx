@@ -109,20 +109,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 </div>
               )}
             </div>
-
-            <div className="border-t border-white/10 bg-linear-to-br from-sky-500/18 via-transparent to-white/5 p-6 @md:p-10 @lg:border-l @lg:border-t-0">
-              <div className="grid gap-4">
-                {portfolio.avatarUrl && (
-                  <div className="rounded-[1.9rem] border border-white/10 bg-white/5 p-3">
-                    <img
-                      src={portfolio.avatarUrl}
-                      alt={portfolio.title}
-                      className="h-72 w-full rounded-[1.5rem] object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </header>
 

@@ -97,18 +97,6 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
             </div>
           </header>
 
-          {/* Avatar Bento Box */}
-          {portfolio.avatarUrl && (
-            <div className="col-span-1 row-span-1 @md:row-span-2 rounded-3xl bg-white shadow-sm border border-zinc-200/50 overflow-hidden relative group">
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
-          )}
-
           {/* About Bento Box */}
           {portfolio.summary && (
             <section id="about" className="col-span-1 @md:col-span-3 @lg:col-span-2 row-span-1 rounded-3xl bg-zinc-900 text-zinc-50 p-8 shadow-sm overflow-hidden relative">

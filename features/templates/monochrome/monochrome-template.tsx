@@ -87,14 +87,6 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
           </div>
 
           <div className="min-w-0 @lg:col-span-4 flex flex-col items-start @lg:items-end gap-8">
-            {portfolio.avatarUrl && (
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="w-48 h-48 md:w-64 md:h-64 object-cover filter"
-              />
-            )}
-
             <div className="flex flex-col items-start lg:items-end gap-4 w-full">
               <ContactChips
                 portfolio={portfolio}

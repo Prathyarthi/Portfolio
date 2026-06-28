@@ -4,7 +4,7 @@ import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
 } from "../github-contribution-heatmap";
-import { Heart, Sparkles, Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
@@ -81,20 +81,6 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="flex flex-col items-center text-center max-w-3xl mx-auto">
-          {portfolio.avatarUrl && (
-            <div className="relative mb-10 group">
-              <div className="absolute inset-0 bg-linear-to-tr from-[#ffb3ba] to-[#bae1ff] rounded-[3rem] rotate-6 scale-105 opacity-50 group-hover:rotate-12 transition-transform duration-500" />
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="relative w-40 h-40 md:w-48 md:h-48 object-cover rounded-[3rem] border-4 border-white shadow-xl"
-              />
-              <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-full shadow-lg text-[#ffb3ba] animate-bounce">
-                <Sparkles className="w-6 h-6" />
-              </div>
-            </div>
-          )}
-
           <div className="inline-flex items-center bg-white px-5 py-2 rounded-full text-sm font-bold text-[#ffb3ba] mb-6 shadow-sm border border-pink-50">
             Welcome to my world
           </div>

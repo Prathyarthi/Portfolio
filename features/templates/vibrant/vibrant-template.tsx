@@ -79,17 +79,6 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="relative flex flex-col items-center text-center mb-20 md:mb-32">
-          {portfolio.avatarUrl && (
-            <div className="relative mb-8 group">
-              <div className="absolute -inset-1 rounded-full bg-linear-to-r from-fuchsia-500 via-violet-500 to-cyan-500 opacity-70 blur-md group-hover:opacity-100 transition-opacity duration-500" />
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="relative h-32 w-32 md:h-40 md:w-40 rounded-full object-cover border-2 border-slate-900 shadow-2xl"
-              />
-            </div>
-          )}
-
           <div className="inline-flex items-center rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-4 py-1.5 text-sm font-medium text-fuchsia-300 mb-6 backdrop-blur-sm">
             <Sparkles className="w-4 h-4 mr-2" />
             Portfolio

@@ -62,15 +62,6 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="mb-24 flex min-w-0 w-full flex-col items-center text-center">
-          {portfolio.avatarUrl && (
-            <motion.img
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              src={portfolio.avatarUrl}
-              alt={portfolio.title}
-              className="mb-8 h-32 w-32 rounded-3xl object-cover shadow-md border-4 border-white"
-            />
-          )}
           <motion.h1
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

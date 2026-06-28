@@ -115,18 +115,6 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   </div>
                 )}
               </div>
-
-              <div className="grid gap-4">
-                {portfolio.avatarUrl && (
-                  <div className="overflow-hidden rounded-[1.85rem] border border-white/10 bg-linear-to-br from-violet-500/14 via-white/[0.06] to-cyan-400/10 p-5 shadow-[0_18px_60px_rgba(76,29,149,0.18)]">
-                    <img
-                      src={portfolio.avatarUrl}
-                      alt={portfolio.title}
-                      className="h-72 w-full rounded-[1.4rem] object-cover"
-                    />
-                  </div>
-                )}
-              </div>
             </div>
           </header>
 

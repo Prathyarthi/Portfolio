@@ -104,18 +104,6 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   </div>
                 )}
               </div>
-
-              <div className="grid gap-4 lg:pl-6">
-                {portfolio.avatarUrl && (
-                  <div className="rounded-[2rem] border border-rose-100/80 bg-linear-to-br from-rose-50 via-white to-orange-50 p-3 shadow-[0_18px_50px_rgba(190,24,93,0.08)]">
-                    <img
-                      src={portfolio.avatarUrl}
-                      alt={portfolio.title}
-                      className="h-80 w-full rounded-[1.6rem] object-cover"
-                    />
-                  </div>
-                )}
-              </div>
             </div>
           </header>
 

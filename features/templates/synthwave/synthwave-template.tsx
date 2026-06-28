@@ -91,17 +91,6 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="flex flex-col items-center text-center max-w-4xl mx-auto pt-10">
-          {portfolio.avatarUrl && (
-            <div className="relative mb-12 group">
-              <div className="absolute inset-0 bg-[#00f0ff] rounded-full blur-[20px] opacity-50 group-hover:opacity-80 transition-opacity duration-500" />
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="relative w-40 h-40 md:w-48 md:h-48 object-cover rounded-full border-4 border-[#ff007f] shadow-[0_0_30px_rgba(255,0,127,0.8)]"
-              />
-            </div>
-          )}
-
           <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-6xl @lg:text-8xl font-black text-transparent bg-clip-text bg-linear-to-b from-[#00f0ff] to-[#ff007f] mb-4 tracking-tighter drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]" style={{ WebkitTextStroke: '1px #ffffff' }}>
             {portfolio.title}
           </h1>

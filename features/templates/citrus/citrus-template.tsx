@@ -87,20 +87,6 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
               </div>
             </div>
 
-            {portfolio.avatarUrl && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="shrink-0 relative"
-              >
-                <div className="absolute inset-0 bg-[#F4A261] translate-x-4 translate-y-4 rounded-xl" />
-                <img
-                  src={portfolio.avatarUrl}
-                  alt={portfolio.title}
-                  className="relative z-10 h-56 w-56 md:h-72 md:w-72 object-cover rounded-xl border-4 border-[#264653]"
-                />
-              </motion.div>
-            )}
           </div>
         </header>
 

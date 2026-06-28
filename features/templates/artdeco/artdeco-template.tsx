@@ -84,20 +84,6 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="flex flex-col items-center text-center max-w-3xl mx-auto pt-8">
-          {portfolio.avatarUrl && (
-            <div className="relative mb-12 p-2 border border-[#d4af37]">
-              <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-[#d4af37]" />
-              <div className="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-[#d4af37]" />
-              <div className="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-[#d4af37]" />
-              <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-[#d4af37]" />
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="relative w-40 h-40 md:w-48 md:h-48 object-cover filter contrast-125"
-              />
-            </div>
-          )}
-
           <div className="flex items-center gap-4 mb-8">
             <div className="h-px w-12 bg-[#d4af37]" />
             <Diamond className="w-4 h-4 text-[#d4af37]" />

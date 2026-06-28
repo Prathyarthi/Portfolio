@@ -113,15 +113,6 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
             </div>
 
             <div className="space-y-4 lg:pl-4">
-              {portfolio.avatarUrl && (
-                <div className="rounded-[2rem] border border-stone-200/80 bg-stone-100/70 p-3 shadow-[0_18px_50px_rgba(28,25,23,0.08)]">
-                  <img
-                    src={portfolio.avatarUrl}
-                    alt={portfolio.title}
-                    className="h-72 w-full rounded-[1.5rem] object-cover"
-                  />
-                </div>
-              )}
               {portfolio.summary && (
                 <div className="rounded-[1.6rem] border border-stone-200/80 bg-stone-50/85 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
                   <p className="text-sm leading-relaxed text-stone-600">

@@ -78,16 +78,6 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
             </p>
           )}
 
-          {portfolio.avatarUrl && (
-            <div className="mt-8 flex justify-center">
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-full border border-[#2c2c2c] p-1"
-              />
-            </div>
-          )}
-
           <div className="flex flex-col items-center gap-4 mt-8 pt-8 border-t border-[#2c2c2c]/30">
             <ContactChips
               portfolio={portfolio}

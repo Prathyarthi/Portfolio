@@ -58,13 +58,6 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
             guest@portfolio:~$
           </div>
           <div className="flex items-start gap-6 md:gap-8">
-            {portfolio.avatarUrl && (
-              <img
-                src={portfolio.avatarUrl}
-                alt={portfolio.title}
-                className="hidden h-28 w-28 rounded border-2 border-green-800 object-cover transition-all duration-500 sm:block"
-              />
-            )}
             <div className="flex-1">
               <p className="mb-1 text-gray-500 text-xs tracking-widest uppercase">
                 $ whoami
