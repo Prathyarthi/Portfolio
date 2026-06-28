@@ -1,10 +1,12 @@
 import { type NextAuthOptions } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { comparePassword } from "@/lib/auth";
 import { createGitHubProvider, createGoogleProvider } from "@/lib/auth-providers";
 import {
   fetchGitHubPrimaryEmail,
+  normalizeOAuthEmail,
   upsertOAuthUser,
 } from "@/lib/oauth-users";
 
@@ -15,13 +17,14 @@ const OAUTH_PROVIDERS = new Set(["github", "google"]);
 
 async function syncOAuthUser(
   provider: string,
-  user: { email?: string | null; name?: string | null; image?: string | null },
+  user: { id?: string; email?: string | null; name?: string | null; image?: string | null },
   accessToken?: string | null,
 ): Promise<string | true> {
-  let email = user.email;
+  let email = user.email ? normalizeOAuthEmail(user.email) : null;
 
   if (!email && provider === "github" && accessToken) {
-    email = await fetchGitHubPrimaryEmail(accessToken);
+    const githubEmail = await fetchGitHubPrimaryEmail(accessToken);
+    email = githubEmail ? normalizeOAuthEmail(githubEmail) : null;
   }
 
   if (!email) {
@@ -30,16 +33,47 @@ async function syncOAuthUser(
       : "/sign-in?error=GitHubEmailRequired";
   }
 
-  user.email = email;
+  try {
+    const dbUser = await upsertOAuthUser({
+      email,
+      name: user.name,
+      avatar: user.image,
+      defaultName: provider === "google" ? "Google User" : "GitHub User",
+    });
 
-  await upsertOAuthUser({
-    email,
-    name: user.name,
-    avatar: user.image,
-    defaultName: provider === "google" ? "Google User" : "GitHub User",
-  });
+    user.id = dbUser.id;
+    user.email = dbUser.email;
+    user.name = dbUser.name;
+    if (dbUser.avatar) {
+      user.image = dbUser.avatar;
+    }
+  } catch (error) {
+    console.error(`[auth] Failed to upsert ${provider} user`, error);
+    return "/sign-in?error=Configuration";
+  }
 
   return true;
+}
+
+async function hydrateTokenFromDatabase(token: JWT): Promise<JWT> {
+  if (token.id) return token;
+
+  const email = token.email;
+  if (typeof email !== "string" || !email.trim()) {
+    return token;
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { email: normalizeOAuthEmail(email) },
+  });
+
+  if (!dbUser) return token;
+
+  token.id = dbUser.id;
+  token.email = dbUser.email;
+  token.name = dbUser.name;
+  token.avatar = dbUser.avatar ?? undefined;
+  return token;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -86,33 +120,28 @@ export const authOptions: NextAuthOptions = {
 
       return syncOAuthUser(account.provider, user, account.access_token);
     },
-    async jwt({ token, user, account }) {
-      if (account?.provider && OAUTH_PROVIDERS.has(account.provider)) {
-        const email = user?.email ?? token.email;
-        if (typeof email === "string") {
-          const dbUser = await prisma.user.findUnique({ where: { email } });
-          if (dbUser) {
-            token.id = dbUser.id;
-            token.avatar = dbUser.avatar ?? undefined;
-            token.email = dbUser.email;
-            token.name = dbUser.name;
-          }
-        }
-        return token;
-      }
-
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.avatar = user.avatar;
+        if (user.id) token.id = user.id;
+        if (user.email) token.email = user.email;
+        if (user.name) token.name = user.name;
+
+        const avatar =
+          (user as { avatar?: string }).avatar ??
+          user.image ??
+          token.avatar;
+        if (avatar) token.avatar = avatar;
       }
 
-      return token;
+      return hydrateTokenFromDatabase(token);
     },
-    session({ session, token }) {
-      if (token.id) session.user.id = token.id as string;
-      if (token.name) session.user.name = token.name as string;
-      if (token.email) session.user.email = token.email as string;
-      session.user.avatar = token.avatar as string | undefined;
+    async session({ session, token }) {
+      const hydrated = await hydrateTokenFromDatabase(token);
+
+      if (hydrated.id) session.user.id = hydrated.id;
+      if (hydrated.name) session.user.name = hydrated.name;
+      if (hydrated.email) session.user.email = hydrated.email;
+      session.user.avatar = hydrated.avatar;
       return session;
     },
   },

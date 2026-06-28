@@ -2,6 +2,10 @@ import { prisma } from "@/lib/prisma";
 
 const GENERIC_OAUTH_NAMES = new Set(["GitHub User", "Google User"]);
 
+export function normalizeOAuthEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 type GitHubEmailRecord = {
   email: string;
   primary: boolean;
@@ -35,16 +39,17 @@ export async function upsertOAuthUser(params: {
   avatar?: string | null;
   defaultName?: string;
 }) {
+  const email = normalizeOAuthEmail(params.email);
   const fallbackName = params.defaultName ?? "User";
   const existing = await prisma.user.findUnique({
-    where: { email: params.email },
+    where: { email },
   });
 
   if (!existing) {
     return prisma.user.create({
       data: {
         name: params.name?.trim() || fallbackName,
-        email: params.email,
+        email,
         password: "",
         avatar: params.avatar ?? undefined,
       },
@@ -52,7 +57,7 @@ export async function upsertOAuthUser(params: {
   }
 
   return prisma.user.update({
-    where: { email: params.email },
+    where: { email },
     data: {
       ...(params.avatar && !existing.avatar ? { avatar: params.avatar } : {}),
       ...(params.name?.trim() &&
