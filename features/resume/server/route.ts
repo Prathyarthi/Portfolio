@@ -31,8 +31,10 @@ export const resume = new Elysia({ prefix: "/resume" })
       };
     }
 
-    const formData = await ctx.request.formData();
-    const file = formData.get("file");
+    // Elysia already parses multipart/form-data into ctx.body before the handler runs.
+    // Reading ctx.request.formData() again throws in production (body stream is single-use).
+    const fileEntry = (ctx.body as { file?: unknown } | null)?.file;
+    const file = Array.isArray(fileEntry) ? fileEntry[0] : fileEntry;
 
     if (!file || !(file instanceof File)) {
       ctx.set.status = 400;

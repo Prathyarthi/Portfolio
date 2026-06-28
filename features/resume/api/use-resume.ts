@@ -14,11 +14,17 @@ export function useParseResume() {
         body: formData,
       });
 
-      const json = await res.json();
+      const text = await res.text();
+      let json: { data?: ParsedResume; error?: string; details?: string };
+      try {
+        json = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error(text || "Failed to parse resume");
+      }
       if (!res.ok) {
         throw new Error(json.details || json.error || "Failed to parse resume");
       }
-      return json.data;
+      return json.data!;
     },
   });
 }
