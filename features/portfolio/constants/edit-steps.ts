@@ -7,6 +7,7 @@ import {
   Globe,
   Trophy,
   Layers,
+  Rocket,
   type LucideIcon,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ export const EDIT_STEPS = [
   { value: "achievements", label: "Achievements", short: "Awards", icon: Trophy },
   { value: "custom", label: "Custom Sections", short: "Custom", icon: Layers },
   { value: "social", label: "Social Links", short: "Social", icon: Globe },
+  { value: "publish", label: "Publish", short: "Publish", icon: Rocket },
 ] as const satisfies ReadonlyArray<{
   value: string;
   label: string;
@@ -37,4 +39,5 @@ export const EDIT_STEP_DESCRIPTIONS: Record<EditStepValue, string> = {
   achievements: "Awards, talks, milestones, and standout moments.",
   custom: "Extra sections for anything that does not fit elsewhere.",
   social: "GitHub, LinkedIn, Medium, LeetCode, and other profiles.",
+  publish: "Choose your subdomain, go live, and share your portfolio.",
 };

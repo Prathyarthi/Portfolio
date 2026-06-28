@@ -92,14 +92,14 @@ function EditPortfolioPageContent() {
   }
 
   return (
-    <div className="flex flex-col lg:h-[calc(100svh-4rem-3rem)] lg:max-h-[calc(100svh-4rem-3rem)] lg:overflow-hidden">
-      <div className="shrink-0 space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex min-h-0 flex-1 flex-col lg:overflow-hidden">
+      <div className="shrink-0 space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-h2 text-text-primary">Edit portfolio</h1>
-            <p className="mt-1 max-w-2xl text-body-sm text-text-secondary">
-            Work through one section at a time. Use the progress tracker on the
-            left to jump between steps.
+            <p className="mt-1 max-w-2xl text-body-sm text-text-secondary lg:hidden">
+              Work through one section at a time. Use the progress tracker to jump
+              between steps.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -131,10 +131,10 @@ function EditPortfolioPageContent() {
           </div>
         </div>
 
-        <Separator />
+        <Separator className="lg:hidden" />
       </div>
 
-      <div className="flex min-h-0 w-full flex-1 flex-col pt-6 lg:flex-row lg:gap-0 lg:overflow-hidden">
+      <div className="flex min-h-0 w-full flex-1 flex-col pt-4 lg:flex-row lg:gap-0 lg:overflow-hidden">
         <aside className={DASHBOARD_TRACKER_ASIDE_CLASS}>
           <EditStepTracker
             activeStep={activeStep}
@@ -146,8 +146,8 @@ function EditPortfolioPageContent() {
         <div className={DASHBOARD_MAIN_COLUMN_CLASS}>
           <EditStepProgressBar activeStep={activeStep} />
 
-          <div className="shrink-0">
-            <p className="eyebrow hidden lg:block">
+          <div className="shrink-0 lg:hidden">
+            <p className="eyebrow">
               Step {activeIndex + 1} of {EDIT_STEPS.length}
             </p>
             <h2 className="text-h3 text-text-primary">{currentStep.label}</h2>

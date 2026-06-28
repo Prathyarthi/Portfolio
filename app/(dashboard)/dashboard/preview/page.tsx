@@ -177,7 +177,7 @@ export default function PreviewPage() {
   const slug = portfolio.slug ?? "";
 
   return (
-    <div className="flex min-w-0 w-full max-w-full flex-col gap-4 lg:h-[calc(100dvh-4rem-3rem)] lg:min-h-0 lg:flex-row lg:overflow-hidden">
+    <div className="flex min-h-0 w-full max-w-full flex-col gap-4 lg:h-[calc(100dvh-4rem)] lg:min-h-0 lg:flex-row lg:overflow-hidden">
       <PreviewEditSidebar
         open={editOpen}
         onOpenChange={setEditOpen}

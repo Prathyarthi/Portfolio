@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2, PanelLeftClose, Pencil } from "lucide-react";
+import Link from "next/link";
+import { Check, FileText, Loader2, PanelLeftClose, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -96,8 +97,8 @@ function EditorBody({
       </div>
 
       <TabsContent value="content" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
-        <div className="shrink-0 border-b border-border-default px-3 py-3">
-          <div className="grid grid-cols-4 gap-2">
+        <div className="shrink-0 border-b border-border-default px-3 py-2">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
             {EDIT_STEPS.map((step) => {
               const Icon = step.icon;
               return (
@@ -107,24 +108,33 @@ function EditorBody({
                   onClick={() => onStepChange(step.value)}
                   aria-pressed={activeStep === step.value}
                   className={cn(
-                    "flex min-w-0 flex-col items-center gap-1.5 rounded-[var(--radius-md)] border px-1.5 py-2.5 text-xs leading-none transition-colors",
+                    "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                     activeStep === step.value
                       ? "border-transparent bg-brand-light text-brand-primary"
-                      : "border-transparent text-text-muted hover:bg-surface-sunken hover:text-text-primary"
+                      : "border-border-default text-text-muted hover:bg-surface-sunken hover:text-text-primary"
                   )}
                   title={step.label}
                 >
-                  <Icon className="h-5 w-5 shrink-0" aria-hidden />
-                  <span className="max-w-full truncate">{step.short}</span>
+                  <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  <span>{step.short}</span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        <div className="shrink-0 border-b border-border-default px-4 py-3">
-          <p className="text-label uppercase text-text-secondary">Section</p>
-          <h2 className="mt-1 text-h4 text-text-primary">{activeStepInfo?.label}</h2>
+        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-default px-4 py-2.5">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-text-primary">
+              {activeStepInfo?.label}
+            </p>
+          </div>
+          <Button variant="outline" size="sm" className="shrink-0" asChild>
+            <Link href="/dashboard/import">
+              <FileText className="h-3.5 w-3.5" />
+              Import
+            </Link>
+          </Button>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">

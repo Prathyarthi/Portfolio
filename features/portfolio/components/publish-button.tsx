@@ -56,7 +56,7 @@ export function PublishButton() {
   }, [slug]);
 
   const slugDirty = candidateSlug.trim() !== "" && candidateSlug !== slug;
-  useEditStepDirty("basic", slugDirty, "publish-slug");
+  useEditStepDirty("publish", slugDirty, "publish-slug");
 
   async function handleToggle(checked: boolean) {
     if (checked) {

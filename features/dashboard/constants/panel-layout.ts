@@ -1,10 +1,10 @@
 /** Left tracker / edit rail — edit & import progress stepper. */
 export const DASHBOARD_TRACKER_ASIDE_CLASS =
-  "hidden h-full min-h-0 shrink-0 flex-col self-start overflow-hidden lg:flex lg:w-[14rem] lg:pl-4 lg:pr-3 xl:w-[15rem] xl:pl-4 xl:pr-3 2xl:w-[15rem]";
+  "hidden h-full min-h-0 shrink-0 flex-col self-stretch overflow-y-auto overscroll-contain lg:flex lg:w-[15rem] lg:pl-4 lg:pr-3 xl:w-[16rem] xl:pl-4 xl:pr-3 2xl:w-[17rem]";
 
 /** Preview page inspect & edit sidebar — wider for forms and template picker. */
 export const PREVIEW_EDIT_SIDEBAR_CLASS =
-  "hidden h-full min-h-0 shrink-0 flex-col overflow-hidden lg:flex lg:w-[18rem] lg:pl-4 lg:pr-4 xl:w-[20rem] xl:pl-5 xl:pr-4 2xl:w-[22rem]";
+  "hidden h-full min-h-0 shrink-0 flex-col overflow-hidden lg:flex lg:w-[26rem] lg:pl-4 lg:pr-4 xl:w-[30rem] xl:pl-5 xl:pr-4 2xl:w-[32rem]";
 
 /** Tighter card padding inside dashboard edit/import forms. */
 export const DASHBOARD_FORM_COMPACT_CLASS =
@@ -12,7 +12,7 @@ export const DASHBOARD_FORM_COMPACT_CLASS =
 
 /** Right main column — fills remaining width like the preview canvas area. */
 export const DASHBOARD_MAIN_COLUMN_CLASS =
-  "flex min-h-0 min-w-0 w-full flex-1 flex-col gap-3 lg:overflow-hidden";
+  "flex min-h-0 min-w-0 w-full flex-1 flex-col gap-2 lg:overflow-hidden";
 
 /** Preview-matched content frame (sunken border wrapper). */
 export const DASHBOARD_CONTENT_FRAME_CLASS =

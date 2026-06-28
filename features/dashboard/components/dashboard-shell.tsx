@@ -135,6 +135,12 @@ function AppSidebar() {
 }
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const hideFooter =
+    pathname.startsWith("/dashboard/edit") ||
+    pathname.startsWith("/dashboard/preview") ||
+    pathname.startsWith("/dashboard/import");
+
   return (
     <SidebarProvider
       style={
@@ -153,10 +159,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <ThemeToggle className="size-9" />
           </div>
         </header>
-        <main className="relative z-[1] min-w-0 flex-1 overflow-x-hidden p-[var(--space-5)]">
+        <main className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden p-[var(--space-5)]">
           {children}
         </main>
-        <Footer />
+        {!hideFooter ? <Footer /> : null}
       </SidebarInset>
     </SidebarProvider>
   );

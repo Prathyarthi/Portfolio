@@ -19,6 +19,7 @@ import {
   EDIT_FORM_GRID_CLASS,
   EDIT_FORM_STACK_CLASS,
 } from "@/features/dashboard/constants/form-layout";
+import { EditFormActions } from "@/features/portfolio/components/edit-form-actions";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
 import { fieldsDiffer, fieldDiffers } from "@/features/portfolio/lib/edit-step-dirty";
 
@@ -249,8 +250,8 @@ export function PortfolioForm() {
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={updatePortfolio.isPending}>
+      <EditFormActions>
+        <Button onClick={handleSave} disabled={updatePortfolio.isPending || !isDirty}>
           {updatePortfolio.isPending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -258,7 +259,7 @@ export function PortfolioForm() {
           )}
           Save Changes
         </Button>
-      </div>
+      </EditFormActions>
     </div>
   );
 }

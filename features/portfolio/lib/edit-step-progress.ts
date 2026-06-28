@@ -2,6 +2,8 @@ import type { EditStepValue } from "@/features/portfolio/constants/edit-steps";
 
 type PortfolioLike = {
   title?: string | null;
+  slug?: string | null;
+  isPublished?: boolean | null;
   experiences?: unknown[] | null;
   educations?: unknown[] | null;
   skills?: unknown[] | null;
@@ -34,6 +36,8 @@ export function isEditStepComplete(
       return (portfolio.customSections?.length ?? 0) > 0;
     case "social":
       return (portfolio.socialProfiles?.length ?? 0) > 0;
+    case "publish":
+      return Boolean(portfolio.isPublished);
     default:
       return false;
   }
@@ -49,6 +53,7 @@ export function countCompletedEditSteps(portfolio: PortfolioLike): number {
     "achievements",
     "custom",
     "social",
+    "publish",
   ];
   return steps.filter((step) => isEditStepComplete(step, portfolio)).length;
 }
