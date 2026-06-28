@@ -25,7 +25,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function WindowsTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -115,14 +116,13 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
               {visibleProjects.map((project) => (
                 <div key={project.id} className={cn(PROJECT_CARD, "win95-outset bg-[#c0c0c0] flex flex-col")}>
                   <div className="group m-2">
-                    <LivePreviewImage
+                    <TemplateProjectPreview templateId="windows"
                       liveUrl={project.liveUrl ?? null}
                       projectId={project.id}
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
                       containerClassName="win95-inset bg-black"
-                      placeholderClassName="win95-inset bg-white [&_p]:text-xs [&_p]:font-bold [&_p]:text-black"
                       className="h-full w-full object-cover object-top filter transition-all"
                     />
                   </div>

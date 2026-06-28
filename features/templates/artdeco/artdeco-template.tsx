@@ -26,7 +26,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -162,14 +163,13 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
               {visibleProjects.map((project) => (
                 <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col border border-[#d4af37]/20 bg-[#111c3d] p-2 transition-all duration-500 hover:border-[#d4af37]")}>
                   <div className="relative border-b border-[#d4af37]/30">
-                    <LivePreviewImage
+                    <TemplateProjectPreview templateId="artdeco"
                       liveUrl={project.liveUrl ?? null}
                       projectId={project.id}
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
                       containerClassName="overflow-hidden bg-[#0b132b]"
-                      placeholderClassName="bg-[#0b132b] [&_p]:font-serif [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-[#d4af37]"
                       className="h-full w-full object-cover object-top filter sepia-[0.3] contrast-125 transition-transform duration-1000 group-hover:scale-105"
                     />
                   </div>

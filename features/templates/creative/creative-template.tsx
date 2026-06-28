@@ -30,7 +30,8 @@ import type { PortfolioData } from "@/features/templates/types";
 import { formatDate, formatDateRange, groupSkillsByCategory } from "@/features/templates/utils";
 import { Trophy } from "lucide-react";
 // import { getPreviewImage } from "@/lib/link-preview-code";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export default function CreativeTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, experiences, educations, skills, projects, articles, socialProfiles, certifications, achievements, customSections, livePreviewProjectIds } =
@@ -163,7 +164,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                           "rounded-[1.6rem] border border-rose-100/80 bg-[#fffaf7] shadow-[0_14px_40px_rgba(190,24,93,0.05)]"
                         )}
                       >
-                        <LivePreviewImage
+                        <TemplateProjectPreview templateId="creative"
                           liveUrl={project.liveUrl ?? null}
                           projectId={project.id}
                           livePreviewProjectIds={livePreviewProjectIds}

@@ -16,10 +16,11 @@ import {
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
 } from "../shared";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import { GitHubContributionHeatmap, parseContributionCalendar } from "../github-contribution-heatmap";
 import { motion } from "motion/react";
+
 
 export function TerracottaTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -120,13 +121,12 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
                 {projects.map((project) => (
                   <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col gap-6")}>
                     <div className="overflow-hidden rounded-t-[50px]">
-                      <LivePreviewImage
+                      <TemplateProjectPreview templateId="terracotta"
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         containerClassName="overflow-hidden bg-[#F4F1DE]"
-                        placeholderClassName="bg-[#F4F1DE] [&_p]:text-sm [&_p]:font-medium [&_p]:text-[#3D405B]"
                         className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
                     </div>

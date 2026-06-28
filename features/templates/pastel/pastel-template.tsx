@@ -27,7 +27,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function PastelTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -156,14 +157,13 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
             >
               {visibleProjects.map((project) => (
                 <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col rounded-[2.5rem] bg-white p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(255,179,186,0.2)]")}>
-                  <LivePreviewImage
+                  <TemplateProjectPreview templateId="pastel"
                     liveUrl={project.liveUrl ?? null}
                     projectId={project.id}
                     livePreviewProjectIds={livePreviewProjectIds}
                     alt={project.title}
                     loading="lazy"
                     containerClassName="mb-6 overflow-hidden rounded-[2rem] bg-[#fff5f8]"
-                    placeholderClassName="bg-[#fff5f8] [&_p]:text-sm [&_p]:font-bold [&_p]:text-[#888]"
                     className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
 

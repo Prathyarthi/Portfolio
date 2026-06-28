@@ -30,7 +30,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function RetroTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -181,14 +182,13 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                         "border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-2"
                       )}
                     >
-                      <LivePreviewImage
+                      <TemplateProjectPreview templateId="retro"
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         loading="lazy"
                         containerClassName="border-b-4 border-black"
-                        placeholderClassName="bg-gray-200 [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-gray-500"
                         className="h-full w-full object-cover object-top filter transition-all duration-500"
                       />
                       <div className={PROJECT_CARD_BODY}>

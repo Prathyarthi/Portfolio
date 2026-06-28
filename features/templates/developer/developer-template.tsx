@@ -27,7 +27,8 @@ import {
 import { CollapsibleList } from "@/features/templates/collapsible-list";
 
 // import { getPreviewImage } from "@/lib/link-preview-code";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, experiences, educations, skills, projects, socialProfiles, certifications, achievements, customSections, livePreviewProjectIds } =
@@ -319,13 +320,12 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                     "group rounded-lg border border-green-900/40 bg-gray-900/50 hover:border-green-700/60 hover:bg-gray-900/80 transition-all duration-300"
                   )}
                 >
-                  <LivePreviewImage
+                  <TemplateProjectPreview templateId="developer"
                     liveUrl={project.liveUrl ?? null}
                     projectId={project.id}
                     livePreviewProjectIds={livePreviewProjectIds}
                     alt={project.title}
                     loading="lazy"
-                    placeholderVariant="dark"
                   />
                   <div className="p-5">
                     <div className={PROJECT_CARD_HEADER}>

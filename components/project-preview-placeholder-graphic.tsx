@@ -1,23 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import {
+  getTemplateProjectPreviewConfig,
+  type ProjectPreviewPalette,
+  type PreviewPlaceholderVariant,
+} from "@/features/templates/project-preview-palettes";
 
-export type PreviewPlaceholderVariant =
-  | "default"
-  | "retro"
-  | "dark"
-  | "minimal";
+export type { PreviewPlaceholderVariant } from "@/features/templates/project-preview-palettes";
 
-type Palette = {
-  bg: string;
-  bgAlt: string;
-  primary: string;
-  secondary: string;
-  accent: string;
-  surface: string;
-  muted: string;
-  stroke: string;
-};
+type Palette = ProjectPreviewPalette;
 
 const DEFAULT_PALETTES: Palette[] = [
   {
@@ -113,11 +105,25 @@ function hashString(value: string): number {
   return Math.abs(hash);
 }
 
-function getPalette(seed: string, variant: PreviewPlaceholderVariant): Palette {
+function getPalette(
+  seed: string,
+  variant: PreviewPlaceholderVariant,
+  templateId?: string
+): Palette {
+  const templateConfig = getTemplateProjectPreviewConfig(templateId);
+  if (templateConfig) return templateConfig.palette;
+
   if (variant === "retro") return RETRO_PALETTE;
   if (variant === "dark") return DARK_PALETTE;
   if (variant === "minimal") return MINIMAL_PALETTE;
   return DEFAULT_PALETTES[hashString(seed) % DEFAULT_PALETTES.length];
+}
+
+function resolveVariant(
+  variant: PreviewPlaceholderVariant,
+  templateId?: string
+): PreviewPlaceholderVariant {
+  return getTemplateProjectPreviewConfig(templateId)?.variant ?? variant;
 }
 
 function DecorativeBackground({
@@ -403,15 +409,18 @@ export function ProjectPreviewPlaceholderGraphic({
   title,
   seedKey,
   variant = "default",
+  templateId,
   className,
 }: {
   title: string;
   seedKey?: string;
   variant?: PreviewPlaceholderVariant;
+  templateId?: string;
   className?: string;
 }) {
   const seed = hashString(seedKey ?? title);
-  const palette = getPalette(seedKey ?? title, variant);
+  const resolvedVariant = resolveVariant(variant, templateId);
+  const palette = getPalette(seedKey ?? title, variant, templateId);
 
   return (
     <div
@@ -432,8 +441,8 @@ export function ProjectPreviewPlaceholderGraphic({
           </linearGradient>
         </defs>
 
-        <DecorativeBackground palette={palette} variant={variant} seed={seed} />
-        <BrowserChrome palette={palette} variant={variant} seed={seed} />
+        <DecorativeBackground palette={palette} variant={resolvedVariant} seed={seed} />
+        <BrowserChrome palette={palette} variant={resolvedVariant} seed={seed} />
       </svg>
 
       <span className="sr-only">{title}</span>

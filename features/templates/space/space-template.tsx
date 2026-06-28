@@ -26,7 +26,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function SpaceTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -157,18 +158,15 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
                     )}
                   >
                     <div className="relative">
-                      <LivePreviewImage
+                      <TemplateProjectPreview templateId="space"
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
                         livePreviewProjectIds={livePreviewProjectIds}
                         alt={project.title}
                         loading="lazy"
-                        placeholderVariant="dark"
                         containerClassName="overflow-hidden bg-[#030014]"
-                        placeholderClassName="bg-[#030014] [&_p]:text-sm [&_p]:font-medium [&_p]:text-slate-400"
                         className="h-full w-full object-cover object-top opacity-80 transition-transform duration-700 group-hover:scale-110 group-hover:opacity-100"
                       />
-                      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#0B0F19] via-transparent to-transparent opacity-80" />
                     </div>
                     <div className={cn(PROJECT_CARD_BODY, "relative z-20 flex flex-col grow p-8")}>
                       <div className={cn(PROJECT_CARD_HEADER, "mb-4")}>

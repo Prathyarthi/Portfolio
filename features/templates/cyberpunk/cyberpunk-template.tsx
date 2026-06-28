@@ -26,7 +26,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -166,15 +167,13 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
                   <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#00ff00] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                   <div className="relative border-b border-[#00ff00]/30">
-                    <LivePreviewImage
+                    <TemplateProjectPreview templateId="cyberpunk"
                       liveUrl={project.liveUrl ?? null}
                       projectId={project.id}
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
-                      placeholderVariant="dark"
                       containerClassName="bg-[#050505]"
-                      placeholderClassName="bg-[#050505] [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-wider [&_p]:text-[#00ff00]"
                       className="h-full w-full object-cover object-top opacity-70 filter contrast-125 transition-all duration-500 group-hover:opacity-100"
                     />
                     <div className="pointer-events-none absolute inset-0 bg-[#00ff00]/10 mix-blend-overlay" />

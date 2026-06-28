@@ -27,7 +27,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -157,15 +158,13 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
               {visibleProjects.map((project) => (
                 <article key={project.id} className={cn(PROJECT_CARD, "group flex flex-col border border-[#ff007f]/50 bg-[#1a0b2e]/90 p-1 shadow-[0_0_15px_rgba(255,0,127,0.1)] transition-all duration-300 hover:border-[#ff007f] hover:shadow-[0_0_25px_rgba(255,0,127,0.4)]")}>
                   <div className="relative border-b-2 border-[#00f0ff]">
-                    <LivePreviewImage
+                    <TemplateProjectPreview templateId="synthwave"
                       liveUrl={project.liveUrl ?? null}
                       projectId={project.id}
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
-                      placeholderVariant="dark"
                       containerClassName="overflow-hidden bg-[#0d0221]"
-                      placeholderClassName="bg-[#0d0221] [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-wider [&_p]:text-[#00f0ff]"
                       className="h-full w-full object-cover object-top filter contrast-125 saturate-150 transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#ff007f]/40 to-transparent mix-blend-overlay" />

@@ -29,7 +29,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function CorporateTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -217,7 +218,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                         "rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-[0_10px_30px_rgba(15,23,42,0.04)]"
                       )}
                     >
-                      <LivePreviewImage
+                      <TemplateProjectPreview templateId="corporate"
                         liveUrl={project.liveUrl ?? null}
                         projectId={project.id}
                         livePreviewProjectIds={livePreviewProjectIds}

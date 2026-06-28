@@ -26,7 +26,8 @@ import {
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
-import { LivePreviewImage } from "@/components/live-preview-image";
+import { TemplateProjectPreview } from "@/components/template-project-preview";
+
 
 export function BlueprintTemplate({ data }: { data: PortfolioData }) {
   const {
@@ -175,14 +176,13 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
                   </div>
 
                   <div className="border-b-2 border-white/50 p-2">
-                    <LivePreviewImage
+                    <TemplateProjectPreview templateId="blueprint"
                       liveUrl={project.liveUrl ?? null}
                       projectId={project.id}
                       livePreviewProjectIds={livePreviewProjectIds}
                       alt={project.title}
                       loading="lazy"
                       containerClassName="overflow-hidden border border-dashed border-white/30 bg-[#002244]"
-                      placeholderClassName="bg-[#002244] [&_p]:text-xs [&_p]:font-bold [&_p]:uppercase [&_p]:tracking-widest [&_p]:text-white/70"
                       className="h-full w-full object-cover object-top opacity-70 mix-blend-screen filter contrast-150 transition-opacity group-hover:opacity-100"
                     />
                   </div>
