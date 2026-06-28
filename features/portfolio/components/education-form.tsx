@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   usePortfolio,
   useAddEducation,
@@ -8,7 +8,7 @@ import {
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -30,6 +30,8 @@ import {
   X,
   Check,
 } from "lucide-react";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import { hasNonEmptyStringValues, fieldDiffers } from "@/features/portfolio/lib/edit-step-dirty";
 
 interface EducationEntry {
   institution: string;
@@ -105,6 +107,15 @@ export function EducationForm() {
     }
   }
 
+  const isDirty = useMemo(
+    () => isAdding && hasNonEmptyStringValues(form),
+    [isAdding, form]
+  );
+  useEditStepDirty("education", isDirty);
+
+  const isFieldUnsaved = (key: keyof EducationEntry) =>
+    isAdding ? fieldDiffers(form[key], emptyEntry[key]) : false;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -153,10 +164,10 @@ export function EducationForm() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="institution" className="flex items-center gap-2">
+                <FieldLabel htmlFor="institution" unsaved={isFieldUnsaved("institution")}>
                   <School className="h-4 w-4 text-muted-foreground" />
                   Institution *
-                </Label>
+                </FieldLabel>
                 <Input
                   id="institution"
                   name="institution"
@@ -166,10 +177,10 @@ export function EducationForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="degree" className="flex items-center gap-2">
+                <FieldLabel htmlFor="degree" unsaved={isFieldUnsaved("degree")}>
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
                   Degree *
-                </Label>
+                </FieldLabel>
                 <Input
                   id="degree"
                   name="degree"
@@ -182,10 +193,10 @@ export function EducationForm() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="field" className="flex items-center gap-2">
+                <FieldLabel htmlFor="field" unsaved={isFieldUnsaved("field")}>
                   <BookOpen className="h-4 w-4 text-muted-foreground" />
                   Field of Study
-                </Label>
+                </FieldLabel>
                 <Input
                   id="field"
                   name="field"
@@ -195,7 +206,9 @@ export function EducationForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gpa">GPA</Label>
+                <FieldLabel htmlFor="gpa" unsaved={isFieldUnsaved("gpa")}>
+                  GPA
+                </FieldLabel>
                 <Input
                   id="gpa"
                   name="gpa"
@@ -208,10 +221,10 @@ export function EducationForm() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="edu-startDate" className="flex items-center gap-2">
+                <FieldLabel htmlFor="edu-startDate" unsaved={isFieldUnsaved("startDate")}>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   Start Date *
-                </Label>
+                </FieldLabel>
                 <Input
                   id="edu-startDate"
                   name="startDate"
@@ -221,10 +234,10 @@ export function EducationForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edu-endDate" className="flex items-center gap-2">
+                <FieldLabel htmlFor="edu-endDate" unsaved={isFieldUnsaved("endDate")}>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   End Date
-                </Label>
+                </FieldLabel>
                 <Input
                   id="edu-endDate"
                   name="endDate"
@@ -236,7 +249,9 @@ export function EducationForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edu-description">Description</Label>
+              <FieldLabel htmlFor="edu-description" unsaved={isFieldUnsaved("description")}>
+                Description
+              </FieldLabel>
               <Textarea
                 id="edu-description"
                 name="description"

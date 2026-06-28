@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   usePortfolio,
   useUpsertSocial,
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
 import {
   Card,
   CardContent,
@@ -34,6 +34,8 @@ import {
   Code2,
 } from "lucide-react";
 import { GithubIcon as Github, LinkedinIcon as Linkedin, TwitterIcon as Twitter } from "@/components/icons";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import { fieldDiffers } from "@/features/portfolio/lib/edit-step-dirty";
 
 const PLATFORMS = [
   { value: "github", label: "GitHub", icon: Github, urlPrefix: "https://github.com/" },
@@ -68,6 +70,15 @@ export function SocialLinksEditor() {
   const [platform, setPlatform] = useState<string>("github");
   const [url, setUrl] = useState("");
   const [username, setUsername] = useState("");
+  const formBaseline = useRef({ platform: "github", url: "", username: "" });
+
+  function openForm(values: { platform: string; url: string; username: string }) {
+    formBaseline.current = values;
+    setPlatform(values.platform);
+    setUrl(values.url);
+    setUsername(values.username);
+    setIsAdding(true);
+  }
 
   function cancelAdding() {
     setIsAdding(false);
@@ -105,11 +116,37 @@ export function SocialLinksEditor() {
   }
 
   function startEditingExisting(social: any) {
-    setPlatform(social.platform);
-    setUrl(social.url);
-    setUsername(social.username ?? "");
-    setIsAdding(true);
+    openForm({
+      platform: social.platform,
+      url: social.url,
+      username: social.username ?? "",
+    });
   }
+
+  const socials = portfolio?.socialProfiles ?? [];
+
+  const isDirty = useMemo(() => {
+    if (!isAdding) return false;
+    const existing = socials.find((social: { platform: string }) => social.platform === platform);
+    if (existing) {
+      return (
+        url.trim() !== (existing.url ?? "").trim() ||
+        username.trim() !== (existing.username ?? "").trim()
+      );
+    }
+    const platformDef = PLATFORMS.find((entry) => entry.value === platform);
+    const defaultUrl = platformDef?.urlPrefix ?? "";
+    return url.trim() !== defaultUrl.trim() || username.trim() !== "";
+  }, [isAdding, platform, url, username, socials]);
+
+  useEditStepDirty("social", isDirty);
+
+  const isPlatformUnsaved =
+    isAdding && platform !== formBaseline.current.platform;
+  const isUrlUnsaved =
+    isAdding && fieldDiffers(url, formBaseline.current.url);
+  const isUsernameUnsaved =
+    isAdding && fieldDiffers(username, formBaseline.current.username);
 
   if (isLoading) {
     return (
@@ -119,10 +156,9 @@ export function SocialLinksEditor() {
     );
   }
 
-  const socials = portfolio?.socialProfiles ?? [];
+  const isMutating = upsertSocial.isPending;
 
-  // Determine which platforms already have entries
-  const existingPlatforms = new Set(socials.map((s: any) => s.platform));
+  const existingPlatforms = new Set(socials.map((s: { platform: string }) => s.platform));
 
   return (
     <div className="space-y-6">
@@ -138,12 +174,9 @@ export function SocialLinksEditor() {
         </div>
         {!isAdding && (
           <Button
-            onClick={() => {
-              setIsAdding(true);
-              setPlatform("github");
-              setUrl("");
-              setUsername("");
-            }}
+            onClick={() =>
+              openForm({ platform: "github", url: "", username: "" })
+            }
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Profile
@@ -167,7 +200,7 @@ export function SocialLinksEditor() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Platform</Label>
+                <FieldLabel unsaved={isPlatformUnsaved}>Platform</FieldLabel>
                 <Select value={platform} onValueChange={handlePlatformChange}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -189,7 +222,9 @@ export function SocialLinksEditor() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="social-username">Username (optional)</Label>
+                <FieldLabel htmlFor="social-username" unsaved={isUsernameUnsaved}>
+                  Username (optional)
+                </FieldLabel>
                 <Input
                   id="social-username"
                   value={username}
@@ -200,7 +235,9 @@ export function SocialLinksEditor() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="social-url">Profile URL *</Label>
+              <FieldLabel htmlFor="social-url" unsaved={isUrlUnsaved}>
+                Profile URL *
+              </FieldLabel>
               <Input
                 id="social-url"
                 value={url}

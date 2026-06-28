@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   usePortfolio,
   useAddExperience,
@@ -9,7 +9,7 @@ import {
 } from "@/features/portfolio/api/use-portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FieldLabel } from "@/features/portfolio/components/field-label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -32,6 +32,13 @@ import {
   X,
   Check,
 } from "lucide-react";
+import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import {
+  fieldsDiffer,
+  fieldDiffers,
+  hasNonEmptyStringValues,
+  normalizeDate,
+} from "@/features/portfolio/lib/edit-step-dirty";
 
 interface ExperienceEntry {
   id?: string;
@@ -142,6 +149,49 @@ export function ExperienceForm() {
     }
   }
 
+  const experiences = portfolio?.experiences ?? [];
+
+  const isDirty = useMemo(() => {
+    if (!isAdding && !editingId) return false;
+    if (isAdding) return hasNonEmptyStringValues(form);
+    const original = experiences.find((exp) => exp.id === editingId);
+    if (!original) return true;
+    return fieldsDiffer(
+      form,
+      {
+        company: original.company,
+        role: original.role,
+        description: original.description ?? "",
+        startDate: normalizeDate(original.startDate),
+        endDate: normalizeDate(original.endDate),
+        location: original.location ?? "",
+      },
+      ["company", "role", "description", "startDate", "endDate", "location"]
+    );
+  }, [isAdding, editingId, form, experiences]);
+
+  useEditStepDirty("experience", isDirty);
+
+  const savedForm = useMemo((): ExperienceEntry => {
+    if (isAdding) return emptyEntry;
+    if (!editingId) return emptyEntry;
+    const original = experiences.find((exp) => exp.id === editingId);
+    if (!original) return emptyEntry;
+    return {
+      company: original.company ?? "",
+      role: original.role ?? "",
+      description: original.description ?? "",
+      startDate: normalizeDate(original.startDate),
+      endDate: normalizeDate(original.endDate),
+      location: original.location ?? "",
+    };
+  }, [isAdding, editingId, experiences]);
+
+  const isFieldUnsaved = (key: keyof ExperienceEntry) =>
+    isAdding || editingId
+      ? fieldDiffers(form[key] ?? "", savedForm[key] ?? "")
+      : false;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -150,7 +200,6 @@ export function ExperienceForm() {
     );
   }
 
-  const experiences = portfolio?.experiences ?? [];
   const isMutating =
     addExperience.isPending ||
     updateExperience.isPending ||
@@ -197,10 +246,10 @@ export function ExperienceForm() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="company" className="flex items-center gap-2">
+                <FieldLabel htmlFor="company" unsaved={isFieldUnsaved("company")}>
                   <Building2 className="h-4 w-4 text-muted-foreground" />
                   Company *
-                </Label>
+                </FieldLabel>
                 <Input
                   id="company"
                   name="company"
@@ -210,10 +259,10 @@ export function ExperienceForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="role" className="flex items-center gap-2">
+                <FieldLabel htmlFor="role" unsaved={isFieldUnsaved("role")}>
                   <Briefcase className="h-4 w-4 text-muted-foreground" />
                   Role *
-                </Label>
+                </FieldLabel>
                 <Input
                   id="role"
                   name="role"
@@ -226,10 +275,10 @@ export function ExperienceForm() {
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label htmlFor="startDate" className="flex items-center gap-2">
+                <FieldLabel htmlFor="startDate" unsaved={isFieldUnsaved("startDate")}>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   Start Date
-                </Label>
+                </FieldLabel>
                 <Input
                   id="startDate"
                   name="startDate"
@@ -240,10 +289,10 @@ export function ExperienceForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="endDate" className="flex items-center gap-2">
+                <FieldLabel htmlFor="endDate" unsaved={isFieldUnsaved("endDate")}>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   End Date
-                </Label>
+                </FieldLabel>
                 <Input
                   id="endDate"
                   name="endDate"
@@ -254,10 +303,13 @@ export function ExperienceForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="exp-location" className="flex items-center gap-2">
+                <FieldLabel
+                  htmlFor="exp-location"
+                  unsaved={isFieldUnsaved("location")}
+                >
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   Location
-                </Label>
+                </FieldLabel>
                 <Input
                   id="exp-location"
                   name="location"
@@ -269,7 +321,9 @@ export function ExperienceForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <FieldLabel htmlFor="description" unsaved={isFieldUnsaved("description")}>
+                Description
+              </FieldLabel>
               <Textarea
                 id="description"
                 name="description"

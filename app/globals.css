@@ -660,7 +660,7 @@ body {
   }
 }
 
-/* ─── Marketing footer (theme-aware, unlayered) ───────────────── */
+/* ─── Marketing footer (unlayered — reliable light/dark colors) ── */
 .marketing-footer {
   --mf-bg: #f3f1ec;
   --mf-text: #5e5a6e;
