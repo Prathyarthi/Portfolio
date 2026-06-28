@@ -13,7 +13,11 @@ export async function comparePassword(
   password: string,
   stored: string
 ): Promise<boolean> {
+  if (!stored || !stored.includes(".")) return false;
+
   const [hashed, salt] = stored.split(".");
+  if (!hashed || !salt) return false;
+
   const hashedBuf = Buffer.from(hashed, "hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   return timingSafeEqual(hashedBuf, buf);

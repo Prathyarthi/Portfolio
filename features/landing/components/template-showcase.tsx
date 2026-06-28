@@ -7,21 +7,25 @@ import { cn } from "@/lib/utils";
 const SHOWCASE_TEMPLATES = [
   {
     id: "modern",
+    name: "Modern",
     alt: "Modern portfolio layout",
     gradient: "from-violet-500/50 to-cyan-400/40",
   },
   {
     id: "retro",
+    name: "Retro",
     alt: "Retro portfolio layout",
     gradient: "from-[#ff90e8]/80 to-[#ffc900]/80",
   },
   {
     id: "blueprint",
+    name: "Blueprint",
     alt: "Blueprint portfolio layout",
     gradient: "from-[#003366] to-[#002244]",
   },
   {
     id: "minimal",
+    name: "Minimal",
     alt: "Minimal portfolio layout",
     gradient: "from-stone-100 to-stone-200",
   },
@@ -48,7 +52,7 @@ function TemplatePreview({
   template: (typeof SHOWCASE_TEMPLATES)[number];
 }) {
   const [imageFailed, setImageFailed] = useState(false);
-  const src = `/templates/${template.id}.webp`;
+  const src = `/templates/${template.id}.png`;
 
   if (imageFailed) {
     return <GradientPlaceholder gradient={template.gradient} />;
@@ -78,6 +82,9 @@ function ShowcaseCard({
       <div className="p-3">
         <TemplatePreview template={template} />
       </div>
+      <p className="border-t border-border-default px-4 py-3 text-center text-sm font-medium text-text-primary">
+        {template.name}
+      </p>
     </div>
   );
 }

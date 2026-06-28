@@ -21,6 +21,7 @@ function LogoMark({ className }: { className?: string }) {
 type LogoProps = {
   variant?: LogoVariant;
   className?: string;
+  wordmarkClassName?: string;
   showWordmark?: boolean;
   href?: string;
 };
@@ -28,6 +29,7 @@ type LogoProps = {
 export function Logo({
   variant = "default",
   className,
+  wordmarkClassName,
   showWordmark = true,
   href = "/",
 }: LogoProps) {
@@ -44,7 +46,8 @@ export function Logo({
         <span
           className={cn(
             "font-display text-[20px] font-bold tracking-[-0.01em]",
-            isLight ? "text-white" : "text-brand-primary"
+            wordmarkClassName ??
+              (isLight ? "text-white" : "text-brand-primary")
           )}
         >
           {siteConfig.name}

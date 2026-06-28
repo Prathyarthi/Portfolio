@@ -140,7 +140,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     >
       <AppSidebar />
       <SidebarInset className="relative min-w-0 overflow-x-hidden bg-surface-base">
-        <div className="glass-ambient" aria-hidden />
         <header className="glass-nav sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 px-4">
           <SidebarTrigger className="size-9" />
           <Logo href="/dashboard" className="md:hidden" />
