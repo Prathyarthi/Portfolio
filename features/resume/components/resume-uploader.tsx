@@ -371,7 +371,7 @@ export function ResumeUploader({
       <Button
         onClick={() => void handleImport()}
         disabled={importing}
-        size="lg"
+        size="default"
       >
         {importing ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

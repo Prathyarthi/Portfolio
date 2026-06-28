@@ -22,7 +22,7 @@ type FlowFooterProps = {
   message?: string | null;
   /** Pin navigation above content (`top`) or below (`bottom`, default). */
   placement?: "top" | "bottom";
-  /** Extra actions rendered on the left (e.g. import CTA). */
+  /** Extra actions rendered on the right beside previous/next (e.g. import CTA). */
   actions?: ReactNode;
 };
 
@@ -51,7 +51,6 @@ export function FlowFooter({
         {message ? (
           <div className="text-body-sm text-text-secondary">{message}</div>
         ) : null}
-        {actions}
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-3">
@@ -70,6 +69,7 @@ export function FlowFooter({
             </Button>
           )
         ) : null}
+        {actions}
         {next ? (
           next.href ? (
             <Button asChild disabled={next.disabled}>

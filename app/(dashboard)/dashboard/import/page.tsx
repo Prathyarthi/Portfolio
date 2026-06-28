@@ -98,7 +98,6 @@ export default function ImportPage() {
         <FlowFooter
           className="border-0 p-0"
           message={null}
-          actions={toolbarActions}
           previous={{
             href: "/dashboard/templates",
             label: "Previous: Templates",
@@ -129,9 +128,12 @@ export default function ImportPage() {
 
           <div className="shrink-0">
             <p className="eyebrow hidden lg:block">Selected source</p>
-            <h2 className="mt-1 text-h3 text-text-primary">
-              {currentSource.label}
-            </h2>
+            <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-h3 text-text-primary">
+                {currentSource.label}
+              </h2>
+              {activeSource === "resume" ? toolbarActions : null}
+            </div>
             <p className="mt-1 text-body-sm text-text-secondary">
               {currentSource.description}
             </p>
