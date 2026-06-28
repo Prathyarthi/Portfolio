@@ -70,6 +70,20 @@ export default function BillingPage() {
   }, [loadBilling]);
 
   useEffect(() => {
+    if (!returning) return;
+
+    const tier = billing?.access?.tier;
+    const pending = billing?.subscription?.status === "PENDING";
+    if (tier === "pro" || !pending) return;
+
+    const interval = window.setInterval(() => {
+      void loadBilling();
+    }, 3000);
+
+    return () => window.clearInterval(interval);
+  }, [returning, billing, loadBilling]);
+
+  useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;

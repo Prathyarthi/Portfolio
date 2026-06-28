@@ -81,7 +81,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
 
-  const userId = getUserIdFromPayload(body);
+  const subscriptionId = body.payload?.subscription?.entity?.id;
+  let userId = getUserIdFromPayload(body);
+
+  if (!userId && subscriptionId) {
+    const user = await prisma.user.findFirst({
+      where: { razorpaySubscriptionId: subscriptionId },
+      select: { id: true },
+    });
+    userId = user?.id ?? null;
+  }
+
   if (!userId) {
     return NextResponse.json({ ok: true, ignored: true });
   }
@@ -91,11 +101,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, ignored: true });
   }
 
-  const subscriptionId = body.payload?.subscription?.entity?.id;
+  const currentUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { subscriptionStatus: true },
+  });
+
+  if (
+    nextStatus === "pending" &&
+    currentUser?.subscriptionStatus === "active"
+  ) {
+    return NextResponse.json({ ok: true, skipped: true });
+  }
 
   await prisma.user.update({
     where: { id: userId },
-    data: { 
+    data: {
       subscriptionStatus: nextStatus,
       ...(subscriptionId && { razorpaySubscriptionId: subscriptionId }),
     },
