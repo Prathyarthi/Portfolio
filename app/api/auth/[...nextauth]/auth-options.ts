@@ -9,6 +9,7 @@ import {
   normalizeOAuthEmail,
   upsertOAuthUser,
 } from "@/lib/oauth-users";
+import { linkOAuthSocialProfile } from "@/lib/oauth-social-profile";
 
 const githubProvider = createGitHubProvider();
 const googleProvider = createGoogleProvider();
@@ -19,6 +20,7 @@ async function syncOAuthUser(
   provider: string,
   user: { id?: string; email?: string | null; name?: string | null; image?: string | null },
   accessToken?: string | null,
+  oauthProfile?: Record<string, unknown> | null,
 ): Promise<string | true> {
   let email = user.email ? normalizeOAuthEmail(user.email) : null;
 
@@ -47,6 +49,13 @@ async function syncOAuthUser(
     if (dbUser.avatar) {
       user.image = dbUser.avatar;
     }
+
+    await linkOAuthSocialProfile({
+      userId: dbUser.id,
+      provider,
+      profile: oauthProfile,
+      accessToken,
+    });
   } catch (error) {
     console.error(`[auth] Failed to upsert ${provider} user`, error);
     return "/sign-in?error=Configuration";
@@ -113,12 +122,17 @@ export const authOptions: NextAuthOptions = {
   },
   session: { strategy: "jwt" },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       if (!account?.provider || !OAUTH_PROVIDERS.has(account.provider)) {
         return true;
       }
 
-      return syncOAuthUser(account.provider, user, account.access_token);
+      return syncOAuthUser(
+        account.provider,
+        user,
+        account.access_token,
+        profile as Record<string, unknown> | undefined,
+      );
     },
     async jwt({ token, user }) {
       if (user) {

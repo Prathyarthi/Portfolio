@@ -1,4 +1,5 @@
 import type { PortfolioData } from "./types";
+import { normalizeSocialProfiles } from "@/lib/social-profile";
 
 export function portfolioToTemplateData(portfolio: any): PortfolioData {
   return {
@@ -82,11 +83,20 @@ export function portfolioToTemplateData(portfolio: any): PortfolioData {
         : null,
       readTime: a.readTime ?? null,
     })),
-    socialProfiles: (portfolio.socialProfiles ?? []).map((s: any) => ({
+    socialProfiles: normalizeSocialProfiles(
+      (portfolio.socialProfiles ?? []).map((s: any) => ({
+        platform: s.platform,
+        url: s.url,
+        username: s.username ?? null,
+      })),
+    ).map((s) => ({
       platform: s.platform,
       url: s.url,
-      username: s.username ?? null,
-      cachedStats: s.cachedStats ?? null,
+      username: s.username,
+      cachedStats:
+        (portfolio.socialProfiles ?? []).find(
+          (p: any) => p.platform === s.platform,
+        )?.cachedStats ?? null,
     })),
     certifications: (portfolio.certifications ?? []).map((c: any) => ({
       id: c.id,

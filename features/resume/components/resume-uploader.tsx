@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import type { ParsedResume, ParsedCustomSection } from "@/lib/gemini";
 import { normalizeUrl } from "@/lib/url-utils";
+import { normalizeSocialProfile } from "@/lib/social-profile";
 import {
   LivePreviewSelectionDialog,
   type LivePreviewCandidate,
@@ -268,15 +269,12 @@ export function ResumeUploader() {
       // Import social profiles
       if (parsedData.socialProfiles && parsedData.socialProfiles.length > 0) {
         for (const social of parsedData.socialProfiles) {
-          if (!social.url && !social.username) continue;
+          const normalized = normalizeSocialProfile(social);
+          if (!normalized) continue;
           const res = await fetch("/api/portfolio/social", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              platform: social.platform || "unknown",
-              url: normalizeUrl(social.url ?? social.username ?? ""),
-              username: social.username ?? null,
-            }),
+            body: JSON.stringify(normalized),
           });
           await assertApiOk(res, "Social profile");
         }

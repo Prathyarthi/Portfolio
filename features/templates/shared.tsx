@@ -254,11 +254,17 @@ export function SocialPills({
   className?: string;
   showUsername?: boolean;
 }) {
-  if (profiles.length === 0) return null;
+  const visibleProfiles = profiles.filter(
+    (profile) => profile.platform.toLowerCase() !== "unknown",
+  );
+
+  if (visibleProfiles.length === 0) return null;
 
   return (
     <div className="flex flex-wrap gap-2">
-      {profiles.map((profile) => (
+      {visibleProfiles.map((profile) => {
+        const username = profile.username?.replace(/^@+/, "").trim();
+        return (
         <a
           key={`${profile.platform}-${profile.url}`}
           href={profile.url}
@@ -267,9 +273,10 @@ export function SocialPills({
           className={className}
         >
           {getPlatformIcon(profile.platform)}
-          {showUsername && profile.username ? ` · @${profile.username}` : ""}
+          {showUsername && username ? ` · @${username}` : ""}
         </a>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -283,7 +290,10 @@ export function HeroProfileButtons({
 }) {
   const preferredProfiles = HERO_PROFILE_PLATFORMS.map((platform) =>
     profiles.find((profile) => profile.platform.toLowerCase() === platform)
-  ).filter((profile): profile is NonNullable<(typeof profiles)[number]> => Boolean(profile));
+  ).filter(
+    (profile): profile is NonNullable<(typeof profiles)[number]> =>
+      Boolean(profile) && profile.platform.toLowerCase() !== "unknown",
+  );
 
   if (preferredProfiles.length === 0) return null;
 

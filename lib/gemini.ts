@@ -1,5 +1,6 @@
 import { generateOpenRouterText } from "@/lib/openrouter";
 import { normalizeMultilineText, stripBulletPrefix } from "@/lib/text";
+import { normalizeSocialProfiles } from "@/lib/social-profile";
 
 export interface ParsedCustomSection {
   sectionType: string;
@@ -293,7 +294,8 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   function emptyToNull(v: unknown): string | null {
     if (v == null) return null;
     const s = String(v).trim();
-    return s === "" ? null : s;
+    if (!s || /^unknown$/i.test(s)) return null;
+    return s;
   }
 
   const contactRaw = asRecord(o.contact) ?? {};
@@ -321,12 +323,14 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
     socialProfiles.push({ platform: platform || "unknown", url, username });
   }
 
+  const resolvedSocialProfiles = normalizeSocialProfiles(socialProfiles);
+
   return {
     name: normalizeString(o.name),
     headline: normalizeString(o.headline),
     summary: normalizeString(o.summary),
     contact,
-    socialProfiles,
+    socialProfiles: resolvedSocialProfiles,
     experiences,
     education,
     skills,
