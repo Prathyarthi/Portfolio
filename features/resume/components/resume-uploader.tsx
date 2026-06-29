@@ -71,6 +71,15 @@ async function assertApiOk(res: Response, context: string) {
   throw new Error(`${context}: ${message} (${res.status})`);
 }
 
+async function postImport(path: string, body: unknown, context: string) {
+  const res = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  await assertApiOk(res, context);
+}
+
 export function ResumeUploader({
   onToolbarActionsChange,
 }: {
@@ -210,117 +219,70 @@ export function ResumeUploader({
         await clearImportable.mutateAsync();
       }
 
-      // Import experiences
-      console.log("========== STARTING IMPORT ==========");
-      console.log("About to import", parsedData.experiences.length, "experiences");
-      for (let i = 0; i < parsedData.experiences.length; i++) {
-        const exp = parsedData.experiences[i];
-        console.log(`Importing experience ${i + 1}/${parsedData.experiences.length}:`, exp);
-        const res = await fetch("/api/portfolio/experience", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(exp),
-        });
-        await assertApiOk(res, "Experience");
-        console.log(`✓ Experience ${i + 1} imported successfully`);
-      }
-      console.log("✅ All experiences imported");
-
-      // Import education
-      for (const edu of parsedData.education) {
-        const res = await fetch("/api/portfolio/education", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(edu),
-        });
-        await assertApiOk(res, "Education");
-      }
-
-      // Import skills (bulk)
-      if (parsedData.skills.length > 0) {
-        const res = await fetch("/api/portfolio/skill/bulk", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ skills: parsedData.skills }),
-        });
-        await assertApiOk(res, "Skills");
-      }
-
-      // Import projects
-      for (const project of parsedData.projects) {
-        const res = await fetch("/api/portfolio/project", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: project.title,
-            description: project.description || "",
-            techStack: project.techStack ?? [],
-            liveUrl: normalizeUrl(project.liveUrl),
-            sourceUrl: normalizeUrl(project.sourceUrl),
-          }),
-        });
-        await assertApiOk(res, "Project");
-      }
-
-      // Import certifications
-      for (const cert of parsedData.certifications) {
-        const res = await fetch("/api/portfolio/certification", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...cert,
-            url: normalizeUrl(cert.url),
-          }),
-        });
-        await assertApiOk(res, "Certification");
-      }
-
-      // Import social profiles
-      if (parsedData.socialProfiles && parsedData.socialProfiles.length > 0) {
-        for (const social of parsedData.socialProfiles) {
-          const normalized = normalizeSocialProfile(social);
-          if (!normalized) continue;
-          const res = await fetch("/api/portfolio/social", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(normalized),
-          });
-          await assertApiOk(res, "Social profile");
-        }
-      }
-
-      // Import achievements
-      console.log("About to import", parsedData.achievements.length, "achievements");
-      for (let i = 0; i < parsedData.achievements.length; i++) {
-        const achievement = parsedData.achievements[i];
-        console.log(`Importing achievement ${i + 1}:`, achievement);
-        const res = await fetch("/api/portfolio/achievement", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: achievement }),
-        });
-        await assertApiOk(res, "Achievement");
-        console.log(`✓ Achievement ${i + 1} imported successfully`);
-      }
-      console.log("✅ All achievements imported");
-
-      // Import custom sections
-      if (parsedData.customSections && parsedData.customSections.length > 0) {
-        console.log("About to import", parsedData.customSections.length, "custom sections");
-        for (const section of parsedData.customSections) {
-          const res = await fetch("/api/portfolio/custom-section", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+      await Promise.all([
+        ...parsedData.experiences.map((exp) =>
+          postImport("/api/portfolio/experience", exp, "Experience")
+        ),
+        ...parsedData.education.map((edu) =>
+          postImport("/api/portfolio/education", edu, "Education")
+        ),
+        ...(parsedData.skills.length > 0
+          ? [
+              postImport(
+                "/api/portfolio/skill/bulk",
+                { skills: parsedData.skills },
+                "Skills"
+              ),
+            ]
+          : []),
+        ...parsedData.projects.map((project) =>
+          postImport(
+            "/api/portfolio/project",
+            {
+              title: project.title,
+              description: project.description || "",
+              techStack: project.techStack ?? [],
+              liveUrl: normalizeUrl(project.liveUrl),
+              sourceUrl: normalizeUrl(project.sourceUrl),
+            },
+            "Project"
+          )
+        ),
+        ...parsedData.certifications.map((cert) =>
+          postImport(
+            "/api/portfolio/certification",
+            { ...cert, url: normalizeUrl(cert.url) },
+            "Certification"
+          )
+        ),
+        ...(parsedData.socialProfiles ?? [])
+          .map((social) => normalizeSocialProfile(social))
+          .filter(
+            (normalized): normalized is NonNullable<typeof normalized> =>
+              normalized != null
+          )
+          .map((normalized) =>
+            postImport("/api/portfolio/social", normalized, "Social profile")
+          ),
+        ...parsedData.achievements.map((achievement) =>
+          postImport(
+            "/api/portfolio/achievement",
+            { title: achievement },
+            "Achievement"
+          )
+        ),
+        ...(parsedData.customSections ?? []).map((section) =>
+          postImport(
+            "/api/portfolio/custom-section",
+            {
               sectionType: section.sectionType,
               label: section.label,
               items: section.items,
-            }),
-          });
-          await assertApiOk(res, "Custom Section");
-        }
-        console.log("✅ All custom sections imported");
-      }
+            },
+            "Custom Section"
+          )
+        ),
+      ]);
 
       await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
       const refreshedPortfolio = await queryClient.fetchQuery({
