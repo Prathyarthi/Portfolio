@@ -27,7 +27,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${sourceSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body
+        className={`${sourceSans.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+        suppressHydrationWarning
+      >
         <Analytics />
         <Providers>
           <div className="flex min-h-screen flex-col">
