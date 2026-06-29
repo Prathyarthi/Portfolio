@@ -1,0 +1,31 @@
+export const RESUME_PARSE_MESSAGES = [
+  "Scanning every line of your resume...",
+  "Asking AI if you really know Rust...",
+  "Decoding serif fonts into skills...",
+  "Reading between the bullet points...",
+  "Finding that one internship from 2016...",
+  "Extracting buzzwords from the margins...",
+  "Detecting hidden certifications...",
+  "Parsing PDF magic into structured data...",
+  "Translating 'team player' into something useful...",
+  "Hunting for your most employable verb...",
+] as const;
+
+export const PORTFOLIO_IMPORT_MESSAGES = [
+  "Teaching your resume to speak portfolio...",
+  "Convincing ATS bots you're a 10x engineer...",
+  "Sprinkling action verbs like confetti...",
+  "Deploying your ego to the cloud...",
+  "Cherry-picking your best bullet points...",
+  "Making your side project sound production-grade...",
+  "Formatting dates so the gap looks intentional...",
+  "Running npm install on your ambition...",
+  "Staging your achievements for maximum wow...",
+  "Negotiating with the skills section for more room...",
+  "Watering your career timeline...",
+  "Converting coffee consumption into years of experience...",
+  "Optimizing keywords for robots and humans...",
+  "Inflating your GitHub streak (ethically)...",
+  "Removing that one embarrassing college project...",
+  "Almost ready to make recruiters slide into your DMs...",
+] as const;

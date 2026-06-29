@@ -50,6 +50,11 @@ import {
   LivePreviewSelectionDialog,
   type LivePreviewCandidate,
 } from "@/features/resume/components/live-preview-selection-dialog";
+import { RotatingLoader } from "@/components/rotating-loader";
+import {
+  PORTFOLIO_IMPORT_MESSAGES,
+  RESUME_PARSE_MESSAGES,
+} from "@/lib/portfolio-loading-messages";
 
 async function assertApiOk(res: Response, context: string) {
   if (res.ok) return;
@@ -405,12 +410,11 @@ export function ResumeUploader({
             className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-muted-foreground/25 p-10 cursor-pointer hover:border-muted-foreground/50 transition-colors"
           >
             {parseResume.isPending ? (
-              <>
-                <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                  Parsing your resume...
-                </p>
-              </>
+              <RotatingLoader
+                messages={RESUME_PARSE_MESSAGES}
+                spinnerClassName="text-muted-foreground"
+                messageClassName="text-muted-foreground"
+              />
             ) : (
               <>
                 <FileText className="h-10 w-10 text-muted-foreground" />
@@ -514,6 +518,26 @@ export function ResumeUploader({
               Clear all
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={importing} onOpenChange={() => undefined}>
+        <DialogContent
+          showCloseButton={false}
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          className="sm:max-w-md"
+        >
+          <DialogHeader className="sr-only">
+            <DialogTitle>Importing to portfolio</DialogTitle>
+            <DialogDescription>
+              Please wait while your resume data is imported.
+            </DialogDescription>
+          </DialogHeader>
+          <RotatingLoader
+            messages={PORTFOLIO_IMPORT_MESSAGES}
+            className="py-4"
+          />
         </DialogContent>
       </Dialog>
 
