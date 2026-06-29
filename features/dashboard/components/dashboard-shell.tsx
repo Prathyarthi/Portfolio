@@ -18,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Logo, LogoMark } from "@/components/logo";
+import { Logo, LogoMark, BetaBadge } from "@/components/logo";
 import { siteConfig } from "@/lib/site";
 import { Footer } from "@/features/landing/components/footer";
 import {
@@ -62,9 +62,12 @@ function AppSidebar() {
         >
           <LogoMark className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8" />
           <span
-            className="font-display text-lg font-bold text-brand-primary group-data-[collapsible=icon]:hidden"
+            className="flex min-w-0 items-center gap-2 group-data-[collapsible=icon]:hidden"
           >
-            {siteConfig.name}
+            <span className="font-display text-lg font-bold text-brand-primary">
+              {siteConfig.name}
+            </span>
+            <BetaBadge />
           </span>
         </Link>
       </SidebarHeader>
@@ -160,7 +163,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       >
         <header className="glass-nav sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 px-4">
           <SidebarTrigger className="size-9" />
-          <Logo href="/dashboard" className="md:hidden" />
+          <Logo href="/dashboard" className="md:hidden" showBeta />
           <div className="ml-auto flex items-center gap-1 md:hidden">
             <ThemeToggle className="size-9" />
           </div>

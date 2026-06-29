@@ -3,11 +3,14 @@ import Link from "next/link";
 import { MarketingPageShell } from "@/features/landing/components/marketing-page-shell";
 import { LegalDocument } from "@/features/landing/components/legal-document";
 import { siteConfig } from "@/lib/site";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: `Privacy Policy | ${siteConfig.name}`,
-  description: `How ${siteConfig.name} collects, uses, and protects your information.`,
-};
+export const metadata: Metadata = createPageMetadata({
+  title: "Privacy Policy",
+  description: `How ${siteConfig.name} collects, uses, stores, and protects your personal information and portfolio data.`,
+  path: "/privacy",
+  openGraphType: "article",
+});
 
 export default function PrivacyPolicyPage() {
   return (

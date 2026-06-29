@@ -3,7 +3,7 @@ import { JetBrains_Mono, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/query-provider";
 import { GlobalFooter } from "@/components/global-footer";
-import { siteConfig } from "@/lib/site";
+import { rootMetadata } from "@/lib/seo";
 import { Analytics } from "@vercel/analytics/next"
 
 const jetbrainsMono = JetBrains_Mono({
@@ -18,11 +18,7 @@ const sourceSans = Source_Sans_3({
   weight: ["400", "500", "600"],
 });
 
-export const metadata: Metadata = {
-  title: `${siteConfig.name} - Build Your Portfolio in Minutes`,
-  description:
-    "Create a beautiful portfolio, deploy it instantly, and share a public link with recruiters. Import from GitHub, LeetCode, and your resume.",
-};
+export const metadata: Metadata = rootMetadata;
 
 export default function RootLayout({
   children,

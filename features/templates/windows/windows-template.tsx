@@ -58,7 +58,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
   const { hasProfiles, navbarEnabled, sections } = buildTemplateSections(data);
 
   return (
-    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#3a6ea5] text-black font-sans selection:bg-[#000080] selection:text-white pb-16 relative")}>
+    <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#3a6ea5] font-sans text-black selection:bg-[#000080] selection:text-white pb-16 relative")}>
       <div className="mx-auto max-w-5xl p-4 md:p-8 space-y-8">
 
         {/* Header Window */}
@@ -90,7 +90,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
         {/* About Window */}
         {portfolio.summary && (
           <Window id="about" title="Notepad - About.txt" icon={<FileText className="w-4 h-4" />}>
-            <div className="bg-white win95-inset p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap">
+            <div className="bg-white win95-inset p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap text-black">
               {portfolio.summary}
             </div>
           </Window>
@@ -117,7 +117,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
                       className="h-full w-full object-cover object-top filter transition-all"
                     />
                   </div>
-                  <div className="p-3 flex flex-col grow">
+                  <div className="p-3 flex flex-col grow text-black">
                     <div className={cn(PROJECT_CARD_HEADER, "mb-2")}>
                       <h3 className={cn(PROJECT_CARD_TITLE, "font-bold text-sm pr-2")}>{project.title}</h3>
                       {project.featured && (
@@ -349,10 +349,10 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
               <ProfileLinksSection
                 portfolio={portfolio}
                 profiles={socialProfiles}
-                chipClassName="win95-button px-3 py-1 text-xs font-bold"
-                pillClassName="win95-button px-3 py-1 text-xs font-bold"
-                titleClassName="font-bold"
-                textClassName="text-xs"
+                chipClassName="win95-button px-3 py-1 text-xs font-bold text-black"
+                pillClassName="win95-button px-3 py-1 text-xs font-bold text-black"
+                titleClassName="font-bold text-black"
+                textClassName="text-xs text-black/80"
               />
             </div>
           </Window>

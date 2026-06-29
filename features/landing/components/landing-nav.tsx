@@ -9,10 +9,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
-  { label: "How it works", href: "#features" },
-  { label: "Integrations", href: "#integrations" },
-  { label: "Templates", href: "#showcase" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "How it works", href: "/#features" },
+  { label: "Integrations", href: "/#integrations" },
+  { label: "Templates", href: "/#showcase" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export function LandingNav() {
@@ -20,42 +22,50 @@ export function LandingNav() {
 
   return (
     <header className="glass-nav sticky top-0 z-[100]">
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
-        <Logo />
+      <div className="mx-auto flex h-16 max-w-[1200px] items-center gap-3 px-4 sm:gap-4 sm:px-6">
+        <Logo className="shrink-0" showBeta />
 
         <nav
-          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 px-2 xl:flex"
           aria-label="Main navigation"
         >
           {LINKS.map(({ label, href }) => (
             <Link
               key={label}
               href={href}
-              className="rounded-[var(--radius-md)] px-3 py-2 text-[14px] font-medium text-text-secondary transition-colors duration-150 hover:text-text-primary"
+              className="whitespace-nowrap rounded-[var(--radius-md)] px-2.5 py-2 text-[13px] font-medium text-text-secondary transition-colors duration-150 hover:text-text-primary xl:px-3 xl:text-[14px]"
             >
               {label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-1.5">
-          <ThemeToggle />
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 xl:ml-0 xl:pl-2">
+          <ThemeToggle className="hidden shrink-0 xl:inline-flex" />
           <Button
             variant="ghost"
             size="sm"
             asChild
-            className="hidden sm:inline-flex"
+            className="hidden shrink-0 sm:inline-flex"
           >
             <Link href="/sign-in">Sign in</Link>
           </Button>
-          <Button size="sm" asChild className="hidden h-9 px-4 sm:inline-flex" variant="accent">
-            <Link href="/sign-up">Get started — it&apos;s free</Link>
+          <Button
+            size="sm"
+            asChild
+            className="hidden h-9 shrink-0 px-3 sm:inline-flex xl:px-4"
+            variant="accent"
+          >
+            <Link href="/sign-up">
+              <span className="hidden 2xl:inline">Get started — it&apos;s free</span>
+              <span className="2xl:hidden">Get started</span>
+            </Link>
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="shrink-0 xl:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -65,14 +75,20 @@ export function LandingNav() {
         </div>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile / tablet drawer */}
       <div
         className={cn(
-          "overflow-hidden border-t border-border-default glass transition-[max-height] duration-200 ease-[var(--ease-out)] md:hidden",
-          open ? "max-h-96" : "max-h-0 border-t-0"
+          "overflow-hidden border-t border-border-default glass transition-[max-height] duration-200 ease-[var(--ease-out)] xl:hidden",
+          open ? "max-h-[28rem]" : "max-h-0 border-t-0"
         )}
       >
-        <nav className="flex flex-col gap-1 px-6 py-4" aria-label="Mobile navigation">
+        <nav className="flex flex-col gap-1 px-4 py-4 sm:px-6" aria-label="Mobile navigation">
+          <div className="mb-2 flex items-center justify-between px-3">
+            <span className="text-xs font-medium uppercase tracking-wide text-text-muted">
+              Menu
+            </span>
+            <ThemeToggle />
+          </div>
           {LINKS.map(({ label, href }) => (
             <Link
               key={label}

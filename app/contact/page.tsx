@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MarketingPageShell } from "@/features/landing/components/marketing-page-shell";
+import { Card } from "@/components/ui/card";
 import { siteConfig } from "@/lib/site";
-import { landingSurfaceMuted } from "@/features/landing/surface";
-import { cn } from "@/lib/utils";
-import { Mail, MessageCircle, BookOpen, CreditCard } from "lucide-react";
+import { createPageMetadata } from "@/lib/seo";
+import { Mail, MessageCircle, BookOpen, CreditCard, HelpCircle } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: `Contact / Support | ${siteConfig.name}`,
-  description: `Get help with ${siteConfig.name} — billing, publishing, imports, and account support.`,
-};
+export const metadata: Metadata = createPageMetadata({
+  title: "Contact & Support",
+  description: `Get help with ${siteConfig.name} — billing, publishing, resume import, templates, and account support. Email ${siteConfig.supportEmail}.`,
+  path: "/contact",
+});
 
 const supportTopics = [
+  {
+    icon: HelpCircle,
+    title: "FAQ",
+    description:
+      "Common questions about templates, publishing, imports, and billing.",
+    href: "/#faq",
+    linkLabel: "View FAQ",
+  },
   {
     icon: BookOpen,
     title: "Getting started",
@@ -43,76 +52,71 @@ export default function ContactPage() {
     <MarketingPageShell>
       <div className="mx-auto max-w-3xl">
         <header className="mb-10 text-center">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">
-            Support
-          </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-zinc-50 md:text-4xl">
-            Contact / Support
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-500 md:text-base">
+          <p className="eyebrow uppercase">Support</p>
+          <h1 className="mt-3 text-h1 text-text-primary">Contact / Support</h1>
+          <p className="prose-measure mx-auto mt-4 text-body text-text-secondary">
             Need help with your portfolio, billing, or account? Reach out — we
             typically respond within one business day.
           </p>
         </header>
 
-        <div
-          className={cn(
-            landingSurfaceMuted,
-            "mb-8 flex flex-col items-center gap-4 px-6 py-10 text-center md:rounded-3xl md:px-10"
-          )}
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-teal-500/20 bg-teal-500/10">
-            <Mail className="h-5 w-5 text-teal-400" aria-hidden />
-          </div>
-          <div>
-            <p className="text-sm text-zinc-500">Email us at</p>
+        <Card className="mb-4 gap-0 px-6 py-10 text-center md:px-10">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-brand-primary/20 bg-brand-light">
+            <Mail className="h-5 w-5 text-brand-primary" aria-hidden />
+          </span>
+          <div className="mt-4">
+            <p className="text-body-sm text-text-secondary">Email us at</p>
             <a
               href={`mailto:${siteConfig.supportEmail}`}
-              className="mt-1 inline-block text-lg font-semibold text-teal-400 transition-colors hover:text-teal-300"
+              className="mt-1 inline-block text-lg font-semibold text-brand-primary transition-colors hover:text-brand-dark"
             >
               {siteConfig.supportEmail}
             </a>
           </div>
-          <p className="max-w-md text-sm leading-relaxed text-zinc-500">
+          <p className="mx-auto mt-4 max-w-md text-body-sm leading-relaxed text-text-secondary">
             Include your account email and a short description of the issue. For
             billing disputes, mention the charge date and amount.
           </p>
-        </div>
+        </Card>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           {supportTopics.map((topic) => (
-            <div
-              key={topic.title}
-              className={cn(landingSurfaceMuted, "flex flex-col p-5 md:rounded-2xl")}
-            >
-              <topic.icon className="h-5 w-5 text-zinc-400" aria-hidden />
-              <h2 className="mt-4 text-base font-semibold text-zinc-100">
-                {topic.title}
-              </h2>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-zinc-500">
+            <Card key={topic.title} className="gap-0 p-5">
+              <topic.icon className="h-5 w-5 text-brand-primary" aria-hidden />
+              <h2 className="mt-4 text-h4 text-text-primary">{topic.title}</h2>
+              <p className="mt-2 flex-1 text-body-sm leading-relaxed text-text-secondary">
                 {topic.description}
               </p>
               <Link
                 href={topic.href}
-                className="mt-4 text-sm font-medium text-teal-400 transition-colors hover:text-teal-300"
+                className="mt-4 text-body-sm font-medium text-brand-primary transition-colors hover:text-brand-dark"
               >
                 {topic.linkLabel} →
               </Link>
-            </div>
+            </Card>
           ))}
         </div>
 
-        <p className="mt-10 text-center text-sm text-zinc-600">
+        <p className="mt-10 text-center text-body-sm text-text-muted">
           Legal:{" "}
-          <Link href="/privacy" className="text-zinc-500 hover:text-zinc-300">
+          <Link
+            href="/privacy"
+            className="text-text-secondary transition-colors hover:text-text-primary"
+          >
             Privacy Policy
           </Link>
           {" · "}
-          <Link href="/terms" className="text-zinc-500 hover:text-zinc-300">
+          <Link
+            href="/terms"
+            className="text-text-secondary transition-colors hover:text-text-primary"
+          >
             Terms
           </Link>
           {" · "}
-          <Link href="/refund-policy" className="text-zinc-500 hover:text-zinc-300">
+          <Link
+            href="/refund-policy"
+            className="text-text-secondary transition-colors hover:text-text-primary"
+          >
             Refund Policy
           </Link>
         </p>

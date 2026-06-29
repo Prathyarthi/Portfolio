@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { GithubIcon, TwitterIcon, LinkedinIcon } from "@/components/icons";
+import { Mail } from "lucide-react";
+import { TwitterIcon, LinkedinIcon } from "@/components/icons";
 import { Logo } from "@/components/logo";
 import { siteConfig } from "@/lib/site";
 
@@ -8,6 +9,7 @@ const NAV = {
     { label: "How it works", href: "#features" },
     { label: "Examples", href: "#showcase" },
     { label: "Pricing", href: "#pricing" },
+    { label: "FAQ", href: "#faq" },
   ],
   Account: [
     { label: "Sign in", href: "/sign-in" },
@@ -15,6 +17,7 @@ const NAV = {
     { label: "Dashboard", href: "/dashboard" },
   ],
   Resources: [
+    { label: "Contact & support", href: "/contact" },
     { label: "Resume import", href: "/sign-up" },
     { label: "All templates", href: "/sign-up" },
     { label: "Full pricing", href: "/pricing" },
@@ -29,7 +32,7 @@ const LEGAL_LINKS = [
 ] as const;
 
 const SOCIAL = [
-  { label: "GitHub", href: "https://github.com", icon: GithubIcon },
+
   { label: "Twitter", href: "https://twitter.com", icon: TwitterIcon },
   { label: "LinkedIn", href: "https://linkedin.com", icon: LinkedinIcon },
 ];
@@ -44,6 +47,13 @@ export function Footer() {
             <p className="mf-text mt-2 max-w-[260px] text-xs leading-relaxed">
               {siteConfig.tagline}
             </p>
+            <a
+              href={`mailto:${siteConfig.supportEmail}`}
+              className="mf-link mt-3 inline-flex items-center gap-1.5 text-xs"
+            >
+              <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              {siteConfig.supportEmail}
+            </a>
             <div className="mt-3 flex items-center gap-1.5">
               {SOCIAL.map(({ label, href, icon: Icon }) => (
                 <a

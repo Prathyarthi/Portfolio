@@ -22,7 +22,7 @@ const HERO_PROFILE_PLATFORMS = ["github", "linkedin"] as const;
 
 /** Enables container-query breakpoints inside templates (mobile preview, narrow embeds). */
 export const TEMPLATE_CONTAINER =
-  "@container min-w-0 w-full overflow-x-clip [&_h1]:text-inherit [&_h2]:text-inherit";
+  "@container min-w-0 w-full overflow-x-clip [&_h1]:text-inherit [&_h2]:text-inherit [&_h3]:text-inherit [&_h4]:text-inherit [&_h5]:text-inherit [&_h6]:text-inherit";
 
 /** Hero title overflow + fluid type scaled to template width (not viewport). */
 export const HERO_TITLE_BASE = "min-w-0 text-balance [overflow-wrap:anywhere]";

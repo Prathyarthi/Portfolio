@@ -3,11 +3,14 @@ import Link from "next/link";
 import { MarketingPageShell } from "@/features/landing/components/marketing-page-shell";
 import { LegalDocument } from "@/features/landing/components/legal-document";
 import { siteConfig } from "@/lib/site";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: `Refund Policy | ${siteConfig.name}`,
-  description: `Refund and cancellation policy for ${siteConfig.name} subscriptions.`,
-};
+export const metadata: Metadata = createPageMetadata({
+  title: "Refund Policy",
+  description: `Refund and cancellation policy for ${siteConfig.name} Pro subscriptions and billing disputes.`,
+  path: "/refund-policy",
+  openGraphType: "article",
+});
 
 export default function RefundPolicyPage() {
   return (

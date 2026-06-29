@@ -3,11 +3,14 @@ import Link from "next/link";
 import { MarketingPageShell } from "@/features/landing/components/marketing-page-shell";
 import { LegalDocument } from "@/features/landing/components/legal-document";
 import { siteConfig } from "@/lib/site";
+import { createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: `Terms & Conditions | ${siteConfig.name}`,
-  description: `Terms governing your use of ${siteConfig.name}.`,
-};
+export const metadata: Metadata = createPageMetadata({
+  title: "Terms & Conditions",
+  description: `Terms governing your use of ${siteConfig.name}, including accounts, subscriptions, published portfolios, and acceptable use.`,
+  path: "/terms",
+  openGraphType: "article",
+});
 
 export default function TermsPage() {
   return (
