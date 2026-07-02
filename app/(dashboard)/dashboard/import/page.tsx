@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 import {
-  DASHBOARD_CONTENT_FRAME_CLASS,
-  DASHBOARD_CONTENT_INNER_CLASS,
-  DASHBOARD_MAIN_COLUMN_CLASS,
-  DASHBOARD_PANEL_PAGE_CLASS,
-  DASHBOARD_TRACKER_ASIDE_CLASS,
+  DASHBOARD_IMPORT_CONTENT_FRAME_CLASS,
+  DASHBOARD_IMPORT_CONTENT_INNER_CLASS,
+  DASHBOARD_IMPORT_MAIN_COLUMN_CLASS,
+  DASHBOARD_IMPORT_PAGE_CLASS,
+  DASHBOARD_IMPORT_TRACKER_ASIDE_CLASS,
 } from "@/features/dashboard/constants/panel-layout";
 import { usePortfolio } from "@/features/portfolio/api/use-portfolio";
 import { ImportSourceContent } from "@/features/portfolio/components/import-source-content";
@@ -65,7 +65,7 @@ export default function ImportPage() {
   }, [activeSource]);
 
   return (
-    <div className={DASHBOARD_PANEL_PAGE_CLASS}>
+    <div className={DASHBOARD_IMPORT_PAGE_CLASS}>
       <div className="shrink-0 space-y-6">
         <div>
           <h1 className="text-h2 text-text-primary">Import data</h1>
@@ -109,8 +109,8 @@ export default function ImportPage() {
         />
       </div>
 
-      <div className="flex min-h-0 w-full flex-1 flex-col lg:flex-row lg:gap-0 lg:overflow-hidden">
-        <aside className={DASHBOARD_TRACKER_ASIDE_CLASS}>
+      <div className="flex w-full flex-1 flex-col lg:flex-row lg:gap-0">
+        <aside className={DASHBOARD_IMPORT_TRACKER_ASIDE_CLASS}>
           <ImportSourceSelector
             activeSource={activeSource}
             onSourceChange={setActiveSource}
@@ -119,7 +119,7 @@ export default function ImportPage() {
           />
         </aside>
 
-        <div className={DASHBOARD_MAIN_COLUMN_CLASS}>
+        <div className={DASHBOARD_IMPORT_MAIN_COLUMN_CLASS}>
           <ImportSourcePicker
             activeSource={activeSource}
             onSourceChange={setActiveSource}
@@ -139,8 +139,8 @@ export default function ImportPage() {
             </p>
           </div>
 
-          <div className={DASHBOARD_CONTENT_FRAME_CLASS}>
-            <div className={DASHBOARD_CONTENT_INNER_CLASS}>
+          <div className={DASHBOARD_IMPORT_CONTENT_FRAME_CLASS}>
+            <div className={DASHBOARD_IMPORT_CONTENT_INNER_CLASS}>
               <ImportSourceContent
                 source={activeSource}
                 canUseImports={canUseImports}

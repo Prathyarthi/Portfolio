@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -34,6 +35,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 const NAV = [
@@ -137,12 +139,34 @@ function AppSidebar() {
   );
 }
 
+function DashboardNavAutoCollapse() {
+  const pathname = usePathname();
+  const { isMobile, setOpen, setOpenMobile } = useSidebar();
+
+  // Collapse only when navigating onto preview — not when the user toggles open.
+  useEffect(() => {
+    if (!pathname.startsWith("/dashboard/preview")) return;
+
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run on route change only
+  }, [pathname]);
+
+  return null;
+}
+
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideFooter =
     pathname.startsWith("/dashboard/edit") ||
     pathname.startsWith("/dashboard/preview") ||
     pathname.startsWith("/dashboard/import");
+  const fullHeightPanel =
+    pathname.startsWith("/dashboard/edit") ||
+    pathname.startsWith("/dashboard/preview");
 
   return (
     <SidebarProvider
@@ -154,9 +178,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       }
     >
       <AppSidebar />
+      <DashboardNavAutoCollapse />
       <SidebarInset
         className={
-          hideFooter
+          fullHeightPanel
             ? "relative flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden bg-surface-base lg:h-svh lg:max-h-svh lg:overflow-hidden"
             : "relative min-w-0 overflow-x-hidden bg-surface-base"
         }
@@ -170,7 +195,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         </header>
         <main
           className={
-            hideFooter
+            fullHeightPanel
               ? "relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden p-[var(--space-5)] lg:overflow-hidden"
               : "relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden p-[var(--space-5)]"
           }

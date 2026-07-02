@@ -21,7 +21,7 @@ import {
   PREVIEW_EDIT_SIDEBAR_CLASS,
 } from "@/features/dashboard/constants/panel-layout";
 
-type PreviewEditSidebarProps = {
+type PreviewPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   templateId?: string;
@@ -35,10 +35,7 @@ type PreviewEditSidebarProps = {
   isTemplateLocked?: (templateId: string) => boolean;
 };
 
-function EditorBody({
-  activeStep,
-  onStepChange,
-  onClose,
+function DesignTabContent({
   templateId,
   savedTemplateId,
   isPublished,
@@ -48,24 +45,162 @@ function EditorBody({
   onTemplateSave,
   templateOptions,
   isTemplateLocked,
+}: Omit<PreviewPanelProps, "open" | "onOpenChange">) {
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
+        {templateOptions && onTemplateChange ? (
+          <div className="grid grid-cols-2 gap-3">
+            {templateOptions.map((t) => {
+              const isPreviewing = templateId === t.id;
+              const isSaved = savedTemplateId === t.id;
+
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  disabled={isTemplateLocked?.(t.id) ?? false}
+                  onClick={() => onTemplateChange(t.id)}
+                  className={cn(
+                    "group relative flex flex-col gap-2 rounded-xl border p-2 text-left transition-all",
+                    isPreviewing
+                      ? "border-primary bg-primary/5"
+                      : "border-white/8 bg-white/3 hover:border-white/20 hover:bg-white/5",
+                    (isTemplateLocked?.(t.id) ?? false) &&
+                      "cursor-not-allowed opacity-50"
+                  )}
+                >
+                  <TemplatePreviewThumbnail templateId={t.id} compact />
+                  <div className="flex w-full items-center justify-between">
+                    <span className="truncate pr-2 text-xs font-medium">
+                      {t.name}
+                    </span>
+                    {isPreviewing ? (
+                      <Check className="h-3 w-3 shrink-0 text-primary" />
+                    ) : isSaved && isPublished ? (
+                      <span className="shrink-0 text-[10px] font-medium text-success">
+                        Live
+                      </span>
+                    ) : isSaved ? (
+                      <span className="shrink-0 text-[10px] text-zinc-500">
+                        Active
+                      </span>
+                    ) : isTemplateLocked?.(t.id) ? (
+                      <span className="shrink-0 text-[10px] text-zinc-500">
+                        PRO
+                      </span>
+                    ) : null}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="py-8 text-center text-sm text-zinc-500">
+            Templates not available
+          </p>
+        )}
+      </div>
+
+      {hasUnsavedTemplate && onTemplateSave ? (
+        <div className="shrink-0 border-t border-white/8 p-3">
+          <Button
+            type="button"
+            className="w-full rounded-full"
+            onClick={onTemplateSave}
+            disabled={isSavingTemplate}
+          >
+            {isSavingTemplate ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving…
+              </>
+            ) : isPublished ? (
+              "Apply & go live"
+            ) : (
+              "Apply template"
+            )}
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function EditTabContent({
+  activeStep,
+  onStepChange,
 }: {
   activeStep: EditStepValue;
   onStepChange: (step: EditStepValue) => void;
-  onClose?: () => void;
-  templateId?: string;
-  savedTemplateId?: string;
-  isPublished?: boolean;
-  hasUnsavedTemplate?: boolean;
-  isSavingTemplate?: boolean;
-  onTemplateChange?: (templateId: string) => void;
-  onTemplateSave?: () => void;
-  templateOptions?: any[];
-  isTemplateLocked?: (templateId: string) => boolean;
 }) {
   const activeStepInfo = EDIT_STEPS.find((step) => step.value === activeStep);
 
   return (
-    <Tabs defaultValue="content" className="flex h-full min-h-0 flex-col bg-transparent text-text-primary">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="shrink-0 border-b border-border-default px-3 py-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {EDIT_STEPS.map((step) => {
+            const Icon = step.icon;
+            return (
+              <button
+                key={step.value}
+                type="button"
+                onClick={() => onStepChange(step.value)}
+                aria-pressed={activeStep === step.value}
+                className={cn(
+                  "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                  activeStep === step.value
+                    ? "border-transparent bg-brand-light text-brand-primary"
+                    : "border-border-default text-text-muted hover:bg-surface-sunken hover:text-text-primary"
+                )}
+                title={step.label}
+              >
+                <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                <span>{step.short}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-default px-4 py-2.5">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-text-primary">
+            {activeStepInfo?.label}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" className="shrink-0" asChild>
+          <Link href="/dashboard/import">
+            <FileText className="h-3.5 w-3.5" />
+            Import
+          </Link>
+        </Button>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
+        <div
+          className={`preview-edit-form [&_button]:text-sm [&_input]:text-sm [&_textarea]:min-h-24 [&_textarea]:text-sm ${DASHBOARD_FORM_COMPACT_CLASS}`}
+        >
+          <EditStepContent step={activeStep} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditorBody({
+  activeStep,
+  onStepChange,
+  onClose,
+  ...panelProps
+}: Omit<PreviewPanelProps, "open" | "onOpenChange"> & {
+  activeStep: EditStepValue;
+  onStepChange: (step: EditStepValue) => void;
+  onClose?: () => void;
+}) {
+  return (
+    <Tabs defaultValue="design" className="flex h-full min-h-0 flex-col bg-transparent text-text-primary">
       <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border-default px-4 py-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -91,163 +226,27 @@ function EditorBody({
 
       <div className="shrink-0 border-b border-border-default px-3 py-2">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="content" className="text-sm">Content</TabsTrigger>
           <TabsTrigger value="design" className="text-sm">Design</TabsTrigger>
+          <TabsTrigger value="content" className="text-sm">Edit</TabsTrigger>
         </TabsList>
       </div>
 
-      <TabsContent value="content" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
-        <div className="shrink-0 border-b border-border-default px-3 py-2">
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {EDIT_STEPS.map((step) => {
-              const Icon = step.icon;
-              return (
-                <button
-                  key={step.value}
-                  type="button"
-                  onClick={() => onStepChange(step.value)}
-                  aria-pressed={activeStep === step.value}
-                  className={cn(
-                    "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                    activeStep === step.value
-                      ? "border-transparent bg-brand-light text-brand-primary"
-                      : "border-border-default text-text-muted hover:bg-surface-sunken hover:text-text-primary"
-                  )}
-                  title={step.label}
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  <span>{step.short}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border-default px-4 py-2.5">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-text-primary">
-              {activeStepInfo?.label}
-            </p>
-          </div>
-          <Button variant="outline" size="sm" className="shrink-0" asChild>
-            <Link href="/dashboard/import">
-              <FileText className="h-3.5 w-3.5" />
-              Import
-            </Link>
-          </Button>
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
-          <div
-            className={`preview-edit-form [&_button]:text-sm [&_input]:text-sm [&_textarea]:min-h-24 [&_textarea]:text-sm ${DASHBOARD_FORM_COMPACT_CLASS}`}
-          >
-            <EditStepContent step={activeStep} />
-          </div>
-        </div>
+      <TabsContent value="design" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
+        <DesignTabContent {...panelProps} />
       </TabsContent>
 
-      <TabsContent value="design" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
-        <div className="shrink-0 border-b border-white/8 px-4 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-600">
-            Theme Settings
-          </p>
-          <h2 className="mt-1 text-base font-semibold">Templates</h2>
-          <p className="mt-1 text-xs text-zinc-500">
-            Preview templates here. Apply one to use it on your portfolio.
-          </p>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
-          {templateOptions && onTemplateChange ? (
-            <div className="grid grid-cols-2 gap-3">
-              {templateOptions.map((t) => {
-                const isPreviewing = templateId === t.id;
-                const isSaved = savedTemplateId === t.id;
-
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    disabled={isTemplateLocked?.(t.id) ?? false}
-                    onClick={() => onTemplateChange(t.id)}
-                    className={cn(
-                      "group relative flex flex-col gap-2 rounded-xl border p-2 text-left transition-all",
-                      isPreviewing
-                        ? "border-primary bg-primary/5"
-                        : "border-white/8 bg-white/3 hover:border-white/20 hover:bg-white/5",
-                      (isTemplateLocked?.(t.id) ?? false) &&
-                        "cursor-not-allowed opacity-50"
-                    )}
-                  >
-                    <TemplatePreviewThumbnail templateId={t.id} compact />
-                    <div className="flex w-full items-center justify-between">
-                      <span className="truncate pr-2 text-xs font-medium">
-                        {t.name}
-                      </span>
-                      {isPreviewing ? (
-                        <Check className="h-3 w-3 shrink-0 text-primary" />
-                      ) : isSaved && isPublished ? (
-                        <span className="shrink-0 text-[10px] font-medium text-success">
-                          Live
-                        </span>
-                      ) : isSaved ? (
-                        <span className="shrink-0 text-[10px] text-zinc-500">
-                          Active
-                        </span>
-                      ) : isTemplateLocked?.(t.id) ? (
-                        <span className="shrink-0 text-[10px] text-zinc-500">
-                          PRO
-                        </span>
-                      ) : null}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="py-8 text-center text-sm text-zinc-500">
-              Templates not available
-            </p>
-          )}
-        </div>
-        {hasUnsavedTemplate && onTemplateSave ? (
-          <div className="shrink-0 border-t border-white/8 p-3">
-            <Button
-              type="button"
-              className="w-full rounded-full"
-              onClick={onTemplateSave}
-              disabled={isSavingTemplate}
-            >
-              {isSavingTemplate ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving…
-                </>
-              ) : isPublished ? (
-                "Apply & go live"
-              ) : (
-                "Apply template"
-              )}
-            </Button>
-          </div>
-        ) : null}
+      <TabsContent value="content" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
+        <EditTabContent activeStep={activeStep} onStepChange={onStepChange} />
       </TabsContent>
     </Tabs>
   );
 }
 
-export function PreviewEditSidebar({ 
-  open, 
+export function PreviewEditSidebar({
+  open,
   onOpenChange,
-  templateId,
-  savedTemplateId,
-  isPublished,
-  hasUnsavedTemplate,
-  isSavingTemplate,
-  onTemplateChange,
-  onTemplateSave,
-  templateOptions,
-  isTemplateLocked
-}: PreviewEditSidebarProps) {
+  ...panelProps
+}: PreviewPanelProps) {
   const isMobile = useIsMobile();
   const [activeStep, setActiveStep] = useState<EditStepValue>("basic");
 
@@ -255,7 +254,7 @@ export function PreviewEditSidebar({
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
-          side="right"
+          side="left"
           showCloseButton={false}
           className="w-full glass-modal p-0 sm:max-w-lg"
         >
@@ -266,15 +265,7 @@ export function PreviewEditSidebar({
             activeStep={activeStep}
             onStepChange={setActiveStep}
             onClose={() => onOpenChange(false)}
-            templateId={templateId}
-            savedTemplateId={savedTemplateId}
-            isPublished={isPublished}
-            hasUnsavedTemplate={hasUnsavedTemplate}
-            isSavingTemplate={isSavingTemplate}
-            onTemplateChange={onTemplateChange}
-            onTemplateSave={onTemplateSave}
-            templateOptions={templateOptions}
-            isTemplateLocked={isTemplateLocked}
+            {...panelProps}
           />
         </SheetContent>
       </Sheet>
@@ -289,15 +280,7 @@ export function PreviewEditSidebar({
         activeStep={activeStep}
         onStepChange={setActiveStep}
         onClose={() => onOpenChange(false)}
-        templateId={templateId}
-        savedTemplateId={savedTemplateId}
-        isPublished={isPublished}
-        hasUnsavedTemplate={hasUnsavedTemplate}
-        isSavingTemplate={isSavingTemplate}
-        onTemplateChange={onTemplateChange}
-        onTemplateSave={onTemplateSave}
-        templateOptions={templateOptions}
-        isTemplateLocked={isTemplateLocked}
+        {...panelProps}
       />
     </aside>
   );

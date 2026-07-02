@@ -174,20 +174,24 @@ export default function PreviewPage() {
   const isPublished = portfolio.isPublished ?? false;
   const slug = portfolio.slug ?? "";
 
+  const panelProps = {
+    templateId,
+    savedTemplateId: portfolio.templateId ?? "minimal",
+    isPublished,
+    hasUnsavedTemplate,
+    isSavingTemplate: updateTemplate.isPending,
+    onTemplateChange: handleTemplatePreview,
+    onTemplateSave: handleTemplateSave,
+    templateOptions,
+    isTemplateLocked,
+  };
+
   return (
     <div className="flex min-h-0 w-full max-w-full flex-col gap-4 lg:h-[calc(100dvh-4rem)] lg:min-h-0 lg:flex-row lg:overflow-hidden">
       <PreviewEditSidebar
         open={editOpen}
         onOpenChange={setEditOpen}
-        templateId={templateId}
-        savedTemplateId={portfolio.templateId ?? "minimal"}
-        isPublished={isPublished}
-        hasUnsavedTemplate={hasUnsavedTemplate}
-        isSavingTemplate={updateTemplate.isPending}
-        onTemplateChange={handleTemplatePreview}
-        onTemplateSave={handleTemplateSave}
-        templateOptions={templateOptions}
-        isTemplateLocked={isTemplateLocked}
+        {...panelProps}
       />
 
       <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col gap-4 lg:overflow-hidden">

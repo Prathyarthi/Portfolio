@@ -24,10 +24,13 @@ import {
 } from "lucide-react";
 import type { MediumArticle, MediumProfile } from "@/lib/medium";
 
+const IMPORT_LIST_BATCH_SIZE = 5;
+
 export function MediumImporter() {
   const [username, setUsername] = useState("");
   const [data, setData] = useState<MediumProfile | null>(null);
   const [selectedArticles, setSelectedArticles] = useState<Set<number>>(new Set());
+  const [visibleCount, setVisibleCount] = useState(IMPORT_LIST_BATCH_SIZE);
 
   const fetchMedium = useFetchMedium();
   const importMedium = useImportMedium();
@@ -46,6 +49,7 @@ export function MediumImporter() {
           result.articles.map((_, i) => i)
         );
         setSelectedArticles(allIndices);
+        setVisibleCount(IMPORT_LIST_BATCH_SIZE);
         toast.success(`Found ${result.articles.length} articles`);
       },
       onError: (error) => {
@@ -179,11 +183,25 @@ export function MediumImporter() {
 
           {/* Articles */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="text-lg font-semibold">
                 Articles ({data.articles.length})
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {data.articles.length > 0 && (
+                  <Button
+                    onClick={handleImport}
+                    disabled={selectedArticles.size === 0 || importMedium.isPending}
+                  >
+                    {importMedium.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-4 w-4" />
+                    )}
+                    Import {selectedArticles.size} Article
+                    {selectedArticles.size !== 1 ? "s" : ""}
+                  </Button>
+                )}
                 <Button variant="ghost" size="sm" onClick={selectAll}>
                   Select All
                 </Button>
@@ -194,7 +212,7 @@ export function MediumImporter() {
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
-              {data.articles.map((article, index) => (
+              {data.articles.slice(0, visibleCount).map((article, index) => (
                 <Card
                   key={article.url}
                   className={`cursor-pointer transition-colors ${
@@ -265,19 +283,18 @@ export function MediumImporter() {
               ))}
             </div>
 
-            {data.articles.length > 0 && (
-              <div className="flex justify-end">
+            {visibleCount < data.articles.length && (
+              <div className="flex justify-center pt-1">
                 <Button
-                  onClick={handleImport}
-                  disabled={selectedArticles.size === 0 || importMedium.isPending}
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setVisibleCount((count) =>
+                      Math.min(count + IMPORT_LIST_BATCH_SIZE, data.articles.length)
+                    )
+                  }
                 >
-                  {importMedium.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="mr-2 h-4 w-4" />
-                  )}
-                  Import {selectedArticles.size} Article
-                  {selectedArticles.size !== 1 ? "s" : ""}
+                  Show more ({data.articles.length - visibleCount} remaining)
                 </Button>
               </div>
             )}

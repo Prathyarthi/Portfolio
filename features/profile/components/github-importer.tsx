@@ -26,10 +26,13 @@ import {
 import { GithubIcon as Github } from "@/components/icons";
 import type { GitHubData, GitHubRepo } from "@/lib/github";
 
+const IMPORT_LIST_BATCH_SIZE = 5;
+
 export function GitHubImporter() {
   const [username, setUsername] = useState("");
   const [data, setData] = useState<GitHubData | null>(null);
   const [selectedRepos, setSelectedRepos] = useState<Set<number>>(new Set());
+  const [visibleCount, setVisibleCount] = useState(IMPORT_LIST_BATCH_SIZE);
 
   const fetchGitHub = useFetchGitHub();
   const importGitHub = useImportGitHub();
@@ -50,6 +53,7 @@ export function GitHubImporter() {
             .map((_, i) => i)
         );
         setSelectedRepos(topIndices);
+        setVisibleCount(IMPORT_LIST_BATCH_SIZE);
         toast.success(`Found ${result.repos.length} repositories`);
       },
       onError: (error) => {
@@ -186,11 +190,25 @@ export function GitHubImporter() {
 
           {/* Repos */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="text-lg font-semibold">
                 Repositories ({data.repos.length})
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                {data.repos.length > 0 && (
+                  <Button
+                    onClick={handleImport}
+                    disabled={selectedRepos.size === 0 || importGitHub.isPending}
+                  >
+                    {importGitHub.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-4 w-4" />
+                    )}
+                    Import {selectedRepos.size} Project
+                    {selectedRepos.size !== 1 ? "s" : ""}
+                  </Button>
+                )}
                 <Button variant="ghost" size="sm" onClick={selectAll}>
                   Select All
                 </Button>
@@ -201,7 +219,7 @@ export function GitHubImporter() {
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
-              {data.repos.map((repo, index) => (
+              {data.repos.slice(0, visibleCount).map((repo, index) => (
                 <Card
                   key={repo.name}
                   className={`cursor-pointer transition-colors ${
@@ -271,19 +289,18 @@ export function GitHubImporter() {
               ))}
             </div>
 
-            {data.repos.length > 0 && (
-              <div className="flex justify-end">
+            {visibleCount < data.repos.length && (
+              <div className="flex justify-center pt-1">
                 <Button
-                  onClick={handleImport}
-                  disabled={selectedRepos.size === 0 || importGitHub.isPending}
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setVisibleCount((count) =>
+                      Math.min(count + IMPORT_LIST_BATCH_SIZE, data.repos.length)
+                    )
+                  }
                 >
-                  {importGitHub.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="mr-2 h-4 w-4" />
-                  )}
-                  Import {selectedRepos.size} Project
-                  {selectedRepos.size !== 1 ? "s" : ""}
+                  Show more ({data.repos.length - visibleCount} remaining)
                 </Button>
               </div>
             )}

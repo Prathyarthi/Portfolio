@@ -28,3 +28,19 @@ export const DASHBOARD_CONTENT_FRAME_CLASS =
 export const DASHBOARD_CONTENT_INNER_CLASS =
   "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain rounded-[var(--radius-md)] bg-surface-base p-4 pb-6 sm:p-5 sm:pb-8 " +
   DASHBOARD_FORM_COMPACT_CLASS;
+
+/** Import page — natural page scroll instead of a fixed inner scroll region. */
+export const DASHBOARD_IMPORT_PAGE_CLASS = "flex flex-1 flex-col";
+
+export const DASHBOARD_IMPORT_TRACKER_ASIDE_CLASS =
+  "hidden shrink-0 flex-col lg:flex lg:w-[15rem] lg:pl-4 lg:pr-3 xl:w-[16rem] xl:pl-4 xl:pr-3 2xl:w-[17rem]";
+
+export const DASHBOARD_IMPORT_MAIN_COLUMN_CLASS =
+  "flex min-w-0 w-full flex-1 flex-col gap-2";
+
+export const DASHBOARD_IMPORT_CONTENT_FRAME_CLASS =
+  "flex flex-col rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-2 shadow-[var(--shadow-modal)] sm:p-3";
+
+export const DASHBOARD_IMPORT_CONTENT_INNER_CLASS =
+  "w-full rounded-[var(--radius-md)] bg-surface-base p-4 pb-6 sm:p-5 sm:pb-8 " +
+  DASHBOARD_FORM_COMPACT_CLASS;
