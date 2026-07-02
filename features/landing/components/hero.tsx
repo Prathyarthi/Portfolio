@@ -77,8 +77,8 @@ export function Hero() {
           <p className="eyebrow uppercase">Resume → portfolio</p>
 
           <h1 className="text-display mt-3 text-balance leading-none text-text-primary">
-            <span className="block">Your resume.</span>
-            <span className="block -mt-1 md:-mt-2">Your portfolio. Done.</span>
+            <span className="block">Your resume<span className="text-brand-secondary">.</span></span>
+            <span className="block -mt-1 md:-mt-2">Your portfolio<span className="text-brand-secondary">.</span> Done<span className="text-brand-secondary">.</span></span>
           </h1>
 
           <p className="prose-measure mx-auto mt-5 text-body-lg text-text-secondary">
