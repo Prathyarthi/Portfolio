@@ -51,6 +51,8 @@ export default function DashboardPage() {
               </p>
             </div>
             <CreatePortfolioPrompt
+              className="mx-auto w-full max-w-xs items-center"
+              buttonClassName="sm:min-w-[13rem] sm:w-auto"
               onCreated={() => router.push("/dashboard/edit")}
             />
           </div>

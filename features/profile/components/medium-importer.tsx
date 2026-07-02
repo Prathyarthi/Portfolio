@@ -14,11 +14,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { MediumIcon as Medium } from "@/components/icons";
 import {
   Loader2,
   Search,
   Download,
-  BookOpen,
   Clock,
   Calendar,
 } from "lucide-react";
@@ -121,7 +121,7 @@ export function MediumImporter() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
+            <Medium className="h-5 w-5" />
             Import from Medium
           </CardTitle>
           <CardDescription>

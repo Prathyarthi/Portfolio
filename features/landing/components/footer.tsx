@@ -34,7 +34,7 @@ const LEGAL_LINKS = [
 const SOCIAL = [
 
   { label: "Twitter", href: "https://twitter.com", icon: TwitterIcon },
-  { label: "LinkedIn", href: "https://linkedin.com", icon: LinkedinIcon },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/livefolio/", icon: LinkedinIcon },
 ];
 
 export function Footer() {

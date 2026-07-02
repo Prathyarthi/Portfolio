@@ -42,6 +42,7 @@ import {
   isLivePreviewEnabledForProject,
 } from "@/lib/live-preview";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import { useScrollIntoView } from "@/hooks/use-scroll-into-view";
 import {
   fieldsDiffer,
   fieldDiffers,
@@ -80,6 +81,7 @@ export function ProjectForm() {
   const [techInput, setTechInput] = useState("");
   const [enableLivePreviewOnSave, setEnableLivePreviewOnSave] = useState(false);
   const [editLivePreviewEnabled, setEditLivePreviewEnabled] = useState(false);
+  const editingCardRef = useScrollIntoView<HTMLDivElement>(Boolean(editingId));
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(
     null
   );
@@ -425,6 +427,119 @@ export function ProjectForm() {
     deleteProject.isPending ||
     updateLivePreview.isPending;
 
+  const renderProjectFields = (fieldPrefix = "") => {
+    const suffix = fieldPrefix ? `-${fieldPrefix}` : "";
+
+    return (
+      <>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <FieldLabel htmlFor={`proj-title${suffix}`} unsaved={isFieldUnsaved("title")}>
+              Title *
+            </FieldLabel>
+            <Input
+              id={`proj-title${suffix}`}
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              placeholder="My Awesome Project"
+            />
+          </div>
+          <div className="flex items-center gap-3 pt-6">
+            <Switch
+              id={`featured${suffix}`}
+              checked={form.featured}
+              onCheckedChange={(checked) =>
+                setForm((prev) => ({ ...prev, featured: checked }))
+              }
+            />
+            <FieldLabel htmlFor={`featured${suffix}`} unsaved={isFeaturedUnsaved}>
+              <Star className="h-4 w-4 text-amber-500" />
+              Featured project
+            </FieldLabel>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <FieldLabel htmlFor={`proj-description${suffix}`} unsaved={isFieldUnsaved("description")}>
+            Description *
+          </FieldLabel>
+          <Textarea
+            id={`proj-description${suffix}`}
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Describe what the project does, the problem it solves, and your role..."
+            rows={4}
+          />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <FieldLabel htmlFor={`liveUrl${suffix}`} unsaved={isFieldUnsaved("liveUrl")}>
+              <ExternalLink className="h-4 w-4 text-muted-foreground" />
+              Live URL
+            </FieldLabel>
+            <Input
+              id={`liveUrl${suffix}`}
+              name="liveUrl"
+              type="url"
+              value={form.liveUrl}
+              onChange={handleChange}
+              placeholder="https://my-project.com"
+            />
+          </div>
+          <div className="space-y-2">
+            <FieldLabel htmlFor={`sourceUrl${suffix}`} unsaved={isFieldUnsaved("sourceUrl")}>
+              <Github className="h-4 w-4 text-muted-foreground" />
+              Source URL
+            </FieldLabel>
+            <Input
+              id={`sourceUrl${suffix}`}
+              name="sourceUrl"
+              type="url"
+              value={form.sourceUrl}
+              onChange={handleChange}
+              placeholder="https://github.com/user/project"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <FieldLabel unsaved={isTechUnsaved}>Tech Stack</FieldLabel>
+          <div className="flex gap-2">
+            <Input
+              value={techInput}
+              onChange={(e) => setTechInput(e.target.value)}
+              onKeyDown={handleTechKeyDown}
+              placeholder="Type a technology and press Enter..."
+              className="flex-1"
+            />
+            <Button type="button" variant="outline" onClick={addTechTag}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          {form.techStack.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {form.techStack.map((tech) => (
+                <Badge key={tech} variant="secondary" className="gap-1 px-2.5 py-1">
+                  {tech}
+                  <button
+                    type="button"
+                    onClick={() => removeTechTag(tech)}
+                    className="ml-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full transition-colors hover:bg-black/10 dark:hover:bg-white/10"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      </>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -445,177 +560,38 @@ export function ProjectForm() {
         )}
       </div>
 
-      {/* Add / Edit Form */}
-      {(isAdding || editingId) && (
+      {/* Add Form */}
+      {isAdding && (
         <Card className="border-primary/30">
           <CardHeader>
-            <CardTitle className="text-base">
-              {isAdding ? "New Project" : "Edit Project"}
-            </CardTitle>
+            <CardTitle className="text-base">New Project</CardTitle>
             <CardDescription>
-              {isAdding
-                ? "Add a project you want to showcase."
-                : "Update this project's details."}
+              Add a project you want to showcase.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <FieldLabel htmlFor="proj-title" unsaved={isFieldUnsaved("title")}>
-                  Title *
-                </FieldLabel>
-                <Input
-                  id="proj-title"
-                  name="title"
-                  value={form.title}
-                  onChange={handleChange}
-                  placeholder="My Awesome Project"
-                />
-              </div>
-              <div className="flex items-center gap-3 pt-6">
-                <Switch
-                  id="featured"
-                  checked={form.featured}
-                  onCheckedChange={(checked) =>
-                    setForm((prev) => ({ ...prev, featured: checked }))
-                  }
-                />
-                <FieldLabel htmlFor="featured" unsaved={isFeaturedUnsaved}>
-                  <Star className="h-4 w-4 text-amber-500" />
-                  Featured project
-                </FieldLabel>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <FieldLabel htmlFor="proj-description" unsaved={isFieldUnsaved("description")}>
-                Description *
-              </FieldLabel>
-              <Textarea
-                id="proj-description"
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                placeholder="Describe what the project does, the problem it solves, and your role..."
-                rows={4}
-              />
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <FieldLabel htmlFor="liveUrl" unsaved={isFieldUnsaved("liveUrl")}>
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                  Live URL
-                </FieldLabel>
-                <Input
-                  id="liveUrl"
-                  name="liveUrl"
-                  type="url"
-                  value={form.liveUrl}
-                  onChange={handleChange}
-                  placeholder="https://my-project.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <FieldLabel htmlFor="sourceUrl" unsaved={isFieldUnsaved("sourceUrl")}>
-                  <Github className="h-4 w-4 text-muted-foreground" />
-                  Source URL
-                </FieldLabel>
-                <Input
-                  id="sourceUrl"
-                  name="sourceUrl"
-                  type="url"
-                  value={form.sourceUrl}
-                  onChange={handleChange}
-                  placeholder="https://github.com/user/project"
-                />
-              </div>
-            </div>
-
-            {isAdding ? (
-              <ProjectLivePreviewControls
-                mode="add"
-                liveUrl={form.liveUrl}
-                livePreviewProjectIds={livePreviewProjectIds}
-                subscriptionStatus={subscriptionStatus}
-                enableOnSave={enableLivePreviewOnSave}
-                onEnableOnSaveChange={setEnableLivePreviewOnSave}
-                isSaving={isMutating}
-              />
-            ) : (
-              <ProjectLivePreviewControls
-                mode="edit"
-                liveUrl={form.liveUrl}
-                projectId={editingId ?? undefined}
-                livePreviewProjectIds={livePreviewProjectIds}
-                subscriptionStatus={subscriptionStatus}
-                editEnabled={editLivePreviewEnabled}
-                savedEnabled={isLivePreviewEnabledForProject(
-                  editingId ?? "",
-                  livePreviewProjectIds
-                )}
-                onEditEnabledChange={handleEditLivePreviewChange}
-                isSaving={isMutating}
-              />
-            )}
-
-            {/* Tech Stack Tags */}
-            <div className="space-y-2">
-              <FieldLabel unsaved={isTechUnsaved}>Tech Stack</FieldLabel>
-              <div className="flex gap-2">
-                <Input
-                  value={techInput}
-                  onChange={(e) => setTechInput(e.target.value)}
-                  onKeyDown={handleTechKeyDown}
-                  placeholder="Type a technology and press Enter..."
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addTechTag}
-                  size="default"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {form.techStack.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {form.techStack.map((tech) => (
-                    <Badge
-                      key={tech}
-                      variant="secondary"
-                      className="gap-1 py-1 px-2.5"
-                    >
-                      {tech}
-                      <button
-                        type="button"
-                        onClick={() => removeTechTag(tech)}
-                        className="ml-0.5 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-
+            {renderProjectFields()}
+            <ProjectLivePreviewControls
+              mode="add"
+              liveUrl={form.liveUrl}
+              livePreviewProjectIds={livePreviewProjectIds}
+              subscriptionStatus={subscriptionStatus}
+              enableOnSave={enableLivePreviewOnSave}
+              onEnableOnSaveChange={setEnableLivePreviewOnSave}
+              isSaving={isMutating}
+            />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={cancelEditing}>
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button
-                onClick={isAdding ? handleAdd : handleUpdate}
-                disabled={isMutating}
-              >
+              <Button onClick={handleAdd} disabled={isMutating}>
                 {isMutating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Check className="mr-2 h-4 w-4" />
                 )}
-                {isAdding ? "Add" : "Save"}
+                Add
               </Button>
             </div>
           </CardContent>
@@ -635,10 +611,50 @@ export function ProjectForm() {
       ) : (
         <div className="space-y-3">
           {projects.map((project: any) => (
-            <Card
+            <div
               key={project.id}
-              className={editingId === project.id ? "border-primary/30" : ""}
+              ref={editingId === project.id ? editingCardRef : undefined}
             >
+            <Card className={editingId === project.id ? "border-primary/30" : ""}>
+              {editingId === project.id ? (
+                <CardContent className="space-y-4 pt-6">
+                  <div>
+                    <h4 className="text-base font-semibold">Edit Project</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Update this project&apos;s details.
+                    </p>
+                  </div>
+                  {renderProjectFields(project.id)}
+                  <ProjectLivePreviewControls
+                    mode="edit"
+                    liveUrl={form.liveUrl}
+                    projectId={project.id}
+                    livePreviewProjectIds={livePreviewProjectIds}
+                    subscriptionStatus={subscriptionStatus}
+                    editEnabled={editLivePreviewEnabled}
+                    savedEnabled={isLivePreviewEnabledForProject(
+                      project.id,
+                      livePreviewProjectIds
+                    )}
+                    onEditEnabledChange={handleEditLivePreviewChange}
+                    isSaving={isMutating}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={cancelEditing}>
+                      <X className="mr-2 h-4 w-4" />
+                      Cancel
+                    </Button>
+                    <Button onClick={handleUpdate} disabled={isMutating}>
+                      {isMutating ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="mr-2 h-4 w-4" />
+                      )}
+                      Save
+                    </Button>
+                  </div>
+                </CardContent>
+              ) : (
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -737,7 +753,9 @@ export function ProjectForm() {
                   </div>
                 </div>
               </CardContent>
+              )}
             </Card>
+            </div>
           ))}
         </div>
       )}

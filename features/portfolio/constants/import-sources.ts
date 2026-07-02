@@ -1,5 +1,5 @@
-import { FileText, Trophy, BookOpen, type LucideIcon } from "lucide-react";
-import { GithubIcon as Github } from "@/components/icons";
+import { FileText, Trophy, type LucideIcon } from "lucide-react";
+import { GithubIcon as Github, MediumIcon as Medium } from "@/components/icons";
 
 export const IMPORT_SOURCES = [
   {
@@ -20,7 +20,7 @@ export const IMPORT_SOURCES = [
     value: "medium",
     label: "Medium",
     short: "MD",
-    icon: BookOpen,
+    icon: Medium as LucideIcon,
     description: "Pull published articles and showcase your writing.",
   },
   {

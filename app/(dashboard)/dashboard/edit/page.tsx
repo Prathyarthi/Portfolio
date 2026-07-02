@@ -18,7 +18,7 @@ import {
   DASHBOARD_TRACKER_ASIDE_CLASS,
 } from "@/features/dashboard/constants/panel-layout";
 import { usePortfolio } from "@/features/portfolio/api/use-portfolio";
-import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
+import { CreatePortfolioPrompt, PORTFOLIO_ACTION_BUTTON_CLASS } from "@/features/portfolio/components/create-portfolio-prompt";
 import { EditStepContent } from "@/features/portfolio/components/edit-step-content";
 import {
   EditStepProgressBar,
@@ -75,7 +75,7 @@ function EditPortfolioPageContent() {
   if (!portfolio) {
     return (
       <div className="mx-auto max-w-xl space-y-6">
-        <Card className="p-2">
+        <Card>
           <CardHeader>
             <CardTitle className="text-h3 text-text-primary">
               Create your portfolio first
@@ -84,9 +84,9 @@ function EditPortfolioPageContent() {
               Create your portfolio first, then you can edit sections, pick a template, and preview.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-start gap-4">
+          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <CreatePortfolioPrompt />
-            <Button variant="outline" asChild>
+            <Button variant="outline" className={PORTFOLIO_ACTION_BUTTON_CLASS} asChild>
               <Link href="/dashboard">Back to Overview</Link>
             </Button>
           </CardContent>

@@ -33,6 +33,7 @@ import {
   Check,
 } from "lucide-react";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import { useScrollIntoView } from "@/hooks/use-scroll-into-view";
 import {
   fieldsDiffer,
   fieldDiffers,
@@ -68,6 +69,7 @@ export function ExperienceForm() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<ExperienceEntry>(emptyEntry);
+  const editingCardRef = useScrollIntoView<HTMLDivElement>(Boolean(editingId));
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -230,17 +232,13 @@ export function ExperienceForm() {
         )}
       </div>
 
-      {/* Add / Edit Form */}
-      {(isAdding || editingId) && (
+      {/* Add Form */}
+      {isAdding && (
         <Card className="border-primary/30">
           <CardHeader>
-            <CardTitle className="text-base">
-              {isAdding ? "New Experience" : "Edit Experience"}
-            </CardTitle>
+            <CardTitle className="text-base">New Experience</CardTitle>
             <CardDescription>
-              {isAdding
-                ? "Add a new work experience entry."
-                : "Update this experience entry."}
+              Add a new work experience entry.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -340,7 +338,7 @@ export function ExperienceForm() {
                 Cancel
               </Button>
               <Button
-                onClick={isAdding ? handleAdd : handleUpdate}
+                onClick={handleAdd}
                 disabled={isMutating}
               >
                 {isMutating ? (
@@ -348,7 +346,7 @@ export function ExperienceForm() {
                 ) : (
                   <Check className="mr-2 h-4 w-4" />
                 )}
-                {isAdding ? "Add" : "Save"}
+                Add
               </Button>
             </div>
           </CardContent>
@@ -368,10 +366,122 @@ export function ExperienceForm() {
       ) : (
         <div className="space-y-3">
           {experiences.map((exp: any) => (
-            <Card
+            <div
               key={exp.id}
+              ref={editingId === exp.id ? editingCardRef : undefined}
+            >
+            <Card
               className={editingId === exp.id ? "border-primary/30" : ""}
             >
+              {editingId === exp.id ? (
+                <CardContent className="space-y-4 pt-6">
+                  <div>
+                    <h4 className="text-base font-semibold">Edit Experience</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Update this experience entry.
+                    </p>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor={`company-${exp.id}`} unsaved={isFieldUnsaved("company")}>
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        Company *
+                      </FieldLabel>
+                      <Input
+                        id={`company-${exp.id}`}
+                        name="company"
+                        value={form.company}
+                        onChange={handleChange}
+                        placeholder="Google"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor={`role-${exp.id}`} unsaved={isFieldUnsaved("role")}>
+                        <Briefcase className="h-4 w-4 text-muted-foreground" />
+                        Role *
+                      </FieldLabel>
+                      <Input
+                        id={`role-${exp.id}`}
+                        name="role"
+                        value={form.role}
+                        onChange={handleChange}
+                        placeholder="Senior Software Engineer"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor={`startDate-${exp.id}`} unsaved={isFieldUnsaved("startDate")}>
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        Start Date
+                      </FieldLabel>
+                      <Input
+                        id={`startDate-${exp.id}`}
+                        name="startDate"
+                        type="date"
+                        value={form.startDate}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor={`endDate-${exp.id}`} unsaved={isFieldUnsaved("endDate")}>
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        End Date
+                      </FieldLabel>
+                      <Input
+                        id={`endDate-${exp.id}`}
+                        name="endDate"
+                        type="date"
+                        value={form.endDate}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel htmlFor={`exp-location-${exp.id}`} unsaved={isFieldUnsaved("location")}>
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        Location
+                      </FieldLabel>
+                      <Input
+                        id={`exp-location-${exp.id}`}
+                        name="location"
+                        value={form.location}
+                        onChange={handleChange}
+                        placeholder="San Francisco, CA"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <FieldLabel htmlFor={`description-${exp.id}`} unsaved={isFieldUnsaved("description")}>
+                      Description
+                    </FieldLabel>
+                    <Textarea
+                      id={`description-${exp.id}`}
+                      name="description"
+                      value={form.description}
+                      onChange={handleChange}
+                      placeholder="Describe your responsibilities, achievements, and impact..."
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={cancelEditing}>
+                      <X className="mr-2 h-4 w-4" />
+                      Cancel
+                    </Button>
+                    <Button onClick={handleUpdate} disabled={isMutating}>
+                      {isMutating ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="mr-2 h-4 w-4" />
+                      )}
+                      Save
+                    </Button>
+                  </div>
+                </CardContent>
+              ) : (
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -424,7 +534,9 @@ export function ExperienceForm() {
                   </div>
                 </div>
               </CardContent>
+              )}
             </Card>
+            </div>
           ))}
         </div>
       )}

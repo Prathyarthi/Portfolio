@@ -15,6 +15,7 @@ import {
   CreditCard,
   LogOut,
   User,
+  PanelLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -53,25 +54,40 @@ function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user;
+  const { state, toggleSidebar, isMobile } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="h-16 justify-center border-b border-sidebar-border">
-        <Link
-          href="/dashboard"
-          className="flex h-8 items-center gap-2 overflow-hidden px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
-          aria-label={`${siteConfig.name} home`}
-        >
-          <LogoMark className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8" />
-          <span
-            className="flex min-w-0 items-center gap-2 group-data-[collapsible=icon]:hidden"
+        {isCollapsed && !isMobile ? (
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            className="group/logo relative mx-auto flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-sidebar-accent"
+            aria-label="Open sidebar"
           >
-            <span className="font-display text-lg font-bold text-brand-primary">
-              {siteConfig.name}
+            <LogoMark className="h-8 w-8 shrink-0 transition-opacity duration-150 group-hover/logo:opacity-0" />
+            <PanelLeft
+              className="absolute h-5 w-5 text-text-primary opacity-0 transition-opacity duration-150 group-hover/logo:opacity-100"
+              aria-hidden
+            />
+          </button>
+        ) : (
+          <Link
+            href="/dashboard"
+            className="flex h-8 items-center gap-2 overflow-hidden px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+            aria-label={`${siteConfig.name} home`}
+          >
+            <LogoMark className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8" />
+            <span className="flex min-w-0 items-center gap-2 group-data-[collapsible=icon]:hidden">
+              <span className="font-display text-lg font-bold text-brand-primary">
+                {siteConfig.name}
+              </span>
+              <BetaBadge />
             </span>
-            <BetaBadge />
-          </span>
-        </Link>
+          </Link>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
@@ -158,6 +174,21 @@ function DashboardNavAutoCollapse() {
   return null;
 }
 
+function DashboardHeader() {
+  const { state, isMobile } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  return (
+    <header className="glass-nav sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 px-4">
+      {(isMobile || !isCollapsed) && <SidebarTrigger className="size-9" />}
+      <Logo href="/dashboard" className="md:hidden" showBeta />
+      <div className="ml-auto flex items-center gap-1 md:hidden">
+        <ThemeToggle className="size-9" />
+      </div>
+    </header>
+  );
+}
+
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hideFooter =
@@ -186,13 +217,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             : "relative min-w-0 overflow-x-hidden bg-surface-base"
         }
       >
-        <header className="glass-nav sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 px-4">
-          <SidebarTrigger className="size-9" />
-          <Logo href="/dashboard" className="md:hidden" showBeta />
-          <div className="ml-auto flex items-center gap-1 md:hidden">
-            <ThemeToggle className="size-9" />
-          </div>
-        </header>
+        <DashboardHeader />
         <main
           className={
             fullHeightPanel

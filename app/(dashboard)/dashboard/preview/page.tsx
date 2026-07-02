@@ -13,7 +13,7 @@ import {
   usePublishPortfolio,
   useUpdateTemplate,
 } from "@/features/portfolio/api/use-portfolio";
-import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
+import { CreatePortfolioPrompt, PORTFOLIO_ACTION_BUTTON_CLASS } from "@/features/portfolio/components/create-portfolio-prompt";
 import {
   PreviewEditSidebar,
   PreviewEditToggle,
@@ -135,7 +135,7 @@ export default function PreviewPage() {
   if (!portfolio) {
     return (
       <div className="mx-auto max-w-xl space-y-6">
-        <Card className="p-2">
+        <Card>
           <CardHeader>
             <CardTitle className="text-h3 text-text-primary">
               Create your portfolio before previewing it
@@ -144,9 +144,9 @@ export default function PreviewPage() {
               Preview depends on your saved portfolio content. Create the portfolio first, then continue through the flow.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-start gap-4">
+          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <CreatePortfolioPrompt />
-            <Button variant="outline" asChild>
+            <Button variant="outline" className={PORTFOLIO_ACTION_BUTTON_CLASS} asChild>
               <Link href="/dashboard/import">Back to Import</Link>
             </Button>
           </CardContent>

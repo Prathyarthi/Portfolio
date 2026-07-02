@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useCreatePortfolio } from "@/features/portfolio/api/use-portfolio";
 import { cn } from "@/lib/utils";
 
+export const PORTFOLIO_ACTION_BUTTON_CLASS =
+  "box-border h-11 min-h-11 w-full justify-center py-0";
+
 type CreatePortfolioPromptProps = {
   onCreated?: () => void;
   submitLabel?: string;
@@ -34,12 +37,12 @@ export function CreatePortfolioPrompt({
   }
 
   return (
-    <div className={cn("flex flex-col items-center gap-3", className)}>
+    <div className={cn("flex w-full flex-col", className)}>
       <Button
         type="button"
         onClick={handleCreate}
         disabled={createPortfolio.isPending}
-        className={buttonClassName}
+        className={cn(PORTFOLIO_ACTION_BUTTON_CLASS, buttonClassName)}
       >
         {createPortfolio.isPending ? (
           <>

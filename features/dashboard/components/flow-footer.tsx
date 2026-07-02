@@ -26,6 +26,9 @@ type FlowFooterProps = {
   actions?: ReactNode;
 };
 
+const flowNavButtonClass =
+  "h-11 w-full justify-center sm:min-w-[13rem] sm:w-[13rem]";
+
 export function FlowFooter({
   previous,
   next,
@@ -53,17 +56,22 @@ export function FlowFooter({
         ) : null}
       </div>
 
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-stretch sm:justify-end">
         {previous ? (
           previous.href ? (
-            <Button variant="outline" asChild>
+            <Button variant="outline" className={flowNavButtonClass} asChild>
               <Link href={previous.href}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {previous.label}
               </Link>
             </Button>
           ) : (
-            <Button variant="outline" onClick={previous.onClick} disabled={previous.disabled}>
+            <Button
+              variant="outline"
+              className={flowNavButtonClass}
+              onClick={previous.onClick}
+              disabled={previous.disabled}
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               {previous.label}
             </Button>
@@ -72,14 +80,18 @@ export function FlowFooter({
         {actions}
         {next ? (
           next.href ? (
-            <Button asChild disabled={next.disabled}>
+            <Button className={flowNavButtonClass} asChild disabled={next.disabled}>
               <Link href={next.href}>
                 {next.label}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           ) : (
-            <Button onClick={next.onClick} disabled={next.disabled}>
+            <Button
+              className={flowNavButtonClass}
+              onClick={next.onClick}
+              disabled={next.disabled}
+            >
               {next.label}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

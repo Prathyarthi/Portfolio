@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, FileText, Loader2, PanelLeftClose, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -135,6 +135,15 @@ function EditTabContent({
   onStepChange: (step: EditStepValue) => void;
 }) {
   const activeStepInfo = EDIT_STEPS.find((step) => step.value === activeStep);
+  const stepButtonRefs = useRef<Partial<Record<EditStepValue, HTMLButtonElement | null>>>({});
+
+  useEffect(() => {
+    stepButtonRefs.current[activeStep]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [activeStep]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -145,6 +154,9 @@ function EditTabContent({
             return (
               <button
                 key={step.value}
+                ref={(element) => {
+                  stepButtonRefs.current[step.value] = element;
+                }}
                 type="button"
                 onClick={() => onStepChange(step.value)}
                 aria-pressed={activeStep === step.value}
@@ -296,7 +308,6 @@ export function PreviewEditToggle({
   return (
     <Button
       type="button"
-      size="sm"
       variant={open ? "default" : "outline"}
       onClick={() => onOpenChange(!open)}
     >

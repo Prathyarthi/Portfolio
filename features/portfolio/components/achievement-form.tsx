@@ -29,6 +29,7 @@ import {
   Check,
 } from "lucide-react";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import { useScrollIntoView } from "@/hooks/use-scroll-into-view";
 import {
   fieldsDiffer,
   fieldDiffers,
@@ -56,6 +57,7 @@ export function AchievementForm() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<AchievementEntry>(emptyEntry);
+  const editingCardRef = useScrollIntoView<HTMLDivElement>(Boolean(editingId));
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -196,16 +198,12 @@ export function AchievementForm() {
         )}
       </div>
 
-      {(isAdding || editingId) && (
+      {isAdding && (
         <Card className="border-primary/30">
           <CardHeader>
-            <CardTitle className="text-base">
-              {isAdding ? "New Achievement" : "Edit Achievement"}
-            </CardTitle>
+            <CardTitle className="text-base">New Achievement</CardTitle>
             <CardDescription>
-              {isAdding
-                ? "Add a new achievement entry."
-                : "Update this achievement entry."}
+              Add a new achievement entry.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -241,16 +239,13 @@ export function AchievementForm() {
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button
-                onClick={isAdding ? handleAdd : handleUpdate}
-                disabled={isMutating}
-              >
+              <Button onClick={handleAdd} disabled={isMutating}>
                 {isMutating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Check className="mr-2 h-4 w-4" />
                 )}
-                {isAdding ? "Add" : "Save"}
+                Add
               </Button>
             </div>
           </CardContent>
@@ -269,10 +264,60 @@ export function AchievementForm() {
       ) : (
         <div className="space-y-3">
           {achievements.map((ach: any) => (
-            <Card
+            <div
               key={ach.id}
-              className={editingId === ach.id ? "border-primary/30" : ""}
+              ref={editingId === ach.id ? editingCardRef : undefined}
             >
+            <Card className={editingId === ach.id ? "border-primary/30" : ""}>
+              {editingId === ach.id ? (
+                <CardContent className="space-y-4 pt-6">
+                  <div>
+                    <h4 className="text-base font-semibold">Edit Achievement</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Update this achievement entry.
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <FieldLabel htmlFor={`title-${ach.id}`} unsaved={isFieldUnsaved("title")}>
+                      Title *
+                    </FieldLabel>
+                    <Input
+                      id={`title-${ach.id}`}
+                      name="title"
+                      value={form.title}
+                      onChange={handleChange}
+                      placeholder="e.g., Won Best Innovation Award at TechConf 2025"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <FieldLabel htmlFor={`date-${ach.id}`} unsaved={isFieldUnsaved("date")}>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      Date (optional)
+                    </FieldLabel>
+                    <Input
+                      id={`date-${ach.id}`}
+                      name="date"
+                      type="date"
+                      value={form.date}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={cancelEditing}>
+                      <X className="mr-2 h-4 w-4" />
+                      Cancel
+                    </Button>
+                    <Button onClick={handleUpdate} disabled={isMutating}>
+                      {isMutating ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="mr-2 h-4 w-4" />
+                      )}
+                      Save
+                    </Button>
+                  </div>
+                </CardContent>
+              ) : (
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
@@ -304,7 +349,9 @@ export function AchievementForm() {
                   </div>
                 </div>
               </CardContent>
+              )}
             </Card>
+            </div>
           ))}
         </div>
       )}

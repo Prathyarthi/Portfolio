@@ -11,12 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { DeleteAccountDialog } from "@/components/delete-account-dialog";
 import { FlowFooter } from "@/features/dashboard/components/flow-footer";
 import {
   usePortfolio,
   useUpdatePortfolio,
 } from "@/features/portfolio/api/use-portfolio";
-import { CreatePortfolioPrompt } from "@/features/portfolio/components/create-portfolio-prompt";
+import { CreatePortfolioPrompt, PORTFOLIO_ACTION_BUTTON_CLASS } from "@/features/portfolio/components/create-portfolio-prompt";
 import type { PortfolioCustomization, TemplateSectionId } from "@/features/templates/types";
 
 const defaultNavbarSettings: {
@@ -37,6 +38,8 @@ export default function SettingsPage() {
   const { data: portfolio } = usePortfolio();
   const updatePortfolio = useUpdatePortfolio();
   const [navbarSettings, setNavbarSettings] = useState(defaultNavbarSettings);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     const customization =
@@ -76,6 +79,26 @@ export default function SettingsPage() {
     );
   };
 
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      const res = await fetch("/api/account/delete", { method: "DELETE" });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+
+      if (!res.ok) {
+        throw new Error(data.error ?? "Failed to delete account");
+      }
+
+      toast.success("Your account has been deleted");
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete account"
+      );
+      setDeletingAccount(false);
+    }
+  };
+
   return (
     <div className="mx-auto w-full max-w-2xl space-y-8 pb-6">
       <div>
@@ -84,16 +107,16 @@ export default function SettingsPage() {
       </div>
 
       {!portfolio && (
-        <Card className="p-2">
+        <Card>
           <CardHeader>
             <CardTitle className="text-h3 text-text-primary">Create your portfolio first</CardTitle>
             <CardDescription className="text-body-sm text-text-secondary">
               Settings are available after a portfolio has been created.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-start gap-4">
+          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <CreatePortfolioPrompt />
-            <Button variant="outline" asChild>
+            <Button variant="outline" className={PORTFOLIO_ACTION_BUTTON_CLASS} asChild>
               <Link href="/dashboard">Go to Overview</Link>
             </Button>
           </CardContent>
@@ -199,14 +222,38 @@ export default function SettingsPage() {
       <Card className="border-destructive/50">
         <CardHeader>
           <CardTitle className="text-destructive">Danger Zone</CardTitle>
-          <CardDescription>Irreversible actions</CardDescription>
+          <CardDescription>
+            Permanently delete your account and all associated data.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button variant="destructive" onClick={() => signOut({ callbackUrl: "/" })}>
-            Sign Out
+        <CardContent className="space-y-3">
+          <p className="text-body-sm text-text-secondary">
+            This removes your portfolio, imports, analytics, and subscription.
+            This action cannot be undone.
+          </p>
+          <Button
+            variant="destructive"
+            onClick={() => setDeleteDialogOpen(true)}
+            disabled={deletingAccount}
+          >
+            {deletingAccount ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting account...
+              </>
+            ) : (
+              "Delete account"
+            )}
           </Button>
         </CardContent>
       </Card>
+
+      <DeleteAccountDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={() => void handleDeleteAccount()}
+        deleting={deletingAccount}
+      />
 
       <FlowFooter
         previous={{ href: "/dashboard/preview", label: "Previous: Preview" }}

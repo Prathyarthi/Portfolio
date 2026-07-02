@@ -138,53 +138,6 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
               </section>
             )}
 
-            {experiences.length > 0 && (
-              <section
-                id="experience"
-                className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
-              >
-                <SectionHeading>Experience</SectionHeading>
-                <CollapsibleList
-                  initial={4}
-                  wrapperClassName="space-y-5"
-                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
-                >
-                  {experiences.map((exp) => (
-                    <article
-                      key={exp.id}
-                      className="rounded-[1.5rem] border border-slate-200 bg-slate-50/60 p-5"
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-xl font-semibold text-slate-900">
-                            {exp.role}
-                          </h3>
-                          <p className="mt-1 text-sm font-medium text-sky-800">
-                            {exp.company}
-                          </p>
-                          {exp.location && (
-                            <p className="mt-1 text-sm text-slate-500">{exp.location}</p>
-                          )}
-                        </div>
-                        {(exp.startDate || exp.endDate) && (
-                          <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                            {formatDateRange(exp.startDate, exp.endDate)}
-                          </p>
-                        )}
-                      </div>
-                      {exp.description && (
-                        <DescriptionBlock
-                          text={exp.description}
-                          paragraphClassName="mt-4 text-sm leading-7 text-slate-600"
-                          listClassName="mt-4 space-y-2 pl-5 text-sm leading-7 text-slate-600 marker:text-slate-300"
-                        />
-                      )}
-                    </article>
-                  ))}
-                </CollapsibleList>
-              </section>
-            )}
-
             {visibleProjects.length > 0 && (
               <section
                 id="work"
@@ -275,6 +228,53 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                           />
                         </div>
                       </div>
+                    </article>
+                  ))}
+                </CollapsibleList>
+              </section>
+            )}
+
+            {experiences.length > 0 && (
+              <section
+                id="experience"
+                className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
+              >
+                <SectionHeading>Experience</SectionHeading>
+                <CollapsibleList
+                  initial={4}
+                  wrapperClassName="space-y-5"
+                  buttonClassName="mt-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-slate-600 transition-colors hover:border-slate-400 hover:text-slate-900"
+                >
+                  {experiences.map((exp) => (
+                    <article
+                      key={exp.id}
+                      className="rounded-[1.5rem] border border-slate-200 bg-slate-50/60 p-5"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-xl font-semibold text-slate-900">
+                            {exp.role}
+                          </h3>
+                          <p className="mt-1 text-sm font-medium text-sky-800">
+                            {exp.company}
+                          </p>
+                          {exp.location && (
+                            <p className="mt-1 text-sm text-slate-500">{exp.location}</p>
+                          )}
+                        </div>
+                        {(exp.startDate || exp.endDate) && (
+                          <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
+                            {formatDateRange(exp.startDate, exp.endDate)}
+                          </p>
+                        )}
+                      </div>
+                      {exp.description && (
+                        <DescriptionBlock
+                          text={exp.description}
+                          paragraphClassName="mt-4 text-sm leading-7 text-slate-600"
+                          listClassName="mt-4 space-y-2 pl-5 text-sm leading-7 text-slate-600 marker:text-slate-300"
+                        />
+                      )}
                     </article>
                   ))}
                 </CollapsibleList>

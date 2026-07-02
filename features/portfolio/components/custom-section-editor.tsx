@@ -31,6 +31,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
+import { useScrollIntoView } from "@/hooks/use-scroll-into-view";
 
 interface ItemField {
   key: string;
@@ -73,6 +74,9 @@ export function CustomSectionEditor() {
     { key: "title", value: "" },
     { key: "description", value: "" },
   ]);
+  const editingItemRef = useScrollIntoView<HTMLDivElement>(
+    editingItemIndex !== null && !isAddingItem
+  );
 
   const isMutating =
     upsertSection.isPending || updateSection.isPending || deleteSection.isPending;
@@ -130,6 +134,7 @@ export function CustomSectionEditor() {
     index: number,
     item: Record<string, unknown>
   ) {
+    setExpandedSections((prev) => new Set(prev).add(sectionId));
     setEditingSectionId(sectionId);
     setEditingItemIndex(index);
     setIsAddingItem(false);
@@ -271,6 +276,70 @@ export function CustomSectionEditor() {
   ]);
 
   useEditStepDirty("custom", isDirty);
+
+  const renderItemForm = (section: { id: string }, mode: "add" | "edit") => (
+    <Card className="border-primary/20 bg-muted/30">
+      <CardContent className="space-y-3 pt-4">
+        <p className="text-sm font-medium">
+          {mode === "add" ? "New Item" : "Edit Item"}
+        </p>
+        {itemFields.map((field, fi) => (
+          <div key={fi} className="flex items-start gap-2">
+            <div className="w-1/3">
+              <Input
+                placeholder="Field name"
+                value={field.key}
+                onChange={(e) => updateFieldKey(fi, e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            <div className="flex-1">
+              {field.value.length > 80 || field.key === "description" ? (
+                <Textarea
+                  placeholder="Value"
+                  value={field.value}
+                  onChange={(e) => updateFieldValue(fi, e.target.value)}
+                  rows={2}
+                  className="text-sm"
+                />
+              ) : (
+                <Input
+                  placeholder="Value"
+                  value={field.value}
+                  onChange={(e) => updateFieldValue(fi, e.target.value)}
+                  className="text-sm"
+                />
+              )}
+            </div>
+            {itemFields.length > 1 && (
+              <Button variant="ghost" size="icon-sm" onClick={() => removeField(fi)}>
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        ))}
+        <div className="flex items-center justify-between">
+          <Button variant="outline" onClick={addField}>
+            <Plus className="mr-1 h-3 w-3" />
+            Add Field
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={cancelItemEdit}>
+              Cancel
+            </Button>
+            <Button onClick={() => handleSaveItem(section)} disabled={isMutating}>
+              {isMutating ? (
+                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+              ) : (
+                <Check className="mr-1 h-3 w-3" />
+              )}
+              Save
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   if (isLoading) {
     return (
@@ -417,95 +486,10 @@ export function CustomSectionEditor() {
 
                 {isExpanded && (
                   <CardContent className="space-y-3">
-                    {/* Item form (add/edit) */}
-                    {editingSectionId === section.id && (
-                      <Card className="border-primary/20 bg-muted/30">
-                        <CardContent className="pt-4 space-y-3">
-                          <p className="text-sm font-medium">
-                            {isAddingItem ? "New Item" : "Edit Item"}
-                          </p>
-                          {itemFields.map((field, fi) => (
-                            <div key={fi} className="flex gap-2 items-start">
-                              <div className="w-1/3">
-                                <Input
-                                  placeholder="Field name"
-                                  value={field.key}
-                                  onChange={(e) =>
-                                    updateFieldKey(fi, e.target.value)
-                                  }
-                                  className="text-sm"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                {field.value.length > 80 ||
-                                field.key === "description" ? (
-                                  <Textarea
-                                    placeholder="Value"
-                                    value={field.value}
-                                    onChange={(e) =>
-                                      updateFieldValue(fi, e.target.value)
-                                    }
-                                    rows={2}
-                                    className="text-sm"
-                                  />
-                                ) : (
-                                  <Input
-                                    placeholder="Value"
-                                    value={field.value}
-                                    onChange={(e) =>
-                                      updateFieldValue(fi, e.target.value)
-                                    }
-                                    className="text-sm"
-                                  />
-                                )}
-                              </div>
-                              {itemFields.length > 1 && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  onClick={() => removeField(fi)}
-                                >
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              )}
-                            </div>
-                          ))}
-                          <div className="flex items-center justify-between">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={addField}
-                            >
-                              <Plus className="mr-1 h-3 w-3" />
-                              Add Field
-                            </Button>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={cancelItemEdit}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={() => handleSaveItem(section)}
-                                disabled={isMutating}
-                              >
-                                {isMutating ? (
-                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                                ) : (
-                                  <Check className="mr-1 h-3 w-3" />
-                                )}
-                                Save
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
+                    {editingSectionId === section.id && isAddingItem
+                      ? renderItemForm(section, "add")
+                      : null}
 
-                    {/* Existing items */}
                     {items.length === 0 &&
                       editingSectionId !== section.id && (
                         <p className="text-sm text-muted-foreground py-4 text-center">
@@ -528,6 +512,18 @@ export function CustomSectionEditor() {
                             "summary",
                           ].includes(k)
                       );
+                      const isEditingItem =
+                        editingSectionId === section.id &&
+                        editingItemIndex === idx &&
+                        !isAddingItem;
+
+                      if (isEditingItem) {
+                        return (
+                          <div key={idx} ref={editingItemRef}>
+                            {renderItemForm(section, "edit")}
+                          </div>
+                        );
+                      }
 
                       return (
                         <div
