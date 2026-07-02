@@ -26,49 +26,44 @@ export function DeleteAccountDialog({
 }: DeleteAccountDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/8 bg-zinc-900 sm:max-w-md">
+      <DialogContent className="sm:max-w-md [&_[data-slot=dialog-close]]:dark:text-text-primary [&_[data-slot=dialog-close]]:dark:opacity-90 [&_[data-slot=dialog-close]]:dark:hover:opacity-100">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/15">
-              <AlertTriangle className="h-5 w-5 text-red-400" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-danger-bg dark:bg-danger/20">
+              <AlertTriangle className="h-5 w-5 text-danger" aria-hidden />
             </div>
-            <DialogTitle className="text-zinc-100">Delete account</DialogTitle>
+            <DialogTitle>Delete account</DialogTitle>
           </div>
-          <DialogDescription className="text-zinc-400">
+          <DialogDescription>
             This permanently deletes your Livefolio account and cannot be undone.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-3 py-4">
-          <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
-            <p className="text-sm font-medium text-red-200">
+        <div className="space-y-4 py-2">
+          <div className="rounded-xl border border-danger/25 bg-danger-bg px-4 py-3 dark:border-danger/40 dark:bg-surface-sunken">
+            <p className="text-sm font-medium text-danger">
               You will permanently lose:
             </p>
-            <ul className="mt-2 space-y-1 text-xs text-red-300/80">
-              <li>• Your portfolio and all published content</li>
-              <li>• Imported resume, GitHub, and Medium data</li>
-              <li>• Analytics and subscription access</li>
-              <li>• Your account and login credentials</li>
+            <ul className="mt-2 space-y-1.5 text-sm text-text-secondary dark:text-text-primary">
+              <li>Your portfolio and all published content</li>
+              <li>Imported resume, GitHub, and Medium data</li>
+              <li>Analytics and subscription access</li>
+              <li>Your account and login credentials</li>
             </ul>
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-sm text-text-secondary dark:text-text-primary/85">
             If you only want to sign out, use the sign out button in the sidebar.
           </p>
         </div>
         <DialogFooter>
           <Button
             variant="outline"
-            className="rounded-full border-white/10 hover:bg-white/5"
+            className="dark:border-border-strong dark:text-text-primary dark:hover:bg-surface-sunken"
             onClick={() => onOpenChange(false)}
             disabled={deleting}
           >
             Cancel
           </Button>
-          <Button
-            variant="destructive"
-            className="rounded-full"
-            onClick={onConfirm}
-            disabled={deleting}
-          >
+          <Button variant="destructive" onClick={onConfirm} disabled={deleting}>
             {deleting ? "Deleting..." : "Delete my account"}
           </Button>
         </DialogFooter>
