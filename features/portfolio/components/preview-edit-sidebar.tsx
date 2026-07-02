@@ -301,22 +301,34 @@ export function PreviewEditSidebar({
 export function PreviewEditToggle({
   open,
   onOpenChange,
+  compact = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  compact?: boolean;
 }) {
+  const label = open ? "Close editor" : "Edit";
+
   return (
     <Button
       type="button"
+      size="sm"
+      className="shrink-0 gap-1.5 px-2.5"
       variant={open ? "default" : "outline"}
       onClick={() => onOpenChange(!open)}
+      title={label}
+      aria-label={label}
     >
       {open ? (
-        <PanelLeftClose className="h-3.5 w-3.5" aria-hidden />
+        <PanelLeftClose className="h-3.5 w-3.5 shrink-0" aria-hidden />
       ) : (
-        <Pencil className="h-3.5 w-3.5" aria-hidden />
+        <Pencil className="h-3.5 w-3.5 shrink-0" aria-hidden />
       )}
-      {open ? "Close editor" : "Edit"}
+      {compact ? (
+        <span className="hidden xl:inline">{label}</span>
+      ) : (
+        label
+      )}
     </Button>
   );
 }

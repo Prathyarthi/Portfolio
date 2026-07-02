@@ -21,10 +21,20 @@ interface ShareDialogProps {
   isPublished: boolean;
   trigger?: React.ReactNode;
   children?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ShareDialog({ slug, isPublished, trigger, children }: ShareDialogProps) {
+export function ShareDialog({
+  slug,
+  isPublished,
+  trigger,
+  children,
+  open,
+  onOpenChange,
+}: ShareDialogProps) {
   const [copied, setCopied] = useState(false);
+  const controlled = open !== undefined;
 
   const publicUrl = getPortfolioPublicUrl(slug);
 
@@ -40,15 +50,19 @@ export function ShareDialog({ slug, isPublished, trigger, children }: ShareDialo
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children ?? trigger ?? (
-          <Button variant="outline" size="sm">
-            <Share2 className="mr-2 h-4 w-4" />
-            Share
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog
+      {...(controlled ? { open, onOpenChange } : {})}
+    >
+      {!controlled ? (
+        <DialogTrigger asChild>
+          {children ?? trigger ?? (
+            <Button variant="outline" size="sm">
+              <Share2 className="mr-2 h-4 w-4" />
+              Share
+            </Button>
+          )}
+        </DialogTrigger>
+      ) : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Share Your Portfolio</DialogTitle>

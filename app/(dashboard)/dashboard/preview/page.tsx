@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Loader2, Share2, Globe, Monitor, Smartphone, BarChart3, Check } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -16,10 +16,9 @@ import {
 import { CreatePortfolioPrompt, PORTFOLIO_ACTION_BUTTON_CLASS } from "@/features/portfolio/components/create-portfolio-prompt";
 import {
   PreviewEditSidebar,
-  PreviewEditToggle,
 } from "@/features/portfolio/components/preview-edit-sidebar";
+import { PreviewToolbar } from "@/features/portfolio/components/preview-toolbar";
 import { PublishDialog } from "@/features/portfolio/components/publish-dialog";
-import { ShareDialog } from "@/features/portfolio/components/share-dialog";
 import { getTemplate, templateRegistry } from "@/features/templates/registry";
 import { portfolioToTemplateData } from "@/features/templates/transform";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -195,8 +194,8 @@ export default function PreviewPage() {
       />
 
       <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col gap-4 lg:overflow-hidden">
-        <div className="flex shrink-0 flex-col gap-4 rounded-[var(--radius-lg)] glass-panel p-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0 px-2">
+        <div className="flex shrink-0 flex-col gap-3 rounded-[var(--radius-lg)] glass-panel p-3 lg:flex-row lg:items-start lg:justify-between xl:items-center">
+          <div className="min-w-0 flex-1 px-2">
             <div className="flex items-center gap-2">
               <span
                 className={cn(
@@ -227,87 +226,21 @@ export default function PreviewPage() {
               </p>
             ) : null}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Device toggle */}
-            <div
-              className="flex items-center gap-1 rounded-[var(--radius-md)] bg-surface-sunken p-0.5"
-              role="group"
-              aria-label="Preview device"
-            >
-              <Button
-                type="button"
-                size="icon-sm"
-                variant="ghost"
-                aria-label="Desktop preview"
-                aria-pressed={device === "desktop"}
-                onClick={() => setDevice("desktop")}
-                className={cn(device === "desktop" && "bg-surface-base text-brand-primary")}
-              >
-                <Monitor className="h-4 w-4" aria-hidden />
-              </Button>
-              <Button
-                type="button"
-                size="icon-sm"
-                variant="ghost"
-                aria-label="Mobile preview"
-                aria-pressed={device === "mobile"}
-                onClick={() => setDevice("mobile")}
-                className={cn(device === "mobile" && "bg-surface-base text-brand-primary")}
-              >
-                <Smartphone className="h-4 w-4" aria-hidden />
-              </Button>
-            </div>
-            <PreviewEditToggle open={editOpen} onOpenChange={setEditOpen} />
-            {hasUnsavedTemplate ? (
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => void handleTemplateSave()}
-                disabled={updateTemplate.isPending}
-              >
-                {updateTemplate.isPending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Check className="h-3.5 w-3.5" />
-                )}
-                {isPublished ? `Apply ${template.name}` : `Use ${template.name}`}
-              </Button>
-            ) : null}
-            <Button
-              type="button"
-              size="sm"
-              variant={isPublished ? "outline" : "default"}
-              onClick={() => void handlePublishClick()}
-              disabled={publishPortfolio.isPending}
-            >
-              {publishPortfolio.isPending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Globe className="h-3.5 w-3.5" />
-              )}
-              {isPublished ? "Unpublish" : "Publish"}
-            </Button>
-            {isPublished && !hasUnsavedTemplate && (
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-              >
-                <Link href="/dashboard/analytics">
-                  <BarChart3 className="mr-2 h-3 w-3" />
-                  Analytics
-                </Link>
-              </Button>
-            )}
-            {slug && (
-              <ShareDialog slug={slug} isPublished={isPublished}>
-                <Button variant="outline" size="sm">
-                  <Share2 className="h-3.5 w-3.5" />
-                  Share
-                </Button>
-              </ShareDialog>
-            )}
-          </div>
+          <PreviewToolbar
+            device={device}
+            onDeviceChange={setDevice}
+            editOpen={editOpen}
+            onEditOpenChange={setEditOpen}
+            hasUnsavedTemplate={hasUnsavedTemplate}
+            isPublished={isPublished}
+            templateName={template.name}
+            isSavingTemplate={updateTemplate.isPending}
+            onTemplateSave={() => void handleTemplateSave()}
+            isPublishing={publishPortfolio.isPending}
+            onPublishClick={() => void handlePublishClick()}
+            slug={slug}
+            showAnalytics={isPublished && !hasUnsavedTemplate}
+          />
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-2 shadow-[var(--shadow-modal)] sm:p-3">
