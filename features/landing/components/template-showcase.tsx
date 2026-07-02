@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { getTemplatePreviewImagePath } from "@/features/templates/template-preview-images";
 
 const SHOWCASE_TEMPLATES = [
   {
@@ -52,7 +53,7 @@ function TemplatePreview({
   template: (typeof SHOWCASE_TEMPLATES)[number];
 }) {
   const [imageFailed, setImageFailed] = useState(false);
-  const src = `/templates/${template.id}.png`;
+  const src = getTemplatePreviewImagePath(template.id);
 
   if (imageFailed) {
     return <GradientPlaceholder gradient={template.gradient} />;

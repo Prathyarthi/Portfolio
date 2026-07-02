@@ -21,6 +21,7 @@ import { TerracottaTemplate } from "./terracotta/terracotta-template";
 import { CitrusTemplate } from "./citrus/citrus-template";
 import { ParchmentTemplate } from "./parchment/parchment-template";
 import type { TemplateComponent } from "./types";
+import { getTemplatePreviewImagePath } from "./template-preview-images";
 
 export const templateRegistry: Record<string, TemplateComponent> = {
   minimal: {
@@ -28,7 +29,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Minimal",
     description:
       "Editorial, quiet, and typography-led for a refined personal brand",
-    previewImage: "/templates/minimal-preview.png",
+    previewImage: getTemplatePreviewImagePath("minimal"),
     category: "general",
     component: MinimalTemplate,
   },
@@ -37,7 +38,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Modern",
     description:
       "Dark premium presentation with glass cards and product-style composition",
-    previewImage: "/templates/modern-preview.png",
+    previewImage: getTemplatePreviewImagePath("modern"),
     category: "general",
     component: ModernTemplate,
   },
@@ -46,7 +47,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Developer",
     description:
       "Terminal-inspired but polished for engineers who want proof and personality",
-    previewImage: "/templates/developer-preview.png",
+    previewImage: getTemplatePreviewImagePath("developer"),
     category: "developer",
     component: DeveloperTemplate,
   },
@@ -55,7 +56,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Creative",
     description:
       "Expressive gallery-style layout built for visual work and standout projects",
-    previewImage: "/templates/creative-preview.png",
+    previewImage: getTemplatePreviewImagePath("creative"),
     category: "designer",
     component: CreativeTemplate,
   },
@@ -64,7 +65,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Corporate",
     description:
       "Executive, structured, and clean without feeling like a PDF export",
-    previewImage: "/templates/corporate-preview.png",
+    previewImage: getTemplatePreviewImagePath("corporate"),
     category: "corporate",
     component: CorporateTemplate,
   },
@@ -73,7 +74,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Spotlight",
     description:
       "Mint canvas (#fbfffe), Made Tommy type, and yellow-accent interactions.",
-    previewImage: "/templates/modern-preview.png",
+    previewImage: getTemplatePreviewImagePath("spotlight"),
     category: "developer",
     component: SpotlightTemplate,
   },
@@ -82,7 +83,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Retro",
     description:
       "Bold neo-brutalism with thick borders, bright colors, and high contrast.",
-    previewImage: "/templates/creative-preview.png",
+    previewImage: getTemplatePreviewImagePath("retro"),
     category: "designer",
     component: RetroTemplate,
   },
@@ -91,7 +92,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Bento",
     description:
       "Modern grid-based layout with a clean, premium, and highly scannable design.",
-    previewImage: "/templates/minimal-preview.png",
+    previewImage: getTemplatePreviewImagePath("bento"),
     category: "general",
     component: BentoTemplate,
   },
@@ -100,7 +101,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Vibrant",
     description:
       "Dark mode with glowing gradients, glassmorphism, and a highly modern feel.",
-    previewImage: "/templates/modern-preview.png",
+    previewImage: getTemplatePreviewImagePath("vibrant"),
     category: "designer",
     component: VibrantTemplate,
   },
@@ -109,7 +110,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Space",
     description:
       "Deep space theme with glowing cyan and violet accents, perfect for futuristic portfolios.",
-    previewImage: "/templates/modern-preview.png",
+    previewImage: getTemplatePreviewImagePath("space"),
     category: "developer",
     component: SpaceTemplate,
   },
@@ -118,7 +119,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Windows 95",
     description:
       "Nostalgic retro OS theme with classic window borders, teal backgrounds, and pixel-perfect details.",
-    previewImage: "/templates/developer-preview.png",
+    previewImage: getTemplatePreviewImagePath("windows"),
     category: "developer",
     component: WindowsTemplate,
   },
@@ -127,7 +128,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Paper",
     description:
       "Elegant, editorial newspaper style with serif typography and clean lines.",
-    previewImage: "/templates/minimal-preview.png",
+    previewImage: getTemplatePreviewImagePath("paper"),
     category: "general",
     component: PaperTemplate,
   },
@@ -136,7 +137,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Cyberpunk",
     description:
       "High-contrast neon hacker aesthetic with glitch effects and terminal vibes.",
-    previewImage: "/templates/developer-preview.png",
+    previewImage: getTemplatePreviewImagePath("cyberpunk"),
     category: "developer",
     component: CyberpunkTemplate,
   },
@@ -145,7 +146,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Pastel Dream",
     description:
       "Soft, bubbly, and dreamy with pastel gradients and rounded shapes.",
-    previewImage: "/templates/creative-preview.png",
+    previewImage: getTemplatePreviewImagePath("pastel"),
     category: "designer",
     component: PastelTemplate,
   },
@@ -154,7 +155,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Monochrome",
     description:
       "Strict black and white brutalist design with massive typography.",
-    previewImage: "/templates/minimal-preview.png",
+    previewImage: getTemplatePreviewImagePath("monochrome"),
     category: "designer",
     component: MonochromeTemplate,
   },
@@ -163,7 +164,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Synthwave",
     description:
       "80s retro-futuristic look with neon sunsets and perspective grids.",
-    previewImage: "/templates/creative-preview.png",
+    previewImage: getTemplatePreviewImagePath("synthwave"),
     category: "developer",
     component: SynthwaveTemplate,
   },
@@ -172,7 +173,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Art Deco",
     description:
       "Luxury 1920s style with deep navy, gold accents, and geometric borders.",
-    previewImage: "/templates/minimal-preview.png",
+    previewImage: getTemplatePreviewImagePath("artdeco"),
     category: "designer",
     component: ArtDecoTemplate,
   },
@@ -181,7 +182,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     name: "Blueprint",
     description:
       "Technical drawing aesthetic with blueprint blue, grids, and monospace.",
-    previewImage: "/templates/developer-preview.png",
+    previewImage: getTemplatePreviewImagePath("blueprint"),
     category: "developer",
     component: BlueprintTemplate,
   },
@@ -189,7 +190,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     id: "airy",
     name: "Airy",
     description: "Cloud-like, clean, soft shadows and sky blue accents.",
-    previewImage: "/templates/minimal-preview.png",
+    previewImage: getTemplatePreviewImagePath("airy"),
     category: "general",
     component: AiryTemplate,
   },
@@ -197,7 +198,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     id: "terracotta",
     name: "Terracotta",
     description: "Warm Mediterranean style with elegant serif fonts.",
-    previewImage: "/templates/creative-preview.png",
+    previewImage: getTemplatePreviewImagePath("terracotta"),
     category: "designer",
     component: TerracottaTemplate,
   },
@@ -205,7 +206,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     id: "citrus",
     name: "Citrus",
     description: "Energetic and fresh with vibrant orange and yellow accents.",
-    previewImage: "/templates/creative-preview.png",
+    previewImage: getTemplatePreviewImagePath("citrus"),
     category: "designer",
     component: CitrusTemplate,
   },
@@ -213,7 +214,7 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     id: "parchment",
     name: "Parchment",
     description: "Academic, historical layout with classic red accents.",
-    previewImage: "/templates/corporate-preview.png",
+    previewImage: getTemplatePreviewImagePath("parchment"),
     category: "corporate",
     component: ParchmentTemplate,
   },

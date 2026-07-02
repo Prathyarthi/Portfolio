@@ -1,4 +1,10 @@
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { getTemplate } from "@/features/templates/registry";
+import { getTemplatePreviewImagePath } from "@/features/templates/template-preview-images";
 
 const TEMPLATE_PREVIEW_GRADIENTS: Record<string, string> = {
   minimal: "from-stone-100 to-stone-200",
@@ -31,22 +37,22 @@ type TemplatePreviewThumbnailProps = {
   compact?: boolean;
 };
 
-export function TemplatePreviewThumbnail({
+function GradientPlaceholder({
   templateId,
-  className,
-  compact = false,
-}: TemplatePreviewThumbnailProps) {
+  compact,
+}: {
+  templateId: string;
+  compact: boolean;
+}) {
   const gradient =
-    TEMPLATE_PREVIEW_GRADIENTS[templateId] ??
-    TEMPLATE_PREVIEW_GRADIENTS.minimal;
+    TEMPLATE_PREVIEW_GRADIENTS[templateId] ?? TEMPLATE_PREVIEW_GRADIENTS.minimal;
 
   return (
     <div
       className={cn(
         "aspect-4/3 bg-linear-to-br",
         compact ? "rounded-xl p-2" : "rounded-2xl p-3",
-        gradient,
-        className
+        gradient
       )}
     >
       <div
@@ -87,6 +93,41 @@ export function TemplatePreviewThumbnail({
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+export function TemplatePreviewThumbnail({
+  templateId,
+  className,
+  compact = false,
+}: TemplatePreviewThumbnailProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const template = getTemplate(templateId);
+  const src = getTemplatePreviewImagePath(templateId);
+
+  if (imageFailed) {
+    return (
+      <GradientPlaceholder templateId={templateId} compact={compact} />
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "relative aspect-4/3 overflow-hidden border border-border-default/60 bg-surface-sunken",
+        compact ? "rounded-xl" : "rounded-2xl",
+        className
+      )}
+    >
+      <Image
+        src={src}
+        alt={`${template.name} template preview`}
+        fill
+        className="object-cover object-top"
+        sizes={compact ? "120px" : "(max-width: 768px) 100vw, 320px"}
+        onError={() => setImageFailed(true)}
+      />
     </div>
   );
 }
