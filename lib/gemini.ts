@@ -1,4 +1,5 @@
 import { generateOpenRouterText } from "@/lib/openrouter";
+import type { PdfExtractionQuality } from "@/lib/pdf-extract";
 import { normalizeMultilineText, stripBulletPrefix } from "@/lib/text";
 import { normalizeSocialProfiles } from "@/lib/social-profile";
 
@@ -92,6 +93,222 @@ function normalizeEndDateField(v: unknown): string | null {
   return s;
 }
 
+const MONTH_TO_NUM: Record<string, string> = {
+  jan: "01",
+  january: "01",
+  feb: "02",
+  february: "02",
+  mar: "03",
+  march: "03",
+  apr: "04",
+  april: "04",
+  may: "05",
+  jun: "06",
+  june: "06",
+  jul: "07",
+  july: "07",
+  aug: "08",
+  august: "08",
+  sep: "09",
+  sept: "09",
+  september: "09",
+  oct: "10",
+  october: "10",
+  nov: "11",
+  november: "11",
+  dec: "12",
+  december: "12",
+};
+
+function monthToNum(month: string): string {
+  return MONTH_TO_NUM[month.toLowerCase()] ?? "01";
+}
+
+function parseLooseDateToken(token: string): string | null {
+  const t = token.trim();
+  if (!t) return null;
+  if (/^(present|current|now|ongoing|till date|to date)$/i.test(t)) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t;
+
+  const yearMonth = t.match(/^(\d{4})\s+([A-Za-z]+)$/);
+  if (yearMonth) {
+    return `${yearMonth[1]}-${monthToNum(yearMonth[2])}-01`;
+  }
+
+  const monthYear = t.match(/^([A-Za-z]+)\s+(\d{4})$/);
+  if (monthYear) {
+    return `${monthYear[2]}-${monthToNum(monthYear[1])}-01`;
+  }
+
+  const yearOnly = t.match(/^(\d{4})$/);
+  if (yearOnly) return `${yearOnly[1]}-01-01`;
+
+  return null;
+}
+
+function parseLooseDateRange(
+  value: unknown
+): { startDate: string | null; endDate: string | null } {
+  if (value == null) return { startDate: null, endDate: null };
+  const s = String(value).trim();
+  if (!s) return { startDate: null, endDate: null };
+
+  const parts = s.split(/\s+(?:to|–|—|-|till|until)\s+/i);
+  if (parts.length >= 2) {
+    const endPart = parts[parts.length - 1].trim();
+    return {
+      startDate: parseLooseDateToken(parts[0]),
+      endDate: /^(present|current|now|ongoing|till date|to date)$/i.test(endPart)
+        ? null
+        : parseLooseDateToken(endPart),
+    };
+  }
+
+  return { startDate: parseLooseDateToken(s), endDate: null };
+}
+
+function inferFallbackRole(headline: string, summary: string): string {
+  const h = headline.trim();
+  if (h) return h;
+
+  const firstLine =
+    summary
+      .split("\n")
+      .map((line) => line.trim())
+      .find(Boolean) ?? "";
+
+  const withYears = firstLine.match(/^(.+?)\s+with\s+\d/i);
+  if (withYears?.[1]) {
+    const phrase = withYears[1].trim();
+    if (phrase.length <= 80) return phrase;
+  }
+
+  if (firstLine.length > 0 && firstLine.length <= 80) return firstLine;
+
+  return "Professional";
+}
+
+function inferFallbackCompany(role: string): string {
+  const lower = role.toLowerCase();
+  if (/\b(freelance|contract|consultant|self[- ]?employed)\b/.test(lower)) {
+    return "Independent";
+  }
+  return "Organization not listed";
+}
+
+function isWorkExperienceSection(section: {
+  sectionType: string;
+  label: string;
+}): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(work|experience|employment|career|position|professional)\b/.test(key);
+}
+
+function isEducationSection(section: { sectionType: string; label: string }): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(education|academic|qualification|schooling|degree)\b/.test(key);
+}
+
+function isSkillsSection(section: { sectionType: string; label: string }): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(skill|competenc|expertise|proficien|technical|tool)\b/.test(key);
+}
+
+function isCertificationSection(section: {
+  sectionType: string;
+  label: string;
+}): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(certif|licen[cs]e|credential|accredit)/.test(key);
+}
+
+function isProjectSection(section: { sectionType: string; label: string }): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(project|portfolio|case stud)/.test(key);
+}
+
+function experienceDedupeKey(company: string, role: string): string {
+  return `${company.trim().toLowerCase()}|${role.trim().toLowerCase()}`;
+}
+
+function collectSkillsFromUnknown(value: unknown, category = "General"): ParsedResume["skills"] {
+  if (value == null) return [];
+
+  if (typeof value === "string") {
+    return value
+      .split(/[,;|]|\n+/)
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((name) => ({ name, category }));
+  }
+
+  if (Array.isArray(value)) {
+    const out: ParsedResume["skills"] = [];
+    for (const item of value) {
+      out.push(...collectSkillsFromUnknown(item, category));
+    }
+    return out;
+  }
+
+  const record = asRecord(value);
+  if (!record) return [];
+
+  const name = normalizeString(record.name ?? record.skill ?? record.title);
+  if (name) {
+    return [
+      {
+        name,
+        category:
+          normalizeString(record.category ?? record.group ?? category) || "General",
+      },
+    ];
+  }
+
+  const nestedCategory = normalizeString(record.category ?? record.group);
+  const nestedItems =
+    record.items ?? record.skills ?? record.values ?? record.list ?? record.entries;
+  if (nestedItems != null) {
+    return collectSkillsFromUnknown(
+      nestedItems,
+      nestedCategory || category
+    );
+  }
+
+  return [];
+}
+
+function resolveSkillsRaw(o: Record<string, unknown>): unknown[] {
+  const direct = o.skills ?? o.skill ?? o.coreCompetencies ?? o.competencies;
+  if (Array.isArray(direct)) return direct;
+
+  if (typeof direct === "string") {
+    return collectSkillsFromUnknown(direct);
+  }
+
+  const grouped = asRecord(direct);
+  if (grouped) {
+    const out: ParsedResume["skills"] = [];
+    for (const [category, items] of Object.entries(grouped)) {
+      out.push(...collectSkillsFromUnknown(items, category));
+    }
+    if (out.length > 0) return out;
+  }
+
+  const altKeys = [
+    "technicalSkills",
+    "technical_skills",
+    "tools",
+    "technologies",
+    "expertise",
+  ];
+  for (const key of altKeys) {
+    const alt = o[key];
+    if (alt != null) return collectSkillsFromUnknown(alt);
+  }
+
+  return [];
+}
+
 /**
  * Coerce model output into ParsedResume: alternate keys, null descriptions,
  * and non-array sections from AI output are common reasons imports silently fail validation.
@@ -129,13 +346,27 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   }
 
   const experiences: ParsedResume["experiences"] = [];
+  const headline = normalizeString(
+    o.headline ?? o.title ?? o.jobTitle ?? o.targetRole ?? o.currentRole
+  );
+  const summary = normalizeString(o.summary ?? o.profile ?? o.objective ?? o.about);
+  const roleFallback = { headline, summary };
+
   for (const item of experienceRaw) {
     const e = asRecord(item) ?? {};
-    const company = normalizeString(e.company ?? e.employer ?? e.organization);
-    const role = normalizeString(e.role ?? e.title ?? e.position ?? e.jobTitle);
+    let company = normalizeString(
+      e.company ?? e.employer ?? e.organization ?? e.org ?? e.client
+    );
+    let role = normalizeString(
+      e.role ?? e.title ?? e.position ?? e.jobTitle ?? e.job_title ?? e.designation
+    );
     const startDate = normalizeString(e.startDate ?? e.start ?? e.from).trim();
 
-    if (!company || !role) continue;
+    if (!company && !role) continue;
+    if (!company) company = inferFallbackCompany(role);
+    if (!role.trim()) {
+      role = inferFallbackRole(roleFallback.headline, roleFallback.summary);
+    }
 
     experiences.push({
       company,
@@ -161,38 +392,44 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   const education: ParsedResume["education"] = [];
   for (const item of educationRaw) {
     const e = asRecord(item) ?? {};
-    const institution = normalizeString(e.institution ?? e.school ?? e.university);
-    const degree = normalizeString(e.degree);
+    const institution = normalizeString(
+      e.institution ?? e.school ?? e.university ?? e.college ?? e.academy
+    );
+    const degree = normalizeString(
+      e.degree ?? e.qualification ?? e.program ?? e.credential ?? e.level
+    );
+    const field = normalizeString(
+      e.field ?? e.major ?? e.specialization ?? e.concentration ?? e.stream
+    );
     const startDate = normalizeString(e.startDate ?? e.start ?? e.from).trim();
 
-    if (!institution || !degree) continue;
+    if (!institution && !degree && !field) continue;
 
     education.push({
-      institution,
-      degree,
-      field:
-        e.field == null || String(e.field).trim() === ""
-          ? null
-          : normalizeString(e.field),
+      institution: institution || degree || field,
+      degree: degree || field || "Program",
+      field: field && field !== degree ? field : null,
       startDate: startDate || null,
       endDate: normalizeEndDateField(e.endDate ?? e.end ?? e.to),
       gpa:
         e.gpa == null || String(e.gpa).trim() === ""
           ? null
-          : normalizeString(e.gpa),
+          : normalizeString(e.gpa ?? e.grade ?? e.percentage ?? e.score),
     });
   }
 
-  const skillsRaw: unknown[] = Array.isArray(o.skills) ? o.skills : [];
-  const skills: ParsedResume["skills"] = skillsRaw
-    .map((item) => {
-      const s = asRecord(item) ?? {};
-      return {
-        name: normalizeString(s.name ?? s.skill),
-        category: normalizeString(s.category ?? "General") || "General",
-      };
-    })
-    .filter((s: ParsedResume["skills"][number]) => s.name.trim() !== "");
+  const skillsFromRaw = resolveSkillsRaw(o);
+  const skills: ParsedResume["skills"] = skillsFromRaw
+    .flatMap((item) => collectSkillsFromUnknown(item))
+    .filter((s) => s.name.trim() !== "");
+
+  const seenSkillNames = new Set<string>();
+  const dedupedSkills = skills.filter((skill) => {
+    const key = skill.name.trim().toLowerCase();
+    if (seenSkillNames.has(key)) return false;
+    seenSkillNames.add(key);
+    return true;
+  });
 
   const projectsRaw: unknown[] = Array.isArray(o.projects) ? o.projects : [];
   const projects: ParsedResume["projects"] = [];
@@ -265,19 +502,35 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
     });
   }
 
-  // Normalize custom sections
+  // Normalize custom sections; promote recognizable sections into typed portfolio fields.
   const customSectionsRaw: unknown[] = Array.isArray(o.customSections)
     ? o.customSections
     : [];
   const customSections: ParsedCustomSection[] = [];
+  const seenExperienceKeys = new Set(
+    experiences.map((exp) => experienceDedupeKey(exp.company, exp.role))
+  );
+  const seenEducationKeys = new Set(
+    education.map((edu) =>
+      `${edu.institution.trim().toLowerCase()}|${edu.degree.trim().toLowerCase()}`
+    )
+  );
+  const seenCertNames = new Set(
+    certifications.map((cert) => cert.name.trim().toLowerCase())
+  );
+  const seenProjectTitles = new Set(
+    projects.map((project) => project.title.trim().toLowerCase())
+  );
+
   for (const item of customSectionsRaw) {
     const s = asRecord(item);
     if (!s) continue;
     const sectionType = normalizeString(s.sectionType ?? s.section_type ?? s.type);
     const label = normalizeString(s.label ?? s.title ?? s.name);
     if (!sectionType || !label) continue;
-    const items: Record<string, unknown>[] = [];
+
     const rawItems = Array.isArray(s.items) ? s.items : [];
+    const items: Record<string, unknown>[] = [];
     for (const entry of rawItems) {
       if (typeof entry === "string") {
         items.push({ title: entry });
@@ -286,9 +539,155 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
         if (rec) items.push(rec as Record<string, unknown>);
       }
     }
-    if (items.length > 0) {
-      customSections.push({ sectionType, label, items });
+
+    if (items.length === 0) continue;
+
+    const sectionMeta = { sectionType, label };
+
+    if (isWorkExperienceSection(sectionMeta)) {
+      for (const entry of items) {
+        let company = normalizeString(
+          entry.company ?? entry.employer ?? entry.organization ?? entry.title ?? entry.name
+        );
+        let role = normalizeString(
+          entry.role ?? entry.position ?? entry.jobTitle ?? entry.job_title ?? entry.designation
+        );
+        if (!company && !role) continue;
+        if (!company) company = inferFallbackCompany(role);
+        if (!role.trim()) {
+          role = inferFallbackRole(roleFallback.headline, roleFallback.summary);
+        }
+
+        const dedupeKey = experienceDedupeKey(company, role);
+        if (seenExperienceKeys.has(dedupeKey)) continue;
+
+        const { startDate, endDate } = parseLooseDateRange(
+          entry.date ?? entry.dates ?? entry.period ?? entry.duration ?? entry.tenure
+        );
+
+        experiences.push({
+          company,
+          role,
+          description: normalizeDescription(
+            entry.description ?? entry.summary ?? entry.details ?? entry.highlights
+          ),
+          startDate:
+            startDate ??
+            (normalizeString(entry.startDate ?? entry.start ?? entry.from).trim() || null),
+          endDate:
+            normalizeEndDateField(entry.endDate ?? entry.end ?? entry.to) ?? endDate,
+          location:
+            entry.location == null || String(entry.location).trim() === ""
+              ? null
+              : normalizeString(entry.location),
+        });
+        seenExperienceKeys.add(dedupeKey);
+      }
+      continue;
     }
+
+    if (isEducationSection(sectionMeta)) {
+      for (const entry of items) {
+        const institution = normalizeString(
+          entry.institution ?? entry.school ?? entry.university ?? entry.title ?? entry.name
+        );
+        const degree = normalizeString(
+          entry.degree ?? entry.qualification ?? entry.program ?? entry.credential
+        );
+        const field = normalizeString(
+          entry.field ?? entry.major ?? entry.specialization ?? entry.stream
+        );
+        if (!institution && !degree && !field) continue;
+
+        const eduKey = `${(institution || degree || field).toLowerCase()}|${(degree || field || "program").toLowerCase()}`;
+        if (seenEducationKeys.has(eduKey)) continue;
+
+        const { startDate, endDate } = parseLooseDateRange(
+          entry.date ?? entry.dates ?? entry.period ?? entry.year
+        );
+
+        education.push({
+          institution: institution || degree || field,
+          degree: degree || field || "Program",
+          field: field || null,
+          startDate:
+            startDate ??
+            (normalizeString(entry.startDate ?? entry.start ?? entry.from).trim() || null),
+          endDate:
+            normalizeEndDateField(entry.endDate ?? entry.end ?? entry.to) ?? endDate,
+          gpa:
+            entry.gpa == null || String(entry.gpa).trim() === ""
+              ? null
+              : normalizeString(entry.gpa ?? entry.grade ?? entry.percentage),
+        });
+        seenEducationKeys.add(eduKey);
+      }
+      continue;
+    }
+
+    if (isSkillsSection(sectionMeta)) {
+      for (const entry of items) {
+        const parsedSkills = collectSkillsFromUnknown(entry, label);
+        for (const skill of parsedSkills) {
+          const key = skill.name.trim().toLowerCase();
+          if (!key || seenSkillNames.has(key)) continue;
+          seenSkillNames.add(key);
+          dedupedSkills.push(skill);
+        }
+      }
+      continue;
+    }
+
+    if (isCertificationSection(sectionMeta)) {
+      for (const entry of items) {
+        const name = normalizeString(entry.name ?? entry.title ?? entry.certification);
+        if (!name) continue;
+        const key = name.toLowerCase();
+        if (seenCertNames.has(key)) continue;
+        certifications.push({
+          name,
+          issuer: normalizeString(entry.issuer ?? entry.organization ?? entry.org ?? ""),
+          issueDate:
+            entry.issueDate == null || String(entry.issueDate).trim() === ""
+              ? null
+              : normalizeString(entry.issueDate ?? entry.date ?? entry.year),
+          url:
+            entry.url == null || String(entry.url).trim() === ""
+              ? null
+              : normalizeString(entry.url),
+        });
+        seenCertNames.add(key);
+      }
+      continue;
+    }
+
+    if (isProjectSection(sectionMeta)) {
+      for (const entry of items) {
+        const title = normalizeString(entry.title ?? entry.name ?? entry.project);
+        if (!title) continue;
+        const key = title.toLowerCase();
+        if (seenProjectTitles.has(key)) continue;
+        let tech: unknown = entry.techStack ?? entry.tech_stack ?? entry.technologies;
+        if (!Array.isArray(tech)) tech = [];
+        projects.push({
+          title,
+          description: normalizeDescription(entry.description ?? entry.summary ?? entry.details),
+          techStack: (tech as unknown[]).map((x) => String(x)),
+          liveUrl:
+            entry.liveUrl == null || String(entry.liveUrl).trim() === ""
+              ? null
+              : normalizeString(entry.liveUrl ?? entry.url),
+          sourceUrl:
+            entry.sourceUrl == null || String(entry.sourceUrl).trim() === ""
+              ? null
+              : normalizeString(entry.sourceUrl ?? entry.repo),
+        });
+        seenProjectTitles.add(key);
+      }
+      continue;
+    }
+
+    customSections.push({ sectionType, label, items });
   }
 
   function emptyToNull(v: unknown): string | null {
@@ -300,10 +699,14 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
 
   const contactRaw = asRecord(o.contact) ?? {};
   const contact: ParsedResume["contact"] = {
-    email: emptyToNull(contactRaw.email),
-    phone: emptyToNull(contactRaw.phone),
-    websiteUrl: emptyToNull(contactRaw.websiteUrl ?? contactRaw.website ?? contactRaw.url),
-    location: emptyToNull(contactRaw.location ?? contactRaw.address ?? contactRaw.city),
+    email: emptyToNull(contactRaw.email ?? o.email),
+    phone: emptyToNull(contactRaw.phone ?? o.phone ?? o.mobile),
+    websiteUrl: emptyToNull(
+      contactRaw.websiteUrl ?? contactRaw.website ?? contactRaw.url ?? o.website ?? o.websiteUrl
+    ),
+    location: emptyToNull(
+      contactRaw.location ?? contactRaw.address ?? contactRaw.city ?? o.location ?? o.address
+    ),
   };
 
   const socialRaw: unknown[] = Array.isArray(o.socialProfiles)
@@ -326,14 +729,14 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   const resolvedSocialProfiles = normalizeSocialProfiles(socialProfiles);
 
   return {
-    name: normalizeString(o.name),
-    headline: normalizeString(o.headline),
-    summary: normalizeString(o.summary),
+    name: normalizeString(o.name ?? o.fullName ?? o.full_name ?? o.candidateName),
+    headline,
+    summary,
     contact,
     socialProfiles: resolvedSocialProfiles,
     experiences,
     education,
-    skills,
+    skills: dedupedSkills,
     projects,
     achievements,
     certifications,
@@ -341,75 +744,86 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   };
 }
 
-function buildPrompt(rawText: string): string {
-  return `You are a resume parser. Below is raw text extracted from a resume PDF. Structure ALL of it into JSON.
+function buildPrompt(rawText: string, quality?: PdfExtractionQuality): string {
+  const extractionNote = quality?.isLikelyIncomplete
+    ? `\nEXTRACTION NOTE: The text below was auto-extracted from a PDF and may be incomplete (${quality.hints.join(", ")}). Headers, contact details, or sidebars might be missing. Parse everything that IS present. Never discard content because the layout is unusual.\n`
+    : "";
 
+  return `You are a resume parser. Resumes vary widely by profession (engineering, sales, healthcare, design, academia, trades, etc.) and layout. Your job is to capture ALL information and map it to the best-fit JSON fields below.
+
+${extractionNote}
 CRITICAL RULES:
-- Do NOT skip any information. Every piece of data in the resume must appear in your output.
-- MULTI-LINE DESCRIPTIONS: For experiences, projects, and similar fields with multiple points, put each point on its own line (newline-separated). Do NOT prefix lines with bullet characters (•, -, *, etc.) — the portfolio template adds bullets automatically. Strip bullet markers from the source text; keep the words only.
-- For well-known sections, use the schemas below.
-- For ANY information that does NOT fit the well-known schemas, put it in "customSections". This includes: volunteer work, publications, languages, interests, hobbies, references, awards, honors, courses, trainings, or anything else NOT covered by the schemas. Do NOT use customSections for contact info or social profiles — those have their own fields.
-- DO NOT duplicate. If a piece of information fits a well-known schema field (e.g. a school percentage fits "gpa", a project description fits "projects[].description", an email fits "contact.email", a LinkedIn URL fits "socialProfiles"), put it there ONLY. Never repeat the same fact in customSections.
-- PRESERVE TEXT EXACTLY. For emails, phone numbers, handles, URLs, and any verbatim values from the resume — copy them character-for-character. Do NOT paraphrase, normalize formatting, strip leading "@" or "/", or invent wrapper keys like "type"/"value"/"handle". Use the schema field names exactly as defined below.
-- PLATFORM IDENTIFICATION (for socialProfiles): only set "platform" if you can identify it from a URL domain (github.com → "github", linkedin.com → "linkedin", x.com or twitter.com → "twitter", instagram.com → "instagram", medium.com → "medium", dribbble.com → "dribbble", leetcode.com → "leetcode"). If you only see a bare handle like "@username" or "/username" with no URL or unambiguous platform label nearby, set "platform": "unknown" and put the raw text in "username". Do NOT guess.
-- Extract dates if available. For month/year only (e.g. "Jan 2023"), use "2023-01-01". If no date, use null.
-- Do NOT invent data. If a field isn't in the resume, use null (or "" for required strings like headline/summary, or skip the entry if a REQUIRED field is missing). Never guess company names, dates, GPAs, or any other facts.
+- Do NOT skip any information. Every fact in the resume must appear somewhere in your output.
+- ADAPT TO THE SOURCE: section titles, ordering, and formatting will differ. Infer meaning from context — do not expect a fixed template.
+- MULTI-LINE DESCRIPTIONS: For experiences, projects, education notes, and similar fields with multiple points, put each point on its own line (newline-separated). Do NOT prefix lines with bullet characters (•, -, *, ➢, etc.).
+- SCHEMA FIRST: map content to the typed fields below when it clearly fits (jobs → experiences, schools → education, tools → skills, etc.).
+- CUSTOM SECTIONS AS SAFETY NET: anything that does not fit a typed field MUST go in customSections with the original section label preserved. Never drop content because it is unusual.
+- WORK HISTORY: any employment, internship, contract, freelance, or consulting engagement goes in experiences[]. Accept non-standard headings ("Acme — 2019–2022", "Company Work Experience: dates", tables, paragraphs). Job duties and responsibility bullets belong in experiences[].description for that employer.
+- ACHIEVEMENTS: only awards, honors, or measurable highlights explicitly presented as achievements — not day-to-day job duties.
+- MISSING JOB TITLE: if a role title is not stated, infer a reasonable one from nearby context (headline, summary, or section text). Still create the experiences[] entry.
+- SKILLS: accept lists, grouped categories, comma-separated lines, or tables. Flatten into skills[] with a sensible category.
+- EDUCATION: accept degrees, diplomas, certificates of study, bootcamps, and academic entries. Use the closest fields; partial entries are OK.
+- DO NOT duplicate the same fact across typed fields and customSections.
+- PRESERVE TEXT EXACTLY for emails, phones, URLs, handles, and proper nouns.
+- PLATFORM IDENTIFICATION (socialProfiles): only set "platform" when identifiable from URL domain. Otherwise use "unknown".
+- Dates: use YYYY-MM-DD when possible; month/year → first of month (e.g. Jan 2023 → 2023-01-01). Current roles → endDate null.
+- Do NOT invent employers, schools, dates, or credentials not supported by the text.
 - Return ONLY valid JSON, no markdown, no code fences.
 
 Schema:
 {
   "name": "Full Name",
-  "headline": "Professional headline / job title",
-  "summary": "Brief professional summary (2-3 sentences)",
+  "headline": "Professional headline / current or target role",
+  "summary": "Professional summary, profile, or objective",
   "contact": {
     "email": "primary email exactly as written, or null",
-    "phone": "primary phone exactly as written (including +country, parentheses, dashes), or null",
-    "websiteUrl": "personal website or portfolio URL exactly as written, or null",
+    "phone": "primary phone exactly as written, or null",
+    "websiteUrl": "personal website or portfolio URL, or null",
     "location": "city/state/country as written, or null"
   },
   "socialProfiles": [
-    { "platform": "github | linkedin | twitter | instagram | medium | dribbble | leetcode | unknown", "url": "full URL exactly as written, or null", "username": "handle exactly as written including any leading @ or /, or null" }
+    { "platform": "github | linkedin | twitter | instagram | medium | dribbble | leetcode | unknown", "url": "full URL or null", "username": "handle as written or null" }
   ],
   "experiences": [
     {
-      "company": "Company Name (REQUIRED)",
-      "role": "Job Title (REQUIRED)",
-      "description": "Responsibilities and achievements — one point per line, newline-separated, no bullet characters (or empty string)",
+      "company": "Employer or client name",
+      "role": "Job title or function",
+      "description": "Responsibilities and impact — one point per line, no bullet characters",
       "startDate": "YYYY-MM-DD or null",
-      "endDate": "YYYY-MM-DD or null if current position",
+      "endDate": "YYYY-MM-DD or null if current",
       "location": "City, State or null"
     }
   ],
   "education": [
     {
-      "institution": "University Name (REQUIRED)",
-      "degree": "Degree Type (REQUIRED)",
-      "field": "Field of Study or null",
+      "institution": "School or university",
+      "degree": "Degree, diploma, or program name",
+      "field": "Field of study or null",
       "startDate": "YYYY-MM-DD or null",
       "endDate": "YYYY-MM-DD or null",
-      "gpa": "GPA value or null"
+      "gpa": "GPA, grade, or percentage or null"
     }
   ],
   "skills": [
-    { "name": "Skill Name", "category": "Category (e.g. Programming Languages, Frameworks, Tools)" }
+    { "name": "Skill Name", "category": "Category (e.g. Languages, Tools, Soft Skills)" }
   ],
   "projects": [
     {
       "title": "Project Name",
-      "description": "Project description — one point per line, newline-separated, no bullet characters. Can also be an array of plain strings",
+      "description": "Description — one point per line, no bullet characters",
       "techStack": ["Tech1", "Tech2"],
       "liveUrl": "URL or null",
       "sourceUrl": "URL or null"
     }
   ],
-  "achievements": ["Plain achievement text — no bullet characters"],
+  "achievements": ["Award or measurable highlight — no bullet characters"],
   "certifications": [
     { "name": "Certification Name", "issuer": "Issuing Organization", "issueDate": "YYYY-MM-DD or null", "url": "URL or null" }
   ],
   "customSections": [
     {
-      "sectionType": "snake_case_key (e.g. contact_info, social_profiles, volunteer_work)",
-      "label": "Human-readable label (e.g. Contact Information, Social Profiles, Volunteer Work)",
+      "sectionType": "snake_case_key from the resume section (e.g. volunteer_work, publications, languages)",
+      "label": "Original section heading from the resume",
       "items": [
         { "title": "Item title", "description": "Item description", "date": "date or null", ...any other relevant fields }
       ]
@@ -425,12 +839,13 @@ ${rawText}`;
 
 export async function structureResumeWithAi(
   rawText: string,
+  options?: { quality?: PdfExtractionQuality },
 ): Promise<ParsedResume> {
   const text = await generateOpenRouterText({
     messages: [
       {
         role: "user",
-        content: buildPrompt(rawText),
+        content: buildPrompt(rawText, options?.quality),
       },
     ],
   });

@@ -73,21 +73,13 @@ export function EducationForm() {
   }
 
   async function handleAdd() {
-    if (!form.institution.trim() || !form.degree.trim()) {
-      toast.error("Institution and degree are required");
-      return;
-    }
-    if (!form.startDate) {
-      toast.error("Start date is required");
-      return;
-    }
     try {
       await addEducation.mutateAsync({
-        institution: form.institution,
-        degree: form.degree,
+        institution: form.institution.trim(),
+        degree: form.degree.trim(),
         field: form.field || null,
         description: form.description || null,
-        startDate: form.startDate,
+        startDate: form.startDate || null,
         endDate: form.endDate || null,
         gpa: form.gpa || null,
       });
@@ -166,7 +158,7 @@ export function EducationForm() {
               <div className="space-y-2">
                 <FieldLabel htmlFor="institution" unsaved={isFieldUnsaved("institution")}>
                   <School className="h-4 w-4 text-muted-foreground" />
-                  Institution *
+                  Institution
                 </FieldLabel>
                 <Input
                   id="institution"
@@ -179,7 +171,7 @@ export function EducationForm() {
               <div className="space-y-2">
                 <FieldLabel htmlFor="degree" unsaved={isFieldUnsaved("degree")}>
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                  Degree *
+                  Degree
                 </FieldLabel>
                 <Input
                   id="degree"
@@ -223,7 +215,7 @@ export function EducationForm() {
               <div className="space-y-2">
                 <FieldLabel htmlFor="edu-startDate" unsaved={isFieldUnsaved("startDate")}>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  Start Date *
+                  Start Date
                 </FieldLabel>
                 <Input
                   id="edu-startDate"

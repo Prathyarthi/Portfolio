@@ -91,14 +91,10 @@ export function CustomSectionEditor() {
   }
 
   async function handleAddSection() {
-    const label = addingSectionLabel.trim();
-    if (!label) {
-      toast.error("Section name is required");
-      return;
-    }
+    const label = addingSectionLabel.trim() || "Untitled Section";
     try {
       await upsertSection.mutateAsync({
-        sectionType: toSlug(label),
+        sectionType: toSlug(label) || "untitled_section",
         label,
         items: [],
       });
@@ -179,17 +175,11 @@ export function CustomSectionEditor() {
   }
 
   async function handleSaveItem(section: any) {
-    const validFields = itemFields.filter(
-      (f) => f.key.trim() !== "" && f.value.trim() !== ""
-    );
-    if (validFields.length === 0) {
-      toast.error("At least one field is required");
-      return;
-    }
-
     const newItem: Record<string, unknown> = {};
-    for (const f of validFields) {
-      newItem[f.key.trim()] = f.value.trim();
+    for (const field of itemFields) {
+      const key = field.key.trim();
+      if (!key) continue;
+      newItem[key] = field.value.trim();
     }
 
     const currentItems: Record<string, unknown>[] = Array.isArray(section.items)
@@ -385,7 +375,7 @@ export function CustomSectionEditor() {
                 htmlFor="sectionLabel"
                 unsaved={addingSectionLabel.trim() !== ""}
               >
-                Section Name *
+                Section Name
               </FieldLabel>
               <Input
                 id="sectionLabel"
