@@ -21,6 +21,7 @@ import {
   SocialPills,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -41,6 +42,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -110,7 +112,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
         {portfolio.summary && (
           <section id="about" className="scroll-mt-32 grid grid-cols-1 lg:grid-cols-12 gap-12 border-t border-black pt-12">
             <div className="lg:col-span-4">
-              <SectionHeading>About</SectionHeading>
+              <SectionHeading>{labels.about}</SectionHeading>
             </div>
             <div className="lg:col-span-8">
               <DescriptionBlock
@@ -124,7 +126,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
 
         {visibleProjects.length > 0 && (
           <section id="work" className="scroll-mt-32 border-t border-black pt-12">
-            <SectionHeading className="mb-12">Selected Works</SectionHeading>
+            <SectionHeading className="mb-12">{labels.projects}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName={cn(PROJECTS_GRID_2, "gap-x-8 gap-y-16")}
@@ -188,7 +190,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
         <div className="flex flex-col gap-16 lg:gap-24 border-t border-black pt-12">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
-              <SectionHeading className="mb-12">Experience</SectionHeading>
+              <SectionHeading className="mb-12">{labels.experience}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="space-y-12"
@@ -221,7 +223,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
           <div className="space-y-24">
             {skills.length > 0 && (
               <section>
-                <SectionHeading className="mb-12">Expertise</SectionHeading>
+                <SectionHeading className="mb-12">{labels.skills}</SectionHeading>
                 <div className="space-y-12">
                   {Object.entries(groupedSkills).map(([category, names]) => (
                     <div key={category}>
@@ -243,7 +245,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section>
-                <SectionHeading className="mb-12">Education</SectionHeading>
+                <SectionHeading className="mb-12">{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-8"
@@ -272,7 +274,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
           <div className="flex flex-col gap-16 lg:gap-24 border-t border-black pt-12">
             {certifications.length > 0 && (
               <section>
-                <SectionHeading className="mb-12">Certifications</SectionHeading>
+                <SectionHeading className="mb-12">{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-6"
@@ -305,7 +307,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section>
-                <SectionHeading className="mb-12">Achievements</SectionHeading>
+                <SectionHeading className="mb-12">{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-6"
@@ -329,7 +331,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
 
         {articles.length > 0 && (
           <section id="writing" className="scroll-mt-32 border-t border-black pt-12">
-            <SectionHeading className="mb-12">Writing</SectionHeading>
+            <SectionHeading className="mb-12">{labels.articles}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12"
@@ -375,7 +377,7 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
 
         {hasProfiles && (
           <section id="profiles" className="scroll-mt-32 border-t border-black pt-12">
-            <SectionHeading className="mb-12">Connect</SectionHeading>
+            <SectionHeading className="mb-12">{labels.profiles}</SectionHeading>
             <ProfileLinksSection
               portfolio={portfolio}
               profiles={socialProfiles}
@@ -389,14 +391,14 @@ export function MonochromeTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="scroll-mt-32 border-t border-black pt-12">
-            <SectionHeading className="mb-12">Activity</SectionHeading>
+            <SectionHeading className="mb-12">{labels.github}</SectionHeading>
             <div className="overflow-x-auto custom-scrollbar pb-4">
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}
                 profileUrl={githubProfile?.url}
                 username={githubProfile?.username}
                 variant="minimal"
-                label="GitHub Contributions"
+                label={labels.github}
               />
             </div>
           </section>

@@ -8,15 +8,15 @@ import type {
   TemplateNavbarCustomization,
   TemplateSectionId,
 } from "./types";
+import {
+  getSectionLabel,
+  NAVBAR_SECTION_TO_KEY,
+} from "./section-labels";
 import { getPlatformIcon } from "./utils";
 import { CollapsibleList } from "./collapsible-list";
 
-const TEMPLATE_SECTION_LABELS: Record<TemplateSectionId, string> = {
-  about: "About",
-  work: "Work",
-  experience: "Experience",
-  profiles: "Profiles",
-};
+export { getSectionLabel, getSectionLabels, STANDARD_SECTION_LABELS } from "./section-labels";
+export type { SectionKey } from "./section-labels";
 
 const HERO_PROFILE_PLATFORMS = ["github", "linkedin"] as const;
 
@@ -114,12 +114,13 @@ export function buildTemplateSections(data: PortfolioData) {
     hasProfiles ? "profiles" : null,
   ].filter((section): section is TemplateSectionId => Boolean(section));
 
+  const customization = data.portfolio.customization;
   const sections = availableSections
     .filter((section) => navbar.sections?.[section] !== false)
     .slice(0, 4)
     .map((section) => ({
       id: section,
-      label: TEMPLATE_SECTION_LABELS[section],
+      label: getSectionLabel(NAVBAR_SECTION_TO_KEY[section], customization),
     }));
 
   return {

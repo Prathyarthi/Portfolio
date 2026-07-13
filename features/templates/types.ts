@@ -1,3 +1,5 @@
+import type { SectionKey } from "./section-labels";
+
 export type TemplateSectionId = "about" | "work" | "experience" | "profiles";
 
 export interface TemplateNavbarCustomization {
@@ -7,6 +9,8 @@ export interface TemplateNavbarCustomization {
 
 export interface PortfolioCustomization {
   navbar?: TemplateNavbarCustomization;
+  /** User- or resume-derived section heading overrides. */
+  sectionLabels?: Partial<Record<SectionKey, string>>;
   /** Shown by the Spotlight template as the large hero line under the headline. */
   heroTagline?: string;
   [key: string]: unknown;

@@ -7,6 +7,7 @@ import {
 import {
   buildTemplateSections,
   ContactChips,
+  getSectionLabels,
   CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
@@ -39,6 +40,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -102,7 +104,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
 
         {portfolio.summary && (
           <section id="about" className="scroll-mt-12">
-            <SectionHeading>Abstract</SectionHeading>
+            <SectionHeading>{labels.about}</SectionHeading>
             <div className="text-lg leading-relaxed text-[#444] first-letter:text-5xl first-letter:font-bold first-letter:mr-1 first-letter:float-left">
               <DescriptionBlock
                 text={portfolio.summary}
@@ -115,7 +117,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
 
         {visibleProjects.length > 0 && (
           <section id="work" className="scroll-mt-12">
-            <SectionHeading>Selected Works</SectionHeading>
+            <SectionHeading>{labels.projects}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName="space-y-12"
@@ -175,7 +177,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
         <div className="flex flex-col gap-12 md:gap-16">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-12">
-              <SectionHeading>Experience</SectionHeading>
+              <SectionHeading>{labels.experience}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="space-y-8"
@@ -209,7 +211,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
           <div className="space-y-16">
             {educations.length > 0 && (
               <section>
-                <SectionHeading>Education</SectionHeading>
+                <SectionHeading>{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-6"
@@ -233,7 +235,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
 
             {skills.length > 0 && (
               <section>
-                <SectionHeading>Proficiencies</SectionHeading>
+                <SectionHeading>{labels.skills}</SectionHeading>
                 <div className="space-y-6">
                   {Object.entries(groupedSkills).map(([category, names]) => (
                     <div key={category}>
@@ -254,7 +256,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
           <div className="flex flex-col gap-12 md:gap-16">
             {certifications.length > 0 && (
               <section>
-                <SectionHeading>Certifications</SectionHeading>
+                <SectionHeading>{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-6"
@@ -285,7 +287,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section>
-                <SectionHeading>Honors & Awards</SectionHeading>
+                <SectionHeading>{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-6"
@@ -324,7 +326,7 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
 
         {articles.length > 0 && (
           <section id="writing" className="scroll-mt-12">
-            <SectionHeading>Publications</SectionHeading>
+            <SectionHeading>{labels.articles}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName="grid grid-cols-1 sm:grid-cols-2 gap-8"
@@ -356,21 +358,21 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="scroll-mt-12">
-            <SectionHeading>Open Source</SectionHeading>
+            <SectionHeading>{labels.openSource}</SectionHeading>
             <div className="border border-[#2c2c2c] p-6 bg-white overflow-x-auto custom-scrollbar">
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}
                 profileUrl={githubProfile?.url}
                 username={githubProfile?.username}
                 variant="minimal"
-                label="GitHub Contributions"
+                label={labels.github}
               />
             </div>
           </section>
         )}
         {hasProfiles && (
           <section id="profiles" className="scroll-mt-12">
-            <SectionHeading>Directory</SectionHeading>
+            <SectionHeading>{labels.profiles}</SectionHeading>
             <div className="border border-[#2c2c2c] p-8 bg-white">
               <ProfileLinksSection
                 portfolio={portfolio}

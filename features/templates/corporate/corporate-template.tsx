@@ -26,6 +26,7 @@ import {
   SocialPills,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -46,6 +47,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const skillsByCategory = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -129,7 +131,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 id="about"
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
-                <SectionHeading>Professional Summary</SectionHeading>
+                <SectionHeading>{labels.about}</SectionHeading>
                 <DescriptionBlock
                   text={portfolio.summary}
                   paragraphClassName="whitespace-pre-line text-base leading-8 text-slate-600"
@@ -143,7 +145,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 id="work"
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
-                <SectionHeading>Work</SectionHeading>
+                <SectionHeading>{labels.projects}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName={cn(PROJECTS_GRID_2, "gap-5")}
@@ -239,7 +241,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 id="experience"
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
-                <SectionHeading>Experience</SectionHeading>
+                <SectionHeading>{labels.experience}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-5"
@@ -286,7 +288,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 id="writing"
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
-                <SectionHeading>Writing</SectionHeading>
+                <SectionHeading>{labels.articles}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -345,7 +347,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
           <aside className="space-y-6 md:space-y-8">
             {skills.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
-                <SectionHeading>Capabilities</SectionHeading>
+                <SectionHeading>{labels.skills}</SectionHeading>
                 <div className="space-y-6">
                   {Object.entries(skillsByCategory).map(([category, names]) => (
                     <div key={category}>
@@ -370,7 +372,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
-                <SectionHeading>Education</SectionHeading>
+                <SectionHeading>{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -400,7 +402,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
 
             {certifications.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
-                <SectionHeading>Certifications</SectionHeading>
+                <SectionHeading>{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -442,7 +444,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section className="rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8">
-                <SectionHeading>Achievements</SectionHeading>
+                <SectionHeading>{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-3"
@@ -476,7 +478,7 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                 id="profiles"
                 className="scroll-mt-24 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:p-8"
               >
-                <SectionHeading>Profiles</SectionHeading>
+                <SectionHeading>{labels.profiles}</SectionHeading>
                 <ProfileLinksSection
                   portfolio={portfolio}
                   profiles={socialProfiles}
@@ -508,13 +510,13 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="mt-6 rounded-[1.9rem] border border-white bg-white p-6 shadow-[0_14px_40px_rgba(15,23,42,0.05)] md:mt-8 md:p-8">
-            <SectionHeading>GitHub Activity</SectionHeading>
+            <SectionHeading>{labels.github}</SectionHeading>
             <GitHubContributionHeatmap
               calendar={contributionCalendar}
               profileUrl={githubProfile?.url}
               username={githubProfile?.username}
               variant="corporate"
-              label="GitHub Contribution Calendar"
+              label={labels.github}
             />
           </section>
         )}

@@ -213,6 +213,9 @@ export function ResumeUploader({
         phone: parsedData.contact?.phone ?? null,
         websiteUrl: normalizeUrl(parsedData.contact?.websiteUrl),
         location: parsedData.contact?.location ?? null,
+        ...(parsedData.sectionLabels && Object.keys(parsedData.sectionLabels).length > 0
+          ? { customization: { sectionLabels: parsedData.sectionLabels } }
+          : {}),
       });
 
       if (clearBeforeImport) {

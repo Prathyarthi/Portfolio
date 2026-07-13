@@ -18,6 +18,7 @@ import {
   PROJECTS_GRID_2,
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
+  getSectionLabels,
 } from "../shared";
 import { TemplateProjectPreview } from "@/components/template-project-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -39,6 +40,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const { navbarEnabled, sections } = buildTemplateSections(data);
   const groupedSkills = groupSkillsByCategory(skills);
 
@@ -89,7 +91,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
             <section id="about" className="scroll-mt-32">
               <div className="rounded-[2.5rem] bg-white p-8 md:p-12 shadow-xs border border-slate-100 relative overflow-hidden">
                 <div className="absolute -top-12 -right-12 w-48 h-48 bg-sky-100/50 rounded-full blur-3xl" />
-                <h2 className="mb-6 text-2xl font-bold text-slate-800">About Me</h2>
+                <h2 className="mb-6 text-2xl font-bold text-slate-800">{labels.about}</h2>
                 <DescriptionBlock
                   text={portfolio.summary}
                   paragraphClassName="text-lg leading-relaxed text-slate-600"
@@ -101,7 +103,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
 
           {projects.length > 0 && (
             <section id="work" className="scroll-mt-32">
-              <h2 className="mb-8 text-3xl font-bold text-slate-800 px-2">Projects</h2>
+              <h2 className="mb-8 text-3xl font-bold text-slate-800 px-2">{labels.projects}</h2>
               <CollapsibleList initial={4} wrapperClassName={PROJECTS_GRID_2} buttonClassName="mt-6 mx-auto bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                 {projects.map((project) => (
                   <article key={project.id} className={cn(PROJECT_CARD, "group rounded-3xl border border-slate-100 bg-white shadow-xs transition-all hover:shadow-md")}>
@@ -147,7 +149,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
 
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
-              <h2 className="mb-8 text-3xl font-bold text-slate-800 px-2">Experience</h2>
+              <h2 className="mb-8 text-3xl font-bold text-slate-800 px-2">{labels.experience}</h2>
               <CollapsibleList initial={3} wrapperClassName="space-y-6" buttonClassName="mt-6 mx-auto bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                 {experiences.map((exp) => (
                   <div key={exp.id} className="rounded-3xl bg-white border border-slate-100 p-8 shadow-xs hover:shadow-sm transition-all">
@@ -172,7 +174,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
           <div className={STACKED_SECTIONS}>
             {skills.length > 0 && (
               <section className="scroll-mt-32">
-                <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">Skills</h2>
+                <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">{labels.skills}</h2>
                 <div className="space-y-6">
                   {Object.entries(groupedSkills).map(([category, items]) => (
                     <div key={category} className="rounded-3xl bg-white border border-slate-100 p-6 shadow-xs">
@@ -192,7 +194,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section className="scroll-mt-32">
-                <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">Education</h2>
+                <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">{labels.education}</h2>
                 <CollapsibleList initial={3} wrapperClassName="space-y-6" buttonClassName="mt-4 bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                   {educations.map((edu) => (
                     <div key={edu.id} className="rounded-3xl bg-white border border-slate-100 p-6 shadow-xs">
@@ -212,7 +214,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
             <div className={STACKED_SECTIONS}>
               {certifications.length > 0 && (
                 <section>
-                  <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">Certifications</h2>
+                  <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">{labels.certifications}</h2>
                   <CollapsibleList initial={3} wrapperClassName="space-y-4" buttonClassName="mt-4 bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                     {certifications.map((cert) => (
                       <div key={cert.id} className="rounded-2xl bg-white border border-slate-100 p-5 shadow-xs">
@@ -230,7 +232,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
 
               {achievements.length > 0 && (
                 <section>
-                  <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">Achievements</h2>
+                  <h2 className="mb-8 text-2xl font-bold text-slate-800 px-2">{labels.achievements}</h2>
                   <CollapsibleList initial={3} wrapperClassName="space-y-4" buttonClassName="mt-4 bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                     {achievements.map((ach) => (
                       <div key={ach.id} className="flex gap-4 rounded-2xl bg-white border border-slate-100 p-5 shadow-xs">
@@ -253,7 +255,7 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
 
           {articles.length > 0 && (
             <section id="articles" className="scroll-mt-32">
-              <h2 className="mb-8 text-3xl font-bold text-slate-800 px-2">Articles</h2>
+              <h2 className="mb-8 text-3xl font-bold text-slate-800 px-2">{labels.articles}</h2>
               <CollapsibleList initial={3} wrapperClassName="grid gap-6 md:grid-cols-2" buttonClassName="mt-6 mx-auto bg-white border border-sky-100 text-sky-600 px-6 py-2 rounded-full font-medium hover:bg-sky-50 transition-colors">
                 {articles.map((article) => (
                   <a key={article.id} href={article.url} target="_blank" rel="noreferrer" className="block rounded-3xl bg-white border border-slate-100 p-6 shadow-xs hover:border-sky-200 hover:shadow-md transition-all">
@@ -293,14 +295,14 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
 
           {contributionCalendar && (
             <section className="rounded-[2.5rem] bg-white p-8 md:p-12 border border-slate-100 shadow-xs overflow-x-auto">
-              <h2 className="mb-8 text-2xl font-bold text-slate-800">GitHub Activity</h2>
+              <h2 className="mb-8 text-2xl font-bold text-slate-800">{labels.github}</h2>
               <div className="min-w-[700px]">
                 <GitHubContributionHeatmap
                   calendar={contributionCalendar}
                   profileUrl={githubProfile?.url}
                   username={githubProfile?.username}
                   variant="minimal"
-                  label="GitHub Contribution Calendar"
+                  label={labels.github}
                 />
               </div>
             </section>

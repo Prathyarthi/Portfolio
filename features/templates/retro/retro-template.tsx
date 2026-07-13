@@ -27,6 +27,7 @@ import {
   TEMPLATE_CONTAINER,
   TemplateNavbar,
   PROJECTS_GRID_2,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -47,6 +48,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -145,7 +147,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                 id="about"
                 className="scroll-mt-24 border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8"
               >
-                <SectionHeading>About</SectionHeading>
+                <SectionHeading>{labels.about}</SectionHeading>
                 <DescriptionBlock
                   text={portfolio.summary}
                   paragraphClassName="whitespace-pre-line text-base font-medium leading-8 text-black"
@@ -159,7 +161,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                 id="work"
                 className="scroll-mt-24 border-4 border-black bg-[#ffc900] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8"
               >
-                <SectionHeading>Work</SectionHeading>
+                <SectionHeading>{labels.projects}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName={PROJECTS_GRID_2}
@@ -254,7 +256,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                 id="experience"
                 className="scroll-mt-24 border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8"
               >
-                <SectionHeading>Experience</SectionHeading>
+                <SectionHeading>{labels.experience}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-6"
@@ -299,7 +301,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                 id="writing"
                 className="scroll-mt-24 border-4 border-black bg-[#90bcff] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8"
               >
-                <SectionHeading>Writing</SectionHeading>
+                <SectionHeading>{labels.articles}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -363,7 +365,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
           <aside className="space-y-10">
             {skills.length > 0 && (
               <section className="border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8">
-                <SectionHeading>Skills</SectionHeading>
+                <SectionHeading>{labels.skills}</SectionHeading>
                 <div className="space-y-6">
                   {Object.entries(groupedSkills).map(([category, names]) => (
                     <div key={category}>
@@ -388,7 +390,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section className="border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8">
-                <SectionHeading>Education</SectionHeading>
+                <SectionHeading>{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-5"
@@ -418,7 +420,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
 
             {certifications.length > 0 && (
               <section className="border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8">
-                <SectionHeading>Certifications</SectionHeading>
+                <SectionHeading>{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -460,7 +462,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section className="border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8">
-                <SectionHeading>Achievements</SectionHeading>
+                <SectionHeading>{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-3"
@@ -494,7 +496,7 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                 id="profiles"
                 className="scroll-mt-24 border-4 border-black bg-[#ff90e8] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8"
               >
-                <SectionHeading>Profiles</SectionHeading>
+                <SectionHeading>{labels.profiles}</SectionHeading>
                 <ProfileLinksSection
                   portfolio={portfolio}
                   profiles={socialProfiles}
@@ -526,13 +528,13 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="mt-10 border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:p-8">
-            <SectionHeading>GitHub Activity</SectionHeading>
+            <SectionHeading>{labels.github}</SectionHeading>
             <GitHubContributionHeatmap
               calendar={contributionCalendar}
               profileUrl={githubProfile?.url}
               username={githubProfile?.username}
               variant="minimal"
-              label="GitHub Contribution Calendar"
+              label={labels.github}
             />
           </section>
         )}

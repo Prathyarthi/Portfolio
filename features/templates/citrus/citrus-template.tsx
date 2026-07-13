@@ -15,6 +15,7 @@ import {
   PROJECT_CARD_TITLE,
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
+  getSectionLabels,
 } from "../shared";
 import { TemplateProjectPreview } from "@/components/template-project-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -36,6 +37,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const { navbarEnabled, sections } = buildTemplateSections(data);
   const groupedSkills = groupSkillsByCategory(skills);
 
@@ -94,7 +96,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
           {portfolio.summary && (
             <section id="about" className="scroll-mt-32 max-w-4xl relative">
               <div className="absolute -left-8 top-0 bottom-0 w-2 bg-[#E9C46A]" />
-              <h2 className="mb-6 text-4xl font-black text-[#264653] uppercase tracking-tight">About</h2>
+              <h2 className="mb-6 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.about}</h2>
               <DescriptionBlock
                 text={portfolio.summary}
                 paragraphClassName="text-xl leading-relaxed text-[#264653]/80 font-medium"
@@ -105,7 +107,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
 
           {projects.length > 0 && (
             <section id="work" className="scroll-mt-32">
-              <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">Projects</h2>
+              <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.projects}</h2>
               <CollapsibleList initial={4} wrapperClassName={cn("grid min-w-0 grid-cols-1 gap-12", "@lg:grid-cols-2")} buttonClassName="mt-12 mx-auto bg-[#264653] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#F4A261] transition-colors">
                 {projects.map((project) => (
                   <article key={project.id} className={cn(PROJECT_CARD, "group relative")}>
@@ -153,7 +155,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
 
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32 max-w-5xl">
-              <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">Experience</h2>
+              <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.experience}</h2>
               <CollapsibleList initial={4} wrapperClassName="space-y-8" buttonClassName="mt-12 bg-[#264653] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#F4A261] transition-colors">
                 {experiences.map((exp) => (
                   <div key={exp.id} className="relative bg-white border-4 border-[#264653] p-8 rounded-xl shadow-[8px_8px_0_0_#F4A261]">
@@ -178,7 +180,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
           <div className={STACKED_SECTIONS}>
             {skills.length > 0 && (
               <section className="scroll-mt-32">
-                <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">Skills</h2>
+                <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.skills}</h2>
                 <div className="space-y-8">
                   {Object.entries(groupedSkills).map(([category, items]) => (
                     <div key={category} className="bg-white border-4 border-[#264653] p-6 rounded-xl shadow-[6px_6px_0_0_#E9C46A]">
@@ -198,7 +200,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section className="scroll-mt-32">
-                <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">Education</h2>
+                <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.education}</h2>
                 <CollapsibleList initial={3} wrapperClassName="space-y-6" buttonClassName="mt-8 bg-[#264653] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#F4A261] transition-colors">
                   {educations.map((edu) => (
                     <div key={edu.id} className="bg-white border-4 border-[#264653] p-6 rounded-xl shadow-[6px_6px_0_0_#264653]">
@@ -218,7 +220,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
             <div className={STACKED_SECTIONS}>
               {certifications.length > 0 && (
                 <section>
-                  <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">Certs</h2>
+                  <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.certifications}</h2>
                   <CollapsibleList initial={3} wrapperClassName="space-y-6" buttonClassName="mt-8 bg-[#264653] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#F4A261] transition-colors">
                     {certifications.map((cert) => (
                       <div key={cert.id} className="bg-[#E9C46A]/20 border-l-8 border-[#F4A261] p-6">
@@ -236,7 +238,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
 
               {achievements.length > 0 && (
                 <section>
-                  <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">Awards</h2>
+                  <h2 className="mb-10 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.achievements}</h2>
                   <CollapsibleList initial={3} wrapperClassName="space-y-6" buttonClassName="mt-8 bg-[#264653] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#F4A261] transition-colors">
                     {achievements.map((ach) => (
                       <div key={ach.id} className="flex gap-4 bg-[#F4A261]/20 border-l-8 border-[#E9C46A] p-6">
@@ -259,7 +261,7 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
 
           {articles.length > 0 && (
             <section id="articles" className="scroll-mt-32 max-w-5xl">
-              <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">Articles</h2>
+              <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.articles}</h2>
               <CollapsibleList initial={3} wrapperClassName="grid gap-8 md:grid-cols-2" buttonClassName="mt-12 mx-auto bg-[#264653] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#F4A261] transition-colors">
                 {articles.map((article) => (
                   <a key={article.id} href={article.url} target="_blank" rel="noreferrer" className="block bg-white border-4 border-[#264653] p-8 rounded-xl shadow-[8px_8px_0_0_#264653] hover:-translate-y-2 hover:shadow-[12px_12px_0_0_#F4A261] transition-all">
@@ -294,14 +296,14 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
 
           {contributionCalendar && (
             <section className="scroll-mt-32 max-w-6xl overflow-x-auto pb-4">
-              <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">Activity</h2>
+              <h2 className="mb-12 text-4xl font-black text-[#264653] uppercase tracking-tight">{labels.github}</h2>
               <div className="min-w-[700px] bg-white border-4 border-[#264653] p-8 rounded-xl shadow-[8px_8px_0_0_#E9C46A]">
                 <GitHubContributionHeatmap
                   calendar={contributionCalendar}
                   profileUrl={githubProfile?.url}
                   username={githubProfile?.username}
                   variant="creative"
-                  label="GitHub Contribution Calendar"
+                  label={labels.github}
                 />
               </div>
             </section>

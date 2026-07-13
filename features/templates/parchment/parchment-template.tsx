@@ -15,6 +15,7 @@ import {
   PROJECT_CARD_TITLE,
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
+  getSectionLabels,
 } from "../shared";
 import { TemplateProjectPreview } from "@/components/template-project-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -36,6 +37,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const { navbarEnabled, sections } = buildTemplateSections(data);
   const groupedSkills = groupSkillsByCategory(skills);
 
@@ -92,7 +94,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
           {portfolio.summary && (
             <section id="about" className="scroll-mt-32">
               <div className="flex items-center gap-6 mb-8">
-                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Prologue</h2>
+                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.about}</h2>
                 <div className="h-px w-full bg-[#2B2B2B]" />
               </div>
               <div className="md:col-span-2 text-justify">
@@ -108,7 +110,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
           {projects.length > 0 && (
             <section id="work" className="scroll-mt-32">
               <div className="flex items-center gap-6 mb-12">
-                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Folio</h2>
+                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.projects}</h2>
                 <div className="h-px w-full bg-[#2B2B2B]" />
               </div>
               <CollapsibleList initial={3} wrapperClassName="space-y-16" buttonClassName="mt-12 mx-auto block uppercase tracking-[0.2em] font-bold border-2 border-[#2B2B2B] px-8 py-3 hover:bg-[#2B2B2B] hover:text-[#F1EEDC] transition-colors">
@@ -161,7 +163,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
               <div className="flex items-center gap-6 mb-12">
-                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Chronicle</h2>
+                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.experience}</h2>
                 <div className="h-px w-full bg-[#2B2B2B]" />
               </div>
               <CollapsibleList initial={3} wrapperClassName="grid md:grid-cols-2 gap-x-12 gap-y-16" buttonClassName="mt-16 mx-auto block uppercase tracking-[0.2em] font-bold border-2 border-[#2B2B2B] px-8 py-3 hover:bg-[#2B2B2B] hover:text-[#F1EEDC] transition-colors">
@@ -187,7 +189,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
             {skills.length > 0 && (
               <section className="scroll-mt-32">
                 <div className="flex items-center gap-6 mb-10">
-                  <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Aptitudes</h2>
+                  <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.skills}</h2>
                   <div className="h-px w-full bg-[#2B2B2B]" />
                 </div>
                 <div className="space-y-10">
@@ -210,7 +212,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
             {educations.length > 0 && (
               <section className="scroll-mt-32">
                 <div className="flex items-center gap-6 mb-10">
-                  <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Academia</h2>
+                  <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.education}</h2>
                   <div className="h-px w-full bg-[#2B2B2B]" />
                 </div>
                 <CollapsibleList initial={3} wrapperClassName="space-y-10" buttonClassName="mt-8 uppercase tracking-[0.2em] font-bold border-b-2 border-[#2B2B2B] pb-1 hover:text-[#8C2727] transition-colors">
@@ -233,7 +235,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
               {certifications.length > 0 && (
                 <section>
                   <div className="flex items-center gap-6 mb-10">
-                    <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Certificates</h2>
+                    <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.certifications}</h2>
                     <div className="h-px w-full bg-[#2B2B2B]" />
                   </div>
                   <CollapsibleList initial={3} wrapperClassName="space-y-8" buttonClassName="mt-8 uppercase tracking-[0.2em] font-bold border-b-2 border-[#2B2B2B] pb-1 hover:text-[#8C2727] transition-colors">
@@ -254,7 +256,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
               {achievements.length > 0 && (
                 <section>
                   <div className="flex items-center gap-6 mb-10">
-                    <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Honors</h2>
+                    <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.achievements}</h2>
                     <div className="h-px w-full bg-[#2B2B2B]" />
                   </div>
                   <CollapsibleList initial={3} wrapperClassName="space-y-8" buttonClassName="mt-8 uppercase tracking-[0.2em] font-bold border-b-2 border-[#2B2B2B] pb-1 hover:text-[#8C2727] transition-colors">
@@ -280,7 +282,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
           {articles.length > 0 && (
             <section id="articles" className="scroll-mt-32">
               <div className="flex items-center gap-6 mb-12">
-                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Publications</h2>
+                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.articles}</h2>
                 <div className="h-px w-full bg-[#2B2B2B]" />
               </div>
               <CollapsibleList initial={3} wrapperClassName="grid md:grid-cols-2 gap-8" buttonClassName="mt-12 mx-auto block uppercase tracking-[0.2em] font-bold border-2 border-[#2B2B2B] px-8 py-3 hover:bg-[#2B2B2B] hover:text-[#F1EEDC] transition-colors">
@@ -321,7 +323,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
           {contributionCalendar && (
             <section className="scroll-mt-32 overflow-x-auto pb-4">
               <div className="flex items-center gap-6 mb-12">
-                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">Activity Record</h2>
+                <h2 className="text-3xl font-black uppercase tracking-widest whitespace-nowrap">{labels.github}</h2>
                 <div className="h-px w-full bg-[#2B2B2B]" />
               </div>
               <div className="min-w-[700px] border-4 border-[#2B2B2B] p-8 bg-white">
@@ -330,7 +332,7 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
                   profileUrl={githubProfile?.url}
                   username={githubProfile?.username}
                   variant="corporate"
-                  label="GitHub Contribution Calendar"
+                  label={labels.github}
                 />
               </div>
             </section>

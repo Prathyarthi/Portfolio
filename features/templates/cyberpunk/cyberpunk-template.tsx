@@ -23,6 +23,7 @@ import {
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -43,6 +44,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -132,7 +134,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
         {portfolio.summary && (
           <section id="about" className="scroll-mt-24">
-            <SectionHeading icon={<Cpu className="w-5 h-5" />}>Data.Read("About")</SectionHeading>
+            <SectionHeading icon={<Cpu className="w-5 h-5" />}>{labels.about}</SectionHeading>
             <div className="border border-[#00ff00]/30 bg-[#00ff00]/5 p-6 md:p-8 shadow-[inset_0_0_20px_rgba(0,255,0,0.05)]">
               <DescriptionBlock
                 text={portfolio.summary}
@@ -145,7 +147,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
         {visibleProjects.length > 0 && (
           <section id="work" className="scroll-mt-24">
-            <SectionHeading icon={<Zap className="w-5 h-5" />}>Execute.Projects()</SectionHeading>
+            <SectionHeading icon={<Zap className="w-5 h-5" />}>{labels.projects}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName={PROJECTS_GRID_2}
@@ -214,7 +216,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
         <div className="flex flex-col gap-12">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-24">
-              <SectionHeading>Load.Experience()</SectionHeading>
+              <SectionHeading>{labels.experience}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="space-y-6"
@@ -248,7 +250,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
           <div className="space-y-12">
             {skills.length > 0 && (
               <section>
-                <SectionHeading>Sys.Modules()</SectionHeading>
+                <SectionHeading>{labels.skills}</SectionHeading>
                 <div className="space-y-6 border border-[#00ff00]/30 p-6 bg-[#00ff00]/5">
                   {Object.entries(groupedSkills).map(([category, names]) => (
                     <div key={category}>
@@ -270,7 +272,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section>
-                <SectionHeading>Mem.Education()</SectionHeading>
+                <SectionHeading>{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-4"
@@ -299,7 +301,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
           <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
-                <SectionHeading>Verify.Certs()</SectionHeading>
+                <SectionHeading>{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -332,7 +334,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section>
-                <SectionHeading>Unlock.Awards()</SectionHeading>
+                <SectionHeading>{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -361,7 +363,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
         {articles.length > 0 && (
           <section id="writing" className="scroll-mt-24">
-            <SectionHeading>Fetch.Logs()</SectionHeading>
+            <SectionHeading>{labels.articles}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName="grid grid-cols-1 sm:grid-cols-2 gap-6"
@@ -394,7 +396,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
         {/* Custom Sections */}
         {customSections.length > 0 && customSections.map((cs) => (
           <section key={cs.id} className="scroll-mt-24">
-            <SectionHeading>Data.Custom("{cs.label}")</SectionHeading>
+            <SectionHeading>{cs.label}</SectionHeading>
             <div className="border border-[#ff00ff]/30 p-6 bg-[#ff00ff]/5">
               <CustomSectionItems
                 items={cs.items}
@@ -408,7 +410,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
         {hasProfiles && (
           <section id="profiles" className="scroll-mt-24">
-            <SectionHeading>Net.Connect()</SectionHeading>
+            <SectionHeading>{labels.profiles}</SectionHeading>
             <div className="border border-[#00ff00]/30 p-8 bg-[#00ff00]/5 text-center">
               <ProfileLinksSection
                 portfolio={portfolio}
@@ -424,7 +426,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="scroll-mt-24">
-            <SectionHeading>Git.Trace()</SectionHeading>
+            <SectionHeading>{labels.github}</SectionHeading>
             <div className="border border-[#00ff00] p-6 bg-[#050505] overflow-x-auto custom-scrollbar shadow-[0_0_20px_rgba(0,255,0,0.1)]">
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}

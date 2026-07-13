@@ -24,6 +24,7 @@ import {
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -44,6 +45,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -126,7 +128,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
         {portfolio.summary && (
           <section id="about" className="scroll-mt-32">
             <div className="bg-[#1a0b2e]/80 backdrop-blur-md border-l-4 border-[#ff007f] p-8 md:p-12 shadow-[0_0_20px_rgba(255,0,127,0.2)]">
-              <SectionHeading icon={<Sun className="w-6 h-6 text-[#ffbc00]" />}>Transmission</SectionHeading>
+              <SectionHeading icon={<Sun className="w-6 h-6 text-[#ffbc00]" />}>{labels.about}</SectionHeading>
               <DescriptionBlock
                 text={portfolio.summary}
                 paragraphClassName="text-lg md:text-xl leading-relaxed text-[#e0e0e0] font-medium"
@@ -138,7 +140,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
 
         {visibleProjects.length > 0 && (
           <section id="work" className="scroll-mt-32">
-            <SectionHeading icon={<Zap className="w-6 h-6 text-[#00f0ff]" />}>Arcade</SectionHeading>
+            <SectionHeading icon={<Zap className="w-6 h-6 text-[#00f0ff]" />}>{labels.projects}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
@@ -207,7 +209,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
         <div className="flex flex-col gap-12">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
-              <SectionHeading icon={<Music className="w-5 h-5 text-[#ff007f]" />}>Levels</SectionHeading>
+              <SectionHeading icon={<Music className="w-5 h-5 text-[#ff007f]" />}>{labels.experience}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="space-y-6"
@@ -240,7 +242,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
           <div className="space-y-12">
             {skills.length > 0 && (
               <section>
-                <SectionHeading>Loadout</SectionHeading>
+                <SectionHeading>{labels.skills}</SectionHeading>
                 <div className="bg-[#1a0b2e]/80 border border-[#ff007f]/50 p-8 shadow-[0_0_15px_rgba(255,0,127,0.1)]">
                   <div className="space-y-8">
                     {Object.entries(groupedSkills).map(([category, names]) => (
@@ -264,7 +266,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section>
-                <SectionHeading>Training</SectionHeading>
+                <SectionHeading>{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-4"
@@ -292,7 +294,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
           <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
-                <SectionHeading>Badges</SectionHeading>
+                <SectionHeading>{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -325,7 +327,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section>
-                <SectionHeading>Trophies</SectionHeading>
+                <SectionHeading>{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -354,7 +356,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
 
         {articles.length > 0 && (
           <section id="writing" className="scroll-mt-32">
-            <SectionHeading>Cassettes</SectionHeading>
+            <SectionHeading>{labels.articles}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -403,7 +405,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
             <div className="bg-[#1a0b2e]/90 border-2 border-[#ff007f] p-10 md:p-14 text-center shadow-[0_0_30px_rgba(255,0,127,0.3)] relative overflow-hidden">
               <div className="absolute top-0 right-0 w-full h-1 bg-linear-to-r from-transparent via-[#00f0ff] to-transparent" />
               <div className="absolute bottom-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-[#ffbc00] to-transparent" />
-              <h2 className="text-3xl font-black text-white uppercase tracking-widest mb-8 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">Multiplayer</h2>
+              <h2 className="text-3xl font-black text-white uppercase tracking-widest mb-8 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">{labels.profiles}</h2>
               <div className="flex justify-center">
                 <ProfileLinksSection
                   portfolio={portfolio}
@@ -420,7 +422,7 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="scroll-mt-32">
-            <SectionHeading>Activity Log</SectionHeading>
+            <SectionHeading>{labels.github}</SectionHeading>
             <div className="bg-[#1a0b2e]/80 border border-[#00f0ff]/50 p-8 shadow-[0_0_15px_rgba(0,240,255,0.1)] overflow-x-auto custom-scrollbar">
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}
