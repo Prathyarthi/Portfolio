@@ -344,7 +344,9 @@ export function ProjectForm() {
       );
     }
 
-    const original = projects.find((project) => project.id === editingId);
+    const original = projects.find(
+      (project: { id: string }) => project.id === editingId
+    );
     if (!original || !editingId) return true;
 
     const fieldsChanged = fieldsDiffer(
@@ -388,7 +390,9 @@ export function ProjectForm() {
   const savedForm = useMemo((): ProjectEntry => {
     if (isAdding) return emptyEntry;
     if (!editingId) return emptyEntry;
-    const original = projects.find((project) => project.id === editingId);
+    const original = projects.find(
+      (project: { id: string }) => project.id === editingId
+    );
     if (!original) return emptyEntry;
     return {
       title: original.title ?? "",
@@ -405,11 +409,13 @@ export function ProjectForm() {
       ? fieldDiffers(form[key] ?? "", savedForm[key] ?? "")
       : false;
 
+  const isEditing = Boolean(isAdding || editingId);
+
   const isFeaturedUnsaved =
-    (isAdding || editingId) && form.featured !== savedForm.featured;
+    isEditing && form.featured !== savedForm.featured;
 
   const isTechUnsaved =
-    (isAdding || editingId) &&
+    isEditing &&
     (JSON.stringify(form.techStack) !== JSON.stringify(savedForm.techStack) ||
       techInput.trim() !== "");
 

@@ -130,7 +130,9 @@ export function AchievementForm() {
   const isDirty = useMemo(() => {
     if (!isAdding && !editingId) return false;
     if (isAdding) return hasNonEmptyStringValues(form);
-    const original = achievements.find((ach) => ach.id === editingId);
+    const original = achievements.find(
+      (ach: { id: string }) => ach.id === editingId
+    );
     if (!original) return true;
     return fieldsDiffer(
       form,
@@ -147,7 +149,9 @@ export function AchievementForm() {
   const savedForm = useMemo((): AchievementEntry => {
     if (isAdding) return emptyEntry;
     if (!editingId) return emptyEntry;
-    const original = achievements.find((ach) => ach.id === editingId);
+    const original = achievements.find(
+      (ach: { id: string }) => ach.id === editingId
+    );
     if (!original) return emptyEntry;
     return {
       title: original.title ?? "",

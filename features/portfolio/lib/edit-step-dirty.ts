@@ -1,17 +1,17 @@
-export function hasNonEmptyStringValues(
-  values: Record<string, unknown>
-): boolean {
+export function hasNonEmptyStringValues(values: object): boolean {
   return Object.values(values).some(
     (value) => typeof value === "string" && value.trim() !== ""
   );
 }
 
 export function fieldsDiffer(
-  form: Record<string, string>,
-  saved: Record<string, string | null | undefined>,
+  form: object,
+  saved: object,
   keys: readonly string[]
 ): boolean {
-  return keys.some((key) => (form[key] ?? "") !== (saved[key] ?? ""));
+  const formValues = form as Record<string, string>;
+  const savedValues = saved as Record<string, string | null | undefined>;
+  return keys.some((key) => (formValues[key] ?? "") !== (savedValues[key] ?? ""));
 }
 
 export function normalizeDate(value: string | null | undefined): string {
