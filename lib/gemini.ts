@@ -1,3 +1,4 @@
+import type { PdfExtractionQuality } from "@/lib/pdf-extract";
 import { generateOpenRouterResumeText } from "@/lib/openrouter";
 import {
   RESUME_PARSER_SYSTEM,
@@ -766,7 +767,7 @@ export async function structureResumeWithAi(
   options?: { quality?: PdfExtractionQuality },
 ): Promise<ParsedResume> {
   const text = await generateOpenRouterResumeText(
-    buildResumeUserMessage(rawText),
+    buildResumeUserMessage(rawText, options?.quality),
     RESUME_PARSER_SYSTEM,
   );
 

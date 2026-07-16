@@ -1,3 +1,5 @@
+import type { PdfExtractionQuality } from "@/lib/pdf-extract";
+
 export const RESUME_PARSER_SYSTEM = `You are a resume parser. The user message contains raw text extracted from a resume PDF. Structure ALL of it into JSON.
 
 CRITICAL RULES:
@@ -86,6 +88,13 @@ Schema:
 
 If a section has no data, return an empty array [].`;
 
-export function buildResumeUserMessage(rawText: string): string {
-  return `Structure the resume below into JSON.\n\nRESUME TEXT:\n${rawText}`;
+export function buildResumeUserMessage(
+  rawText: string,
+  quality?: PdfExtractionQuality,
+): string {
+  const extractionNote = quality?.isLikelyIncomplete
+    ? `\nEXTRACTION NOTE: The text below was auto-extracted from a PDF and may be incomplete (${quality.hints.join(", ")}). Headers, contact details, or sidebars might be missing. Parse everything that IS present. Never discard content because the layout is unusual.\n`
+    : "";
+
+  return `Structure the resume below into JSON.${extractionNote}\n\nRESUME TEXT:\n${rawText}`;
 }
