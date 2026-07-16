@@ -8,6 +8,7 @@ import { Heart, Star } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  getSectionLabels,
   CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
@@ -44,6 +45,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -123,7 +125,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
               <div className="absolute top-10 right-10 text-[#ffdfba] opacity-50">
                 <Heart className="w-12 h-12" fill="currentColor" />
               </div>
-              <SectionHeading>About Me</SectionHeading>
+              <SectionHeading>{labels.about}</SectionHeading>
               <DescriptionBlock
                 text={portfolio.summary}
                 paragraphClassName="text-lg md:text-xl leading-relaxed text-[#666] font-medium relative z-10"
@@ -135,7 +137,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
 
         {visibleProjects.length > 0 && (
           <section id="work" className="scroll-mt-32">
-            <SectionHeading className="justify-center text-center mb-12">Selected Projects</SectionHeading>
+            <SectionHeading className="justify-center text-center mb-12">{labels.projects}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
@@ -197,7 +199,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
         <div className="flex flex-col gap-12">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
-              <SectionHeading>Experience</SectionHeading>
+              <SectionHeading>{labels.experience}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="space-y-6"
@@ -230,7 +232,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
           <div className="space-y-12">
             {skills.length > 0 && (
               <section>
-                <SectionHeading>Skills</SectionHeading>
+                <SectionHeading>{labels.skills}</SectionHeading>
                 <div className="bg-white rounded-[2.5rem] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
                   <div className="space-y-8">
                     {Object.entries(groupedSkills).map(([category, names]) => (
@@ -254,7 +256,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section>
-                <SectionHeading>Education</SectionHeading>
+                <SectionHeading>{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-4"
@@ -283,7 +285,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
           <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
-                <SectionHeading>Certifications</SectionHeading>
+                <SectionHeading>{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -316,7 +318,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section>
-                <SectionHeading>Achievements</SectionHeading>
+                <SectionHeading>{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -345,7 +347,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
 
         {articles.length > 0 && (
           <section id="writing" className="scroll-mt-32">
-            <SectionHeading className="justify-center text-center mb-12">My Thoughts</SectionHeading>
+            <SectionHeading className="justify-center text-center mb-12">{labels.articles}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -394,7 +396,7 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
           <section id="profiles" className="scroll-mt-32">
             <div className="bg-linear-to-br from-[#ffb3ba] to-[#ffdfba] rounded-[3rem] p-10 md:p-14 text-center shadow-lg relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-20 rounded-full blur-3xl" />
-              <h2 className="text-3xl font-extrabold text-white mb-8 relative z-10">Let's connect!</h2>
+              <h2 className="text-3xl font-extrabold text-white mb-8 relative z-10">{labels.profiles}</h2>
               <div className="relative z-10 flex justify-center">
                 <ProfileLinksSection
                   portfolio={portfolio}
@@ -411,14 +413,14 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="scroll-mt-32">
-            <SectionHeading className="justify-center text-center mb-8">GitHub Activity</SectionHeading>
+            <SectionHeading className="justify-center text-center mb-8">{labels.github}</SectionHeading>
             <div className="bg-white rounded-[2.5rem] p-8 shadow-[0_10px_30px_rgba(0,0,0,0.02)] overflow-x-auto custom-scrollbar">
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}
                 profileUrl={githubProfile?.url}
                 username={githubProfile?.username}
                 variant="minimal"
-                label="Contributions"
+                label={labels.github}
               />
             </div>
           </section>

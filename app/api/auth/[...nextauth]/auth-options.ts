@@ -1,8 +1,8 @@
 import { type NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
-import CredentialsProvider from "next-auth/providers/credentials";
+// import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
-import { comparePassword } from "@/lib/auth";
+// import { comparePassword } from "@/lib/auth";
 import { createGitHubProvider, createGoogleProvider } from "@/lib/auth-providers";
 import {
   fetchGitHubPrimaryEmail,
@@ -90,31 +90,32 @@ export const authOptions: NextAuthOptions = {
   providers: [
     ...(googleProvider ? [googleProvider] : []),
     ...(githubProvider ? [githubProvider] : []),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
-        if (!user || !user.password) return null;
-
-        const valid = await comparePassword(credentials.password, user.password);
-        if (!valid) return null;
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          avatar: user.avatar ?? undefined,
-        };
-      },
-    }),
+    // Email/password sign-in disabled — OAuth only.
+    // CredentialsProvider({
+    //   name: "Credentials",
+    //   credentials: {
+    //     email: { label: "Email", type: "email" },
+    //     password: { label: "Password", type: "password" },
+    //   },
+    //   async authorize(credentials) {
+    //     if (!credentials?.email || !credentials?.password) return null;
+    //
+    //     const user = await prisma.user.findUnique({
+    //       where: { email: credentials.email },
+    //     });
+    //     if (!user || !user.password) return null;
+    //
+    //     const valid = await comparePassword(credentials.password, user.password);
+    //     if (!valid) return null;
+    //
+    //     return {
+    //       id: user.id,
+    //       name: user.name,
+    //       email: user.email,
+    //       avatar: user.avatar ?? undefined,
+    //     };
+    //   },
+    // }),
   ],
   pages: {
     signIn: "/sign-in",

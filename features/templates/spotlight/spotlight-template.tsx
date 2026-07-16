@@ -17,6 +17,8 @@ import {
   PROJECT_CARD_TITLE,
   PROJECTS_GRID_2,
   TEMPLATE_CONTAINER,
+  getSectionLabel,
+  getSectionLabels,
 } from "../shared";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
 import {
@@ -40,6 +42,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const [menuOpen, setMenuOpen] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -86,20 +89,37 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
   const navItems = useMemo(() => {
     const items: { name: string; link: string }[] = [{ name: "home", link: "#top" }];
-    if (portfolio.summary?.trim()) items.push({ name: "about", link: "#about" });
-    if (projects.length > 0) items.push({ name: "projects", link: "#projects" });
-    if (experiences.length > 0) items.push({ name: "experience", link: "#experience" });
-    if (educations.length > 0) items.push({ name: "education", link: "#education" });
-    if (skills.length > 0) items.push({ name: "skills", link: "#skills" });
-    if (articles.length > 0) items.push({ name: "writing", link: "#writing" });
-    if (milestones.length > 0) items.push({ name: "achievements", link: "#achievements" });
-    if (hasProfiles) items.push({ name: "connect", link: "#profiles" });
+    if (portfolio.summary?.trim()) {
+      items.push({ name: getSectionLabel("about", portfolio.customization).toLowerCase(), link: "#about" });
+    }
+    if (projects.length > 0) {
+      items.push({ name: getSectionLabel("projects", portfolio.customization).toLowerCase(), link: "#projects" });
+    }
+    if (experiences.length > 0) {
+      items.push({ name: getSectionLabel("experience", portfolio.customization).toLowerCase(), link: "#experience" });
+    }
+    if (educations.length > 0) {
+      items.push({ name: getSectionLabel("education", portfolio.customization).toLowerCase(), link: "#education" });
+    }
+    if (skills.length > 0) {
+      items.push({ name: getSectionLabel("skills", portfolio.customization).toLowerCase(), link: "#skills" });
+    }
+    if (articles.length > 0) {
+      items.push({ name: getSectionLabel("articles", portfolio.customization).toLowerCase(), link: "#writing" });
+    }
+    if (milestones.length > 0) {
+      items.push({ name: getSectionLabel("achievements", portfolio.customization).toLowerCase(), link: "#achievements" });
+    }
+    if (hasProfiles) {
+      items.push({ name: getSectionLabel("profiles", portfolio.customization).toLowerCase(), link: "#profiles" });
+    }
     for (const section of customSections) {
       items.push({ name: section.label.toLowerCase(), link: `#${section.id}` });
     }
     return items;
   }, [
     portfolio.summary,
+    portfolio.customization,
     projects.length,
     experiences.length,
     educations.length,
@@ -263,7 +283,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
           {portfolio.summary?.trim() && (
             <section className="container mx-auto mb-16 px-0" id="about">
-              <SpotlightSectionHeading title="About" />
+              <SpotlightSectionHeading title={labels.about} />
               <div className="rounded-lg border border-gray-200 bg-white p-6 md:p-8">
                 <DescriptionBlock
                   text={portfolio.summary}
@@ -308,7 +328,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
           {experiences.length > 0 && (
             <section className="container mx-auto mb-16 px-0" id="experience">
-              <SpotlightSectionHeading title="Experience" />
+              <SpotlightSectionHeading title={labels.experience} />
               <CollapsibleList
                 initial={4}
                 wrapperClassName="space-y-6"
@@ -348,7 +368,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
           {educations.length > 0 && (
             <section className="container mx-auto mb-16 px-0" id="education">
-              <SpotlightSectionHeading title="Education" />
+              <SpotlightSectionHeading title={labels.education} />
               <CollapsibleList
                 initial={4}
                 wrapperClassName="grid gap-6 sm:grid-cols-1 md:grid-cols-2"
@@ -380,7 +400,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
           {skills.length > 0 && (
             <section className="container mx-auto mb-16 px-0" id="skills">
-              <SpotlightSectionHeading title="Skills" />
+              <SpotlightSectionHeading title={labels.skills} />
               <div className="space-y-8 rounded-lg border border-gray-200 bg-white p-6 md:p-8">
                 {Object.entries(groupedSkills).map(([category, names]) => (
                   <div key={category}>
@@ -405,7 +425,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
           {articles.length > 0 && (
             <section className="container mx-auto mb-16 px-0" id="writing">
-              <SpotlightSectionHeading title="Writing" />
+              <SpotlightSectionHeading title={labels.articles} />
               <CollapsibleList
                 initial={4}
                 wrapperClassName="grid gap-8 sm:grid-cols-1 md:mx-auto md:grid-cols-2 lg:grid-cols-2"
@@ -455,7 +475,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
           {milestones.length > 0 && (
             <section className="container mx-auto mb-16 px-0 text-gray-950" id="achievements">
-              <SpotlightSectionHeading title="Achievements" />
+              <SpotlightSectionHeading title={labels.achievements} />
 
               <div className="relative">
                 <div className="pointer-events-none absolute bottom-16 left-4 top-0 w-0.5 bg-[hsl(45,100%,60%)] md:left-1/2 md:-translate-x-px" />
@@ -497,7 +517,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
           {hasProfiles && (
             <section className="container mx-auto mb-16 px-0" id="profiles">
-              <SpotlightSectionHeading title="Connect" />
+              <SpotlightSectionHeading title={labels.profiles} />
               <div className="rounded-lg border border-gray-200 bg-white p-6 md:p-8">
                 <ContactChips
                   portfolio={portfolio}
@@ -538,7 +558,7 @@ export function SpotlightTemplate({ data }: { data: PortfolioData }) {
 
           {contributionCalendar && (
             <section className="container mx-auto mb-16 px-0" id="activity">
-              <SpotlightSectionHeading title="GitHub Activity" />
+              <SpotlightSectionHeading title={labels.github} />
               <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white p-6">
                 <GitHubContributionHeatmap
                   calendar={contributionCalendar}

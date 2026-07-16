@@ -22,6 +22,7 @@ import {
   SocialPills,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -42,6 +43,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -89,7 +91,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
 
         {/* About Window */}
         {portfolio.summary && (
-          <Window id="about" title="Notepad - About.txt" icon={<FileText className="w-4 h-4" />}>
+          <Window id="about" title={`Notepad - ${labels.about}.txt`} icon={<FileText className="w-4 h-4" />}>
             <div className="bg-white win95-inset p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap text-black">
               {portfolio.summary}
             </div>
@@ -98,7 +100,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
 
         {/* Projects Window */}
         {visibleProjects.length > 0 && (
-          <Window id="work" title="Explorer - Projects" icon={<FolderOpen className="w-4 h-4" />}>
+          <Window id="work" title={`Explorer - ${labels.projects}`} icon={<FolderOpen className="w-4 h-4" />}>
             <CollapsibleList
               initial={4}
               wrapperClassName={cn(PROJECTS_GRID_2, "gap-4")}
@@ -152,7 +154,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
         <div className="flex flex-col gap-8">
           {/* Experience Window */}
           {experiences.length > 0 && (
-            <Window id="experience" title="Task Manager - Experience">
+            <Window id="experience" title={`Task Manager - ${labels.experience}`}>
               <CollapsibleList
                 initial={3}
                 wrapperClassName="space-y-4"
@@ -185,7 +187,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
           <div className="space-y-8">
             {/* Skills Window */}
             {skills.length > 0 && (
-              <Window title="Control Panel - Skills">
+              <Window title={`Control Panel - ${labels.skills}`}>
                 <div className="win95-inset bg-white p-4 space-y-4">
                   {Object.entries(groupedSkills).map(([category, names]) => (
                     <div key={category}>
@@ -205,7 +207,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
 
             {/* Education Window */}
             {educations.length > 0 && (
-              <Window title="Registry - Education">
+              <Window title={`Registry - ${labels.education}`}>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-2"
@@ -228,7 +230,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
             )}
             {/* Certifications Window */}
             {certifications.length > 0 && (
-              <Window title="Certificates.exe">
+              <Window title={`${labels.certifications}.exe`}>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-2"
@@ -261,7 +263,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
 
             {/* Achievements Window */}
             {achievements.length > 0 && (
-              <Window title="Trophies.sys">
+              <Window title={`${labels.achievements}.sys`}>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-2"
@@ -302,7 +304,7 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
 
         {/* Articles Window */}
         {articles.length > 0 && (
-          <Window id="writing" title="Internet Explorer - Links" icon={<Globe className="w-4 h-4" />}>
+          <Window id="writing" title={`Internet Explorer - ${labels.articles}`} icon={<Globe className="w-4 h-4" />}>
             <CollapsibleList
               initial={4}
               wrapperClassName={cn(PROJECTS_GRID_2, "gap-4")}
@@ -330,21 +332,21 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
 
         {/* GitHub Activity */}
         {contributionCalendar && (
-          <Window title="MS-DOS Prompt - GitHub">
+          <Window title={`MS-DOS Prompt - ${labels.github}`}>
             <div className="win95-inset bg-black text-[#c0c0c0] p-4 overflow-x-auto custom-scrollbar">
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}
                 profileUrl={githubProfile?.url}
                 username={githubProfile?.username}
                 variant="minimal"
-                label="C:\> GITHUB.EXE"
+                label={labels.github}
               />
             </div>
           </Window>
         )}
         {/* Profiles Window */}
         {hasProfiles && (
-          <Window id="profiles" title="Network Neighborhood">
+          <Window id="profiles" title={`Network - ${labels.profiles}`}>
             <div className="win95-inset bg-white p-4">
               <ProfileLinksSection
                 portfolio={portfolio}

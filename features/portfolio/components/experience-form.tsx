@@ -148,7 +148,9 @@ export function ExperienceForm() {
   const isDirty = useMemo(() => {
     if (!isAdding && !editingId) return false;
     if (isAdding) return hasNonEmptyStringValues(form);
-    const original = experiences.find((exp) => exp.id === editingId);
+    const original = experiences.find(
+      (exp: { id: string }) => exp.id === editingId
+    );
     if (!original) return true;
     return fieldsDiffer(
       form,
@@ -169,7 +171,9 @@ export function ExperienceForm() {
   const savedForm = useMemo((): ExperienceEntry => {
     if (isAdding) return emptyEntry;
     if (!editingId) return emptyEntry;
-    const original = experiences.find((exp) => exp.id === editingId);
+    const original = experiences.find(
+      (exp: { id: string }) => exp.id === editingId
+    );
     if (!original) return emptyEntry;
     return {
       company: original.company ?? "",

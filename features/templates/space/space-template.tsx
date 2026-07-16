@@ -8,6 +8,7 @@ import { ArrowUpRight, Rocket, Star } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  getSectionLabels,
   CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
@@ -43,6 +44,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -120,7 +122,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
           {portfolio.summary && (
             <section id="about" className="scroll-mt-32">
               <div className="rounded-3xl bg-[#0B0F19]/60 backdrop-blur-xl border border-cyan-900/30 p-8 md:p-12 shadow-[0_0_40px_rgba(0,0,0,0.5)] relative overflow-hidden group hover:border-cyan-500/30 transition-colors duration-500">
-                <SectionHeading>About</SectionHeading>
+                <SectionHeading>{labels.about}</SectionHeading>
                 <DescriptionBlock
                   text={portfolio.summary}
                   paragraphClassName="text-lg leading-relaxed text-slate-300"
@@ -132,7 +134,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
 
           {visibleProjects.length > 0 && (
             <section id="work" className="scroll-mt-32">
-              <SectionHeading>Projects</SectionHeading>
+              <SectionHeading>{labels.projects}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
@@ -196,7 +198,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
           <div className="flex flex-col gap-8 lg:gap-12">
             {experiences.length > 0 && (
               <section id="experience" className="scroll-mt-32">
-                <SectionHeading>Experience</SectionHeading>
+                <SectionHeading>{labels.experience}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-6"
@@ -239,7 +241,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
             <div className="space-y-12">
               {skills.length > 0 && (
                 <section>
-                  <SectionHeading>Skills</SectionHeading>
+                  <SectionHeading>{labels.skills}</SectionHeading>
                   <div className="rounded-3xl bg-[#0B0F19]/60 backdrop-blur-xl border border-cyan-900/30 p-8">
                     <div className="space-y-8">
                       {Object.entries(groupedSkills).map(([category, names]) => (
@@ -266,7 +268,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
 
               {educations.length > 0 && (
                 <section>
-                  <SectionHeading>Education</SectionHeading>
+                  <SectionHeading>{labels.education}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -303,7 +305,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
             <div className={STACKED_SECTIONS}>
               {certifications.length > 0 && (
                 <section>
-                  <SectionHeading>Certifications</SectionHeading>
+                  <SectionHeading>{labels.certifications}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -339,7 +341,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
 
               {achievements.length > 0 && (
                 <section>
-                  <SectionHeading>Achievements</SectionHeading>
+                  <SectionHeading>{labels.achievements}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -386,7 +388,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
 
           {articles.length > 0 && (
             <section id="writing" className="scroll-mt-32">
-              <SectionHeading>Logs</SectionHeading>
+              <SectionHeading>{labels.articles}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -433,14 +435,14 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
 
           {contributionCalendar && (
             <section className="scroll-mt-32">
-              <SectionHeading>Activity</SectionHeading>
+              <SectionHeading>{labels.github}</SectionHeading>
               <div className="rounded-3xl bg-[#0B0F19]/60 backdrop-blur-xl border border-cyan-900/30 p-8 overflow-x-auto custom-scrollbar">
                 <GitHubContributionHeatmap
                   calendar={contributionCalendar}
                   profileUrl={githubProfile?.url}
                   username={githubProfile?.username}
                   variant="modern"
-                  label="GitHub Contribution Calendar"
+                  label={labels.github}
                 />
               </div>
             </section>
@@ -448,7 +450,7 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
 
           {hasProfiles && (
             <section id="profiles" className="scroll-mt-32">
-              <SectionHeading>Connect</SectionHeading>
+              <SectionHeading>{labels.profiles}</SectionHeading>
               <div className="rounded-3xl bg-[#0B0F19]/60 backdrop-blur-xl border border-cyan-900/30 p-8">
                 <ProfileLinksSection
                   portfolio={portfolio}

@@ -6,6 +6,7 @@ import {
 import {
   buildTemplateSections,
   ContactChips,
+  getSectionLabels,
   DescriptionBlock,
   CustomSectionItems,
   HeroProfileButtons,
@@ -36,6 +37,7 @@ import { TemplateProjectPreview } from "@/components/template-project-preview";
 export default function CreativeTemplate({ data }: { data: PortfolioData }) {
   const { portfolio, experiences, educations, skills, projects, articles, socialProfiles, certifications, achievements, customSections, livePreviewProjectIds } =
     data;
+  const labels = getSectionLabels(portfolio.customization);
   const skillsByCategory = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -124,7 +126,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   id="about"
                   className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
                 >
-                  <SectionHeading accent="rose">About</SectionHeading>
+                  <SectionHeading accent="rose">{labels.about}</SectionHeading>
                   <DescriptionBlock
                     text={portfolio.summary}
                     paragraphClassName="whitespace-pre-line text-base leading-8 text-stone-600"
@@ -138,7 +140,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   id="work"
                   className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
                 >
-                  <SectionHeading accent="orange">Selected Work</SectionHeading>
+                  <SectionHeading accent="orange">{labels.projects}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName={PROJECTS_GRID_2}
@@ -229,7 +231,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   id="experience"
                   className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
                 >
-                  <SectionHeading accent="amber">Experience</SectionHeading>
+                  <SectionHeading accent="amber">{labels.experience}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-5"
@@ -272,7 +274,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   id="writing"
                   className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
                 >
-                  <SectionHeading accent="fuchsia">Writing</SectionHeading>
+                  <SectionHeading accent="fuchsia">{labels.articles}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -331,7 +333,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
             <aside className="space-y-8">
               {skills.length > 0 && (
                 <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
-                  <SectionHeading accent="fuchsia">Skills</SectionHeading>
+                  <SectionHeading accent="fuchsia">{labels.skills}</SectionHeading>
                   <div className="space-y-6">
                     {Object.entries(skillsByCategory).map(([category, names]) => (
                       <div key={category}>
@@ -356,7 +358,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
               {educations.length > 0 && (
                 <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
-                  <SectionHeading accent="rose">Education</SectionHeading>
+                  <SectionHeading accent="rose">{labels.education}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -386,7 +388,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
               {certifications.length > 0 && (
                 <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
-                  <SectionHeading accent="orange">Certifications</SectionHeading>
+                  <SectionHeading accent="orange">{labels.certifications}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -425,7 +427,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
               {achievements.length > 0 && (
                 <section className="rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
-                  <SectionHeading accent="amber">Achievements</SectionHeading>
+                  <SectionHeading accent="amber">{labels.achievements}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-3"
@@ -459,7 +461,7 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
                   id="profiles"
                   className="scroll-mt-24 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8"
                 >
-                  <SectionHeading accent="fuchsia">Profiles</SectionHeading>
+                  <SectionHeading accent="fuchsia">{labels.profiles}</SectionHeading>
                   <ProfileLinksSection
                     portfolio={portfolio}
                     profiles={socialProfiles}
@@ -491,14 +493,14 @@ export default function CreativeTemplate({ data }: { data: PortfolioData }) {
 
           {contributionCalendar && (
             <section className="mt-8 rounded-[1.9rem] border border-white/90 bg-white/80 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.05)] backdrop-blur-xl md:p-8">
-              <SectionHeading accent="rose">GitHub Activity</SectionHeading>
+              <SectionHeading accent="rose">{labels.github}</SectionHeading>
               <div className="rounded-[1.5rem] border border-rose-100/80 bg-[#fffaf7] p-4 md:p-6">
                 <GitHubContributionHeatmap
                   calendar={contributionCalendar}
                   profileUrl={githubProfile?.url}
                   username={githubProfile?.username}
                   variant="creative"
-                  label="GitHub Contribution Calendar"
+                  label={labels.github}
                 />
               </div>
             </section>

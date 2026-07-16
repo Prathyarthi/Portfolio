@@ -8,6 +8,7 @@ import { Trophy, Sparkles } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  getSectionLabels,
   CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
@@ -42,6 +43,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -121,7 +123,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
             <section id="about" className="scroll-mt-32">
               <div className="rounded-3xl bg-slate-900/40 backdrop-blur-xl border border-white/10 p-8 md:p-12 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
-                <SectionHeading>About Me</SectionHeading>
+                <SectionHeading>{labels.about}</SectionHeading>
                 <DescriptionBlock
                   text={portfolio.summary}
                   paragraphClassName="text-lg leading-relaxed text-slate-300"
@@ -133,7 +135,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
 
           {visibleProjects.length > 0 && (
             <section id="work" className="scroll-mt-32">
-              <SectionHeading>Featured Work</SectionHeading>
+              <SectionHeading>{labels.projects}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
@@ -198,7 +200,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
           <div className="flex flex-col gap-8 lg:gap-12">
             {experiences.length > 0 && (
               <section id="experience" className="scroll-mt-32">
-                <SectionHeading>Experience</SectionHeading>
+                <SectionHeading>{labels.experience}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-6"
@@ -241,7 +243,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
             <div className="space-y-12">
               {skills.length > 0 && (
                 <section>
-                  <SectionHeading>Skills</SectionHeading>
+                  <SectionHeading>{labels.skills}</SectionHeading>
                   <div className="rounded-3xl bg-slate-900/40 backdrop-blur-xl border border-white/10 p-8">
                     <div className="space-y-8">
                       {Object.entries(groupedSkills).map(([category, names]) => (
@@ -268,7 +270,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
 
               {educations.length > 0 && (
                 <section>
-                  <SectionHeading>Education</SectionHeading>
+                  <SectionHeading>{labels.education}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -305,7 +307,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
             <div className="flex flex-col gap-8 lg:gap-12">
               {certifications.length > 0 && (
                 <section>
-                  <SectionHeading>Certifications</SectionHeading>
+                  <SectionHeading>{labels.certifications}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -341,7 +343,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
 
               {achievements.length > 0 && (
                 <section>
-                  <SectionHeading>Achievements</SectionHeading>
+                  <SectionHeading>{labels.achievements}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -373,7 +375,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
 
           {articles.length > 0 && (
             <section id="writing" className="scroll-mt-32">
-              <SectionHeading>Writing</SectionHeading>
+              <SectionHeading>{labels.articles}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -435,7 +437,7 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
             <section id="profiles" className="scroll-mt-32">
               <div className="rounded-3xl bg-linear-to-br from-fuchsia-600/20 to-violet-600/20 backdrop-blur-xl border border-white/10 p-12 text-center shadow-2xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
-                <h2 className="text-3xl font-bold text-white mb-8 relative z-10">Connect</h2>
+                <h2 className="text-3xl font-bold text-white mb-8 relative z-10">{labels.profiles}</h2>
                 <div className="flex justify-center relative z-10">
                   <ProfileLinksSection
                     portfolio={portfolio}
@@ -452,14 +454,14 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
 
           {contributionCalendar && (
             <section className="scroll-mt-32">
-              <SectionHeading>GitHub Activity</SectionHeading>
+              <SectionHeading>{labels.github}</SectionHeading>
               <div className="rounded-3xl bg-slate-900/40 backdrop-blur-xl border border-white/10 p-8 overflow-x-auto custom-scrollbar">
                 <GitHubContributionHeatmap
                   calendar={contributionCalendar}
                   profileUrl={githubProfile?.url}
                   username={githubProfile?.username}
                   variant="modern"
-                  label="GitHub Contribution Calendar"
+                  label={labels.github}
                 />
               </div>
             </section>

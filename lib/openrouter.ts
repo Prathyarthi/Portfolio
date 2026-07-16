@@ -22,6 +22,30 @@ export function getOpenRouterModel() {
   return process.env.OPENROUTER_CHAT_MODEL || DEFAULT_OPENROUTER_MODEL;
 }
 
+const RESUME_PARSE_SESSION_ID = "livefolio-resume-parse";
+
+type OpenRouterTextContentBlock = {
+  type: "text";
+  text: string;
+  cache_control?: { type: "ephemeral"; ttl?: "1h" };
+};
+
+type OpenRouterCachedMessage = {
+  role: "system" | "user" | "assistant";
+  content: string | OpenRouterTextContentBlock[];
+};
+
+function extractMessageText(
+  content: string | OpenRouterTextContentBlock[] | null | undefined,
+): string {
+  if (!content) return "";
+  if (typeof content === "string") return content.trim();
+  return content
+    .map((block) => block.text)
+    .join("")
+    .trim();
+}
+
 export function getOpenRouterFallbackModels(): string[] {
   const fallbackEnv = process.env.OPENROUTER_FALLBACK_MODELS;
   if (fallbackEnv) {
@@ -72,6 +96,81 @@ export async function generateOpenRouterText({
   });
 
   const text = completion.choices[0]?.message?.content?.trim() ?? "";
+
+  if (!text) {
+    throw new Error("OpenRouter returned an empty response");
+  }
+
+  return text;
+}
+
+/**
+ * Resume parsing via OpenRouter with a cacheable static system prompt.
+ * Uses a single model, no provider ordering (sticky routing for cache hits).
+ */
+export async function generateOpenRouterResumeText(
+  resumeText: string,
+  systemPrompt: string,
+): Promise<string> {
+  const model = getOpenRouterModel();
+
+  const messages: OpenRouterCachedMessage[] = [
+    {
+      role: "system",
+      content: [
+        {
+          type: "text",
+          text: systemPrompt,
+          cache_control: { type: "ephemeral" },
+        },
+      ],
+    },
+    {
+      role: "user",
+      content: resumeText,
+    },
+  ];
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${getOpenRouterApiKey()}`,
+      "Content-Type": "application/json",
+      ...(process.env.OPENROUTER_HTTP_REFERER
+        ? { "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER }
+        : {}),
+      ...(process.env.OPENROUTER_APP_TITLE
+        ? { "X-OpenRouter-Title": process.env.OPENROUTER_APP_TITLE }
+        : {}),
+    },
+    body: JSON.stringify({
+      model,
+      session_id: RESUME_PARSE_SESSION_ID,
+      messages,
+      temperature: 0.2,
+    }),
+  });
+
+  const payload: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message =
+      payload &&
+      typeof payload === "object" &&
+      payload !== null &&
+      "error" in payload &&
+      typeof (payload as { error?: { message?: unknown } }).error?.message ===
+        "string"
+        ? (payload as { error: { message: string } }).error.message
+        : `OpenRouter request failed (${response.status})`;
+    throw new Error(message);
+  }
+
+  const completion = payload as {
+    choices?: Array<{ message?: { content?: string | OpenRouterTextContentBlock[] } }>;
+  };
+
+  const text = extractMessageText(completion.choices?.[0]?.message?.content);
 
   if (!text) {
     throw new Error("OpenRouter returned an empty response");

@@ -23,6 +23,7 @@ import {
   SPLIT_CARD_ROW,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -43,6 +44,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -105,7 +107,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
               </div>
               <h2 className="text-lg font-semibold text-zinc-300 mb-4 flex items-center">
                 <span className="w-2 h-2 rounded-full bg-zinc-500 mr-2" />
-                About
+                {labels.about}
               </h2>
               <DescriptionBlock
                 text={portfolio.summary}
@@ -120,7 +122,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
             <div className="col-span-1 @lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50 flex flex-col justify-center">
               <h2 className="text-lg font-semibold text-zinc-400 mb-4 flex items-center">
                 <span className="w-2 h-2 rounded-full bg-zinc-300 mr-2" />
-                Connect
+                {labels.profiles}
               </h2>
               <SocialPills
                 profiles={socialProfiles}
@@ -136,7 +138,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-2xl font-bold text-zinc-900 flex items-center">
                   <span className="w-3 h-3 rounded-full bg-blue-500 mr-3" />
-                  Selected Work
+                  {labels.projects}
                 </h2>
               </div>
 
@@ -234,7 +236,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
             <section id="experience" className="col-span-1 @md:col-span-2 @lg:col-span-2 row-span-2 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-purple-500 mr-3" />
-                Experience
+                {labels.experience}
               </h2>
               <CollapsibleList
                 initial={4}
@@ -276,7 +278,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
             <section className="col-span-1 @md:col-span-1 @lg:col-span-2 row-span-1 rounded-3xl bg-blue-600 p-8 shadow-sm text-white overflow-hidden relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
               <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-2xl -ml-20 -mb-20" />
-              <h2 className="text-xl font-bold text-white mb-6 relative z-10">Skills & Tools</h2>
+              <h2 className="text-xl font-bold text-white mb-6 relative z-10">{labels.skills}</h2>
               <div className="space-y-5 relative z-10">
                 {Object.entries(groupedSkills).map(([category, names]) => (
                   <div key={category}>
@@ -304,7 +306,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
             <section className="col-span-1 @md:col-span-2 @lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-orange-500 mr-3" />
-                Education
+                {labels.education}
               </h2>
               <CollapsibleList
                 initial={4}
@@ -337,7 +339,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
             <section id="writing" className="col-span-1 @md:col-span-1 @lg:col-span-2 row-span-1 rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-green-500 mr-3" />
-                Writing
+                {labels.articles}
               </h2>
               <CollapsibleList
                 initial={4}
@@ -376,7 +378,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
             <section className="col-span-1 @md:col-span-3 @lg:col-span-4 rounded-3xl bg-zinc-900 p-8 shadow-sm text-white">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-zinc-500 mr-3" />
-                GitHub Activity
+                {labels.github}
               </h2>
               <div className="overflow-x-auto pb-2 custom-scrollbar">
                 <GitHubContributionHeatmap
@@ -384,7 +386,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                   profileUrl={githubProfile?.url}
                   username={githubProfile?.username}
                   variant="minimal"
-                  label="GitHub Contribution Calendar"
+                  label={labels.github}
                 />
               </div>
             </section>
@@ -397,7 +399,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                 <section className="col-span-full rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
                   <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                     <span className="w-3 h-3 rounded-full bg-yellow-500 mr-3" />
-                    Certifications
+                    {labels.certifications}
                   </h2>
                   <CollapsibleList
                     initial={4}
@@ -427,7 +429,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
                 <section className="col-span-full rounded-3xl bg-white p-8 shadow-sm border border-zinc-200/50">
                   <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                     <span className="w-3 h-3 rounded-full bg-red-500 mr-3" />
-                    Achievements
+                    {labels.achievements}
                   </h2>
                   <CollapsibleList
                     initial={4}
@@ -478,7 +480,7 @@ export function BentoTemplate({ data }: { data: PortfolioData }) {
             >
               <h2 className="text-xl font-bold text-zinc-900 mb-6 flex items-center">
                 <span className="w-3 h-3 rounded-full bg-indigo-500 mr-3" />
-                Profiles
+                {labels.profiles}
               </h2>
               <ProfileLinksSection
                 portfolio={portfolio}

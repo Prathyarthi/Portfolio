@@ -8,6 +8,7 @@ import { Diamond, Star, Award } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
+  getSectionLabels,
   CustomSectionItems,
   DescriptionBlock,
   HeroProfileButtons,
@@ -43,6 +44,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -128,7 +130,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0b132b] px-4">
                 <Diamond className="w-6 h-6 text-[#d4af37]" />
               </div>
-              <SectionHeading className="text-center justify-center mb-10">About</SectionHeading>
+              <SectionHeading className="text-center justify-center mb-10">{labels.about}</SectionHeading>
               <DescriptionBlock
                 text={portfolio.summary}
                 paragraphClassName="text-lg md:text-xl leading-loose text-[#c0c0c0] font-serif font-light text-center"
@@ -140,7 +142,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
 
         {visibleProjects.length > 0 && (
           <section id="work" className="scroll-mt-32">
-            <SectionHeading className="mb-12">Selected Works</SectionHeading>
+            <SectionHeading className="mb-12">{labels.projects}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName={cn(PROJECTS_GRID_2, "gap-10")}
@@ -207,7 +209,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
         <div className="flex flex-col gap-16">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
-              <SectionHeading className="mb-10">Experience</SectionHeading>
+              <SectionHeading className="mb-10">{labels.experience}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="space-y-8"
@@ -242,7 +244,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
           <div className="space-y-16">
             {skills.length > 0 && (
               <section>
-                <SectionHeading className="mb-10">Expertise</SectionHeading>
+                <SectionHeading className="mb-10">{labels.skills}</SectionHeading>
                 <div className="bg-[#111c3d] border border-[#d4af37]/20 p-8">
                   <div className="space-y-8">
                     {Object.entries(groupedSkills).map(([category, names]) => (
@@ -267,7 +269,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section>
-                <SectionHeading className="mb-10">Education</SectionHeading>
+                <SectionHeading className="mb-10">{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-6"
@@ -295,7 +297,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
           <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
-                <SectionHeading className="mb-10">Credentials</SectionHeading>
+                <SectionHeading className="mb-10">{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -328,7 +330,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section>
-                <SectionHeading className="mb-10">Honors</SectionHeading>
+                <SectionHeading className="mb-10">{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -355,7 +357,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
 
         {articles.length > 0 && (
           <section id="writing" className="scroll-mt-32">
-            <SectionHeading className="mb-12 text-center justify-center">Publications</SectionHeading>
+            <SectionHeading className="mb-12 text-center justify-center">{labels.articles}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName="grid grid-cols-1 md:grid-cols-2 gap-10"
@@ -414,7 +416,7 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-[#0b132b] px-4">
                 <Diamond className="w-6 h-6 text-[#d4af37]" />
               </div>
-              <h2 className="text-3xl font-serif text-[#d4af37] uppercase tracking-widest mb-10">Correspondence</h2>
+              <h2 className="text-3xl font-serif text-[#d4af37] uppercase tracking-widest mb-10">{labels.profiles}</h2>
               <div className="flex justify-center">
                 <ProfileLinksSection
                   portfolio={portfolio}
@@ -431,14 +433,14 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="scroll-mt-32">
-            <SectionHeading className="mb-10 text-center justify-center">Chronicle</SectionHeading>
+            <SectionHeading className="mb-10 text-center justify-center">{labels.github}</SectionHeading>
             <div className="bg-[#111c3d] border border-[#d4af37]/20 p-8 overflow-x-auto custom-scrollbar">
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}
                 profileUrl={githubProfile?.url}
                 username={githubProfile?.username}
                 variant="minimal"
-                label="GitHub Activity"
+                label={labels.github}
               />
             </div>
           </section>

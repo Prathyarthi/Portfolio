@@ -1,7 +1,11 @@
-import { generateOpenRouterText } from "@/lib/openrouter";
-import type { PdfExtractionQuality } from "@/lib/pdf-extract";
+import { generateOpenRouterResumeText } from "@/lib/openrouter";
+import {
+  RESUME_PARSER_SYSTEM,
+  buildResumeUserMessage,
+} from "@/lib/resume-parser-prompt";
 import { normalizeMultilineText, stripBulletPrefix } from "@/lib/text";
 import { normalizeSocialProfiles } from "@/lib/social-profile";
+import type { SectionKey } from "@/features/templates/section-labels";
 
 export interface ParsedCustomSection {
   sectionType: string;
@@ -59,6 +63,8 @@ export interface ParsedResume {
     url: string | null;
   }[];
   customSections: ParsedCustomSection[];
+  /** Original resume section headings mapped to canonical keys. */
+  sectionLabels?: Partial<Record<SectionKey, string>>;
 }
 
 function asRecord(v: unknown): Record<string, unknown> | null {
@@ -728,6 +734,16 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
 
   const resolvedSocialProfiles = normalizeSocialProfiles(socialProfiles);
 
+  const sectionLabelsRaw = asRecord(o.sectionLabels) ?? asRecord(o.section_labels);
+  const sectionLabels: ParsedResume["sectionLabels"] = {};
+  if (sectionLabelsRaw) {
+    for (const [key, value] of Object.entries(sectionLabelsRaw)) {
+      if (typeof value === "string" && value.trim()) {
+        sectionLabels[key as SectionKey] = value.trim();
+      }
+    }
+  }
+
   return {
     name: normalizeString(o.name ?? o.fullName ?? o.full_name ?? o.candidateName),
     headline,
@@ -741,114 +757,18 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
     achievements,
     certifications,
     customSections,
+    ...(Object.keys(sectionLabels).length > 0 ? { sectionLabels } : {}),
   };
-}
-
-function buildPrompt(rawText: string, quality?: PdfExtractionQuality): string {
-  const extractionNote = quality?.isLikelyIncomplete
-    ? `\nEXTRACTION NOTE: The text below was auto-extracted from a PDF and may be incomplete (${quality.hints.join(", ")}). Headers, contact details, or sidebars might be missing. Parse everything that IS present. Never discard content because the layout is unusual.\n`
-    : "";
-
-  return `You are a resume parser. Resumes vary widely by profession (engineering, sales, healthcare, design, academia, trades, etc.) and layout. Your job is to capture ALL information and map it to the best-fit JSON fields below.
-
-${extractionNote}
-CRITICAL RULES:
-- Do NOT skip any information. Every fact in the resume must appear somewhere in your output.
-- ADAPT TO THE SOURCE: section titles, ordering, and formatting will differ. Infer meaning from context — do not expect a fixed template.
-- MULTI-LINE DESCRIPTIONS: For experiences, projects, education notes, and similar fields with multiple points, put each point on its own line (newline-separated). Do NOT prefix lines with bullet characters (•, -, *, ➢, etc.).
-- SCHEMA FIRST: map content to the typed fields below when it clearly fits (jobs → experiences, schools → education, tools → skills, etc.).
-- CUSTOM SECTIONS AS SAFETY NET: anything that does not fit a typed field MUST go in customSections with the original section label preserved. Never drop content because it is unusual.
-- WORK HISTORY: any employment, internship, contract, freelance, or consulting engagement goes in experiences[]. Accept non-standard headings ("Acme — 2019–2022", "Company Work Experience: dates", tables, paragraphs). Job duties and responsibility bullets belong in experiences[].description for that employer.
-- ACHIEVEMENTS: only awards, honors, or measurable highlights explicitly presented as achievements — not day-to-day job duties.
-- MISSING JOB TITLE: if a role title is not stated, infer a reasonable one from nearby context (headline, summary, or section text). Still create the experiences[] entry.
-- SKILLS: accept lists, grouped categories, comma-separated lines, or tables. Flatten into skills[] with a sensible category.
-- EDUCATION: accept degrees, diplomas, certificates of study, bootcamps, and academic entries. Use the closest fields; partial entries are OK.
-- DO NOT duplicate the same fact across typed fields and customSections.
-- PRESERVE TEXT EXACTLY for emails, phones, URLs, handles, and proper nouns.
-- PLATFORM IDENTIFICATION (socialProfiles): only set "platform" when identifiable from URL domain. Otherwise use "unknown".
-- Dates: use YYYY-MM-DD when possible; month/year → first of month (e.g. Jan 2023 → 2023-01-01). Current roles → endDate null.
-- Do NOT invent employers, schools, dates, or credentials not supported by the text.
-- Return ONLY valid JSON, no markdown, no code fences.
-
-Schema:
-{
-  "name": "Full Name",
-  "headline": "Professional headline / current or target role",
-  "summary": "Professional summary, profile, or objective",
-  "contact": {
-    "email": "primary email exactly as written, or null",
-    "phone": "primary phone exactly as written, or null",
-    "websiteUrl": "personal website or portfolio URL, or null",
-    "location": "city/state/country as written, or null"
-  },
-  "socialProfiles": [
-    { "platform": "github | linkedin | twitter | instagram | medium | dribbble | leetcode | unknown", "url": "full URL or null", "username": "handle as written or null" }
-  ],
-  "experiences": [
-    {
-      "company": "Employer or client name",
-      "role": "Job title or function",
-      "description": "Responsibilities and impact — one point per line, no bullet characters",
-      "startDate": "YYYY-MM-DD or null",
-      "endDate": "YYYY-MM-DD or null if current",
-      "location": "City, State or null"
-    }
-  ],
-  "education": [
-    {
-      "institution": "School or university",
-      "degree": "Degree, diploma, or program name",
-      "field": "Field of study or null",
-      "startDate": "YYYY-MM-DD or null",
-      "endDate": "YYYY-MM-DD or null",
-      "gpa": "GPA, grade, or percentage or null"
-    }
-  ],
-  "skills": [
-    { "name": "Skill Name", "category": "Category (e.g. Languages, Tools, Soft Skills)" }
-  ],
-  "projects": [
-    {
-      "title": "Project Name",
-      "description": "Description — one point per line, no bullet characters",
-      "techStack": ["Tech1", "Tech2"],
-      "liveUrl": "URL or null",
-      "sourceUrl": "URL or null"
-    }
-  ],
-  "achievements": ["Award or measurable highlight — no bullet characters"],
-  "certifications": [
-    { "name": "Certification Name", "issuer": "Issuing Organization", "issueDate": "YYYY-MM-DD or null", "url": "URL or null" }
-  ],
-  "customSections": [
-    {
-      "sectionType": "snake_case_key from the resume section (e.g. volunteer_work, publications, languages)",
-      "label": "Original section heading from the resume",
-      "items": [
-        { "title": "Item title", "description": "Item description", "date": "date or null", ...any other relevant fields }
-      ]
-    }
-  ]
-}
-
-If a section has no data, return an empty array [].
-
-RESUME TEXT:
-${rawText}`;
 }
 
 export async function structureResumeWithAi(
   rawText: string,
   options?: { quality?: PdfExtractionQuality },
 ): Promise<ParsedResume> {
-  const text = await generateOpenRouterText({
-    messages: [
-      {
-        role: "user",
-        content: buildPrompt(rawText, options?.quality),
-      },
-    ],
-  });
+  const text = await generateOpenRouterResumeText(
+    buildResumeUserMessage(rawText),
+    RESUME_PARSER_SYSTEM,
+  );
 
   // Strip potential markdown code fences
   const cleaned = text

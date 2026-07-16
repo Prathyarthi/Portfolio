@@ -33,7 +33,7 @@ const LEGAL_LINKS = [
 
 const SOCIAL = [
 
-  { label: "Twitter", href: "https://twitter.com", icon: TwitterIcon },
+  { label: "Twitter", href: "https://x.com/livefolio_me", icon: TwitterIcon },
   { label: "LinkedIn", href: "https://www.linkedin.com/company/livefolio/", icon: LinkedinIcon },
 ];
 

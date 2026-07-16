@@ -15,6 +15,7 @@ import {
   PROJECT_CARD_TITLE,
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
+  getSectionLabels,
 } from "../shared";
 import { TemplateProjectPreview } from "@/components/template-project-preview";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -36,6 +37,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const { navbarEnabled, sections } = buildTemplateSections(data);
   const groupedSkills = groupSkillsByCategory(skills);
 
@@ -88,7 +90,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
           {portfolio.summary && (
             <section id="about" className="scroll-mt-32 max-w-4xl">
               <h2 className="mb-8 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                About <span className="h-px flex-1 bg-[#3D405B]/10" />
+                {labels.about} <span className="h-px flex-1 bg-[#3D405B]/10" />
               </h2>
               <DescriptionBlock
                 text={portfolio.summary}
@@ -101,7 +103,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
           {projects.length > 0 && (
             <section id="work" className="scroll-mt-32">
               <h2 className="mb-12 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                Selected Work <span className="h-px flex-1 bg-[#3D405B]/10" />
+                {labels.projects} <span className="h-px flex-1 bg-[#3D405B]/10" />
               </h2>
               <CollapsibleList initial={4} wrapperClassName={cn("grid min-w-0 grid-cols-1 gap-12", "@lg:grid-cols-2")} buttonClassName="mt-12 mx-auto block uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
                 {projects.map((project) => (
@@ -150,7 +152,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32 max-w-4xl">
               <h2 className="mb-12 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                Experience <span className="h-px flex-1 bg-[#3D405B]/10" />
+                {labels.experience} <span className="h-px flex-1 bg-[#3D405B]/10" />
               </h2>
               <CollapsibleList initial={3} wrapperClassName="space-y-12" buttonClassName="mt-12 mx-auto block uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
                 {experiences.map((exp) => (
@@ -181,7 +183,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
             {skills.length > 0 && (
               <section className="scroll-mt-32">
                 <h2 className="mb-8 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                  Skills <span className="h-px flex-1 bg-[#3D405B]/10" />
+                  {labels.skills} <span className="h-px flex-1 bg-[#3D405B]/10" />
                 </h2>
                 <div className="space-y-8">
                   {Object.entries(groupedSkills).map(([category, items]) => (
@@ -203,7 +205,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
             {educations.length > 0 && (
               <section className="scroll-mt-32">
                 <h2 className="mb-8 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                  Education <span className="h-px flex-1 bg-[#3D405B]/10" />
+                  {labels.education} <span className="h-px flex-1 bg-[#3D405B]/10" />
                 </h2>
                 <CollapsibleList initial={3} wrapperClassName="space-y-8" buttonClassName="mt-8 uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
                   {educations.map((edu) => (
@@ -225,7 +227,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
               {certifications.length > 0 && (
                 <section>
                   <h2 className="mb-8 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                    Certifications <span className="h-px flex-1 bg-[#3D405B]/10" />
+                    {labels.certifications} <span className="h-px flex-1 bg-[#3D405B]/10" />
                   </h2>
                   <CollapsibleList initial={3} wrapperClassName="space-y-6" buttonClassName="mt-8 uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
                     {certifications.map((cert) => (
@@ -245,7 +247,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
               {achievements.length > 0 && (
                 <section>
                   <h2 className="mb-8 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                    Awards <span className="h-px flex-1 bg-[#3D405B]/10" />
+                    {labels.achievements} <span className="h-px flex-1 bg-[#3D405B]/10" />
                   </h2>
                   <CollapsibleList initial={3} wrapperClassName="space-y-6" buttonClassName="mt-8 uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
                     {achievements.map((ach) => (
@@ -270,7 +272,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
           {articles.length > 0 && (
             <section id="articles" className="scroll-mt-32 max-w-4xl">
               <h2 className="mb-12 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                Writing <span className="h-px flex-1 bg-[#3D405B]/10" />
+                {labels.articles} <span className="h-px flex-1 bg-[#3D405B]/10" />
               </h2>
               <CollapsibleList initial={3} wrapperClassName="space-y-12" buttonClassName="mt-12 mx-auto block uppercase tracking-widest text-sm font-semibold border-b border-[#E07A5F] text-[#E07A5F] pb-1 hover:text-[#3D405B] hover:border-[#3D405B] transition-colors">
                 {articles.map((article) => (
@@ -309,7 +311,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
           {contributionCalendar && (
             <section className="scroll-mt-32 max-w-5xl overflow-x-auto pb-4">
               <h2 className="mb-12 text-3xl font-medium text-[#E07A5F] flex items-center gap-4">
-                Activity <span className="h-px flex-1 bg-[#3D405B]/10" />
+                {labels.github} <span className="h-px flex-1 bg-[#3D405B]/10" />
               </h2>
               <div className="min-w-[700px] bg-white p-8 rounded-3xl shadow-xs border border-[#3D405B]/5">
                 <GitHubContributionHeatmap
@@ -317,7 +319,7 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
                   profileUrl={githubProfile?.url}
                   username={githubProfile?.username}
                   variant="minimal"
-                  label="GitHub Contribution Calendar"
+                  label={labels.github}
                 />
               </div>
             </section>

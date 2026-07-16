@@ -19,6 +19,7 @@ import {
 } from "@/features/portfolio/api/use-portfolio";
 import { CreatePortfolioPrompt, PORTFOLIO_ACTION_BUTTON_CLASS } from "@/features/portfolio/components/create-portfolio-prompt";
 import type { PortfolioCustomization, TemplateSectionId } from "@/features/templates/types";
+import { getSectionLabel, NAVBAR_SECTION_TO_KEY } from "@/features/templates/section-labels";
 
 const defaultNavbarSettings: {
   enabled: boolean;
@@ -171,13 +172,17 @@ export default function SettingsPage() {
             <div className="flex flex-wrap gap-2">
               {(
                 [
-                  ["about", "About"],
-                  ["work", "Work"],
-                  ["experience", "Experience"],
-                  ["profiles", "Profiles"],
-                ] as const
-              ).map(([key, label]) => {
+                  "about",
+                  "work",
+                  "experience",
+                  "profiles",
+                ] as const satisfies readonly TemplateSectionId[]
+              ).map((key) => {
                 const active = navbarSettings.sections[key];
+                const label = getSectionLabel(
+                  NAVBAR_SECTION_TO_KEY[key],
+                  portfolio?.customization as PortfolioCustomization | undefined
+                );
 
                 return (
                   <Button

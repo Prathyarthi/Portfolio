@@ -27,6 +27,7 @@ import {
   SocialPills,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -47,6 +48,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -135,7 +137,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   id="about"
                   className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
                 >
-                  <SectionHeading>Overview</SectionHeading>
+                  <SectionHeading>{labels.about}</SectionHeading>
                   <DescriptionBlock
                     text={portfolio.summary}
                     paragraphClassName="whitespace-pre-line text-base leading-8 text-zinc-300"
@@ -149,7 +151,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   id="work"
                   className="scroll-mt-24 min-w-0 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
                 >
-                  <SectionHeading>Selected Projects</SectionHeading>
+                  <SectionHeading>{labels.projects}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName={PROJECTS_GRID_2}
@@ -243,7 +245,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   id="experience"
                   className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
                 >
-                  <SectionHeading>Experience</SectionHeading>
+                  <SectionHeading>{labels.experience}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-5"
@@ -286,7 +288,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   id="writing"
                   className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
                 >
-                  <SectionHeading>Writing</SectionHeading>
+                  <SectionHeading>{labels.articles}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -345,7 +347,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
             <aside className="min-w-0 space-y-8 md:space-y-10">
               {skills.length > 0 && (
                 <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
-                  <SectionHeading>Skills</SectionHeading>
+                  <SectionHeading>{labels.skills}</SectionHeading>
                   <div className="space-y-6">
                     {Object.entries(groupedSkills).map(([category, names]) => (
                       <div key={category}>
@@ -370,7 +372,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
 
               {educations.length > 0 && (
                 <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
-                  <SectionHeading>Education</SectionHeading>
+                  <SectionHeading>{labels.education}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -400,7 +402,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
 
               {certifications.length > 0 && (
                 <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
-                  <SectionHeading>Certifications</SectionHeading>
+                  <SectionHeading>{labels.certifications}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-4"
@@ -442,7 +444,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
 
               {achievements.length > 0 && (
                 <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
-                  <SectionHeading>Achievements</SectionHeading>
+                  <SectionHeading>{labels.achievements}</SectionHeading>
                   <CollapsibleList
                     initial={4}
                     wrapperClassName="space-y-3"
@@ -476,7 +478,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                   id="profiles"
                   className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
                 >
-                  <SectionHeading>Profiles</SectionHeading>
+                  <SectionHeading>{labels.profiles}</SectionHeading>
                   <ProfileLinksSection
                     portfolio={portfolio}
                     profiles={socialProfiles}
@@ -508,13 +510,13 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
 
           {contributionCalendar && (
             <section className="mt-8 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:mt-10 md:p-8">
-              <SectionHeading>GitHub Activity</SectionHeading>
+              <SectionHeading>{labels.github}</SectionHeading>
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}
                 profileUrl={githubProfile?.url}
                 username={githubProfile?.username}
                 variant="modern"
-                label="GitHub Contribution Calendar"
+                label={labels.github}
               />
             </section>
           )}

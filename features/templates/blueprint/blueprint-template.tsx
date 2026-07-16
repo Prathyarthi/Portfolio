@@ -23,6 +23,7 @@ import {
   STACKED_SECTIONS,
   TEMPLATE_CONTAINER,
   TemplateNavbar,
+  getSectionLabels,
 } from "../shared";
 import { CollapsibleList } from "../collapsible-list";
 import { formatDateRange, groupSkillsByCategory } from "../utils";
@@ -43,6 +44,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
     customSections,
     livePreviewProjectIds,
   } = data;
+  const labels = getSectionLabels(portfolio.customization);
   const groupedSkills = groupSkillsByCategory(skills);
   const githubProfile = socialProfiles.find(
     (profile) => profile.platform.toLowerCase() === "github"
@@ -132,7 +134,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
 
         {portfolio.summary && (
           <section id="about" className="scroll-mt-32">
-            <SectionHeading number="01">SPECIFICATIONS</SectionHeading>
+            <SectionHeading number="01">{labels.about}</SectionHeading>
             <div className="border-2 border-white/50 p-8 md:p-12 bg-[#003366]/80 backdrop-blur-sm relative">
               <div className="absolute top-4 right-4 text-[10px] text-white/50 uppercase tracking-widest">
                 SCALE: 1:1
@@ -148,7 +150,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
 
         {visibleProjects.length > 0 && (
           <section id="work" className="scroll-mt-32">
-            <SectionHeading number="02">SCHEMATICS</SectionHeading>
+            <SectionHeading number="02">{labels.projects}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName={cn(PROJECTS_GRID_2, "gap-8")}
@@ -218,7 +220,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
         <div className="flex flex-col gap-16">
           {experiences.length > 0 && (
             <section id="experience" className="scroll-mt-32">
-              <SectionHeading number="03">OPERATIONS</SectionHeading>
+              <SectionHeading number="03">{labels.experience}</SectionHeading>
               <CollapsibleList
                 initial={4}
                 wrapperClassName="space-y-8"
@@ -255,7 +257,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
           <div className="space-y-16">
             {skills.length > 0 && (
               <section>
-                <SectionHeading number="04">COMPONENTS</SectionHeading>
+                <SectionHeading number="04">{labels.skills}</SectionHeading>
                 <div className="border-2 border-white/50 p-6 bg-[#003366]/80 backdrop-blur-sm">
                   <div className="space-y-8">
                     {Object.entries(groupedSkills).map(([category, names], idx) => (
@@ -279,7 +281,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
 
             {educations.length > 0 && (
               <section>
-                <SectionHeading number="05">FOUNDATION</SectionHeading>
+                <SectionHeading number="05">{labels.education}</SectionHeading>
                 <CollapsibleList
                   initial={3}
                   wrapperClassName="space-y-6"
@@ -308,7 +310,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
           <div className={STACKED_SECTIONS}>
             {certifications.length > 0 && (
               <section>
-                <SectionHeading number="06">CERTIFICATES</SectionHeading>
+                <SectionHeading number="06">{labels.certifications}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -341,7 +343,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
 
             {achievements.length > 0 && (
               <section>
-                <SectionHeading number="07">MILESTONES</SectionHeading>
+                <SectionHeading number="07">{labels.achievements}</SectionHeading>
                 <CollapsibleList
                   initial={4}
                   wrapperClassName="space-y-4"
@@ -368,7 +370,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
 
         {articles.length > 0 && (
           <section id="writing" className="scroll-mt-32">
-            <SectionHeading number="08">DOCUMENTS</SectionHeading>
+            <SectionHeading number="08">{labels.articles}</SectionHeading>
             <CollapsibleList
               initial={4}
               wrapperClassName="grid grid-cols-1 md:grid-cols-3 gap-6"
@@ -421,7 +423,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
               <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-white" />
               <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white" />
 
-              <h2 className="text-2xl font-bold uppercase tracking-widest mb-8">NETWORK_LINKS</h2>
+              <h2 className="text-2xl font-bold uppercase tracking-widest mb-8">{labels.profiles}</h2>
               <div className="flex justify-center">
                 <ProfileLinksSection
                   portfolio={portfolio}
@@ -438,7 +440,7 @@ export function BlueprintTemplate({ data }: { data: PortfolioData }) {
 
         {contributionCalendar && (
           <section className="scroll-mt-32">
-            <SectionHeading number="XX">TELEMETRY</SectionHeading>
+            <SectionHeading number="XX">{labels.github}</SectionHeading>
             <div className="border-2 border-white/50 p-8 bg-[#003366]/80 backdrop-blur-sm overflow-x-auto custom-scrollbar">
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}
