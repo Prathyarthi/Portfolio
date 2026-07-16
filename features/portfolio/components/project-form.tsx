@@ -223,18 +223,10 @@ export function ProjectForm() {
   }
 
   async function handleAdd() {
-    if (!form.title.trim()) {
-      toast.error("Project title is required");
-      return;
-    }
-    if (!form.description.trim()) {
-      toast.error("Project description is required");
-      return;
-    }
     try {
       const created = await addProject.mutateAsync({
-        title: form.title,
-        description: form.description,
+        title: form.title.trim(),
+        description: form.description.trim(),
         liveUrl: form.liveUrl || null,
         sourceUrl: form.sourceUrl || null,
         techStack: form.techStack,
@@ -266,10 +258,6 @@ export function ProjectForm() {
 
   async function handleUpdate() {
     if (!editingId) return;
-    if (!form.title.trim()) {
-      toast.error("Project title is required");
-      return;
-    }
     try {
       const wantPreview = editLivePreviewEnabled && Boolean(form.liveUrl.trim());
       const alreadySaved = livePreviewProjectIds.includes(editingId);
@@ -286,8 +274,8 @@ export function ProjectForm() {
 
       await updateProject.mutateAsync({
         id: editingId,
-        title: form.title,
-        description: form.description,
+        title: form.title.trim(),
+        description: form.description.trim(),
         liveUrl: form.liveUrl || null,
         sourceUrl: form.sourceUrl || null,
         techStack: form.techStack,
@@ -441,7 +429,7 @@ export function ProjectForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <FieldLabel htmlFor={`proj-title${suffix}`} unsaved={isFieldUnsaved("title")}>
-              Title *
+              Title
             </FieldLabel>
             <Input
               id={`proj-title${suffix}`}
@@ -468,7 +456,7 @@ export function ProjectForm() {
 
         <div className="space-y-2">
           <FieldLabel htmlFor={`proj-description${suffix}`} unsaved={isFieldUnsaved("description")}>
-            Description *
+            Description
           </FieldLabel>
           <Textarea
             id={`proj-description${suffix}`}

@@ -99,6 +99,222 @@ function normalizeEndDateField(v: unknown): string | null {
   return s;
 }
 
+const MONTH_TO_NUM: Record<string, string> = {
+  jan: "01",
+  january: "01",
+  feb: "02",
+  february: "02",
+  mar: "03",
+  march: "03",
+  apr: "04",
+  april: "04",
+  may: "05",
+  jun: "06",
+  june: "06",
+  jul: "07",
+  july: "07",
+  aug: "08",
+  august: "08",
+  sep: "09",
+  sept: "09",
+  september: "09",
+  oct: "10",
+  october: "10",
+  nov: "11",
+  november: "11",
+  dec: "12",
+  december: "12",
+};
+
+function monthToNum(month: string): string {
+  return MONTH_TO_NUM[month.toLowerCase()] ?? "01";
+}
+
+function parseLooseDateToken(token: string): string | null {
+  const t = token.trim();
+  if (!t) return null;
+  if (/^(present|current|now|ongoing|till date|to date)$/i.test(t)) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t;
+
+  const yearMonth = t.match(/^(\d{4})\s+([A-Za-z]+)$/);
+  if (yearMonth) {
+    return `${yearMonth[1]}-${monthToNum(yearMonth[2])}-01`;
+  }
+
+  const monthYear = t.match(/^([A-Za-z]+)\s+(\d{4})$/);
+  if (monthYear) {
+    return `${monthYear[2]}-${monthToNum(monthYear[1])}-01`;
+  }
+
+  const yearOnly = t.match(/^(\d{4})$/);
+  if (yearOnly) return `${yearOnly[1]}-01-01`;
+
+  return null;
+}
+
+function parseLooseDateRange(
+  value: unknown
+): { startDate: string | null; endDate: string | null } {
+  if (value == null) return { startDate: null, endDate: null };
+  const s = String(value).trim();
+  if (!s) return { startDate: null, endDate: null };
+
+  const parts = s.split(/\s+(?:to|–|—|-|till|until)\s+/i);
+  if (parts.length >= 2) {
+    const endPart = parts[parts.length - 1].trim();
+    return {
+      startDate: parseLooseDateToken(parts[0]),
+      endDate: /^(present|current|now|ongoing|till date|to date)$/i.test(endPart)
+        ? null
+        : parseLooseDateToken(endPart),
+    };
+  }
+
+  return { startDate: parseLooseDateToken(s), endDate: null };
+}
+
+function inferFallbackRole(headline: string, summary: string): string {
+  const h = headline.trim();
+  if (h) return h;
+
+  const firstLine =
+    summary
+      .split("\n")
+      .map((line) => line.trim())
+      .find(Boolean) ?? "";
+
+  const withYears = firstLine.match(/^(.+?)\s+with\s+\d/i);
+  if (withYears?.[1]) {
+    const phrase = withYears[1].trim();
+    if (phrase.length <= 80) return phrase;
+  }
+
+  if (firstLine.length > 0 && firstLine.length <= 80) return firstLine;
+
+  return "Professional";
+}
+
+function inferFallbackCompany(role: string): string {
+  const lower = role.toLowerCase();
+  if (/\b(freelance|contract|consultant|self[- ]?employed)\b/.test(lower)) {
+    return "Independent";
+  }
+  return "Organization not listed";
+}
+
+function isWorkExperienceSection(section: {
+  sectionType: string;
+  label: string;
+}): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(work|experience|employment|career|position|professional)\b/.test(key);
+}
+
+function isEducationSection(section: { sectionType: string; label: string }): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(education|academic|qualification|schooling|degree)\b/.test(key);
+}
+
+function isSkillsSection(section: { sectionType: string; label: string }): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(skill|competenc|expertise|proficien|technical|tool)\b/.test(key);
+}
+
+function isCertificationSection(section: {
+  sectionType: string;
+  label: string;
+}): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(certif|licen[cs]e|credential|accredit)/.test(key);
+}
+
+function isProjectSection(section: { sectionType: string; label: string }): boolean {
+  const key = `${section.sectionType} ${section.label}`.toLowerCase();
+  return /\b(project|portfolio|case stud)/.test(key);
+}
+
+function experienceDedupeKey(company: string, role: string): string {
+  return `${company.trim().toLowerCase()}|${role.trim().toLowerCase()}`;
+}
+
+function collectSkillsFromUnknown(value: unknown, category = "General"): ParsedResume["skills"] {
+  if (value == null) return [];
+
+  if (typeof value === "string") {
+    return value
+      .split(/[,;|]|\n+/)
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((name) => ({ name, category }));
+  }
+
+  if (Array.isArray(value)) {
+    const out: ParsedResume["skills"] = [];
+    for (const item of value) {
+      out.push(...collectSkillsFromUnknown(item, category));
+    }
+    return out;
+  }
+
+  const record = asRecord(value);
+  if (!record) return [];
+
+  const name = normalizeString(record.name ?? record.skill ?? record.title);
+  if (name) {
+    return [
+      {
+        name,
+        category:
+          normalizeString(record.category ?? record.group ?? category) || "General",
+      },
+    ];
+  }
+
+  const nestedCategory = normalizeString(record.category ?? record.group);
+  const nestedItems =
+    record.items ?? record.skills ?? record.values ?? record.list ?? record.entries;
+  if (nestedItems != null) {
+    return collectSkillsFromUnknown(
+      nestedItems,
+      nestedCategory || category
+    );
+  }
+
+  return [];
+}
+
+function resolveSkillsRaw(o: Record<string, unknown>): unknown[] {
+  const direct = o.skills ?? o.skill ?? o.coreCompetencies ?? o.competencies;
+  if (Array.isArray(direct)) return direct;
+
+  if (typeof direct === "string") {
+    return collectSkillsFromUnknown(direct);
+  }
+
+  const grouped = asRecord(direct);
+  if (grouped) {
+    const out: ParsedResume["skills"] = [];
+    for (const [category, items] of Object.entries(grouped)) {
+      out.push(...collectSkillsFromUnknown(items, category));
+    }
+    if (out.length > 0) return out;
+  }
+
+  const altKeys = [
+    "technicalSkills",
+    "technical_skills",
+    "tools",
+    "technologies",
+    "expertise",
+  ];
+  for (const key of altKeys) {
+    const alt = o[key];
+    if (alt != null) return collectSkillsFromUnknown(alt);
+  }
+
+  return [];
+}
+
 /**
  * Coerce model output into ParsedResume: alternate keys, null descriptions,
  * and non-array sections from AI output are common reasons imports silently fail validation.
@@ -136,13 +352,27 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   }
 
   const experiences: ParsedResume["experiences"] = [];
+  const headline = normalizeString(
+    o.headline ?? o.title ?? o.jobTitle ?? o.targetRole ?? o.currentRole
+  );
+  const summary = normalizeString(o.summary ?? o.profile ?? o.objective ?? o.about);
+  const roleFallback = { headline, summary };
+
   for (const item of experienceRaw) {
     const e = asRecord(item) ?? {};
-    const company = normalizeString(e.company ?? e.employer ?? e.organization);
-    const role = normalizeString(e.role ?? e.title ?? e.position ?? e.jobTitle);
+    let company = normalizeString(
+      e.company ?? e.employer ?? e.organization ?? e.org ?? e.client
+    );
+    let role = normalizeString(
+      e.role ?? e.title ?? e.position ?? e.jobTitle ?? e.job_title ?? e.designation
+    );
     const startDate = normalizeString(e.startDate ?? e.start ?? e.from).trim();
 
-    if (!company || !role) continue;
+    if (!company && !role) continue;
+    if (!company) company = inferFallbackCompany(role);
+    if (!role.trim()) {
+      role = inferFallbackRole(roleFallback.headline, roleFallback.summary);
+    }
 
     experiences.push({
       company,
@@ -168,38 +398,44 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   const education: ParsedResume["education"] = [];
   for (const item of educationRaw) {
     const e = asRecord(item) ?? {};
-    const institution = normalizeString(e.institution ?? e.school ?? e.university);
-    const degree = normalizeString(e.degree);
+    const institution = normalizeString(
+      e.institution ?? e.school ?? e.university ?? e.college ?? e.academy
+    );
+    const degree = normalizeString(
+      e.degree ?? e.qualification ?? e.program ?? e.credential ?? e.level
+    );
+    const field = normalizeString(
+      e.field ?? e.major ?? e.specialization ?? e.concentration ?? e.stream
+    );
     const startDate = normalizeString(e.startDate ?? e.start ?? e.from).trim();
 
-    if (!institution || !degree) continue;
+    if (!institution && !degree && !field) continue;
 
     education.push({
-      institution,
-      degree,
-      field:
-        e.field == null || String(e.field).trim() === ""
-          ? null
-          : normalizeString(e.field),
+      institution: institution || degree || field,
+      degree: degree || field || "Program",
+      field: field && field !== degree ? field : null,
       startDate: startDate || null,
       endDate: normalizeEndDateField(e.endDate ?? e.end ?? e.to),
       gpa:
         e.gpa == null || String(e.gpa).trim() === ""
           ? null
-          : normalizeString(e.gpa),
+          : normalizeString(e.gpa ?? e.grade ?? e.percentage ?? e.score),
     });
   }
 
-  const skillsRaw: unknown[] = Array.isArray(o.skills) ? o.skills : [];
-  const skills: ParsedResume["skills"] = skillsRaw
-    .map((item) => {
-      const s = asRecord(item) ?? {};
-      return {
-        name: normalizeString(s.name ?? s.skill),
-        category: normalizeString(s.category ?? "General") || "General",
-      };
-    })
-    .filter((s: ParsedResume["skills"][number]) => s.name.trim() !== "");
+  const skillsFromRaw = resolveSkillsRaw(o);
+  const skills: ParsedResume["skills"] = skillsFromRaw
+    .flatMap((item) => collectSkillsFromUnknown(item))
+    .filter((s) => s.name.trim() !== "");
+
+  const seenSkillNames = new Set<string>();
+  const dedupedSkills = skills.filter((skill) => {
+    const key = skill.name.trim().toLowerCase();
+    if (seenSkillNames.has(key)) return false;
+    seenSkillNames.add(key);
+    return true;
+  });
 
   const projectsRaw: unknown[] = Array.isArray(o.projects) ? o.projects : [];
   const projects: ParsedResume["projects"] = [];
@@ -272,19 +508,35 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
     });
   }
 
-  // Normalize custom sections
+  // Normalize custom sections; promote recognizable sections into typed portfolio fields.
   const customSectionsRaw: unknown[] = Array.isArray(o.customSections)
     ? o.customSections
     : [];
   const customSections: ParsedCustomSection[] = [];
+  const seenExperienceKeys = new Set(
+    experiences.map((exp) => experienceDedupeKey(exp.company, exp.role))
+  );
+  const seenEducationKeys = new Set(
+    education.map((edu) =>
+      `${edu.institution.trim().toLowerCase()}|${edu.degree.trim().toLowerCase()}`
+    )
+  );
+  const seenCertNames = new Set(
+    certifications.map((cert) => cert.name.trim().toLowerCase())
+  );
+  const seenProjectTitles = new Set(
+    projects.map((project) => project.title.trim().toLowerCase())
+  );
+
   for (const item of customSectionsRaw) {
     const s = asRecord(item);
     if (!s) continue;
     const sectionType = normalizeString(s.sectionType ?? s.section_type ?? s.type);
     const label = normalizeString(s.label ?? s.title ?? s.name);
     if (!sectionType || !label) continue;
-    const items: Record<string, unknown>[] = [];
+
     const rawItems = Array.isArray(s.items) ? s.items : [];
+    const items: Record<string, unknown>[] = [];
     for (const entry of rawItems) {
       if (typeof entry === "string") {
         items.push({ title: entry });
@@ -293,9 +545,155 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
         if (rec) items.push(rec as Record<string, unknown>);
       }
     }
-    if (items.length > 0) {
-      customSections.push({ sectionType, label, items });
+
+    if (items.length === 0) continue;
+
+    const sectionMeta = { sectionType, label };
+
+    if (isWorkExperienceSection(sectionMeta)) {
+      for (const entry of items) {
+        let company = normalizeString(
+          entry.company ?? entry.employer ?? entry.organization ?? entry.title ?? entry.name
+        );
+        let role = normalizeString(
+          entry.role ?? entry.position ?? entry.jobTitle ?? entry.job_title ?? entry.designation
+        );
+        if (!company && !role) continue;
+        if (!company) company = inferFallbackCompany(role);
+        if (!role.trim()) {
+          role = inferFallbackRole(roleFallback.headline, roleFallback.summary);
+        }
+
+        const dedupeKey = experienceDedupeKey(company, role);
+        if (seenExperienceKeys.has(dedupeKey)) continue;
+
+        const { startDate, endDate } = parseLooseDateRange(
+          entry.date ?? entry.dates ?? entry.period ?? entry.duration ?? entry.tenure
+        );
+
+        experiences.push({
+          company,
+          role,
+          description: normalizeDescription(
+            entry.description ?? entry.summary ?? entry.details ?? entry.highlights
+          ),
+          startDate:
+            startDate ??
+            (normalizeString(entry.startDate ?? entry.start ?? entry.from).trim() || null),
+          endDate:
+            normalizeEndDateField(entry.endDate ?? entry.end ?? entry.to) ?? endDate,
+          location:
+            entry.location == null || String(entry.location).trim() === ""
+              ? null
+              : normalizeString(entry.location),
+        });
+        seenExperienceKeys.add(dedupeKey);
+      }
+      continue;
     }
+
+    if (isEducationSection(sectionMeta)) {
+      for (const entry of items) {
+        const institution = normalizeString(
+          entry.institution ?? entry.school ?? entry.university ?? entry.title ?? entry.name
+        );
+        const degree = normalizeString(
+          entry.degree ?? entry.qualification ?? entry.program ?? entry.credential
+        );
+        const field = normalizeString(
+          entry.field ?? entry.major ?? entry.specialization ?? entry.stream
+        );
+        if (!institution && !degree && !field) continue;
+
+        const eduKey = `${(institution || degree || field).toLowerCase()}|${(degree || field || "program").toLowerCase()}`;
+        if (seenEducationKeys.has(eduKey)) continue;
+
+        const { startDate, endDate } = parseLooseDateRange(
+          entry.date ?? entry.dates ?? entry.period ?? entry.year
+        );
+
+        education.push({
+          institution: institution || degree || field,
+          degree: degree || field || "Program",
+          field: field || null,
+          startDate:
+            startDate ??
+            (normalizeString(entry.startDate ?? entry.start ?? entry.from).trim() || null),
+          endDate:
+            normalizeEndDateField(entry.endDate ?? entry.end ?? entry.to) ?? endDate,
+          gpa:
+            entry.gpa == null || String(entry.gpa).trim() === ""
+              ? null
+              : normalizeString(entry.gpa ?? entry.grade ?? entry.percentage),
+        });
+        seenEducationKeys.add(eduKey);
+      }
+      continue;
+    }
+
+    if (isSkillsSection(sectionMeta)) {
+      for (const entry of items) {
+        const parsedSkills = collectSkillsFromUnknown(entry, label);
+        for (const skill of parsedSkills) {
+          const key = skill.name.trim().toLowerCase();
+          if (!key || seenSkillNames.has(key)) continue;
+          seenSkillNames.add(key);
+          dedupedSkills.push(skill);
+        }
+      }
+      continue;
+    }
+
+    if (isCertificationSection(sectionMeta)) {
+      for (const entry of items) {
+        const name = normalizeString(entry.name ?? entry.title ?? entry.certification);
+        if (!name) continue;
+        const key = name.toLowerCase();
+        if (seenCertNames.has(key)) continue;
+        certifications.push({
+          name,
+          issuer: normalizeString(entry.issuer ?? entry.organization ?? entry.org ?? ""),
+          issueDate:
+            entry.issueDate == null || String(entry.issueDate).trim() === ""
+              ? null
+              : normalizeString(entry.issueDate ?? entry.date ?? entry.year),
+          url:
+            entry.url == null || String(entry.url).trim() === ""
+              ? null
+              : normalizeString(entry.url),
+        });
+        seenCertNames.add(key);
+      }
+      continue;
+    }
+
+    if (isProjectSection(sectionMeta)) {
+      for (const entry of items) {
+        const title = normalizeString(entry.title ?? entry.name ?? entry.project);
+        if (!title) continue;
+        const key = title.toLowerCase();
+        if (seenProjectTitles.has(key)) continue;
+        let tech: unknown = entry.techStack ?? entry.tech_stack ?? entry.technologies;
+        if (!Array.isArray(tech)) tech = [];
+        projects.push({
+          title,
+          description: normalizeDescription(entry.description ?? entry.summary ?? entry.details),
+          techStack: (tech as unknown[]).map((x) => String(x)),
+          liveUrl:
+            entry.liveUrl == null || String(entry.liveUrl).trim() === ""
+              ? null
+              : normalizeString(entry.liveUrl ?? entry.url),
+          sourceUrl:
+            entry.sourceUrl == null || String(entry.sourceUrl).trim() === ""
+              ? null
+              : normalizeString(entry.sourceUrl ?? entry.repo),
+        });
+        seenProjectTitles.add(key);
+      }
+      continue;
+    }
+
+    customSections.push({ sectionType, label, items });
   }
 
   function emptyToNull(v: unknown): string | null {
@@ -307,10 +705,14 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
 
   const contactRaw = asRecord(o.contact) ?? {};
   const contact: ParsedResume["contact"] = {
-    email: emptyToNull(contactRaw.email),
-    phone: emptyToNull(contactRaw.phone),
-    websiteUrl: emptyToNull(contactRaw.websiteUrl ?? contactRaw.website ?? contactRaw.url),
-    location: emptyToNull(contactRaw.location ?? contactRaw.address ?? contactRaw.city),
+    email: emptyToNull(contactRaw.email ?? o.email),
+    phone: emptyToNull(contactRaw.phone ?? o.phone ?? o.mobile),
+    websiteUrl: emptyToNull(
+      contactRaw.websiteUrl ?? contactRaw.website ?? contactRaw.url ?? o.website ?? o.websiteUrl
+    ),
+    location: emptyToNull(
+      contactRaw.location ?? contactRaw.address ?? contactRaw.city ?? o.location ?? o.address
+    ),
   };
 
   const socialRaw: unknown[] = Array.isArray(o.socialProfiles)
@@ -343,14 +745,14 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
   }
 
   return {
-    name: normalizeString(o.name),
-    headline: normalizeString(o.headline),
-    summary: normalizeString(o.summary),
+    name: normalizeString(o.name ?? o.fullName ?? o.full_name ?? o.candidateName),
+    headline,
+    summary,
     contact,
     socialProfiles: resolvedSocialProfiles,
     experiences,
     education,
-    skills,
+    skills: dedupedSkills,
     projects,
     achievements,
     certifications,
@@ -361,6 +763,7 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
 
 export async function structureResumeWithAi(
   rawText: string,
+  options?: { quality?: PdfExtractionQuality },
 ): Promise<ParsedResume> {
   const text = await generateOpenRouterResumeText(
     buildResumeUserMessage(rawText),

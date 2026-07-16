@@ -57,10 +57,6 @@ export function SkillsEditor() {
 
   async function handleAdd() {
     const name = skillName.trim();
-    if (!name) {
-      toast.error("Skill name is required");
-      return;
-    }
 
     // Prevent duplicates
     const existing = portfolio?.skills ?? [];

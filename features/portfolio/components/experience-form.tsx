@@ -98,14 +98,10 @@ export function ExperienceForm() {
   }
 
   async function handleAdd() {
-    if (!form.company.trim() || !form.role.trim()) {
-      toast.error("Company and role are required");
-      return;
-    }
     try {
       await addExperience.mutateAsync({
-        company: form.company,
-        role: form.role,
+        company: form.company.trim(),
+        role: form.role.trim(),
         description: form.description,
         startDate: form.startDate || null,
         endDate: form.endDate || null,
@@ -120,15 +116,11 @@ export function ExperienceForm() {
 
   async function handleUpdate() {
     if (!editingId) return;
-    if (!form.company.trim() || !form.role.trim()) {
-      toast.error("Company and role are required");
-      return;
-    }
     try {
       await updateExperience.mutateAsync({
         id: editingId,
-        company: form.company,
-        role: form.role,
+        company: form.company.trim(),
+        role: form.role.trim(),
         description: form.description,
         startDate: form.startDate || null,
         endDate: form.endDate || null,
@@ -250,7 +242,7 @@ export function ExperienceForm() {
               <div className="space-y-2">
                 <FieldLabel htmlFor="company" unsaved={isFieldUnsaved("company")}>
                   <Building2 className="h-4 w-4 text-muted-foreground" />
-                  Company *
+                  Company
                 </FieldLabel>
                 <Input
                   id="company"
@@ -263,7 +255,7 @@ export function ExperienceForm() {
               <div className="space-y-2">
                 <FieldLabel htmlFor="role" unsaved={isFieldUnsaved("role")}>
                   <Briefcase className="h-4 w-4 text-muted-foreground" />
-                  Role *
+                  Role
                 </FieldLabel>
                 <Input
                   id="role"
@@ -389,7 +381,7 @@ export function ExperienceForm() {
                     <div className="space-y-2">
                       <FieldLabel htmlFor={`company-${exp.id}`} unsaved={isFieldUnsaved("company")}>
                         <Building2 className="h-4 w-4 text-muted-foreground" />
-                        Company *
+                        Company
                       </FieldLabel>
                       <Input
                         id={`company-${exp.id}`}
@@ -402,7 +394,7 @@ export function ExperienceForm() {
                     <div className="space-y-2">
                       <FieldLabel htmlFor={`role-${exp.id}`} unsaved={isFieldUnsaved("role")}>
                         <Briefcase className="h-4 w-4 text-muted-foreground" />
-                        Role *
+                        Role
                       </FieldLabel>
                       <Input
                         id={`role-${exp.id}`}

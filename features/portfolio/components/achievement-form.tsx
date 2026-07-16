@@ -80,13 +80,9 @@ export function AchievementForm() {
   }
 
   async function handleAdd() {
-    if (!form.title.trim()) {
-      toast.error("Title is required");
-      return;
-    }
     try {
       await addAchievement.mutateAsync({
-        title: form.title,
+        title: form.title.trim(),
         date: form.date || null,
       });
       toast.success("Achievement added");
@@ -98,14 +94,10 @@ export function AchievementForm() {
 
   async function handleUpdate() {
     if (!editingId) return;
-    if (!form.title.trim()) {
-      toast.error("Title is required");
-      return;
-    }
     try {
       await updateAchievement.mutateAsync({
         id: editingId,
-        title: form.title,
+        title: form.title.trim(),
         date: form.date || null,
       });
       toast.success("Achievement updated");
@@ -213,7 +205,7 @@ export function AchievementForm() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <FieldLabel htmlFor="title" unsaved={isFieldUnsaved("title")}>
-                Title *
+                Title
               </FieldLabel>
               <Input
                 id="title"
@@ -283,7 +275,7 @@ export function AchievementForm() {
                   </div>
                   <div className="space-y-2">
                     <FieldLabel htmlFor={`title-${ach.id}`} unsaved={isFieldUnsaved("title")}>
-                      Title *
+                      Title
                     </FieldLabel>
                     <Input
                       id={`title-${ach.id}`}

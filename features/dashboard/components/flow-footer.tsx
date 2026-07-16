@@ -27,7 +27,7 @@ type FlowFooterProps = {
 };
 
 const flowNavButtonClass =
-  "h-11 w-full justify-center sm:min-w-[13rem] sm:w-[13rem]";
+  "h-11 w-full justify-center sm:w-auto sm:min-w-[13rem]";
 
 export function FlowFooter({
   previous,

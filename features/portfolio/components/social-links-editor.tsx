@@ -97,11 +97,6 @@ export function SocialLinksEditor() {
   }
 
   async function handleAdd() {
-    if (!url.trim()) {
-      toast.error("URL is required");
-      return;
-    }
-
     try {
       await upsertSocial.mutateAsync({
         platform,
@@ -236,7 +231,7 @@ export function SocialLinksEditor() {
 
             <div className="space-y-2">
               <FieldLabel htmlFor="social-url" unsaved={isUrlUnsaved}>
-                Profile URL *
+                Profile URL
               </FieldLabel>
               <Input
                 id="social-url"
