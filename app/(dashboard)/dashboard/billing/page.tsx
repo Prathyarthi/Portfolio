@@ -102,6 +102,7 @@ export default function BillingPage() {
         interval: billingInterval,
         razorpayLoaded,
         onError: setError,
+        onDismiss: loadBilling,
       });
     } catch {
       setError("Something went wrong. Please try again.");
@@ -308,13 +309,13 @@ export default function BillingPage() {
               )}
               <Button
                 className="w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
-                disabled={subscribing || isPending || !intervalCheckoutReady}
+                disabled={subscribing || !intervalCheckoutReady}
                 onClick={subscribe}
               >
                 {subscribing
                   ? "Opening checkout…"
                   : isPending
-                    ? "Payment pending…"
+                    ? "Try payment again"
                     : `Upgrade to Pro — ${formatProPriceLabel(billingInterval)}`}
               </Button>
             </div>

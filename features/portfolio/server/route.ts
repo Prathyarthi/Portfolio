@@ -537,9 +537,20 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             : null;
         }
 
-        return await prisma.experience.update({
-          where: { id: ctx.params.id },
+        const { count } = await prisma.experience.updateMany({
+          where: {
+            id: ctx.params.id,
+            portfolio: { userId: session.userId },
+          },
           data,
+        });
+        if (count === 0) {
+          ctx.set.status = 404;
+          return { error: "Experience not found" };
+        }
+
+        return prisma.experience.findUniqueOrThrow({
+          where: { id: ctx.params.id },
         });
       } catch (error) {
         ctx.set.status = 400;
@@ -571,7 +582,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 401;
       return { error: "Unauthorized" };
     }
-    await prisma.experience.delete({ where: { id: ctx.params.id } });
+    const { count } = await prisma.experience.deleteMany({
+      where: {
+        id: ctx.params.id,
+        portfolio: { userId: session.userId },
+      },
+    });
+    if (count === 0) {
+      ctx.set.status = 404;
+      return { error: "Experience not found" };
+    }
     return { success: true };
   })
 
@@ -651,9 +671,20 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             : null;
         }
 
-        return await prisma.education.update({
-          where: { id: ctx.params.id },
+        const { count } = await prisma.education.updateMany({
+          where: {
+            id: ctx.params.id,
+            portfolio: { userId: session.userId },
+          },
           data,
+        });
+        if (count === 0) {
+          ctx.set.status = 404;
+          return { error: "Education not found" };
+        }
+
+        return prisma.education.findUniqueOrThrow({
+          where: { id: ctx.params.id },
         });
       } catch (error) {
         ctx.set.status = 400;
@@ -686,7 +717,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 401;
       return { error: "Unauthorized" };
     }
-    await prisma.education.delete({ where: { id: ctx.params.id } });
+    const { count } = await prisma.education.deleteMany({
+      where: {
+        id: ctx.params.id,
+        portfolio: { userId: session.userId },
+      },
+    });
+    if (count === 0) {
+      ctx.set.status = 404;
+      return { error: "Education not found" };
+    }
     return { success: true };
   })
 
@@ -724,7 +764,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 401;
       return { error: "Unauthorized" };
     }
-    await prisma.skill.delete({ where: { id: ctx.params.id } });
+    const { count } = await prisma.skill.deleteMany({
+      where: {
+        id: ctx.params.id,
+        portfolio: { userId: session.userId },
+      },
+    });
+    if (count === 0) {
+      ctx.set.status = 404;
+      return { error: "Skill not found" };
+    }
     return { success: true };
   })
   .post(
@@ -816,9 +865,20 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 401;
         return { error: "Unauthorized" };
       }
-      return prisma.project.update({
-        where: { id: ctx.params.id },
+      const { count } = await prisma.project.updateMany({
+        where: {
+          id: ctx.params.id,
+          portfolio: { userId: session.userId },
+        },
         data: ctx.body,
+      });
+      if (count === 0) {
+        ctx.set.status = 404;
+        return { error: "Project not found" };
+      }
+
+      return prisma.project.findUniqueOrThrow({
+        where: { id: ctx.params.id },
       });
     },
     {
@@ -842,7 +902,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 401;
       return { error: "Unauthorized" };
     }
-    await prisma.project.delete({ where: { id: ctx.params.id } });
+    const { count } = await prisma.project.deleteMany({
+      where: {
+        id: ctx.params.id,
+        portfolio: { userId: session.userId },
+      },
+    });
+    if (count === 0) {
+      ctx.set.status = 404;
+      return { error: "Project not found" };
+    }
     return { success: true };
   })
 
@@ -913,9 +982,20 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
               : toOptionalDate(ctx.body.expiryDate),
         };
 
-        return await prisma.certification.update({
-          where: { id: ctx.params.id },
+        const { count } = await prisma.certification.updateMany({
+          where: {
+            id: ctx.params.id,
+            portfolio: { userId: session.userId },
+          },
           data,
+        });
+        if (count === 0) {
+          ctx.set.status = 404;
+          return { error: "Certification not found" };
+        }
+
+        return prisma.certification.findUniqueOrThrow({
+          where: { id: ctx.params.id },
         });
       } catch (error) {
         ctx.set.status = 400;
@@ -946,7 +1026,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 401;
       return { error: "Unauthorized" };
     }
-    await prisma.certification.delete({ where: { id: ctx.params.id } });
+    const { count } = await prisma.certification.deleteMany({
+      where: {
+        id: ctx.params.id,
+        portfolio: { userId: session.userId },
+      },
+    });
+    if (count === 0) {
+      ctx.set.status = 404;
+      return { error: "Certification not found" };
+    }
     return { success: true };
   })
 
@@ -998,7 +1087,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 401;
       return { error: "Unauthorized" };
     }
-    await prisma.socialProfile.delete({ where: { id: ctx.params.id } });
+    const { count } = await prisma.socialProfile.deleteMany({
+      where: {
+        id: ctx.params.id,
+        portfolio: { userId: session.userId },
+      },
+    });
+    if (count === 0) {
+      ctx.set.status = 404;
+      return { error: "Social profile not found" };
+    }
     return { success: true };
   })
 
@@ -1053,9 +1151,20 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           ? resumeDateOrThrow(ctx.body.date)
           : null;
       }
-      return prisma.achievement.update({
-        where: { id: ctx.params.id },
+      const { count } = await prisma.achievement.updateMany({
+        where: {
+          id: ctx.params.id,
+          portfolio: { userId: session.userId },
+        },
         data: updateData,
+      });
+      if (count === 0) {
+        ctx.set.status = 404;
+        return { error: "Achievement not found" };
+      }
+
+      return prisma.achievement.findUniqueOrThrow({
+        where: { id: ctx.params.id },
       });
     },
     {
@@ -1074,7 +1183,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 401;
       return { error: "Unauthorized" };
     }
-    await prisma.achievement.delete({ where: { id: ctx.params.id } });
+    const { count } = await prisma.achievement.deleteMany({
+      where: {
+        id: ctx.params.id,
+        portfolio: { userId: session.userId },
+      },
+    });
+    if (count === 0) {
+      ctx.set.status = 404;
+      return { error: "Achievement not found" };
+    }
     return { success: true };
   })
 
@@ -1136,12 +1254,23 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
       const { items, ...rest } = ctx.body;
-      return prisma.customSection.update({
-        where: { id: ctx.params.id },
+      const { count } = await prisma.customSection.updateMany({
+        where: {
+          id: ctx.params.id,
+          portfolio: { userId: session.userId },
+        },
         data: {
           ...rest,
           ...(items !== undefined ? { items: items as any } : {}),
         },
+      });
+      if (count === 0) {
+        ctx.set.status = 404;
+        return { error: "Custom section not found" };
+      }
+
+      return prisma.customSection.findUniqueOrThrow({
+        where: { id: ctx.params.id },
       });
     },
     {
@@ -1160,7 +1289,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       ctx.set.status = 401;
       return { error: "Unauthorized" };
     }
-    await prisma.customSection.delete({ where: { id: ctx.params.id } });
+    const { count } = await prisma.customSection.deleteMany({
+      where: {
+        id: ctx.params.id,
+        portfolio: { userId: session.userId },
+      },
+    });
+    if (count === 0) {
+      ctx.set.status = 404;
+      return { error: "Custom section not found" };
+    }
     return { success: true };
   })
 

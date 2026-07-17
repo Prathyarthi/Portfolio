@@ -83,6 +83,20 @@ export async function POST(req: Request) {
   const planId = getRazorpayPlanId(interval)!;
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { subscriptionStatus: true },
+    });
+    if (!user) {
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+    if (user.subscriptionStatus === "active") {
+      return NextResponse.json(
+        { error: "Your Pro subscription is already active." },
+        { status: 409 }
+      );
+    }
+
     const razorpay = new Razorpay({
       key_id: keyId!,
       key_secret: keySecret!,
@@ -99,13 +113,24 @@ export async function POST(req: Request) {
       },
     });
 
-    await prisma.user.update({
-      where: { id: session.user.id },
+    const updated = await prisma.user.updateMany({
+      where: {
+        id: session.user.id,
+        subscriptionStatus: { not: "active" },
+      },
       data: {
-        subscriptionStatus: "pending",
+        // Creating a checkout is not a payment. Razorpay webhooks set pending
+        // only after the customer actually begins payment authorization.
+        subscriptionStatus: "none",
         razorpaySubscriptionId: subscription.id,
       },
     });
+    if (updated.count === 0) {
+      return NextResponse.json(
+        { error: "Your Pro subscription is already active." },
+        { status: 409 }
+      );
+    }
 
     return NextResponse.json({
       keyId,

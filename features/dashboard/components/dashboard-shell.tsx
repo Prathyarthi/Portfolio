@@ -54,7 +54,7 @@ function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const user = session?.user;
-  const { state, toggleSidebar, isMobile } = useSidebar();
+  const { state, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
   const isCollapsed = state === "collapsed";
 
   return (
@@ -76,6 +76,9 @@ function AppSidebar() {
         ) : (
           <Link
             href="/dashboard"
+            onClick={() => {
+              if (isMobile) setOpenMobile(false);
+            }}
             className="flex h-8 items-center gap-2 overflow-hidden px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
             aria-label={`${siteConfig.name} home`}
           >
@@ -108,7 +111,12 @@ function AppSidebar() {
                       tooltip={title}
                       className="gap-3 text-base [&_svg]:size-5 group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:[&_span]:hidden group-data-[collapsible=icon]:[&_svg]:size-5"
                     >
-                      <Link href={href}>
+                      <Link
+                        href={href}
+                        onClick={() => {
+                          if (isMobile) setOpenMobile(false);
+                        }}
+                      >
                         <Icon aria-hidden />
                         <span>{title}</span>
                       </Link>
@@ -159,15 +167,15 @@ function DashboardNavAutoCollapse() {
   const pathname = usePathname();
   const { isMobile, setOpen, setOpenMobile } = useSidebar();
 
-  // Collapse only when navigating onto preview — not when the user toggles open.
   useEffect(() => {
-    if (!pathname.startsWith("/dashboard/preview")) return;
-
     if (isMobile) {
       setOpenMobile(false);
-    } else {
-      setOpen(false);
+      return;
     }
+
+    // Desktop: collapse only when navigating onto preview — not when the user toggles open.
+    if (!pathname.startsWith("/dashboard/preview")) return;
+    setOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run on route change only
   }, [pathname]);
 

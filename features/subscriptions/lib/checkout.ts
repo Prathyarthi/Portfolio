@@ -15,8 +15,14 @@ export async function startProCheckout(options: {
   interval: BillingInterval;
   razorpayLoaded: boolean;
   onError: (message: string) => void;
+  onDismiss?: () => void | Promise<void>;
 }): Promise<void> {
-  const { interval, razorpayLoaded, onError } = options;
+  const { interval, razorpayLoaded, onError, onDismiss } = options;
+
+  if (!razorpayLoaded || !window.Razorpay) {
+    onError("Payment system is loading. Please try again.");
+    return;
+  }
 
   const res = await fetch("/api/billing/checkout", {
     method: "POST",
@@ -37,11 +43,6 @@ export async function startProCheckout(options: {
         ? body.error
         : "Checkout could not be started."
     );
-    return;
-  }
-
-  if (!razorpayLoaded || !window.Razorpay) {
-    onError("Payment system is loading. Please try again.");
     return;
   }
 
@@ -94,7 +95,17 @@ export async function startProCheckout(options: {
     },
     modal: {
       ondismiss: () => {
-        // User closed checkout without paying.
+        void (async () => {
+          try {
+            await fetch("/api/billing/checkout/dismiss", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ subscriptionId: body.subscriptionId }),
+            });
+          } finally {
+            await onDismiss?.();
+          }
+        })();
       },
     },
   });

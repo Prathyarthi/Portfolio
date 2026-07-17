@@ -107,6 +107,7 @@ export function SubscriptionFlow() {
         interval: billingInterval,
         razorpayLoaded,
         onError: setBanner,
+        onDismiss: () => setPaidPending(false),
       });
     } catch {
       setBanner("Something went wrong. Please try again.");
