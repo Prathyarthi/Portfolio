@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   BarChart3,
   Check,
+  ExternalLink,
   Globe,
   Loader2,
   Monitor,
@@ -20,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { getPortfolioPublicUrl } from "@/lib/domain";
 import { PreviewEditToggle } from "@/features/portfolio/components/preview-edit-sidebar";
 import { ShareDialog } from "@/features/portfolio/components/share-dialog";
 
@@ -58,12 +60,13 @@ export function PreviewToolbar({
   const applyLabel = isPublished ? `Apply ${templateName}` : `Use ${templateName}`;
   const publishLabel = isPublished ? "Unpublish" : "Publish";
   const showOverflow = Boolean(slug) || showAnalytics;
+  const publicUrl = slug ? getPortfolioPublicUrl(slug) : null;
 
   return (
     <>
       <div className="flex shrink-0 flex-nowrap items-center gap-1.5">
         <div
-          className="flex shrink-0 items-center gap-0.5 rounded-[var(--radius-md)] bg-surface-sunken p-0.5"
+          className="hidden shrink-0 items-center gap-0.5 rounded-[var(--radius-md)] bg-surface-sunken p-0.5 md:flex"
           role="group"
           aria-label="Preview device"
         >
@@ -129,6 +132,21 @@ export function PreviewToolbar({
           )}
           <span className="hidden xl:inline">{publishLabel}</span>
         </Button>
+
+        {isPublished && publicUrl ? (
+          <Button
+            type="button"
+            size="sm"
+            className="shrink-0 gap-1.5 px-2.5"
+            asChild
+          >
+            <a href={publicUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden sm:inline">Open Portfolio</span>
+              <span className="sm:hidden">Open</span>
+            </a>
+          </Button>
+        ) : null}
 
         {showOverflow ? (
           <DropdownMenu>

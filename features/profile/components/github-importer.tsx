@@ -238,7 +238,7 @@ export function GitHubImporter() {
                             checked={selectedRepos.has(index)}
                             onChange={() => toggleRepo(index)}
                             onClick={(e) => e.stopPropagation()}
-                            className="h-4 w-4 rounded border-input accent-primary"
+                            className="h-4 w-4 cursor-pointer rounded border-input accent-primary"
                           />
                           <p className="font-medium text-sm truncate">
                             {repo.name}
@@ -294,13 +294,9 @@ export function GitHubImporter() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() =>
-                    setVisibleCount((count) =>
-                      Math.min(count + IMPORT_LIST_BATCH_SIZE, data.repos.length)
-                    )
-                  }
+                  onClick={() => setVisibleCount(data.repos.length)}
                 >
-                  Show more ({data.repos.length - visibleCount} remaining)
+                  Show all ({data.repos.length - visibleCount} remaining)
                 </Button>
               </div>
             )}

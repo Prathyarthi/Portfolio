@@ -31,7 +31,7 @@ export function CollapsibleList({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className={cn("inline-flex items-center justify-center", buttonClassName)}
+          className={cn("inline-flex cursor-pointer items-center justify-center", buttonClassName)}
         >
           {expanded ? hideLabel : showLabel.replace("{n}", String(hidden))}
         </button>

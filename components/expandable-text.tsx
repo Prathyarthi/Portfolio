@@ -34,10 +34,10 @@ export default function ExpandableText({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className={cn(
-          "mt-2 text-xs font-medium text-current/70 underline-offset-2 hover:text-current hover:underline",
-          buttonClassName
-        )}
+          className={cn(
+            "mt-2 cursor-pointer text-xs font-medium text-current/70 underline-offset-2 hover:text-current hover:underline",
+            buttonClassName
+          )}
       >
         {expanded ? "Show less" : "Show more"}
       </button>

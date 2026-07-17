@@ -33,20 +33,20 @@ export function ImportSourceContent({
     );
   }
 
-  switch (source) {
-    case "resume":
-      return (
+  return (
+    <>
+      <div hidden={source !== "resume"}>
         <ResumeUploader onToolbarActionsChange={onToolbarActionsChange} />
-      );
-    case "github":
-      return <GitHubImporter />;
-    case "medium":
-      return <MediumImporter />;
-    case "leetcode":
-      return <LeetCodeImporter />;
-    default: {
-      const _exhaustive: never = source;
-      return _exhaustive;
-    }
-  }
+      </div>
+      <div hidden={source !== "github"}>
+        <GitHubImporter />
+      </div>
+      <div hidden={source !== "medium"}>
+        <MediumImporter />
+      </div>
+      <div hidden={source !== "leetcode"}>
+        <LeetCodeImporter />
+      </div>
+    </>
+  );
 }

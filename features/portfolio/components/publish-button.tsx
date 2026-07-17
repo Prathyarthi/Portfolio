@@ -32,6 +32,7 @@ import {
   Globe,
   CheckCircle2,
   AlertCircle,
+  ExternalLink,
   Share2,
 } from "lucide-react";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
@@ -226,19 +227,33 @@ export function PublishButton() {
 
         {/* Share */}
         {slug && (
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4">
+            <div className="min-w-0 space-y-0.5">
               <p className="text-sm font-medium">Share your portfolio</p>
-              <p className="text-xs text-muted-foreground font-mono">
+              <p className="truncate text-xs text-muted-foreground font-mono">
                 {getPortfolioPublicUrl(slug)}
               </p>
             </div>
-            <ShareDialog slug={slug} isPublished={isPublished}>
-              <Button variant="outline" size="sm">
-                <Share2 className="mr-2 h-4 w-4" />
-                Share
-              </Button>
-            </ShareDialog>
+            <div className="flex shrink-0 items-center gap-2">
+              {isPublished ? (
+                <Button variant="default" size="sm" asChild>
+                  <a
+                    href={getPortfolioPublicUrl(slug)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Open Portfolio
+                  </a>
+                </Button>
+              ) : null}
+              <ShareDialog slug={slug} isPublished={isPublished}>
+                <Button variant="outline" size="sm">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share
+                </Button>
+              </ShareDialog>
+            </div>
           </div>
         )}
       </CardContent>

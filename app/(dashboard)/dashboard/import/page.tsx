@@ -58,12 +58,6 @@ export default function ImportPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (activeSource !== "resume") {
-      setToolbarActions(null);
-    }
-  }, [activeSource]);
-
   return (
     <div className={DASHBOARD_IMPORT_PAGE_CLASS}>
       <div className="shrink-0 space-y-6">

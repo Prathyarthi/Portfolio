@@ -45,7 +45,10 @@ function DesignTabContent({
   onTemplateSave,
   templateOptions,
   isTemplateLocked,
-}: Omit<PreviewPanelProps, "open" | "onOpenChange">) {
+  onTemplateSelected,
+}: Omit<PreviewPanelProps, "open" | "onOpenChange"> & {
+  onTemplateSelected?: () => void;
+}) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3">
@@ -60,7 +63,10 @@ function DesignTabContent({
                   key={t.id}
                   type="button"
                   disabled={isTemplateLocked?.(t.id) ?? false}
-                  onClick={() => onTemplateChange(t.id)}
+                  onClick={() => {
+                    onTemplateChange(t.id);
+                    onTemplateSelected?.();
+                  }}
                   className={cn(
                     "group relative flex flex-col gap-2 rounded-xl border p-2 text-left transition-all",
                     isPreviewing
@@ -205,11 +211,13 @@ function EditorBody({
   activeStep,
   onStepChange,
   onClose,
+  onTemplateSelected,
   ...panelProps
 }: Omit<PreviewPanelProps, "open" | "onOpenChange"> & {
   activeStep: EditStepValue;
   onStepChange: (step: EditStepValue) => void;
   onClose?: () => void;
+  onTemplateSelected?: () => void;
 }) {
   return (
     <Tabs defaultValue="design" className="flex h-full min-h-0 flex-col bg-transparent text-text-primary">
@@ -244,7 +252,10 @@ function EditorBody({
       </div>
 
       <TabsContent value="design" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
-        <DesignTabContent {...panelProps} />
+        <DesignTabContent
+          {...panelProps}
+          onTemplateSelected={onTemplateSelected}
+        />
       </TabsContent>
 
       <TabsContent value="content" className="flex min-h-0 flex-1 flex-col m-0 data-[state=inactive]:hidden">
@@ -277,6 +288,7 @@ export function PreviewEditSidebar({
             activeStep={activeStep}
             onStepChange={setActiveStep}
             onClose={() => onOpenChange(false)}
+            onTemplateSelected={() => onOpenChange(false)}
             {...panelProps}
           />
         </SheetContent>

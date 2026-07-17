@@ -319,6 +319,11 @@ body {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; }
 
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
   h1, h2 {
     font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
     color: var(--color-text-primary);
