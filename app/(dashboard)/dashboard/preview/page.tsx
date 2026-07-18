@@ -243,11 +243,11 @@ export default function PreviewPage() {
           />
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-2 shadow-[var(--shadow-modal)] sm:p-3">
+        <div className="-mx-[var(--space-5)] flex min-h-0 flex-1 flex-col overflow-hidden bg-surface-sunken sm:mx-0 sm:rounded-[var(--radius-lg)] sm:border sm:border-border-default sm:p-3 sm:shadow-[var(--shadow-modal)]">
           <div
             className={cn(
-              "@container mx-auto min-h-0 min-w-0 w-full flex-1 overflow-x-clip overflow-y-auto rounded-[var(--radius-md)] bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)]",
-              device === "mobile" ? "max-w-[390px] px-1" : "max-w-full"
+              "@container mx-auto min-h-0 min-w-0 w-full flex-1 overflow-x-clip overflow-y-auto bg-surface-base transition-[max-width] duration-200 ease-[var(--ease-out)] sm:rounded-[var(--radius-md)]",
+              device === "mobile" ? "max-w-[390px] sm:px-1" : "max-w-full"
             )}
           >
             <div className="min-w-0 overflow-x-clip">

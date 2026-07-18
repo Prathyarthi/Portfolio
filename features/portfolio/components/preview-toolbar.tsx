@@ -64,7 +64,7 @@ export function PreviewToolbar({
 
   return (
     <>
-      <div className="flex shrink-0 flex-nowrap items-center gap-1.5">
+      <div className="flex w-full shrink-0 flex-wrap items-center gap-1.5 sm:w-auto">
         <div
           className="hidden shrink-0 items-center gap-0.5 rounded-[var(--radius-md)] bg-surface-sunken p-0.5 md:flex"
           role="group"
@@ -140,10 +140,15 @@ export function PreviewToolbar({
             className="shrink-0 gap-1.5 px-2.5"
             asChild
           >
-            <a href={publicUrl} target="_blank" rel="noopener noreferrer">
+            <a
+              href={publicUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open portfolio"
+              title="Open portfolio"
+            >
               <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-              <span className="hidden sm:inline">Open Portfolio</span>
-              <span className="sm:hidden">Open</span>
+              <span className="hidden xl:inline">Open Portfolio</span>
             </a>
           </Button>
         ) : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useParseResume } from "@/features/resume/api/use-resume";
@@ -99,6 +100,7 @@ export function ResumeUploader({
 }: {
   onToolbarActionsChange?: (actions: React.ReactNode) => void;
 } = {}) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [parsedData, setParsedData] = useState<ParsedResume | null>(null);
@@ -306,15 +308,15 @@ export function ResumeUploader({
         return [...updates, ...creates.slice(0, remainingCustomCreates)];
       })();
 
-      // Sequential writes avoid capacity races and partial Promise.all failures.
-      const importTasks: Array<() => Promise<unknown>> = [
+      // Limits are computed up front, so parallel writes are safe and much faster.
+      await Promise.all([
         ...parsedData.experiences
           .slice(0, remainingRows(activePortfolio.experiences?.length))
           .flatMap((exp) => {
             const company = sanitizeImportedLabel(exp.company);
             const role = sanitizeImportedLabel(exp.role);
             if (!company || !role) return [];
-            return [() =>
+            return [
               postImport(
                 "/api/portfolio/experience",
                 {
@@ -325,7 +327,8 @@ export function ResumeUploader({
                   location: sanitizeImportedLabel(exp.location) || null,
                 },
                 "Experience",
-              )];
+              ),
+            ];
           }),
         ...parsedData.education
           .slice(0, remainingRows(activePortfolio.educations?.length))
@@ -333,7 +336,7 @@ export function ResumeUploader({
             const institution = sanitizeImportedLabel(edu.institution);
             const degree = sanitizeImportedLabel(edu.degree);
             if (!institution || !degree) return [];
-            return [() =>
+            return [
               postImport(
                 "/api/portfolio/education",
                 {
@@ -344,26 +347,26 @@ export function ResumeUploader({
                   gpa: sanitizeImportedLabel(edu.gpa) || null,
                 },
                 "Education",
-              )];
+              ),
+            ];
           }),
         ...(importSkills.length > 0 && clearBeforeImport
           ? [
-              () =>
-                postImport(
-                  "/api/portfolio/skill/bulk",
-                  { skills: importSkills },
-                  "Skills",
-                ),
+              postImport(
+                "/api/portfolio/skill/bulk",
+                { skills: importSkills },
+                "Skills",
+              ),
             ]
           : importSkills.map((skill) =>
-              () => postImport("/api/portfolio/skill", skill, "Skill")
+              postImport("/api/portfolio/skill", skill, "Skill")
             )),
         ...parsedData.projects
           .slice(0, remainingRows(activePortfolio.projects?.length))
           .flatMap((project) => {
             const title = sanitizeImportedLabel(project.title);
             if (!title) return [];
-            return [() =>
+            return [
               postImport(
                 "/api/portfolio/project",
                 {
@@ -384,7 +387,8 @@ export function ResumeUploader({
                   ),
                 },
                 "Project",
-              )];
+              ),
+            ];
           }),
         ...parsedData.certifications
           .slice(0, remainingRows(activePortfolio.certifications?.length))
@@ -392,7 +396,7 @@ export function ResumeUploader({
             const name = sanitizeImportedLabel(cert.name);
             const issuer = sanitizeImportedLabel(cert.issuer);
             if (!name || !issuer) return [];
-            return [() =>
+            return [
               postImport(
                 "/api/portfolio/certification",
                 {
@@ -405,7 +409,8 @@ export function ResumeUploader({
                   ),
                 },
                 "Certification",
-              )];
+              ),
+            ];
           }),
         ...(parsedData.socialProfiles ?? [])
           .map((social) => normalizeSocialProfile(social))
@@ -422,38 +427,33 @@ export function ResumeUploader({
               normalized != null,
           )
           .map((normalized) =>
-            () =>
-              postImport(
-                "/api/portfolio/social",
-                normalized,
-                "Social profile",
-              )
+            postImport(
+              "/api/portfolio/social",
+              normalized,
+              "Social profile",
+            )
           ),
         ...parsedData.achievements
           .slice(0, remainingRows(activePortfolio.achievements?.length))
           .flatMap((achievement) => {
             const title = sanitizeImportedLabel(achievement);
             if (!title) return [];
-            return [() =>
+            return [
               postImport(
                 "/api/portfolio/achievement",
                 { title },
                 "Achievement",
-              )];
+              ),
+            ];
           }),
         ...importCustomSections.map((section) =>
-          () =>
-            postImport(
-              "/api/portfolio/custom-section",
-              section,
-              "Custom Section",
-            )
+          postImport(
+            "/api/portfolio/custom-section",
+            section,
+            "Custom Section",
+          )
         ),
-      ];
-
-      for (const task of importTasks) {
-        await task();
-      }
+      ]);
 
       await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
       const refreshedPortfolio = await queryClient.fetchQuery({
@@ -609,14 +609,14 @@ export function ResumeUploader({
           <Button
             type="button"
             variant="outline"
-            className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            className="h-auto min-h-11 w-full min-w-0 whitespace-normal border-destructive/40 px-3 py-3 text-center text-destructive hover:bg-destructive/10 hover:text-destructive sm:w-auto sm:px-5"
             onClick={() => setClearDialogOpen(true)}
             disabled={clearImportable.isPending}
           >
             {clearImportable.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2 className="h-4 w-4" />
             )}
             Clear resume sections now
           </Button>
@@ -684,6 +684,7 @@ export function ResumeUploader({
         subscriptionStatus={subscriptionStatus}
         onSaved={() => {
           toast.success("Live preview selection saved");
+          router.push("/dashboard/preview");
         }}
       />
 

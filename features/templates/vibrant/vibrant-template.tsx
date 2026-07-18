@@ -4,7 +4,7 @@ import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
 } from "../github-contribution-heatmap";
-import { Trophy, Sparkles } from "lucide-react";
+import { Trophy } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
@@ -81,11 +81,6 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="relative flex flex-col items-center text-center mb-20 md:mb-32">
-          <div className="inline-flex items-center rounded-full border border-fuchsia-500/30 bg-fuchsia-500/10 px-4 py-1.5 text-sm font-medium text-fuchsia-300 mb-6 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Portfolio
-          </div>
-
           <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 mb-6">
             {portfolio.title}
           </h1>
@@ -175,9 +170,11 @@ export function VibrantTemplate({ data }: { data: PortfolioData }) {
                       </div>
 
                       {project.description && (
-                        <p className="text-slate-400 leading-relaxed mb-6 grow">
-                          {project.description}
-                        </p>
+                        <DescriptionBlock
+                          text={project.description}
+                          paragraphClassName="text-slate-400 leading-relaxed mb-6 grow"
+                          listClassName="mb-6 grow space-y-2 pl-5 text-slate-400 leading-relaxed marker:text-cyan-400"
+                        />
                       )}
 
                       <div className="mt-auto pt-6 border-t border-white/10 flex flex-wrap items-center gap-2">

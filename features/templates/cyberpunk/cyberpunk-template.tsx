@@ -185,9 +185,11 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
                     </div>
 
                     {project.description && (
-                      <p className="text-sm text-slate-400 leading-relaxed mb-6 grow">
-                        {project.description}
-                      </p>
+                      <DescriptionBlock
+                        text={project.description}
+                        paragraphClassName="text-sm text-slate-400 leading-relaxed mb-6 grow"
+                        listClassName="mb-6 grow space-y-2 pl-5 text-sm text-slate-400 leading-relaxed marker:text-[#ff00ff]"
+                      />
                     )}
 
                     <div className="flex flex-wrap gap-2 mb-6">
@@ -255,7 +257,7 @@ export function CyberpunkTemplate({ data }: { data: PortfolioData }) {
                   {Object.entries(groupedSkills).map(([category, names]) => (
                     <div key={category}>
                       <h3 className="text-xs font-bold uppercase tracking-widest text-[#00ff00] mb-3">
-                        // {category}
+                        {"//"} {category}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {names.map((name) => (

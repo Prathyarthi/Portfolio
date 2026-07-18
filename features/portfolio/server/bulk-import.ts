@@ -290,6 +290,7 @@ export async function bulkImportPortfolioData(
           websiteUrl,
           avatarUrl,
           customization: customization as Prisma.InputJsonValue,
+          livePreviewProjectIds: [],
         },
       });
 

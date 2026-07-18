@@ -148,9 +148,11 @@ export function PaperTemplate({ data }: { data: PortfolioData }) {
                       )}
                     </div>
                     {project.description && (
-                      <p className="text-[#555] leading-relaxed">
-                        {project.description}
-                      </p>
+                      <DescriptionBlock
+                        text={project.description}
+                        paragraphClassName="text-[#555] leading-relaxed"
+                        listClassName="space-y-2 pl-5 text-[#555] leading-relaxed"
+                      />
                     )}
                     <div className="flex flex-wrap gap-2 pt-2">
                       {project.techStack.map((tech) => (

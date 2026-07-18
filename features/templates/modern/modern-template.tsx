@@ -72,17 +72,14 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.18]" />
 
         <div className="relative mx-auto min-w-0 max-w-6xl overflow-x-clip px-5 pb-14 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-16">
-          <header className="rounded-[2.1rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_28px_100px_rgba(6,8,22,0.48)] backdrop-blur-2xl @md:p-10">
-            <div className="grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1.15fr_0.85fr] @lg:items-end">
+          <header className="rounded-[2.1rem] border border-white/10 bg-white/[0.045] p-6 @md:p-10">
+            <div className="min-w-0">
               <div className={HERO_HEADER_COLUMN}>
-                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-zinc-500">
-                  Modern Interface
-                </p>
                 <h1
                   className={cn(
                     HERO_TITLE_BASE,
                     HERO_TITLE_SCALE_7XL,
-                    "mt-4 font-black tracking-tight text-white"
+                    "font-black tracking-tight text-white"
                   )}
                 >
                   {portfolio.title}
@@ -124,7 +121,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
             <div className="mt-6">
               <TemplateNavbar
                 items={sections}
-                className="rounded-full border-white/10 bg-white/[0.05] shadow-[0_14px_40px_rgba(6,8,22,0.32)]"
+                className="rounded-full border-white/10 bg-white/[0.05]"
                 linkClassName="rounded-full px-4 py-2 text-sm text-zinc-400 transition-colors hover:bg-white/[0.1] hover:text-white"
               />
             </div>
@@ -135,7 +132,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {portfolio.summary && (
                 <section
                   id="about"
-                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
+                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8"
                 >
                   <SectionHeading>{labels.about}</SectionHeading>
                   <DescriptionBlock
@@ -149,7 +146,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {leadProjects.length > 0 && (
                 <section
                   id="work"
-                  className="scroll-mt-24 min-w-0 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
+                  className="scroll-mt-24 min-w-0 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8"
                 >
                   <SectionHeading>{labels.projects}</SectionHeading>
                   <CollapsibleList
@@ -162,7 +159,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                         key={project.id}
                         className={cn(
                           PROJECT_CARD,
-                          "rounded-[1.6rem] border border-white/10 bg-black/20 shadow-[0_16px_50px_rgba(2,6,23,0.36)] transition-transform duration-300 hover:-translate-y-1"
+                          "rounded-[1.6rem] border border-white/10 bg-black/20 transition-transform duration-300 hover:-translate-y-1"
                         )}
                       >
                         <TemplateProjectPreview templateId="modern"
@@ -204,9 +201,11 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                           </div>
 
                           {project.description && (
-                            <p className="mt-4 text-sm leading-7 text-zinc-300">
-                              {project.description}
-                            </p>
+                            <DescriptionBlock
+                              text={project.description}
+                              paragraphClassName="mt-4 text-sm leading-7 text-zinc-300"
+                              listClassName="mt-4 space-y-2 pl-5 text-sm leading-7 text-zinc-300 marker:text-zinc-600"
+                            />
                           )}
 
                           {(project.techStack.length > 0 ||
@@ -243,7 +242,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {experiences.length > 0 && (
                 <section
                   id="experience"
-                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
+                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8"
                 >
                   <SectionHeading>{labels.experience}</SectionHeading>
                   <CollapsibleList
@@ -254,7 +253,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                     {experiences.map((exp) => (
                       <article
                         key={exp.id}
-                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 shadow-[0_12px_36px_rgba(2,6,23,0.28)]"
+                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5"
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
@@ -286,7 +285,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {articles.length > 0 && (
                 <section
                   id="writing"
-                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
+                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8"
                 >
                   <SectionHeading>{labels.articles}</SectionHeading>
                   <CollapsibleList
@@ -297,7 +296,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                     {articles.map((article) => (
                       <article
                         key={article.id}
-                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 shadow-[0_12px_36px_rgba(2,6,23,0.28)]"
+                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5"
                       >
                         <h3 className="text-lg font-semibold text-white">
                           <a
@@ -346,7 +345,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
 
             <aside className="min-w-0 space-y-8 md:space-y-10">
               {skills.length > 0 && (
-                <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
+                <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8">
                   <SectionHeading>{labels.skills}</SectionHeading>
                   <div className="space-y-6">
                     {Object.entries(groupedSkills).map(([category, names]) => (
@@ -371,7 +370,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {educations.length > 0 && (
-                <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
+                <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8">
                   <SectionHeading>{labels.education}</SectionHeading>
                   <CollapsibleList
                     initial={4}
@@ -381,7 +380,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                     {educations.map((edu) => (
                       <article
                         key={edu.id}
-                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 shadow-[0_12px_36px_rgba(2,6,23,0.28)]"
+                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5"
                       >
                         <h3 className="text-lg font-semibold text-white">
                           {edu.degree}
@@ -401,7 +400,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {certifications.length > 0 && (
-                <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
+                <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8">
                   <SectionHeading>{labels.certifications}</SectionHeading>
                   <CollapsibleList
                     initial={4}
@@ -411,7 +410,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                     {certifications.map((cert) => (
                       <article
                         key={cert.id}
-                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 shadow-[0_12px_36px_rgba(2,6,23,0.28)]"
+                        className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5"
                       >
                         <h3 className="text-base font-semibold text-white">
                           {cert.url ? (
@@ -443,7 +442,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               )}
 
               {achievements.length > 0 && (
-                <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8">
+                <section className="rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8">
                   <SectionHeading>{labels.achievements}</SectionHeading>
                   <CollapsibleList
                     initial={4}
@@ -453,7 +452,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
                     {achievements.map((ach) => (
                       <article
                         key={ach.id}
-                        className="flex items-start gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 p-5 shadow-[0_12px_36px_rgba(2,6,23,0.28)]"
+                        className="flex items-start gap-3 rounded-[1.5rem] border border-white/10 bg-black/20 p-5"
                       >
                         <Trophy className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
                         <div className="flex-1 min-w-0">
@@ -476,7 +475,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
               {hasProfiles && (
                 <section
                   id="profiles"
-                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:p-8"
+                  className="scroll-mt-24 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:p-8"
                 >
                   <SectionHeading>{labels.profiles}</SectionHeading>
                   <ProfileLinksSection
@@ -495,7 +494,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
           {customSections.length > 0 && (
             <div className="mt-8 grid gap-8 md:mt-10 md:gap-10 md:grid-cols-2">
               {customSections.map((cs) => (
-                <section key={cs.id} className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8 backdrop-blur-xl">
+                <section key={cs.id} className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-8">
                   <SectionHeading>{cs.label}</SectionHeading>
                   <CustomSectionItems
                     items={cs.items}
@@ -509,7 +508,7 @@ export function ModernTemplate({ data }: { data: PortfolioData }) {
           )}
 
           {contributionCalendar && (
-            <section className="mt-8 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 shadow-[0_20px_60px_rgba(6,8,22,0.24)] backdrop-blur-2xl md:mt-10 md:p-8">
+            <section className="mt-8 rounded-[1.85rem] border border-white/10 bg-white/[0.045] p-6 md:mt-10 md:p-8">
               <SectionHeading>{labels.github}</SectionHeading>
               <GitHubContributionHeatmap
                 calendar={contributionCalendar}

@@ -177,9 +177,11 @@ export function ArtDecoTemplate({ data }: { data: PortfolioData }) {
                     </div>
 
                     {project.description && (
-                      <p className="text-[#a0a0a0] leading-relaxed mb-8 grow font-light">
-                        {project.description}
-                      </p>
+                      <DescriptionBlock
+                        text={project.description}
+                        paragraphClassName="text-[#a0a0a0] leading-relaxed mb-8 grow font-light"
+                        listClassName="mb-8 grow space-y-2 pl-5 text-[#a0a0a0] leading-relaxed font-light marker:text-[#d4af37]"
+                      />
                     )}
 
                     <div className="flex flex-wrap gap-3 mb-8 justify-center">

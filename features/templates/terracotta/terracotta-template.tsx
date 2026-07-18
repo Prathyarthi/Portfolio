@@ -121,7 +121,11 @@ export function TerracottaTemplate({ data }: { data: PortfolioData }) {
                     <div>
                       <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-medium text-[#3D405B] mb-3")}>{project.title}</h3>
                       {project.description && (
-                        <p className="mb-6 text-lg leading-relaxed font-light text-[#3D405B]/80">{project.description}</p>
+                        <DescriptionBlock
+                          text={project.description}
+                          paragraphClassName="mb-6 text-lg leading-relaxed font-light text-[#3D405B]/80"
+                          listClassName="mb-6 space-y-2 pl-5 text-lg leading-relaxed font-light text-[#3D405B]/80 marker:text-[#E07A5F]"
+                        />
                       )}
                       <div className="flex flex-wrap gap-2 mb-6">
                         {project.techStack.map((tech) => (

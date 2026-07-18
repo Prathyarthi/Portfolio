@@ -1,5 +1,5 @@
-import { MinimalTemplate } from "./minimal/minimal-template";
 import { ModernTemplate } from "./modern/modern-template";
+import { MinimalTemplate } from "./minimal/minimal-template";
 import DeveloperTemplate from "./developer/developer-template";
 import CreativeTemplate from "./creative/creative-template";
 import { CorporateTemplate } from "./corporate/corporate-template";
@@ -24,15 +24,6 @@ import type { TemplateComponent } from "./types";
 import { getTemplatePreviewImagePath } from "./template-preview-images";
 
 export const templateRegistry: Record<string, TemplateComponent> = {
-  minimal: {
-    id: "minimal",
-    name: "Minimal",
-    description:
-      "Editorial, quiet, and typography-led for a refined personal brand",
-    previewImage: getTemplatePreviewImagePath("minimal"),
-    category: "general",
-    component: MinimalTemplate,
-  },
   modern: {
     id: "modern",
     name: "Modern",
@@ -41,6 +32,15 @@ export const templateRegistry: Record<string, TemplateComponent> = {
     previewImage: getTemplatePreviewImagePath("modern"),
     category: "general",
     component: ModernTemplate,
+  },
+  minimal: {
+    id: "minimal",
+    name: "Minimal",
+    description:
+      "Editorial, quiet, and typography-led for a refined personal brand",
+    previewImage: getTemplatePreviewImagePath("minimal"),
+    category: "general",
+    component: MinimalTemplate,
   },
   developer: {
     id: "developer",

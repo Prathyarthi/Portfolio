@@ -23,10 +23,10 @@ export const DASHBOARD_MAIN_COLUMN_CLASS =
 
 /** Preview-matched content frame (sunken border wrapper). */
 export const DASHBOARD_CONTENT_FRAME_CLASS =
-  "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-2 shadow-[var(--shadow-modal)] sm:p-3";
+  "flex min-h-0 flex-1 flex-col rounded-[var(--radius-lg)] border border-border-default bg-surface-sunken p-2 shadow-[var(--shadow-modal)] sm:p-3 lg:overflow-hidden";
 
 export const DASHBOARD_CONTENT_INNER_CLASS =
-  "min-h-0 w-full flex-1 overflow-y-auto overscroll-contain rounded-[var(--radius-md)] bg-surface-base p-4 pb-6 sm:p-5 sm:pb-8 " +
+  "min-h-0 w-full flex-1 rounded-[var(--radius-md)] bg-surface-base p-4 pb-6 sm:p-5 sm:pb-8 lg:overflow-y-auto lg:overscroll-contain " +
   DASHBOARD_FORM_COMPACT_CLASS;
 
 /** Import page — natural page scroll instead of a fixed inner scroll region. */

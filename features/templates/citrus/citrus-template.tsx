@@ -124,7 +124,11 @@ export function CitrusTemplate({ data }: { data: PortfolioData }) {
                       <div className="p-8 flex-1 flex flex-col">
                         <h3 className={cn(PROJECT_CARD_TITLE, "text-2xl font-black text-[#264653] mb-4 uppercase")}>{project.title}</h3>
                         {project.description && (
-                          <p className="mb-6 text-lg text-[#264653]/80">{project.description}</p>
+                          <DescriptionBlock
+                            text={project.description}
+                            paragraphClassName="mb-6 text-lg text-[#264653]/80"
+                            listClassName="mb-6 space-y-2 pl-5 text-lg text-[#264653]/80 marker:text-[#F4A261]"
+                          />
                         )}
                         <div className="flex flex-wrap gap-2 mb-8">
                           {project.techStack.map((tech) => (

@@ -6,10 +6,10 @@ import { siteConfig } from "@/lib/site";
 
 const NAV = {
   Product: [
-    { label: "How it works", href: "#features" },
-    { label: "Examples", href: "#showcase" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "FAQ", href: "#faq" },
+    { label: "How it works", href: "/#features" },
+    { label: "Examples", href: "/#showcase" },
+    { label: "Pricing", href: "/#pricing" },
+    { label: "FAQ", href: "/#faq" },
   ],
   Account: [
     { label: "Sign in", href: "/sign-in" },

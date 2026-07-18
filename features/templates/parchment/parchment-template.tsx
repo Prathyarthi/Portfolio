@@ -132,7 +132,11 @@ export function ParchmentTemplate({ data }: { data: PortfolioData }) {
                     <div className="@md:col-span-7 flex flex-col h-full justify-center">
                       <h3 className={cn(PROJECT_CARD_TITLE, "text-4xl font-black uppercase mb-4 text-[#8C2727]")}>{project.title}</h3>
                       {project.description && (
-                        <p className="mb-6 text-xl leading-relaxed text-justify">{project.description}</p>
+                        <DescriptionBlock
+                          text={project.description}
+                          paragraphClassName="mb-6 text-xl leading-relaxed text-justify"
+                          listClassName="mb-6 space-y-2 pl-8 text-xl leading-relaxed text-justify list-disc"
+                        />
                       )}
                       <div className="flex flex-wrap gap-2 mb-8">
                         {project.techStack.map((tech) => (

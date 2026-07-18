@@ -177,9 +177,11 @@ export function SynthwaveTemplate({ data }: { data: PortfolioData }) {
                       </div>
 
                       {project.description && (
-                        <p className="text-[#b0b0b0] leading-relaxed mb-6 grow font-medium">
-                          {project.description}
-                        </p>
+                        <DescriptionBlock
+                          text={project.description}
+                          paragraphClassName="text-[#b0b0b0] leading-relaxed mb-6 grow font-medium"
+                          listClassName="mb-6 grow space-y-2 pl-5 text-[#b0b0b0] leading-relaxed font-medium marker:text-[#00f0ff]"
+                        />
                       )}
 
                       <div className="flex flex-wrap gap-2 mb-6">

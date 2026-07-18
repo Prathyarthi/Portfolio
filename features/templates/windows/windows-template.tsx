@@ -92,8 +92,12 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
         {/* About Window */}
         {portfolio.summary && (
           <Window id="about" title={`Notepad - ${labels.about}.txt`} icon={<FileText className="w-4 h-4" />}>
-            <div className="bg-white win95-inset p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap text-black">
-              {portfolio.summary}
+            <div className="bg-white win95-inset p-4">
+              <DescriptionBlock
+                text={portfolio.summary}
+                paragraphClassName="font-mono text-sm leading-relaxed whitespace-pre-wrap text-black"
+                listClassName="space-y-1 pl-4 font-mono text-sm leading-relaxed text-black"
+              />
             </div>
           </Window>
         )}
@@ -127,7 +131,11 @@ export function WindowsTemplate({ data }: { data: PortfolioData }) {
                       )}
                     </div>
                     {project.description && (
-                      <p className="text-xs mb-4 line-clamp-3 grow">{project.description}</p>
+                      <DescriptionBlock
+                        text={project.description}
+                        paragraphClassName="text-xs mb-4 grow"
+                        listClassName="mb-4 grow space-y-1 pl-4 text-xs"
+                      />
                     )}
                     <div className="flex flex-wrap gap-1 mb-4">
                       {project.techStack.slice(0, 4).map((tech) => (

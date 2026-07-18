@@ -4,7 +4,7 @@ import {
   GitHubContributionHeatmap,
   parseContributionCalendar,
 } from "../github-contribution-heatmap";
-import { ArrowUpRight, Rocket, Star } from "lucide-react";
+import { ArrowUpRight, Star } from "lucide-react";
 import {
   buildTemplateSections,
   ContactChips,
@@ -81,11 +81,6 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="relative mb-24 flex min-w-0 w-full flex-col items-center text-center">
-          <div className="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-950/30 px-4 py-1.5 text-sm font-medium text-cyan-300 mb-6 backdrop-blur-sm shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-            <Rocket className="w-4 h-4 mr-2" />
-            Mission Control
-          </div>
-
           <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-slate-400 mb-6">
             {portfolio.title}
           </h1>
@@ -173,9 +168,11 @@ export function SpaceTemplate({ data }: { data: PortfolioData }) {
                       </div>
 
                       {project.description && (
-                        <p className="text-slate-400 leading-relaxed mb-6 grow">
-                          {project.description}
-                        </p>
+                        <DescriptionBlock
+                          text={project.description}
+                          paragraphClassName="text-slate-400 leading-relaxed mb-6 grow"
+                          listClassName="mb-6 grow space-y-2 pl-5 text-slate-400 leading-relaxed marker:text-cyan-500"
+                        />
                       )}
 
                       <div className="mt-auto pt-6 border-t border-cyan-900/30 flex flex-wrap items-center gap-2">

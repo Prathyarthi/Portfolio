@@ -67,16 +67,13 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
     <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#f3f6fb] text-slate-900 antialiased")}>
       <div className="mx-auto max-w-6xl px-5 py-8 sm:px-6 md:px-10 md:py-12">
         <header className="overflow-hidden rounded-[2.2rem] border border-slate-200/40 bg-[#0f172a] text-white shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
-          <div className="grid min-w-0 gap-0 @lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="min-w-0">
             <div className={cn(HERO_HEADER_COLUMN, "p-6 @md:p-10")}>
-              <p className="text-xs uppercase tracking-[0.3em] text-sky-300/70">
-                Executive Portfolio
-              </p>
               <h1
                 className={cn(
                   HERO_TITLE_BASE,
                   HERO_TITLE_SCALE_6XL,
-                  "mt-4 max-w-3xl font-semibold tracking-tight text-white"
+                  "max-w-3xl font-semibold tracking-tight text-white"
                 )}
               >
                 {portfolio.title}
@@ -188,9 +185,11 @@ export function CorporateTemplate({ data }: { data: PortfolioData }) {
                         </div>
 
                         {project.description && (
-                          <p className="mt-4 text-sm leading-7 text-slate-600">
-                            {project.description}
-                          </p>
+                          <DescriptionBlock
+                            text={project.description}
+                            paragraphClassName="mt-4 text-sm leading-7 text-slate-600"
+                            listClassName="mt-4 space-y-2 pl-5 text-sm leading-7 text-slate-600 marker:text-slate-300"
+                          />
                         )}
 
                         {project.techStack.length > 0 && (

@@ -83,10 +83,6 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
         )}
 
         <header className="flex flex-col items-center text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center bg-white px-5 py-2 rounded-full text-sm font-bold text-[#ffb3ba] mb-6 shadow-sm border border-pink-50">
-            Welcome to my world
-          </div>
-
           <h1 className="min-w-0 text-balance [overflow-wrap:anywhere] text-2xl @sm:text-4xl @md:text-5xl @lg:text-7xl font-extrabold text-[#2d2d2d] mb-6 tracking-tight">
             {portfolio.title}
           </h1>
@@ -168,9 +164,11 @@ export function PastelTemplate({ data }: { data: PortfolioData }) {
                     </div>
 
                     {project.description && (
-                      <p className="text-[#888] leading-relaxed mb-6 grow font-medium">
-                        {project.description}
-                      </p>
+                      <DescriptionBlock
+                        text={project.description}
+                        paragraphClassName="text-[#888] leading-relaxed mb-6 grow font-medium"
+                        listClassName="mb-6 grow space-y-2 pl-5 text-[#888] leading-relaxed font-medium marker:text-[#ffb3ba]"
+                      />
                     )}
 
                     <div className="flex flex-wrap gap-2 mb-6">

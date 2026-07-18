@@ -28,6 +28,6 @@ export const FAQ_ITEMS = [
   {
     question: "How do I get help?",
     answer:
-      "Email support.livefolio@gmail.com or visit our contact page. We typically respond within one business day.",
+      "Email team@livefolio.me or visit our contact page. We typically respond within one business day.",
   },
 ] as const;

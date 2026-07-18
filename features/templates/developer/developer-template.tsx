@@ -131,8 +131,12 @@ export default function DeveloperTemplate({ data }: { data: PortfolioData }) {
                     ))
                     : [1, 2, 3].map((n) => <div key={n}>{n}</div>)}
                 </div>
-                <div className="p-4 text-green-300/90 leading-relaxed whitespace-pre-wrap">
-                  {portfolio.summary}
+                <div className="p-4">
+                  <DescriptionBlock
+                    text={portfolio.summary}
+                    paragraphClassName="text-green-300/90 leading-relaxed whitespace-pre-wrap"
+                    listClassName="space-y-2 pl-5 text-green-300/90 leading-relaxed marker:text-green-700"
+                  />
                 </div>
               </div>
             </div>

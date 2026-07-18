@@ -117,7 +117,6 @@ export const pricingPlans: PricingPlan[] = [
       { label: "Resume, GitHub, and LeetCode imports during free month", included: true },
       { label: "Editor, live preview, and publish", included: true },
       { label: "All templates during free month", included: true },
-      { label: "Priority email support", included: false },
     ],
   },
   {
@@ -136,12 +135,10 @@ export const pricingPlans: PricingPlan[] = [
     badge: "Popular",
     features: [
       { label: "Everything in Starter", included: true },
+      { label: "Premium portfolio templates", included: true },
       { label: "Portfolio visit analytics", included: true },
       { label: "Priority email support", included: true },
-      { label: "Early access to new templates and tools", included: true },
-      { label: "AI-assisted polish where it speeds you up", included: true },
-      { label: "Best for frequent updates before interviews", included: true },
-      { label: "Dedicated success touchpoints", included: false },
+      { label: "Early access to more integrations and features", included: true },
     ],
   },
 ];

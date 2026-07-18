@@ -119,7 +119,11 @@ export function AiryTemplate({ data }: { data: PortfolioData }) {
                     <div className={PROJECT_CARD_BODY}>
                       <h3 className={cn(PROJECT_CARD_TITLE, "text-xl font-bold text-slate-800 mb-2")}>{project.title}</h3>
                       {project.description && (
-                        <p className="mb-4 text-sm leading-relaxed text-slate-600">{project.description}</p>
+                        <DescriptionBlock
+                          text={project.description}
+                          paragraphClassName="mb-4 text-sm leading-relaxed text-slate-600"
+                          listClassName="mb-4 space-y-2 pl-5 text-sm leading-relaxed text-slate-600 marker:text-sky-400"
+                        />
                       )}
                       <div className="flex flex-wrap gap-2 mb-6">
                         {project.techStack.map((tech) => (

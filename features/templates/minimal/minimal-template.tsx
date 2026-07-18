@@ -69,16 +69,13 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
       <div className="mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-6 md:px-10 md:pb-24 md:pt-14">
         <header className="relative overflow-hidden rounded-[2.25rem] border border-white/80 bg-white/75 p-6 shadow-[0_24px_90px_rgba(15,23,42,0.08)] backdrop-blur-xl @md:p-10">
           <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-linear-to-r from-transparent via-stone-300/70 to-transparent" />
-          <div className="grid min-w-0 gap-6 @md:gap-8 @lg:grid-cols-[1.2fr_0.8fr] @lg:items-start">
+          <div className="min-w-0">
             <div className={HERO_HEADER_COLUMN}>
-              <p className="text-xs font-medium uppercase tracking-[0.3em] text-stone-400">
-                Modern Minimal
-              </p>
               <h1
                 className={cn(
                   HERO_TITLE_BASE,
                   HERO_TITLE_SCALE_7XL,
-                  "mt-4 max-w-3xl font-serif font-semibold tracking-tight text-stone-950"
+                  "max-w-3xl font-serif font-semibold tracking-tight text-stone-950"
                 )}
               >
                 {portfolio.title}
@@ -110,16 +107,6 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                     showUsername
                     className="rounded-full border border-stone-200/80 bg-white/85 px-3 py-1.5 text-sm text-stone-600 transition-colors hover:border-stone-300 hover:bg-white hover:text-stone-900"
                   />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4 lg:pl-4">
-              {portfolio.summary && (
-                <div className="rounded-[1.6rem] border border-stone-200/80 bg-stone-50/85 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                  <p className="text-sm leading-relaxed text-stone-600">
-                    {portfolio.summary}
-                  </p>
                 </div>
               )}
             </div>
@@ -208,9 +195,11 @@ export function MinimalTemplate({ data }: { data: PortfolioData }) {
                         </div>
 
                         {project.description && (
-                          <p className="mt-4 text-sm leading-7 text-stone-600">
-                            {project.description}
-                          </p>
+                          <DescriptionBlock
+                            text={project.description}
+                            paragraphClassName="mt-4 text-sm leading-7 text-stone-600"
+                            listClassName="mt-4 space-y-2 pl-5 text-sm leading-7 text-stone-600 marker:text-stone-300"
+                          />
                         )}
 
                         {(project.techStack.length > 0 ||

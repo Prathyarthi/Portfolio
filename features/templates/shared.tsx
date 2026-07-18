@@ -187,42 +187,27 @@ export function DescriptionBlock({
   const lines = splitDescription(text);
 
   if (lines.length <= 1) {
-    const shouldExpand = text.length > 180;
-    if (shouldExpand) {
-      return (
-        <ExpandableText
-          as="p"
-          className={stripLineClamp(paragraphClassName)}
-          initialLines={3}
-        >
-          {text}
-        </ExpandableText>
-      );
-    }
-
-    return <p className={paragraphClassName}>{text}</p>;
-  }
-
-  if (lines.length > 3) {
     return (
       <ExpandableText
-        as="ul"
-        className={stripLineClamp(listClassName)}
+        as="p"
+        className={stripLineClamp(paragraphClassName)}
         initialLines={3}
       >
-        {lines.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
+        {text}
       </ExpandableText>
     );
   }
 
   return (
-    <ul className={listClassName}>
-      {lines.map((line) => (
-        <li key={line}>{line}</li>
+    <ExpandableText
+      as="ul"
+      className={stripLineClamp(listClassName)}
+      initialLines={3}
+    >
+      {lines.map((line, index) => (
+        <li key={`${index}-${line}`}>{line}</li>
       ))}
-    </ul>
+    </ExpandableText>
   );
 }
 

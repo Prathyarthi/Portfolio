@@ -19,7 +19,6 @@ import {
   PROJECT_CARD_META,
   PROJECT_CARD_TITLE,
   HERO_HEADER_COLUMN,
-  HERO_HEADER_GRID,
   HERO_HEADLINE_SCALE,
   HERO_TITLE_BASE,
   HERO_TITLE_SCALE_7XL,
@@ -68,16 +67,13 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
     <div className={cn(TEMPLATE_CONTAINER, "min-h-screen bg-[#f4f0ea] font-mono text-black")}>
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 md:px-8 md:pb-24 md:pt-14">
         <header className="relative border-4 border-black bg-[#ff90e8] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] @md:p-10">
-          <div className={HERO_HEADER_GRID}>
+          <div className="min-w-0">
             <div className={HERO_HEADER_COLUMN}>
-              <div className="inline-block border-2 border-black bg-white px-3 py-1 text-xs font-bold uppercase tracking-widest text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                Retro Edition
-              </div>
               <h1
                 className={cn(
                   HERO_TITLE_BASE,
                   HERO_TITLE_SCALE_7XL,
-                  "mt-6 font-sans font-black uppercase tracking-tight text-black"
+                  "font-sans font-black uppercase tracking-tight text-black"
                 )}
               >
                 {portfolio.title}
@@ -114,16 +110,6 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                     showUsername
                     className="border-2 border-black bg-white px-3 py-1.5 text-sm font-bold text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
                   />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-6">
-              {portfolio.summary && (
-                <div className="border-4 border-black bg-[#90bcff] p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                  <p className="text-sm font-medium leading-relaxed text-black">
-                    {portfolio.summary}
-                  </p>
                 </div>
               )}
             </div>
@@ -215,9 +201,11 @@ export function RetroTemplate({ data }: { data: PortfolioData }) {
                         </div>
 
                         {project.description && (
-                          <p className="mt-4 text-sm font-medium leading-7 text-black">
-                            {project.description}
-                          </p>
+                          <DescriptionBlock
+                            text={project.description}
+                            paragraphClassName="mt-4 text-sm font-medium leading-7 text-black"
+                            listClassName="mt-4 space-y-2 pl-5 text-sm font-medium leading-7 text-black marker:text-black"
+                          />
                         )}
 
                         {(project.techStack.length > 0 ||
