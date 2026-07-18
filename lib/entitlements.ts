@@ -44,6 +44,9 @@ export function resolveAccessForUser(
   );
   const inTrial = now.getTime() < trialEndsAtDate.getTime();
   const paidPro = isProSubscription(user.subscriptionStatus);
+  const allowUnconfiguredBillingAccess =
+    process.env.NODE_ENV !== "production" &&
+    process.env.ALLOW_UNCONFIGURED_BILLING_ACCESS === "true";
 
   const tier: AccessTier = paidPro ? "pro" : inTrial ? "trial" : "free";
   const trialDaysRemaining = inTrial
@@ -55,8 +58,10 @@ export function resolveAccessForUser(
       )
     : 0;
 
-  const canUsePremiumTemplates = paidPro || inTrial || !billingConfigured;
-  const canUseImports = paidPro || inTrial || !billingConfigured;
+  const canUsePremiumTemplates =
+    paidPro || inTrial || (!billingConfigured && allowUnconfiguredBillingAccess);
+  const canUseImports =
+    paidPro || inTrial || (!billingConfigured && allowUnconfiguredBillingAccess);
   const allowedTemplateIds = canUsePremiumTemplates
     ? [...FREE_TEMPLATE_IDS, ...PREMIUM_TEMPLATE_IDS]
     : [...FREE_TEMPLATE_IDS];

@@ -31,10 +31,12 @@ RAZORPAY_PRO_PLAN_ID_MONTHLY=...   # or legacy RAZORPAY_PRO_PLAN_ID
 RAZORPAY_PRO_PLAN_ID_QUARTERLY=...
 RAZORPAY_PRO_PLAN_ID_YEARLY=...
 RAZORPAY_WEBHOOK_SECRET=...
+NEXT_PUBLIC_BILLING_CURRENCY=inr # must match every configured plan
+CRON_SECRET=...                  # protects scheduled reconciliation
 NEXTAUTH_URL=http://localhost:3000
 ```
 
-- [x] All Razorpay env vars present (restrictions will not apply without them)
+- [x] All Razorpay env vars present (checkout fails closed without them)
 
 ### 0.2 Start the app
 

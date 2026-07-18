@@ -7,11 +7,21 @@ import {
   getAvailableBillingIntervals,
   isAnyBillingReady,
 } from "@/lib/billing";
+import { reconcileUserBilling } from "@/lib/billing-reconciliation";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    await reconcileUserBilling(session.user.id);
+  } catch (error) {
+    console.error("[billing.me] reconciliation failed", {
+      error,
+      userId: session.user.id,
+    });
   }
 
   const user = await prisma.user.findUnique({
@@ -26,11 +36,26 @@ export async function GET() {
   const access = resolveAccessForUser(user);
 
   const sub = String((user as { subscriptionStatus?: string | null }).subscriptionStatus ?? "").toLowerCase();
+  const cancellation = user as typeof user & {
+    subscriptionCancelAtPeriodEnd?: boolean;
+    subscriptionCurrentPeriodEnd?: Date | null;
+  };
   const subscription =
     sub === "active"
-      ? { status: "ACTIVE" as const }
+      ? {
+          status: "ACTIVE" as const,
+          cancelAtPeriodEnd:
+            cancellation.subscriptionCancelAtPeriodEnd ?? false,
+          currentPeriodEnd:
+            cancellation.subscriptionCurrentPeriodEnd?.toISOString() ?? null,
+        }
       : sub === "pending"
-        ? { status: "PENDING" as const }
+        ? {
+            status: "PENDING" as const,
+            cancelAtPeriodEnd: false,
+            currentPeriodEnd:
+              cancellation.subscriptionCurrentPeriodEnd?.toISOString() ?? null,
+          }
         : null;
 
   // Keep response shape aligned with Xchat's subscription flow contract.

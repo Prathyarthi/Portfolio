@@ -71,8 +71,8 @@ export default function TermsPage() {
           </li>
         </ul>
         <p>
-          Refunds are handled under our{" "}
-          <Link href="/refund-policy">Refund Policy</Link>.
+          Cancellations and non-refundable payments are governed by our{" "}
+          <Link href="/refund-policy">Cancellation and No-Refund Policy</Link>.
         </p>
 
         <h2>Acceptable use</h2>

@@ -1,4 +1,9 @@
-import { formatInr, formatUsd, type PlanAmount } from "@/lib/pricing";
+import {
+  BILLING_CURRENCY,
+  formatInr,
+  formatUsd,
+  type PlanAmount,
+} from "@/lib/pricing";
 import { cn } from "@/lib/utils";
 
 interface PlanPriceProps {
@@ -16,23 +21,17 @@ export function PlanPrice({
 }: PlanPriceProps) {
   const primarySize =
     size === "lg" ? "text-4xl md:text-5xl" : "text-2xl md:text-3xl";
-  const secondarySize =
-    size === "lg" ? "text-2xl md:text-3xl" : "text-xl md:text-2xl";
+  const formattedAmount =
+    BILLING_CURRENCY === "usd"
+      ? formatUsd(amount.usd)
+      : formatInr(amount.inr);
 
   return (
     <div className={cn("flex flex-wrap items-baseline gap-x-3 gap-y-1", className)}>
       <span
         className={cn("gradient-text font-bold tabular-nums", primarySize)}
       >
-        {formatUsd(amount.usd)}
-      </span>
-      <span
-        className={cn(
-          "font-semibold tabular-nums text-zinc-400",
-          secondarySize,
-        )}
-      >
-        {formatInr(amount.inr)}
+        {formattedAmount}
       </span>
       {period ? (
         <span className="text-sm text-zinc-500">{period}</span>

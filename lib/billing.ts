@@ -33,8 +33,16 @@ export function areRazorpayKeysConfigured(): boolean {
   );
 }
 
+export function isRazorpayWebhookConfigured(): boolean {
+  return Boolean(process.env.RAZORPAY_WEBHOOK_SECRET);
+}
+
 export function isIntervalCheckoutReady(interval: BillingInterval): boolean {
-  return areRazorpayKeysConfigured() && Boolean(getRazorpayPlanId(interval));
+  return (
+    areRazorpayKeysConfigured() &&
+    isRazorpayWebhookConfigured() &&
+    Boolean(getRazorpayPlanId(interval))
+  );
 }
 
 export function isAnyBillingReady(): boolean {

@@ -20,7 +20,11 @@ import { getIntervalCheckoutUnavailableMessage } from "@/lib/billing";
 interface BillingState {
   razorpayReady: boolean;
   availableIntervals?: BillingInterval[];
-  subscription: { status: "ACTIVE" | "PENDING" } | null;
+  subscription: {
+    status: "ACTIVE" | "PENDING";
+    cancelAtPeriodEnd: boolean;
+    currentPeriodEnd: string | null;
+  } | null;
   access: {
     tier: "free" | "trial" | "pro";
     trialDaysRemaining: number;
@@ -28,6 +32,13 @@ interface BillingState {
     canUseImports: boolean;
     canUseAnalytics: boolean;
   } | null;
+}
+
+function formatBillingDate(value: string | null | undefined) {
+  if (!value) return null;
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+  }).format(new Date(value));
 }
 
 export default function BillingPage() {
@@ -66,7 +77,8 @@ export default function BillingPage() {
   }, []);
 
   useEffect(() => {
-    loadBilling();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- state updates after the async response
+    void loadBilling();
   }, [loadBilling]);
 
   useEffect(() => {
@@ -146,6 +158,12 @@ export default function BillingPage() {
   const trialDays = billing?.access?.trialDaysRemaining ?? 0;
   const paymentsReady = billing?.razorpayReady ?? false;
   const isPending = billing?.subscription?.status === "PENDING";
+  const cancelAtPeriodEnd =
+    billing?.subscription?.status === "ACTIVE" &&
+    billing.subscription.cancelAtPeriodEnd;
+  const currentPeriodEnd = formatBillingDate(
+    billing?.subscription?.currentPeriodEnd
+  );
   const intervalCheckoutReady = checkoutIntervals.includes(billingInterval);
 
   return (
@@ -170,7 +188,8 @@ export default function BillingPage() {
       {cancelled && (
         <div className="flex items-center gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
-          Your Pro subscription has been cancelled successfully.
+          Your cancellation is scheduled
+          {currentPeriodEnd ? ` for ${currentPeriodEnd}` : " for the end of this billing cycle"}.
         </div>
       )}
 
@@ -198,16 +217,22 @@ export default function BillingPage() {
               <Crown className="mt-0.5 h-4 w-4 shrink-0 text-teal-400" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-teal-200">
-                  Pro subscription is active
+                  {cancelAtPeriodEnd
+                    ? "Pro remains active until the billing cycle ends"
+                    : "Pro subscription is active"}
                 </p>
                 <p className="mt-0.5 text-body-sm text-text-secondary">
-                  All templates and features are unlocked.
+                  {cancelAtPeriodEnd
+                    ? `Future renewals are cancelled. You keep all Pro features${
+                        currentPeriodEnd ? ` through ${currentPeriodEnd}` : " until the current period ends"
+                      }.`
+                    : "All templates and features are unlocked."}
                 </p>
               </div>
             </div>
           )}
 
-          {isPro && (
+          {isPro && !cancelAtPeriodEnd && (
             <Button
               variant="outline"
               className="w-full rounded-full border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
@@ -245,8 +270,9 @@ export default function BillingPage() {
 
           {isPending && (
             <p className="text-body-sm text-text-secondary">
-              Payment pending confirmation. If you have completed checkout, it
-              may take a moment to reflect here. Refresh the page to see updates.
+              A recurring payment failed and Razorpay is retrying it. Check the
+              payment-recovery email from Razorpay or contact support; starting
+              another subscription is disabled to prevent duplicate charges.
             </p>
           )}
 
@@ -309,13 +335,13 @@ export default function BillingPage() {
               )}
               <Button
                 className="w-full rounded-full bg-teal-500 text-teal-950 hover:bg-teal-400"
-                disabled={subscribing || !intervalCheckoutReady}
+                disabled={subscribing || isPending || !intervalCheckoutReady}
                 onClick={subscribe}
               >
                 {subscribing
                   ? "Opening checkout…"
                   : isPending
-                    ? "Try payment again"
+                    ? "Payment recovery required"
                     : `Upgrade to Pro — ${formatProPriceLabel(billingInterval)}`}
               </Button>
             </div>

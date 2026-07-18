@@ -4,7 +4,7 @@ import Razorpay from "razorpay";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth-options";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(req: Request) {
+export async function POST() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,7 +23,12 @@ export async function POST(req: Request) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { razorpaySubscriptionId: true, subscriptionStatus: true },
+      select: {
+        razorpaySubscriptionId: true,
+        subscriptionStatus: true,
+        subscriptionCancelAtPeriodEnd: true,
+        subscriptionCurrentPeriodEnd: true,
+      },
     });
 
     if (!user?.razorpaySubscriptionId) {
@@ -39,20 +44,56 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+    const providerSubscriptionId = user.razorpaySubscriptionId;
+
+    if (user.subscriptionCancelAtPeriodEnd) {
+      return NextResponse.json({
+        ok: true,
+        cancelAtPeriodEnd: true,
+        currentPeriodEnd:
+          user.subscriptionCurrentPeriodEnd?.toISOString() ?? null,
+      });
+    }
 
     const razorpay = new Razorpay({
       key_id: keyId,
       key_secret: keySecret,
     });
 
-    await razorpay.subscriptions.cancel(user.razorpaySubscriptionId);
+    const subscription = (await razorpay.subscriptions.cancel(
+      providerSubscriptionId,
+      true
+    )) as { current_end?: number };
+    const currentPeriodEnd =
+      typeof subscription.current_end === "number"
+        ? new Date(subscription.current_end * 1000)
+        : null;
 
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { subscriptionStatus: "none" },
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: session.user.id },
+        data: {
+          subscriptionCancelAtPeriodEnd: true,
+          subscriptionCurrentPeriodEnd: currentPeriodEnd,
+        },
+      });
+      await tx.billingSubscription.updateMany({
+        where: {
+          userId: session.user.id,
+          providerSubscriptionId,
+        },
+        data: {
+          cancelAtPeriodEnd: true,
+          currentPeriodEnd,
+        },
+      });
     });
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      cancelAtPeriodEnd: true,
+      currentPeriodEnd: currentPeriodEnd?.toISOString() ?? null,
+    });
   } catch (error) {
     console.error("[billing.cancel] failed", {
       error,

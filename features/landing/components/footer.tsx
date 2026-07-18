@@ -27,7 +27,7 @@ const NAV = {
 const LEGAL_LINKS = [
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
-  { href: "/refund-policy", label: "Refunds" },
+  { href: "/refund-policy", label: "Cancellation" },
   { href: "/contact", label: "Contact" },
 ] as const;
 

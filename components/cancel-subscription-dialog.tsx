@@ -41,20 +41,16 @@ export function CancelSubscriptionDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-4">
-          <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
-            <p className="text-sm font-medium text-red-200">
-              You will immediately lose access to:
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
+            <p className="text-sm font-medium text-amber-200">
+              Your subscription will not renew.
             </p>
-            <ul className="mt-2 space-y-1 text-xs text-red-300/80">
-              <li>• Premium portfolio templates</li>
-              <li>• Resume & GitHub import features</li>
-              <li>• Unlimited live preview slots</li>
-              <li>• All Pro features</li>
-            </ul>
+            <p className="mt-2 text-xs text-amber-300/80">
+              You will keep all Pro features until the end of your current paid
+              billing cycle. After that, your account moves to the applicable
+              free tier.
+            </p>
           </div>
-          <p className="text-xs text-zinc-500">
-            You can resubscribe at any time to regain access to Pro features.
-          </p>
         </div>
         <DialogFooter>
           <Button
@@ -70,7 +66,7 @@ export function CancelSubscriptionDialog({
             onClick={onConfirm}
             disabled={cancelling}
           >
-            {cancelling ? "Cancelling..." : "Yes, Cancel"}
+            {cancelling ? "Scheduling..." : "Cancel at Period End"}
           </Button>
         </DialogFooter>
       </DialogContent>

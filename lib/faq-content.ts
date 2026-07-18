@@ -21,9 +21,9 @@ export const FAQ_ITEMS = [
       "Resume import supports PDF files up to 10 MB. We extract experience, education, skills, projects, and more into editable portfolio sections.",
   },
   {
-    question: "How do billing and refunds work?",
+    question: "How do billing, cancellations, and refunds work?",
     answer:
-      "Pro subscriptions renew monthly, quarterly, or yearly depending on your plan. See our refund policy for eligibility, or contact support for billing help.",
+      "Pro renews automatically. Cancellation takes effect at the end of the current paid cycle, and payments are non-refundable.",
   },
   {
     question: "How do I get help?",

@@ -7,17 +7,17 @@ import { cn } from "@/lib/utils";
 const FAQ_RICH_ANSWERS: Partial<
   Record<(typeof FAQ_ITEMS)[number]["question"], ReactNode>
 > = {
-  "How do billing and refunds work?": (
+  "How do billing, cancellations, and refunds work?": (
     <>
-      Pro subscriptions renew monthly, quarterly, or yearly depending on your
-      plan. See our{" "}
+      Pro renews automatically. Cancellation takes effect at the end of the
+      current paid cycle, and payments are non-refundable. See our{" "}
       <Link
         href="/refund-policy"
         className="font-medium text-brand-secondary underline-offset-4 hover:underline"
       >
-        refund policy
+        cancellation and no-refund policy
       </Link>{" "}
-      for eligibility, or contact support for billing help.
+      or contact support for billing help.
     </>
   ),
   "How do I get help?": (

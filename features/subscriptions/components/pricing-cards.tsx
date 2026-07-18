@@ -111,8 +111,8 @@ export function PricingCards({
                   )}
                   {isPaid && paidPending && (
                     <p className="mt-3 text-xs text-text-secondary">
-                      Payment pending — open checkout again or wait for
-                      confirmation.
+                      A recurring payment failed. Use Razorpay&apos;s recovery
+                      email or contact support to avoid a duplicate subscription.
                     </p>
                   )}
                   {isPaid && loggedIn && !paymentsReady && !paidActive && (
@@ -213,13 +213,11 @@ export function PricingCards({
                 {isPaid && loggedIn && paidPending && paymentsReady && intervalCheckoutReady && (
                   <Button
                     type="button"
+                    variant="outline"
                     className="mt-auto w-full"
-                    disabled={subscribing}
-                    onClick={onSubscribePaid}
+                    disabled
                   >
-                    {subscribing
-                      ? "Opening checkout…"
-                      : "Complete subscription"}
+                    Payment recovery required
                   </Button>
                 )}
 

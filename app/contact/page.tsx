@@ -117,7 +117,7 @@ export default function ContactPage() {
             href="/refund-policy"
             className="text-text-secondary transition-colors hover:text-text-primary"
           >
-            Refund Policy
+            Cancellation and No-Refund Policy
           </Link>
         </p>
       </div>

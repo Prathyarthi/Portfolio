@@ -68,7 +68,10 @@ function parseArgs(argv) {
     dryRun: false,
     list: false,
     writeEnv: false,
-    currency: "inr",
+    currency:
+      process.env.NEXT_PUBLIC_BILLING_CURRENCY?.toLowerCase() === "usd"
+        ? "usd"
+        : "inr",
   };
 
   for (const arg of argv) {
@@ -116,7 +119,8 @@ USD amounts:
 After creating plans, configure webhook in Razorpay Dashboard:
   POST https://your-domain.com/api/billing/webhook
   Events: subscription.authenticated, subscription.pending, subscription.activated,
-          subscription.charged, subscription.cancelled, subscription.halted, subscription.paused
+          subscription.charged, subscription.cancelled, subscription.halted,
+          subscription.paused, subscription.resumed, subscription.completed
 `);
 }
 
@@ -199,8 +203,15 @@ async function listPlans(razorpay) {
   }
 }
 
-function findExistingPlan(plans, planName) {
-  return plans.find((plan) => plan.item?.name === planName);
+function findExistingPlan(plans, payload) {
+  return plans.find(
+    (plan) =>
+      plan.item?.name === payload.item.name &&
+      plan.item?.currency === payload.item.currency &&
+      plan.item?.amount === payload.item.amount &&
+      plan.period === payload.period &&
+      plan.interval === payload.interval
+  );
 }
 
 function printEnvBlock(results) {
@@ -269,7 +280,7 @@ async function main() {
       continue;
     }
 
-    const existing = findExistingPlan(existingPlans, payload.item.name);
+    const existing = findExistingPlan(existingPlans, payload);
     if (existing) {
       console.log(`  reuse existing plan: ${existing.id}\n`);
       results.push({ def, planId: existing.id, created: false });

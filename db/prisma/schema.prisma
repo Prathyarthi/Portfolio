@@ -26,9 +26,79 @@ model User {
   /// Razorpay subscription ID for managing the subscription (cancel, etc.)
   razorpaySubscriptionId String?
 
-  portfolio Portfolio?
+  /// Cancellation is scheduled at the end of the paid billing cycle.
+  subscriptionCancelAtPeriodEnd Boolean   @default(false)
+  subscriptionCurrentPeriodEnd  DateTime?
+
+  portfolio            Portfolio?
+  billingSubscriptions BillingSubscription[]
+  billingCheckout      BillingCheckoutAttempt?
+  billingPayments      BillingPayment[]
 
   @@map("users")
+}
+
+model BillingSubscription {
+  id                     String    @id @default(uuid())
+  userId                 String
+  providerSubscriptionId String    @unique
+  providerPlanId         String
+  interval               String
+  status                 String
+  cancelAtPeriodEnd      Boolean   @default(false)
+  currentPeriodEnd       DateTime?
+  lastEventAt            DateTime?
+  lastEventId            String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments BillingPayment[]
+
+  @@index([userId, status])
+  @@map("billing_subscriptions")
+}
+
+model BillingCheckoutAttempt {
+  id                     String   @id @default(uuid())
+  userId                 String   @unique
+  providerSubscriptionId String?  @unique
+  providerPlanId         String
+  interval               String
+  status                 String   @default("creating")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("billing_checkout_attempts")
+}
+
+model BillingPayment {
+  providerPaymentId      String   @id
+  userId                 String
+  billingSubscriptionId  String
+  providerSubscriptionId String
+  status                 String
+  createdAt              DateTime @default(now())
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription BillingSubscription @relation(fields: [billingSubscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([providerSubscriptionId])
+  @@map("billing_payments")
+}
+
+model BillingWebhookEvent {
+  providerEventId        String   @id
+  eventType              String
+  providerSubscriptionId String?
+  occurredAt             DateTime
+  processedAt            DateTime @default(now())
+
+  @@index([providerSubscriptionId, occurredAt])
+  @@map("billing_webhook_events")
 }
 
 // ============================================================
@@ -36,17 +106,17 @@ model User {
 // ============================================================
 
 model Portfolio {
-  id     String @id @default(uuid())
-  userId String @unique
+  id     String  @id @default(uuid())
+  userId String  @unique
   slug   String? @unique
 
-  title    String @default("")
-  headline String @default("")
-  summary  String @default("") @db.Text
+  title     String  @default("")
+  headline  String  @default("")
+  summary   String  @default("") @db.Text
   avatarUrl String?
   resumeUrl String?
 
-  templateId String  @default("minimal")
+  templateId  String  @default("minimal")
   isPublished Boolean @default(false)
 
   metaTitle       String?
@@ -151,16 +221,16 @@ model Skill {
 }
 
 model Project {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   portfolioId String
   title       String
-  description String  @db.Text
+  description String   @db.Text
   imageUrl    String?
   liveUrl     String?
   sourceUrl   String?
   techStack   String[]
-  featured    Boolean @default(false)
-  sortOrder   Int     @default(0)
+  featured    Boolean  @default(false)
+  sortOrder   Int      @default(0)
 
   githubStars Int?
   githubForks Int?
@@ -188,7 +258,7 @@ model Article {
 }
 
 model SocialProfile {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   portfolioId String
   platform    String
   url         String

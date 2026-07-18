@@ -17,6 +17,13 @@ export interface PlanAmount {
   inr: number;
 }
 
+export type BillingCurrency = "usd" | "inr";
+
+export const BILLING_CURRENCY: BillingCurrency =
+  process.env.NEXT_PUBLIC_BILLING_CURRENCY?.toLowerCase() === "usd"
+    ? "usd"
+    : "inr";
+
 export interface PricingPlan {
   slug: string;
   name: string;
@@ -83,7 +90,12 @@ export function formatPlanAmountDual(amount: PlanAmount): string {
 }
 
 export function formatProPriceLabel(interval: BillingInterval): string {
-  return `${formatPlanAmountDual(PRO_PRICING[interval])}${getBillingPeriodSuffix(interval)}`;
+  const amount = PRO_PRICING[interval];
+  const price =
+    BILLING_CURRENCY === "usd"
+      ? formatUsd(amount.usd)
+      : formatInr(amount.inr);
+  return `${price}${getBillingPeriodSuffix(interval)}`;
 }
 
 const yearlySavings = getProSavingsPercent("yearly") ?? 0;
@@ -116,7 +128,7 @@ export const pricingPlans: PricingPlan[] = [
       "For active job search and a stronger public presence—with room to grow.",
     monthlyAmount: PRO_PRICING.monthly,
     pricePeriod: "/month",
-    note: `Monthly, quarterly, or yearly billing at checkout. Save up to ${yearlySavings}% on yearly. Pay securely in USD or INR.`,
+    note: `Monthly, quarterly, or yearly billing at checkout. Save up to ${yearlySavings}% on yearly.`,
     ctaLabel: "See Pro benefits",
     ctaHref: "/pricing",
     pricingPageCta: { label: "Upgrade to Pro", href: "/sign-up" },

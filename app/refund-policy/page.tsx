@@ -6,8 +6,8 @@ import { siteConfig } from "@/lib/site";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Refund Policy",
-  description: `Refund and cancellation policy for ${siteConfig.name} Pro subscriptions and billing disputes.`,
+  title: "Cancellation and No-Refund Policy",
+  description: `Cancellation and no-refund terms for ${siteConfig.name} Pro subscriptions.`,
   path: "/refund-policy",
   openGraphType: "article",
 });
@@ -15,11 +15,14 @@ export const metadata: Metadata = createPageMetadata({
 export default function RefundPolicyPage() {
   return (
     <MarketingPageShell>
-      <LegalDocument title="Refund Policy" lastUpdated="June 22, 2026">
+      <LegalDocument
+        title="Cancellation and No-Refund Policy"
+        lastUpdated="July 18, 2026"
+      >
         <p>
-          This Refund Policy explains how cancellations and refunds work for paid
-          subscriptions to {siteConfig.name}. By subscribing to a paid plan, you agree
-          to this policy in addition to our{" "}
+          This policy explains how cancellations and payments work for paid
+          subscriptions to {siteConfig.name}. By subscribing to Pro, you agree
+          to these terms in addition to our{" "}
           <Link href="/terms">Terms &amp; Conditions</Link>.
         </p>
 
@@ -55,50 +58,30 @@ export default function RefundPolicyPage() {
           </li>
         </ul>
 
-        <h2>Refund eligibility</h2>
+        <h2>No refunds</h2>
         <p>
-          We want you to be satisfied with {siteConfig.name}. Refund requests are
-          reviewed on a case-by-case basis:
+          All subscription payments are final and non-refundable once charged,
+          except where a refund is required by applicable law. We do not provide
+          full or partial refunds or credits for:
         </p>
         <ul>
-          <li>
-            <strong className="text-zinc-300">Within 7 days of first Pro charge</strong>{" "}
-            — if you have not substantially used premium features (such as resume
-            import or premium templates), contact us for a full refund of that
-            billing period
-          </li>
-          <li>
-            <strong className="text-zinc-300">Duplicate or erroneous charges</strong>{" "}
-            — contact us promptly and we will investigate and refund verified errors
-          </li>
-          <li>
-            <strong className="text-zinc-300">Service issues</strong> — if a
-            prolonged outage or billing error prevented reasonable use of Pro, we may
-            offer a partial or full credit at our discretion
-          </li>
+          <li>Unused time in a monthly, quarterly, or yearly billing period</li>
+          <li>Cancelling after a subscription payment has been charged</li>
+          <li>Forgetting to cancel before an automatic renewal</li>
+          <li>Not using, or only partially using, Pro features</li>
+          <li>Account suspension or termination for violating our Terms</li>
         </ul>
 
-        <h2>Non-refundable situations</h2>
-        <p>We generally do not offer refunds when:</p>
-        <ul>
-          <li>You cancel after the current billing period has started and you have used Pro features</li>
-          <li>You forgot to cancel before renewal but continued using the Service</li>
-          <li>The request is made outside a reasonable window without a documented billing error</li>
-          <li>Your account was terminated for violating our Terms</li>
-        </ul>
-
-        <h2>How to request a refund</h2>
+        <h2>Billing errors</h2>
         <p>
-          Email{" "}
-          <a href={`mailto:${siteConfig.supportEmail}`}>{siteConfig.supportEmail}</a>{" "}
-          from the address associated with your account. Include your account email,
-          the charge date, and a brief description of the issue. We aim to respond
-          within 3–5 business days.
-        </p>
-        <p>
-          Approved refunds are processed through Razorpay to your original payment
-          method. Timing depends on your bank or card issuer and may take 5–10
-          business days to appear.
+          If you believe a charge is unauthorized, duplicated, or incorrect,
+          contact{" "}
+          <a href={`mailto:${siteConfig.supportEmail}`}>
+            {siteConfig.supportEmail}
+          </a>{" "}
+          promptly from the email associated with your account. We will
+          investigate and correct verified billing errors as required by
+          applicable law and payment-network rules.
         </p>
 
         <h2>Chargebacks</h2>
@@ -110,8 +93,8 @@ export default function RefundPolicyPage() {
 
         <h2>Changes to this policy</h2>
         <p>
-          We may update this Refund Policy from time to time. The version posted on
-          this page applies to purchases made after the updated date.
+          We may update this policy from time to time. The version posted on
+          this page applies to purchases made after its updated date.
         </p>
 
         <h2>Contact</h2>

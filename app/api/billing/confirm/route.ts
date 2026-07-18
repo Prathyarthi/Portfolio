@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import Razorpay from "razorpay";
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth-options";
 import { prisma } from "@/lib/prisma";
+import { getIntervalForPlanId } from "@/lib/billing-lifecycle";
 
 type ConfirmBody = {
   razorpay_payment_id?: string;
@@ -24,12 +25,6 @@ function verifySubscriptionPaymentSignature(
   const b = Buffer.from(signature);
   return a.length === b.length && timingSafeEqual(a, b);
 }
-
-const ACTIVATED_SUBSCRIPTION_STATUSES = new Set([
-  "active",
-  "authenticated",
-  "completed",
-]);
 
 /**
  * Verifies a successful Razorpay subscription checkout and marks the user as Pro.
@@ -84,7 +79,6 @@ export async function POST(req: Request) {
     select: {
       id: true,
       razorpaySubscriptionId: true,
-      subscriptionStatus: true,
     },
   });
 
@@ -92,10 +86,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  if (
-    user.razorpaySubscriptionId &&
-    user.razorpaySubscriptionId !== subscriptionId
-  ) {
+  if (user.razorpaySubscriptionId !== subscriptionId) {
     return NextResponse.json(
       { error: "Subscription does not match the current checkout." },
       { status: 400 }
@@ -107,27 +98,58 @@ export async function POST(req: Request) {
     key_secret: keySecret,
   });
 
-  let subscriptionStatus: string;
+  let currentPeriodEnd: Date | null = null;
+  let providerPlanId: string;
+  let interval;
   try {
     const subscription = (await razorpay.subscriptions.fetch(
       subscriptionId
-    )) as { status?: string; notes?: Record<string, string | undefined> };
-    subscriptionStatus = (subscription.status ?? "").toLowerCase();
+    )) as {
+      status?: string;
+      notes?: Record<string, string | undefined>;
+      plan_id?: string;
+      current_end?: number;
+    };
+    const subscriptionStatus = (subscription.status ?? "").toLowerCase();
 
     const noteUserId = subscription.notes?.userId;
-    if (noteUserId && noteUserId !== session.user.id) {
+    if (noteUserId !== session.user.id) {
       return NextResponse.json(
         { error: "Subscription does not belong to this account." },
         { status: 403 }
       );
     }
 
-    if (!ACTIVATED_SUBSCRIPTION_STATUSES.has(subscriptionStatus)) {
+    if (subscriptionStatus !== "active") {
       return NextResponse.json(
         { error: "Subscription payment is not active yet." },
         { status: 409 }
       );
     }
+
+    providerPlanId = subscription.plan_id ?? "";
+    interval = getIntervalForPlanId(providerPlanId);
+    if (!interval) {
+      return NextResponse.json(
+        { error: "Subscription is not linked to a configured Pro plan." },
+        { status: 403 }
+      );
+    }
+
+    const payment = (await razorpay.payments.fetch(paymentId)) as {
+      status?: string;
+    };
+    if ((payment.status ?? "").toLowerCase() !== "captured") {
+      return NextResponse.json(
+        { error: "Payment has not been captured." },
+        { status: 409 }
+      );
+    }
+
+    currentPeriodEnd =
+      typeof subscription.current_end === "number"
+        ? new Date(subscription.current_end * 1000)
+        : null;
   } catch (error) {
     console.error("[billing.confirm] subscription fetch failed", {
       error,
@@ -140,16 +162,54 @@ export async function POST(req: Request) {
     );
   }
 
-  if (user.subscriptionStatus === "active") {
-    return NextResponse.json({ ok: true, status: "active" });
-  }
+  await prisma.$transaction(async (tx) => {
+    const billingSubscription = await tx.billingSubscription.upsert({
+      where: { providerSubscriptionId: subscriptionId },
+      create: {
+        userId: session.user.id,
+        providerSubscriptionId: subscriptionId,
+        providerPlanId,
+        interval,
+        status: "active",
+        currentPeriodEnd,
+      },
+      update: {
+        providerPlanId,
+        interval,
+        status: "active",
+        currentPeriodEnd,
+      },
+    });
+    if (billingSubscription.userId !== session.user.id) {
+      throw new Error("Subscription ownership mismatch.");
+    }
 
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: {
-      subscriptionStatus: "active",
-      razorpaySubscriptionId: subscriptionId,
-    },
+    await tx.billingPayment.upsert({
+      where: { providerPaymentId: paymentId },
+      create: {
+        providerPaymentId: paymentId,
+        userId: session.user.id,
+        billingSubscriptionId: billingSubscription.id,
+        providerSubscriptionId: subscriptionId,
+        status: "captured",
+      },
+      update: { status: "captured" },
+    });
+    await tx.user.update({
+      where: { id: session.user.id },
+      data: {
+        subscriptionStatus: "active",
+        razorpaySubscriptionId: subscriptionId,
+        subscriptionCancelAtPeriodEnd: false,
+        subscriptionCurrentPeriodEnd: currentPeriodEnd,
+      },
+    });
+    await tx.billingCheckoutAttempt.deleteMany({
+      where: {
+        userId: session.user.id,
+        providerSubscriptionId: subscriptionId,
+      },
+    });
   });
 
   return NextResponse.json({ ok: true, status: "active" });
