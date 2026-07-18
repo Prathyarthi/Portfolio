@@ -111,6 +111,7 @@ export async function generateOpenRouterText({
 export async function generateOpenRouterResumeText(
   resumeText: string,
   systemPrompt: string,
+  options?: { signal?: AbortSignal },
 ): Promise<string> {
   const model = getOpenRouterModel();
 
@@ -133,6 +134,7 @@ export async function generateOpenRouterResumeText(
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
+    signal: options?.signal,
     headers: {
       Authorization: `Bearer ${getOpenRouterApiKey()}`,
       "Content-Type": "application/json",

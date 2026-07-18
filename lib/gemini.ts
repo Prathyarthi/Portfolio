@@ -764,11 +764,15 @@ export function normalizeParsedResume(raw: unknown): ParsedResume {
 
 export async function structureResumeWithAi(
   rawText: string,
-  options?: { quality?: PdfExtractionQuality },
+  options?: {
+    quality?: PdfExtractionQuality;
+    signal?: AbortSignal;
+  },
 ): Promise<ParsedResume> {
   const text = await generateOpenRouterResumeText(
     buildResumeUserMessage(rawText, options?.quality),
     RESUME_PARSER_SYSTEM,
+    { signal: options?.signal },
   );
 
   // Strip potential markdown code fences

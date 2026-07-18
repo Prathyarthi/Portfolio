@@ -92,6 +92,17 @@ model PortfolioView {
   @@map("portfolio_views")
 }
 
+model RateLimitBucket {
+  key       String   @id
+  count     Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+  @@map("rate_limit_buckets")
+}
+
 model Experience {
   id          String    @id @default(uuid())
   portfolioId String

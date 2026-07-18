@@ -5,6 +5,8 @@ import { profile } from "@/features/profile/server/route";
 import { resume } from "@/features/resume/server/route";
 import { publicPortfolio } from "@/features/public/server/route";
 
+export const maxDuration = 300;
+
 const app = new Elysia({ prefix: "/api" })
   .use(auth)
   .use(portfolio)

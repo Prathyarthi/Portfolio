@@ -1,4 +1,8 @@
 import { generateOpenRouterText } from "@/lib/openrouter";
+import {
+  AI_USER_CONTEXT_LIMIT_CHARS,
+  guardAiRequest,
+} from "@/lib/ai-request-guard";
 import { NextResponse } from "next/server";
 
 const SYSTEM_PROMPT = `You are a portfolio content generator. Given a user's description, generate a complete, realistic portfolio JSON object.
@@ -70,16 +74,39 @@ Generate realistic, detailed content. Include 2-4 experiences, 1-2 educations, 8
 
 export async function POST(request: Request) {
   try {
-    const { prompt } = (await request.json()) as { prompt?: string };
-    if (!prompt?.trim()) {
+    const guard = await guardAiRequest(request);
+    if (!guard.ok) return guard.response;
+
+    let body: unknown;
+    try {
+      body = await guard.request.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+
+    const prompt = "prompt" in body ? body.prompt : undefined;
+    if (typeof prompt !== "string" || !prompt.trim()) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+    }
+    const normalizedPrompt = prompt.trim();
+    if (normalizedPrompt.length > AI_USER_CONTEXT_LIMIT_CHARS) {
+      return NextResponse.json(
+        {
+          error: `Prompt must be at most ${AI_USER_CONTEXT_LIMIT_CHARS} characters`,
+        },
+        { status: 400 },
+      );
     }
 
     const text = await generateOpenRouterText({
       messages: [
         {
           role: "user",
-          content: `${SYSTEM_PROMPT}\n\nUser description:\n${prompt}`,
+          content: `${SYSTEM_PROMPT}\n\nUser description:\n${normalizedPrompt}`,
         },
       ],
       temperature: 0.5,

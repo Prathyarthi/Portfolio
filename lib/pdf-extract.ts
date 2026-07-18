@@ -1,4 +1,17 @@
-import { extractText } from "unpdf";
+import { extractText, getDocumentProxy } from "unpdf";
+
+export const MAX_RESUME_PDF_PAGES = 20;
+export const MAX_RESUME_EXTRACTED_TEXT_CHARS = 100_000;
+
+export class PdfLimitError extends Error {
+  constructor(
+    message: string,
+    readonly code: "PAGE_LIMIT" | "TEXT_LIMIT",
+  ) {
+    super(message);
+    this.name = "PdfLimitError";
+  }
+}
 
 export type PdfExtractionQuality = {
   charCount: number;
@@ -56,21 +69,51 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
 }
 
 export async function extractTextAndQualityFromPdf(
-  buffer: Buffer
+  buffer: Buffer,
+  limits: {
+    maxPages?: number;
+    maxChars?: number;
+  } = {},
 ): Promise<{ text: string; quality: PdfExtractionQuality }> {
-  const { text, totalPages } = await extractText(new Uint8Array(buffer));
-  const pageCount = totalPages ?? text.length;
-  const joined = text
-    .map((pageText, index) => {
-      const body = pageText.trim();
-      if (!body) return "";
-      return `--- Page ${index + 1} of ${pageCount} ---\n${body}`;
-    })
-    .filter(Boolean)
-    .join("\n\n");
+  const maxPages = limits.maxPages ?? MAX_RESUME_PDF_PAGES;
+  const maxChars = limits.maxChars ?? MAX_RESUME_EXTRACTED_TEXT_CHARS;
+  const document = await getDocumentProxy(new Uint8Array(buffer));
 
-  return {
-    text: joined,
-    quality: assessPdfExtractionQuality(joined, pageCount),
-  };
+  try {
+    if (document.numPages > maxPages) {
+      throw new PdfLimitError(
+        `PDF must contain at most ${maxPages} pages`,
+        "PAGE_LIMIT",
+      );
+    }
+
+    const { text, totalPages } = await extractText(document);
+    const pageCount = totalPages ?? text.length;
+    const pages: string[] = [];
+    let joinedLength = 0;
+
+    text.forEach((pageText, index) => {
+      const body = pageText.trim();
+      if (!body) return;
+
+      const page = `--- Page ${index + 1} of ${pageCount} ---\n${body}`;
+      joinedLength += page.length + (pages.length > 0 ? 2 : 0);
+      if (joinedLength > maxChars) {
+        throw new PdfLimitError(
+          `Extracted PDF text must be at most ${maxChars} characters`,
+          "TEXT_LIMIT",
+        );
+      }
+      pages.push(page);
+    });
+
+    const joined = pages.join("\n\n");
+
+    return {
+      text: joined,
+      quality: assessPdfExtractionQuality(joined, pageCount),
+    };
+  } finally {
+    await document.destroy();
+  }
 }
