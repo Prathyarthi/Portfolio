@@ -10,6 +10,7 @@ import { fetchLeetCodeStats } from "@/lib/leetcode";
 import { fetchMediumArticles } from "@/lib/medium";
 import { getPlanLimitMessage, resolveAccessForUser } from "@/lib/entitlements";
 import { ensureUserPortfolio } from "@/lib/ensure-portfolio";
+import { sanitizeImportedStoredUrl } from "@/lib/content-policy";
 
 async function requireImportEntitlement(request: Request) {
   const session = await getSession(request);
@@ -103,7 +104,10 @@ export const profile = new Elysia({ prefix: "/profile" })
         portfolioId: portfolio.id,
         title: repo.name,
         description: repo.description || "",
-        sourceUrl: repo.url,
+        sourceUrl: sanitizeImportedStoredUrl(
+          repo.url,
+          `Repositories[${index}].url`,
+        ),
         techStack: repo.topics,
         githubStars: repo.stars,
         githubForks: repo.forks,
@@ -307,22 +311,28 @@ export const profile = new Elysia({ prefix: "/profile" })
         where: { portfolioId: portfolio.id },
       });
 
-      const articles = ctx.body.articles.map((article, index) => {
-        let publishedAt: Date | null = null;
-        if (article.publishedAt) {
-          const parsed = new Date(article.publishedAt);
-          if (!Number.isNaN(parsed.getTime())) publishedAt = parsed;
-        }
-        return {
-          portfolioId: portfolio.id,
-          title: article.title,
-          description: article.description || "",
-          url: article.url,
-          tags: article.tags,
-          publishedAt,
-          readTime: article.readTime ?? null,
-          sortOrder: existingCount + index,
-        };
+      const articles = ctx.body.articles.flatMap((article, index) => {
+        const url = sanitizeImportedStoredUrl(
+          article.url,
+          `Articles[${index}].url`,
+        );
+        if (!url) return [];
+
+          let publishedAt: Date | null = null;
+          if (article.publishedAt) {
+            const parsed = new Date(article.publishedAt);
+            if (!Number.isNaN(parsed.getTime())) publishedAt = parsed;
+          }
+          return [{
+            portfolioId: portfolio.id,
+            title: article.title,
+            description: article.description || "",
+            url,
+            tags: article.tags,
+            publishedAt,
+            readTime: article.readTime ?? null,
+            sortOrder: existingCount + index,
+          }];
       });
 
       const result = await prisma.article.createMany({ data: articles });

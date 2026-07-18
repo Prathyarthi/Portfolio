@@ -44,8 +44,11 @@ import {
   Layers,
 } from "lucide-react";
 import type { ParsedResume, ParsedCustomSection } from "@/lib/gemini";
-import { normalizeUrl } from "@/lib/url-utils";
 import { normalizeSocialProfile } from "@/lib/social-profile";
+import {
+  sanitizeImportedStoredUrl,
+  sanitizeImportedStoredUrlsInJson,
+} from "@/lib/content-policy";
 import {
   LivePreviewSelectionDialog,
   type LivePreviewCandidate,
@@ -211,7 +214,10 @@ export function ResumeUploader({
         summary: parsedData.summary,
         contactEmail: parsedData.contact?.email ?? null,
         phone: parsedData.contact?.phone ?? null,
-        websiteUrl: normalizeUrl(parsedData.contact?.websiteUrl),
+        websiteUrl: sanitizeImportedStoredUrl(
+          parsedData.contact?.websiteUrl,
+          "Portfolio website URL",
+        ),
         location: parsedData.contact?.location ?? null,
         ...(parsedData.sectionLabels && Object.keys(parsedData.sectionLabels).length > 0
           ? { customization: { sectionLabels: parsedData.sectionLabels } }
@@ -245,8 +251,14 @@ export function ResumeUploader({
               title: project.title,
               description: project.description || "",
               techStack: project.techStack ?? [],
-              liveUrl: normalizeUrl(project.liveUrl),
-              sourceUrl: normalizeUrl(project.sourceUrl),
+              liveUrl: sanitizeImportedStoredUrl(
+                project.liveUrl,
+                "Project live URL",
+              ),
+              sourceUrl: sanitizeImportedStoredUrl(
+                project.sourceUrl,
+                "Project source URL",
+              ),
             },
             "Project"
           )
@@ -254,12 +266,26 @@ export function ResumeUploader({
         ...parsedData.certifications.map((cert) =>
           postImport(
             "/api/portfolio/certification",
-            { ...cert, url: normalizeUrl(cert.url) },
+            {
+              ...cert,
+              url: sanitizeImportedStoredUrl(
+                cert.url,
+                "Certification URL",
+              ),
+            },
             "Certification"
           )
         ),
         ...(parsedData.socialProfiles ?? [])
           .map((social) => normalizeSocialProfile(social))
+          .map((normalized) => {
+            if (!normalized) return null;
+            const url = sanitizeImportedStoredUrl(
+              normalized.url,
+              "Social profile URL",
+            );
+            return url ? { ...normalized, url } : null;
+          })
           .filter(
             (normalized): normalized is NonNullable<typeof normalized> =>
               normalized != null
@@ -280,7 +306,10 @@ export function ResumeUploader({
             {
               sectionType: section.sectionType,
               label: section.label,
-              items: section.items,
+              items: sanitizeImportedStoredUrlsInJson(
+                section.items,
+                "Custom section items",
+              ),
             },
             "Custom Section"
           )

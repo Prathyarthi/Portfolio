@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import type { PortfolioData } from "@/features/templates/types";
+import {
+  sanitizeImportedStoredUrl,
+  sanitizeImportedStoredUrlsInJson,
+} from "@/lib/content-policy";
 
 /**
  * Bulk imports generated portfolio data into the database.
@@ -19,6 +23,52 @@ export async function bulkImportPortfolioData(
   if (!portfolioId) {
     throw new Error("Portfolio not found. Create a portfolio first.");
   }
+
+  // Validate all URLs before the destructive replacement begins.
+  const websiteUrl = sanitizeImportedStoredUrl(
+    data.portfolio.websiteUrl,
+    "Portfolio website URL",
+  );
+  const avatarUrl = sanitizeImportedStoredUrl(
+    data.portfolio.avatarUrl,
+    "Portfolio avatar URL",
+  );
+  const projects = data.projects.map((project, index) => ({
+    ...project,
+    imageUrl: sanitizeImportedStoredUrl(
+      project.imageUrl,
+      `Projects[${index}].imageUrl`,
+    ),
+    liveUrl: sanitizeImportedStoredUrl(
+      project.liveUrl,
+      `Projects[${index}].liveUrl`,
+    ),
+    sourceUrl: sanitizeImportedStoredUrl(
+      project.sourceUrl,
+      `Projects[${index}].sourceUrl`,
+    ),
+  }));
+  const socialProfiles = data.socialProfiles.flatMap((social, index) => {
+    const url = sanitizeImportedStoredUrl(
+      social.url,
+      `Social profiles[${index}].url`,
+    );
+    return url ? [{ ...social, url }] : [];
+  });
+  const certifications = data.certifications.map((certification, index) => ({
+    ...certification,
+    url: sanitizeImportedStoredUrl(
+      certification.url,
+      `Certifications[${index}].url`,
+    ),
+  }));
+  const customSections = data.customSections.map((section, index) => ({
+    ...section,
+    items: sanitizeImportedStoredUrlsInJson(
+      section.items,
+      `Custom sections[${index}].items`,
+    ) as Record<string, unknown>[],
+  }));
 
   // Delete existing data to avoid conflicts (parallel delete is faster)
   await Promise.all([
@@ -43,8 +93,8 @@ export async function bulkImportPortfolioData(
       contactEmail: data.portfolio.contactEmail,
       phone: data.portfolio.phone,
       location: data.portfolio.location,
-      websiteUrl: data.portfolio.websiteUrl,
-      avatarUrl: data.portfolio.avatarUrl,
+      websiteUrl,
+      avatarUrl,
     },
   });
 
@@ -115,7 +165,7 @@ export async function bulkImportPortfolioData(
 
       // Projects
       await Promise.all(
-        data.projects.map((proj, idx) =>
+        projects.map((proj, idx) =>
           tx.project.create({
             data: {
               portfolioId,
@@ -137,7 +187,7 @@ export async function bulkImportPortfolioData(
 
       // Social profiles
       await Promise.all(
-        data.socialProfiles.map((social) =>
+        socialProfiles.map((social) =>
           tx.socialProfile.create({
             data: {
               portfolioId,
@@ -152,7 +202,7 @@ export async function bulkImportPortfolioData(
 
       // Certifications
       await Promise.all(
-        data.certifications.map((cert, idx) =>
+        certifications.map((cert, idx) =>
           tx.certification.create({
             data: {
               portfolioId,
@@ -182,7 +232,7 @@ export async function bulkImportPortfolioData(
 
       // Custom sections
       await Promise.all(
-        data.customSections.map((section, idx) =>
+        customSections.map((section, idx) =>
           tx.customSection.create({
             data: {
               portfolioId,

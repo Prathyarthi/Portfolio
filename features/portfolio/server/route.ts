@@ -13,6 +13,13 @@ import {
   getMaxLivePreviews,
   sanitizeLivePreviewProjectIds,
 } from "@/lib/live-preview";
+import {
+  ContentValidationError,
+  MAX_STORED_URL_CHARS,
+  normalizeOptionalStoredUrl,
+  normalizeRequiredStoredUrl,
+  normalizeStoredUrlsInJson,
+} from "@/lib/content-policy";
 
 function toDateOrThrow(value: string) {
   const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -160,7 +167,15 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       }
 
       const body = ctx.body ?? {};
-      const { customization, headline, summary, templateId, ...rest } = body;
+      const {
+        customization,
+        headline,
+        summary,
+        templateId,
+        avatarUrl,
+        websiteUrl,
+        ...rest
+      } = body;
       const existingCustomization = customization
         ? await prisma.portfolio.findUnique({
           where: { userId: session.userId },
@@ -197,12 +212,36 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         resolvedTemplateId = requestedTemplate;
       }
 
-      const portfolioFields = {
-        ...rest,
-        ...(headline !== undefined ? { headline: headline ?? "" } : {}),
-        ...(summary !== undefined ? { summary: summary ?? "" } : {}),
-        ...(resolvedTemplateId !== undefined ? { templateId: resolvedTemplateId } : {}),
-      };
+      let portfolioFields;
+      try {
+        portfolioFields = {
+          ...rest,
+          ...(headline !== undefined ? { headline: headline ?? "" } : {}),
+          ...(summary !== undefined ? { summary: summary ?? "" } : {}),
+          ...(resolvedTemplateId !== undefined ? { templateId: resolvedTemplateId } : {}),
+          ...(avatarUrl !== undefined
+            ? {
+                avatarUrl: normalizeOptionalStoredUrl(
+                  avatarUrl,
+                  "Avatar URL",
+                ),
+              }
+            : {}),
+          ...(websiteUrl !== undefined
+            ? {
+                websiteUrl: normalizeOptionalStoredUrl(
+                  websiteUrl,
+                  "Website URL",
+                ),
+              }
+            : {}),
+        };
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error: error instanceof Error ? error.message : "Invalid URL",
+        };
+      }
 
       const existingPortfolio = await prisma.portfolio.findUnique({
         where: { userId: session.userId },
@@ -240,11 +279,17 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           title: t.String(),
           headline: t.Union([t.String(), t.Null()]),
           summary: t.Union([t.String(), t.Null()]),
-          avatarUrl: t.Union([t.String(), t.Null()]),
+          avatarUrl: t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
           contactEmail: t.Union([t.String(), t.Null()]),
           phone: t.Union([t.String(), t.Null()]),
           location: t.Union([t.String(), t.Null()]),
-          websiteUrl: t.Union([t.String(), t.Null()]),
+          websiteUrl: t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
           templateId: t.String(),
           metaTitle: t.Union([t.String(), t.Null()]),
           metaDescription: t.Union([t.String(), t.Null()]),
@@ -838,17 +883,55 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         where: { portfolioId: p.id },
       });
 
-      return prisma.project.create({
-        data: { ...ctx.body, portfolioId: p.id, sortOrder: count },
-      });
+      try {
+        return await prisma.project.create({
+          data: {
+            ...ctx.body,
+            imageUrl: normalizeOptionalStoredUrl(
+              ctx.body.imageUrl,
+              "Project image URL",
+            ),
+            liveUrl: normalizeOptionalStoredUrl(
+              ctx.body.liveUrl,
+              "Project live URL",
+            ),
+            sourceUrl: normalizeOptionalStoredUrl(
+              ctx.body.sourceUrl,
+              "Project source URL",
+            ),
+            portfolioId: p.id,
+            sortOrder: count,
+          },
+        });
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error: error instanceof Error ? error.message : "Invalid project",
+        };
+      }
     },
     {
       body: t.Object({
         title: t.String(),
         description: t.String(),
-        imageUrl: t.Optional(t.Union([t.String(), t.Null()])),
-        liveUrl: t.Optional(t.Union([t.String(), t.Null()])),
-        sourceUrl: t.Optional(t.Union([t.String(), t.Null()])),
+        imageUrl: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
+        ),
+        liveUrl: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
+        ),
+        sourceUrl: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
+        ),
         techStack: t.Optional(t.Array(t.String())),
         featured: t.Optional(t.Boolean()),
         githubStars: t.Optional(t.Union([t.Number(), t.Null()])),
@@ -865,12 +948,48 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 401;
         return { error: "Unauthorized" };
       }
+      let data;
+      try {
+        data = {
+          ...ctx.body,
+          ...(ctx.body.imageUrl !== undefined
+            ? {
+                imageUrl: normalizeOptionalStoredUrl(
+                  ctx.body.imageUrl,
+                  "Project image URL",
+                ),
+              }
+            : {}),
+          ...(ctx.body.liveUrl !== undefined
+            ? {
+                liveUrl: normalizeOptionalStoredUrl(
+                  ctx.body.liveUrl,
+                  "Project live URL",
+                ),
+              }
+            : {}),
+          ...(ctx.body.sourceUrl !== undefined
+            ? {
+                sourceUrl: normalizeOptionalStoredUrl(
+                  ctx.body.sourceUrl,
+                  "Project source URL",
+                ),
+              }
+            : {}),
+        };
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error: error instanceof Error ? error.message : "Invalid project URL",
+        };
+      }
+
       const { count } = await prisma.project.updateMany({
         where: {
           id: ctx.params.id,
           portfolio: { userId: session.userId },
         },
-        data: ctx.body,
+        data,
       });
       if (count === 0) {
         ctx.set.status = 404;
@@ -886,9 +1005,18 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         t.Object({
           title: t.String(),
           description: t.String(),
-          imageUrl: t.Union([t.String(), t.Null()]),
-          liveUrl: t.Union([t.String(), t.Null()]),
-          sourceUrl: t.Union([t.String(), t.Null()]),
+          imageUrl: t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
+          liveUrl: t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
+          sourceUrl: t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
           techStack: t.Array(t.String()),
           featured: t.Boolean(),
           sortOrder: t.Number(),
@@ -939,6 +1067,10 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             portfolioId: p.id,
             issueDate: toOptionalDate(ctx.body.issueDate),
             expiryDate: toOptionalDate(ctx.body.expiryDate),
+            url: normalizeOptionalStoredUrl(
+              ctx.body.url,
+              "Certification URL",
+            ),
           },
         });
       } catch (error) {
@@ -957,7 +1089,12 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         issuer: t.String(),
         issueDate: t.Optional(t.Union([t.String(), t.Null()])),
         expiryDate: t.Optional(t.Union([t.String(), t.Null()])),
-        url: t.Optional(t.Union([t.String(), t.Null()])),
+        url: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
+        ),
       }),
     },
   )
@@ -980,6 +1117,13 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             ctx.body.expiryDate === undefined
               ? undefined
               : toOptionalDate(ctx.body.expiryDate),
+          url:
+            ctx.body.url === undefined
+              ? undefined
+              : normalizeOptionalStoredUrl(
+                  ctx.body.url,
+                  "Certification URL",
+                ),
         };
 
         const { count } = await prisma.certification.updateMany({
@@ -1014,7 +1158,10 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           issuer: t.String(),
           issueDate: t.Union([t.String(), t.Null()]),
           expiryDate: t.Union([t.String(), t.Null()]),
-          url: t.Union([t.String(), t.Null()]),
+          url: t.Union([
+            t.String({ maxLength: MAX_STORED_URL_CHARS }),
+            t.Null(),
+          ]),
           sortOrder: t.Number(),
         }),
       ),
@@ -1056,27 +1203,40 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Portfolio not found" };
       }
 
-      return prisma.socialProfile.upsert({
-        where: {
-          portfolioId_platform: {
-            portfolioId: p.id,
-            platform: ctx.body.platform,
+      try {
+        const url = normalizeRequiredStoredUrl(
+          ctx.body.url,
+          "Social profile URL",
+        );
+        return await prisma.socialProfile.upsert({
+          where: {
+            portfolioId_platform: {
+              portfolioId: p.id,
+              platform: ctx.body.platform,
+            },
           },
-        },
-        update: {
-          url: ctx.body.url,
-          username: ctx.body.username,
-        },
-        create: {
-          ...ctx.body,
-          portfolioId: p.id,
-        },
-      });
+          update: {
+            url,
+            username: ctx.body.username,
+          },
+          create: {
+            ...ctx.body,
+            url,
+            portfolioId: p.id,
+          },
+        });
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error:
+            error instanceof Error ? error.message : "Invalid social profile URL",
+        };
+      }
     },
     {
       body: t.Object({
         platform: t.String(),
-        url: t.String(),
+        url: t.String({ maxLength: MAX_STORED_URL_CHARS }),
         username: t.Optional(t.Union([t.String(), t.Null()])),
       }),
     },
@@ -1217,25 +1377,37 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         where: { portfolioId: p.id },
       });
 
-      return prisma.customSection.upsert({
-        where: {
-          portfolioId_sectionType: {
+      try {
+        const items = normalizeStoredUrlsInJson(
+          ctx.body.items ?? [],
+          "Custom section items",
+        );
+        return await prisma.customSection.upsert({
+          where: {
+            portfolioId_sectionType: {
+              portfolioId: p.id,
+              sectionType: ctx.body.sectionType,
+            },
+          },
+          update: {
+            label: ctx.body.label,
+            items: items as any,
+          },
+          create: {
             portfolioId: p.id,
             sectionType: ctx.body.sectionType,
+            label: ctx.body.label,
+            items: items as any,
+            sortOrder: count,
           },
-        },
-        update: {
-          label: ctx.body.label,
-          items: (ctx.body.items ?? []) as any,
-        },
-        create: {
-          portfolioId: p.id,
-          sectionType: ctx.body.sectionType,
-          label: ctx.body.label,
-          items: (ctx.body.items ?? []) as any,
-          sortOrder: count,
-        },
-      });
+        });
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error:
+            error instanceof Error ? error.message : "Invalid custom section URL",
+        };
+      }
     },
     {
       body: t.Object({
@@ -1254,6 +1426,19 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
       const { items, ...rest } = ctx.body;
+      let normalizedItems;
+      try {
+        normalizedItems =
+          items === undefined
+            ? undefined
+            : normalizeStoredUrlsInJson(items, "Custom section items");
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error:
+            error instanceof Error ? error.message : "Invalid custom section URL",
+        };
+      }
       const { count } = await prisma.customSection.updateMany({
         where: {
           id: ctx.params.id,
@@ -1261,7 +1446,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         },
         data: {
           ...rest,
-          ...(items !== undefined ? { items: items as any } : {}),
+          ...(normalizedItems !== undefined
+            ? { items: normalizedItems as any }
+            : {}),
         },
       });
       if (count === 0) {
@@ -1315,7 +1502,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       return { success: true, portfolio: result };
     } catch (err) {
       const message = err instanceof Error ? err.message : "Bulk import failed";
-      ctx.set.status = 500;
+      ctx.set.status = err instanceof ContentValidationError ? 400 : 500;
       return { error: message };
     }
   })

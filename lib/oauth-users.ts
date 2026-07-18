@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { normalizeOptionalStoredUrl } from "@/lib/content-policy";
 
 const GENERIC_OAUTH_NAMES = new Set(["GitHub User", "Google User"]);
 
@@ -41,6 +42,12 @@ export async function upsertOAuthUser(params: {
 }) {
   const email = normalizeOAuthEmail(params.email);
   const fallbackName = params.defaultName ?? "User";
+  let avatar: string | null = null;
+  try {
+    avatar = normalizeOptionalStoredUrl(params.avatar, "OAuth avatar URL");
+  } catch {
+    // Authentication should still succeed if a provider returns an unsafe image URL.
+  }
   const existing = await prisma.user.findUnique({
     where: { email },
   });
@@ -51,7 +58,7 @@ export async function upsertOAuthUser(params: {
         name: params.name?.trim() || fallbackName,
         email,
         password: "",
-        avatar: params.avatar ?? undefined,
+        avatar: avatar ?? undefined,
       },
     });
   }
@@ -59,7 +66,7 @@ export async function upsertOAuthUser(params: {
   return prisma.user.update({
     where: { email },
     data: {
-      ...(params.avatar && !existing.avatar ? { avatar: params.avatar } : {}),
+      ...(avatar && !existing.avatar ? { avatar } : {}),
       ...(params.name?.trim() &&
       (GENERIC_OAUTH_NAMES.has(existing.name) || !existing.name.trim())
         ? { name: params.name.trim() }
