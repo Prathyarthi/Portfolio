@@ -7,6 +7,12 @@ import {
   getInternalPortfolioPath,
   getPortfolioRootDomain,
 } from "@/lib/domain";
+import {
+  DEFAULT_JSON_BODY_LIMIT_BYTES,
+  MAX_BULK_IMPORT_BODY_BYTES,
+  MAX_RESUME_UPLOAD_BODY_BYTES,
+} from "@/lib/content-policy";
+import { exceedsRequestBodyLimit } from "@/lib/request-body-limit";
 
 function redirectToPortfolioSubdomain(request: NextRequest, slug: string) {
   const rootDomain = getPortfolioRootDomain();
@@ -17,10 +23,32 @@ function redirectToPortfolioSubdomain(request: NextRequest, slug: string) {
   return NextResponse.redirect(destination);
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
   const subdomain = extractPortfolioSubdomain(host);
   const { pathname, search } = request.nextUrl;
+  const isResumeUpload =
+    pathname === "/api/resume/parse"
+    && request.headers.get("content-type")?.toLowerCase().includes(
+      "multipart/form-data",
+    );
+  const isBulkImport = pathname === "/api/portfolio/bulk-import";
+
+  const bodyLimitBytes = isResumeUpload
+    ? MAX_RESUME_UPLOAD_BODY_BYTES
+    : isBulkImport
+      ? MAX_BULK_IMPORT_BODY_BYTES
+      : DEFAULT_JSON_BODY_LIMIT_BYTES;
+
+  if (
+    pathname.startsWith("/api")
+    && await exceedsRequestBodyLimit(request, bodyLimitBytes)
+  ) {
+    return NextResponse.json(
+      { error: "Request body is too large" },
+      { status: 413 },
+    );
+  }
 
   const legacyPathMatch = pathname.match(/^\/(?:p|sites)\/([a-z0-9-]+)\/?$/);
 

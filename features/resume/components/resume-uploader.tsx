@@ -43,11 +43,22 @@ import {
   Trash2,
   Layers,
 } from "lucide-react";
-import type { ParsedResume, ParsedCustomSection } from "@/lib/gemini";
+import type { ParsedResume } from "@/lib/gemini";
 import { normalizeSocialProfile } from "@/lib/social-profile";
 import {
+  MAX_CUSTOM_SECTIONS,
+  MAX_SECTION_ROWS,
+  MAX_SKILL_FIELD_CHARS,
+  MAX_SKILLS,
+  MAX_TECH_STACK_ITEM_CHARS,
+  MAX_TECH_STACK_ITEMS,
+  sanitizeImportedCustomSectionItems,
+  sanitizeImportedEmail,
+  sanitizeImportedLabel,
+  sanitizeImportedLongText,
+  sanitizeImportedPhone,
+  sanitizeImportedStringList,
   sanitizeImportedStoredUrl,
-  sanitizeImportedStoredUrlsInJson,
 } from "@/lib/content-policy";
 import {
   LivePreviewSelectionDialog,
@@ -147,7 +158,7 @@ export function ResumeUploader({
       Array.isArray(portfolio?.livePreviewProjectIds)
         ? portfolio.livePreviewProjectIds
         : [],
-    [portfolio?.livePreviewProjectIds]
+    [portfolio]
   );
 
   const handleFileChange = useCallback(
@@ -209,16 +220,16 @@ export function ResumeUploader({
 
     try {
       await updatePortfolio.mutateAsync({
-        title: parsedData.name,
-        headline: parsedData.headline,
-        summary: parsedData.summary,
-        contactEmail: parsedData.contact?.email ?? null,
-        phone: parsedData.contact?.phone ?? null,
+        title: sanitizeImportedLabel(parsedData.name) || "Portfolio",
+        headline: sanitizeImportedLabel(parsedData.headline),
+        summary: sanitizeImportedLongText(parsedData.summary),
+        contactEmail: sanitizeImportedEmail(parsedData.contact?.email),
+        phone: sanitizeImportedPhone(parsedData.contact?.phone),
         websiteUrl: sanitizeImportedStoredUrl(
           parsedData.contact?.websiteUrl,
           "Portfolio website URL",
         ),
-        location: parsedData.contact?.location ?? null,
+        location: sanitizeImportedLabel(parsedData.contact?.location) || null,
         ...(parsedData.sectionLabels && Object.keys(parsedData.sectionLabels).length > 0
           ? { customization: { sectionLabels: parsedData.sectionLabels } }
           : {}),
@@ -228,54 +239,174 @@ export function ResumeUploader({
         await clearImportable.mutateAsync();
       }
 
-      await Promise.all([
-        ...parsedData.experiences.map((exp) =>
-          postImport("/api/portfolio/experience", exp, "Experience")
-        ),
-        ...parsedData.education.map((edu) =>
-          postImport("/api/portfolio/education", edu, "Education")
-        ),
-        ...(parsedData.skills.length > 0
-          ? [
+      const remainingRows = (existingCount: number | undefined) =>
+        clearBeforeImport
+          ? MAX_SECTION_ROWS
+          : Math.max(0, MAX_SECTION_ROWS - (existingCount ?? 0));
+      const existingCustomTypes = new Set(
+        clearBeforeImport
+          ? []
+          : (activePortfolio.customSections ?? []).map(
+              (section: { sectionType: string }) =>
+                section.sectionType.toLowerCase(),
+            ),
+      );
+      const remainingCustomCreates = clearBeforeImport
+        ? MAX_CUSTOM_SECTIONS
+        : Math.max(0, MAX_CUSTOM_SECTIONS - existingCustomTypes.size);
+      const seenSkillKeys = new Set(
+        clearBeforeImport
+          ? []
+          : (activePortfolio.skills ?? []).map(
+              (skill: { name: string; category: string }) =>
+                `${skill.name.toLowerCase()}:${skill.category.toLowerCase()}`,
+            ),
+      );
+      const importSkills = parsedData.skills
+        .map((skill) => ({
+          ...skill,
+          name: sanitizeImportedLabel(skill.name, MAX_SKILL_FIELD_CHARS),
+          category:
+            sanitizeImportedLabel(
+              skill.category,
+              MAX_SKILL_FIELD_CHARS,
+            ) || "General",
+        }))
+        .filter((skill) => {
+          if (!skill.name) return false;
+          const key = `${skill.name.toLowerCase()}:${skill.category.toLowerCase()}`;
+          if (seenSkillKeys.has(key)) return false;
+          seenSkillKeys.add(key);
+          return true;
+        })
+        .slice(
+          0,
+          clearBeforeImport
+            ? MAX_SKILLS
+            : Math.max(0, MAX_SKILLS - (activePortfolio.skills?.length ?? 0)),
+        );
+      const importCustomSections = (() => {
+        const prepared = (parsedData.customSections ?? []).flatMap((section) => {
+          const sectionType = sanitizeImportedLabel(section.sectionType);
+          const label = sanitizeImportedLabel(section.label);
+          if (!sectionType || !label) return [];
+          return [{
+            sectionType,
+            label,
+            items: sanitizeImportedCustomSectionItems(section.items),
+          }];
+        });
+        const updates = prepared.filter((section) =>
+          existingCustomTypes.has(section.sectionType.toLowerCase())
+        );
+        const creates = prepared.filter(
+          (section) =>
+            !existingCustomTypes.has(section.sectionType.toLowerCase()),
+        );
+        return [...updates, ...creates.slice(0, remainingCustomCreates)];
+      })();
+
+      // Sequential writes avoid capacity races and partial Promise.all failures.
+      const importTasks: Array<() => Promise<unknown>> = [
+        ...parsedData.experiences
+          .slice(0, remainingRows(activePortfolio.experiences?.length))
+          .flatMap((exp) => {
+            const company = sanitizeImportedLabel(exp.company);
+            const role = sanitizeImportedLabel(exp.role);
+            if (!company || !role) return [];
+            return [() =>
               postImport(
-                "/api/portfolio/skill/bulk",
-                { skills: parsedData.skills },
-                "Skills"
-              ),
+                "/api/portfolio/experience",
+                {
+                  ...exp,
+                  company,
+                  role,
+                  description: sanitizeImportedLongText(exp.description),
+                  location: sanitizeImportedLabel(exp.location) || null,
+                },
+                "Experience",
+              )];
+          }),
+        ...parsedData.education
+          .slice(0, remainingRows(activePortfolio.educations?.length))
+          .flatMap((edu) => {
+            const institution = sanitizeImportedLabel(edu.institution);
+            const degree = sanitizeImportedLabel(edu.degree);
+            if (!institution || !degree) return [];
+            return [() =>
+              postImport(
+                "/api/portfolio/education",
+                {
+                  ...edu,
+                  institution,
+                  degree,
+                  field: sanitizeImportedLabel(edu.field) || null,
+                  gpa: sanitizeImportedLabel(edu.gpa) || null,
+                },
+                "Education",
+              )];
+          }),
+        ...(importSkills.length > 0 && clearBeforeImport
+          ? [
+              () =>
+                postImport(
+                  "/api/portfolio/skill/bulk",
+                  { skills: importSkills },
+                  "Skills",
+                ),
             ]
-          : []),
-        ...parsedData.projects.map((project) =>
-          postImport(
-            "/api/portfolio/project",
-            {
-              title: project.title,
-              description: project.description || "",
-              techStack: project.techStack ?? [],
-              liveUrl: sanitizeImportedStoredUrl(
-                project.liveUrl,
-                "Project live URL",
-              ),
-              sourceUrl: sanitizeImportedStoredUrl(
-                project.sourceUrl,
-                "Project source URL",
-              ),
-            },
-            "Project"
-          )
-        ),
-        ...parsedData.certifications.map((cert) =>
-          postImport(
-            "/api/portfolio/certification",
-            {
-              ...cert,
-              url: sanitizeImportedStoredUrl(
-                cert.url,
-                "Certification URL",
-              ),
-            },
-            "Certification"
-          )
-        ),
+          : importSkills.map((skill) =>
+              () => postImport("/api/portfolio/skill", skill, "Skill")
+            )),
+        ...parsedData.projects
+          .slice(0, remainingRows(activePortfolio.projects?.length))
+          .flatMap((project) => {
+            const title = sanitizeImportedLabel(project.title);
+            if (!title) return [];
+            return [() =>
+              postImport(
+                "/api/portfolio/project",
+                {
+                  title,
+                  description: sanitizeImportedLongText(project.description),
+                  techStack: sanitizeImportedStringList(
+                    project.techStack ?? [],
+                    MAX_TECH_STACK_ITEMS,
+                    MAX_TECH_STACK_ITEM_CHARS,
+                  ),
+                  liveUrl: sanitizeImportedStoredUrl(
+                    project.liveUrl,
+                    "Project live URL",
+                  ),
+                  sourceUrl: sanitizeImportedStoredUrl(
+                    project.sourceUrl,
+                    "Project source URL",
+                  ),
+                },
+                "Project",
+              )];
+          }),
+        ...parsedData.certifications
+          .slice(0, remainingRows(activePortfolio.certifications?.length))
+          .flatMap((cert) => {
+            const name = sanitizeImportedLabel(cert.name);
+            const issuer = sanitizeImportedLabel(cert.issuer);
+            if (!name || !issuer) return [];
+            return [() =>
+              postImport(
+                "/api/portfolio/certification",
+                {
+                  ...cert,
+                  name,
+                  issuer,
+                  url: sanitizeImportedStoredUrl(
+                    cert.url,
+                    "Certification URL",
+                  ),
+                },
+                "Certification",
+              )];
+          }),
         ...(parsedData.socialProfiles ?? [])
           .map((social) => normalizeSocialProfile(social))
           .map((normalized) => {
@@ -288,33 +419,41 @@ export function ResumeUploader({
           })
           .filter(
             (normalized): normalized is NonNullable<typeof normalized> =>
-              normalized != null
+              normalized != null,
           )
           .map((normalized) =>
-            postImport("/api/portfolio/social", normalized, "Social profile")
+            () =>
+              postImport(
+                "/api/portfolio/social",
+                normalized,
+                "Social profile",
+              )
           ),
-        ...parsedData.achievements.map((achievement) =>
-          postImport(
-            "/api/portfolio/achievement",
-            { title: achievement },
-            "Achievement"
-          )
+        ...parsedData.achievements
+          .slice(0, remainingRows(activePortfolio.achievements?.length))
+          .flatMap((achievement) => {
+            const title = sanitizeImportedLabel(achievement);
+            if (!title) return [];
+            return [() =>
+              postImport(
+                "/api/portfolio/achievement",
+                { title },
+                "Achievement",
+              )];
+          }),
+        ...importCustomSections.map((section) =>
+          () =>
+            postImport(
+              "/api/portfolio/custom-section",
+              section,
+              "Custom Section",
+            )
         ),
-        ...(parsedData.customSections ?? []).map((section) =>
-          postImport(
-            "/api/portfolio/custom-section",
-            {
-              sectionType: section.sectionType,
-              label: section.label,
-              items: sanitizeImportedStoredUrlsInJson(
-                section.items,
-                "Custom section items",
-              ),
-            },
-            "Custom Section"
-          )
-        ),
-      ]);
+      ];
+
+      for (const task of importTasks) {
+        await task();
+      }
 
       await queryClient.invalidateQueries({ queryKey: ["portfolio"] });
       const refreshedPortfolio = await queryClient.fetchQuery({
@@ -339,8 +478,10 @@ export function ResumeUploader({
       }
 
       setParsedData(null);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to import data");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to import data",
+      );
     } finally {
       setImporting(false);
     }

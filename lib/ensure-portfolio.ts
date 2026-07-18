@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { normalizeOptionalStoredUrl } from "@/lib/content-policy";
+import {
+  normalizeOptionalEmail,
+  normalizeOptionalStoredUrl,
+} from "@/lib/content-policy";
 
 type EnsurePortfolioUser = {
   name?: string | null;
@@ -23,10 +26,16 @@ export async function ensureUserPortfolio(
       select: { name: true, email: true, avatar: true },
     }));
   let avatarUrl: string | null = null;
+  let contactEmail: string | null = null;
   try {
     avatarUrl = normalizeOptionalStoredUrl(dbUser?.avatar, "User avatar URL");
   } catch {
     // An invalid provider image must not become stored portfolio content.
+  }
+  try {
+    contactEmail = normalizeOptionalEmail(dbUser?.email, "Contact email");
+  } catch {
+    // An invalid provider email must not become stored portfolio content.
   }
 
   return prisma.portfolio.create({
@@ -34,7 +43,7 @@ export async function ensureUserPortfolio(
       userId,
       slug: null,
       title: dbUser?.name ?? "",
-      contactEmail: dbUser?.email ?? "",
+      contactEmail,
       ...(avatarUrl ? { avatarUrl } : {}),
     },
   });

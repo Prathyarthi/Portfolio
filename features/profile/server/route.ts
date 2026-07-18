@@ -10,7 +10,15 @@ import { fetchLeetCodeStats } from "@/lib/leetcode";
 import { fetchMediumArticles } from "@/lib/medium";
 import { getPlanLimitMessage, resolveAccessForUser } from "@/lib/entitlements";
 import { ensureUserPortfolio } from "@/lib/ensure-portfolio";
-import { sanitizeImportedStoredUrl } from "@/lib/content-policy";
+import {
+  MAX_SECTION_ROWS,
+  MAX_TECH_STACK_ITEM_CHARS,
+  MAX_TECH_STACK_ITEMS,
+  sanitizeImportedLabel,
+  sanitizeImportedLongText,
+  sanitizeImportedStringList,
+  sanitizeImportedStoredUrl,
+} from "@/lib/content-policy";
 
 async function requireImportEntitlement(request: Request) {
   const session = await getSession(request);
@@ -95,36 +103,55 @@ export const profile = new Elysia({ prefix: "/profile" })
       }
 
       const portfolio = await ensureUserPortfolio(gate.session.userId);
+      const username = sanitizeImportedLabel(ctx.body.username);
 
-      const existingCount = await prisma.project.count({
-        where: { portfolioId: portfolio.id },
+      const projects = ctx.body.repos
+        .map((repo, index) => ({
+          title: sanitizeImportedLabel(repo.name),
+          description: sanitizeImportedLongText(repo.description),
+          sourceUrl: sanitizeImportedStoredUrl(
+            repo.url,
+            `Repositories[${index}].url`,
+          ),
+          techStack: sanitizeImportedStringList(
+            repo.topics,
+            MAX_TECH_STACK_ITEMS,
+            MAX_TECH_STACK_ITEM_CHARS,
+          ),
+          githubStars: repo.stars,
+          githubForks: repo.forks,
+          language: sanitizeImportedLabel(repo.language) || null,
+        }))
+        .filter((project) => project.title);
+
+      const result = await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`
+          SELECT "id"
+          FROM "portfolios"
+          WHERE "id" = ${portfolio.id}
+          FOR UPDATE
+        `;
+        const existingCount = await tx.project.count({
+          where: { portfolioId: portfolio.id },
+        });
+        const boundedProjects = projects
+          .slice(0, Math.max(0, MAX_SECTION_ROWS - existingCount))
+          .map((project, index) => ({
+            ...project,
+            portfolioId: portfolio.id,
+            sortOrder: existingCount + index,
+          }));
+        return tx.project.createMany({ data: boundedProjects });
       });
 
-      const projects = ctx.body.repos.map((repo, index) => ({
-        portfolioId: portfolio.id,
-        title: repo.name,
-        description: repo.description || "",
-        sourceUrl: sanitizeImportedStoredUrl(
-          repo.url,
-          `Repositories[${index}].url`,
-        ),
-        techStack: repo.topics,
-        githubStars: repo.stars,
-        githubForks: repo.forks,
-        language: repo.language,
-        sortOrder: existingCount + index,
-      }));
-
-      const result = await prisma.project.createMany({ data: projects });
-
-      if (ctx.body.username) {
+      if (username) {
         const token = process.env.GITHUB_TOKEN;
         let cachedStats: Record<string, unknown> | undefined;
         let lastFetched: Date | undefined;
         try {
-          const ghData = await fetchGitHubProfile(ctx.body.username, token);
+          const ghData = await fetchGitHubProfile(username, token);
           const calendar = await fetchGitHubContributionsFromProfilePage(
-            ctx.body.username
+            username
           );
           cachedStats = buildGitHubCachedStats(ghData, calendar);
           lastFetched = new Date();
@@ -140,8 +167,8 @@ export const profile = new Elysia({ prefix: "/profile" })
             },
           },
           update: {
-            url: `https://github.com/${ctx.body.username}`,
-            username: ctx.body.username,
+            url: `https://github.com/${username}`,
+            username,
             ...(cachedStats != null
               ? {
                   cachedStats: cachedStats as object,
@@ -152,8 +179,8 @@ export const profile = new Elysia({ prefix: "/profile" })
           create: {
             portfolioId: portfolio.id,
             platform: "github",
-            url: `https://github.com/${ctx.body.username}`,
-            username: ctx.body.username,
+            url: `https://github.com/${username}`,
+            username,
             ...(cachedStats != null
               ? {
                   cachedStats: cachedStats as object,
@@ -197,9 +224,14 @@ export const profile = new Elysia({ prefix: "/profile" })
       try {
         const data = await fetchLeetCodeStats(ctx.body.username);
         return { success: true, data };
-      } catch (error: any) {
+      } catch (error) {
         ctx.set.status = 400;
-        return { error: error.message };
+        return {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch LeetCode stats",
+        };
       }
     },
     {
@@ -219,6 +251,11 @@ export const profile = new Elysia({ prefix: "/profile" })
       }
 
       const portfolio = await ensureUserPortfolio(gate.session.userId);
+      const username = sanitizeImportedLabel(ctx.body.username);
+      if (!username) {
+        ctx.set.status = 400;
+        return { error: "Username is required" };
+      }
 
       const result = await prisma.socialProfile.upsert({
         where: {
@@ -228,8 +265,8 @@ export const profile = new Elysia({ prefix: "/profile" })
           },
         },
         update: {
-          url: `https://leetcode.com/u/${ctx.body.username}`,
-          username: ctx.body.username,
+          url: `https://leetcode.com/u/${username}`,
+          username,
           cachedStats: {
             ranking: ctx.body.ranking,
             totalSolved: ctx.body.totalSolved,
@@ -242,8 +279,8 @@ export const profile = new Elysia({ prefix: "/profile" })
         create: {
           portfolioId: portfolio.id,
           platform: "leetcode",
-          url: `https://leetcode.com/u/${ctx.body.username}`,
-          username: ctx.body.username,
+          url: `https://leetcode.com/u/${username}`,
+          username,
           cachedStats: {
             ranking: ctx.body.ranking,
             totalSolved: ctx.body.totalSolved,
@@ -306,17 +343,15 @@ export const profile = new Elysia({ prefix: "/profile" })
       }
 
       const portfolio = await ensureUserPortfolio(gate.session.userId);
+      const username = sanitizeImportedLabel(ctx.body.username);
 
-      const existingCount = await prisma.article.count({
-        where: { portfolioId: portfolio.id },
-      });
-
-      const articles = ctx.body.articles.flatMap((article, index) => {
-        const url = sanitizeImportedStoredUrl(
-          article.url,
-          `Articles[${index}].url`,
-        );
-        if (!url) return [];
+      const articles = ctx.body.articles
+        .flatMap((article, index) => {
+          const url = sanitizeImportedStoredUrl(
+            article.url,
+            `Articles[${index}].url`,
+          );
+          if (!url) return [];
 
           let publishedAt: Date | null = null;
           if (article.publishedAt) {
@@ -324,20 +359,40 @@ export const profile = new Elysia({ prefix: "/profile" })
             if (!Number.isNaN(parsed.getTime())) publishedAt = parsed;
           }
           return [{
-            portfolioId: portfolio.id,
-            title: article.title,
-            description: article.description || "",
+            title: sanitizeImportedLabel(article.title),
+            description: sanitizeImportedLongText(article.description),
             url,
-            tags: article.tags,
+            tags: sanitizeImportedStringList(
+              article.tags,
+              MAX_TECH_STACK_ITEMS,
+              MAX_TECH_STACK_ITEM_CHARS,
+            ),
             publishedAt,
             readTime: article.readTime ?? null,
+          }].filter((entry) => entry.title);
+        });
+
+      const result = await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`
+          SELECT "id"
+          FROM "portfolios"
+          WHERE "id" = ${portfolio.id}
+          FOR UPDATE
+        `;
+        const existingCount = await tx.article.count({
+          where: { portfolioId: portfolio.id },
+        });
+        const boundedArticles = articles
+          .slice(0, Math.max(0, MAX_SECTION_ROWS - existingCount))
+          .map((article, index) => ({
+            ...article,
+            portfolioId: portfolio.id,
             sortOrder: existingCount + index,
-          }];
+          }));
+        return tx.article.createMany({ data: boundedArticles });
       });
 
-      const result = await prisma.article.createMany({ data: articles });
-
-      if (ctx.body.username) {
+      if (username) {
         await prisma.socialProfile.upsert({
           where: {
             portfolioId_platform: {
@@ -346,14 +401,14 @@ export const profile = new Elysia({ prefix: "/profile" })
             },
           },
           update: {
-            url: `https://medium.com/@${ctx.body.username}`,
-            username: ctx.body.username,
+            url: `https://medium.com/@${username}`,
+            username,
           },
           create: {
             portfolioId: portfolio.id,
             platform: "medium",
-            url: `https://medium.com/@${ctx.body.username}`,
-            username: ctx.body.username,
+            url: `https://medium.com/@${username}`,
+            username,
           },
         });
       }

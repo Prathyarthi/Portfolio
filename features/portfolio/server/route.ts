@@ -1,8 +1,9 @@
 import Elysia, { t } from "elysia";
+import type { Prisma } from "@/db/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { ensureUserPortfolio } from "@/lib/ensure-portfolio";
-import { isSlugTaken, validatePortfolioSlug } from "@/lib/slug";
+import { validatePortfolioSlug } from "@/lib/slug";
 import {
   canUseTemplate,
   getPlanLimitMessage,
@@ -15,10 +16,28 @@ import {
 } from "@/lib/live-preview";
 import {
   ContentValidationError,
+  MAX_CUSTOM_SECTION_ITEMS,
+  MAX_CUSTOM_SECTIONS,
+  MAX_EMAIL_CHARS,
+  MAX_LONG_TEXT_CHARS,
+  MAX_PHONE_CHARS,
+  MAX_SECTION_ROWS,
+  MAX_SHORT_LABEL_CHARS,
+  MAX_SKILL_FIELD_CHARS,
+  MAX_SKILLS,
   MAX_STORED_URL_CHARS,
+  MAX_TECH_STACK_ITEM_CHARS,
+  MAX_TECH_STACK_ITEMS,
+  normalizeLongText,
+  normalizeOptionalEmail,
+  normalizeOptionalLabel,
+  normalizeOptionalPhone,
   normalizeOptionalStoredUrl,
+  normalizeRequiredLabel,
   normalizeRequiredStoredUrl,
+  normalizeStringList,
   normalizeStoredUrlsInJson,
+  validateCustomSectionItems,
 } from "@/lib/content-policy";
 
 function toDateOrThrow(value: string) {
@@ -31,6 +50,21 @@ function toDateOrThrow(value: string) {
   }
 
   return normalized;
+}
+
+async function withPortfolioWriteLock<T>(
+  portfolioId: string,
+  operation: (tx: Prisma.TransactionClient) => Promise<T>,
+) {
+  return prisma.$transaction(async (tx) => {
+    await tx.$queryRaw`
+      SELECT "id"
+      FROM "portfolios"
+      WHERE "id" = ${portfolioId}
+      FOR UPDATE
+    `;
+    return operation(tx);
+  });
 }
 
 /** Parses dates often returned by resume parsers (not only ISO YYYY-MM-DD). */
@@ -172,8 +206,14 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         headline,
         summary,
         templateId,
+        title,
         avatarUrl,
+        contactEmail,
+        phone,
+        location,
         websiteUrl,
+        metaTitle,
+        metaDescription,
         ...rest
       } = body;
       const existingCustomization = customization
@@ -213,12 +253,83 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       }
 
       let portfolioFields;
+      let normalizedCustomization = customization;
       try {
+        if (customization?.sectionLabels) {
+          normalizedCustomization = {
+            ...customization,
+            sectionLabels: Object.fromEntries(
+              Object.entries(customization.sectionLabels).map(
+                ([key, value]) => {
+                  if (typeof value !== "string") {
+                    throw new ContentValidationError(
+                      `Section label ${key} must be a string`,
+                    );
+                  }
+                  return [
+                    key,
+                    normalizeRequiredLabel(value, `Section label ${key}`),
+                  ];
+                },
+              ),
+            ),
+          };
+        }
+        if (customization?.heroTagline !== undefined) {
+          normalizedCustomization = {
+            ...normalizedCustomization,
+            heroTagline: normalizeOptionalLabel(
+              customization.heroTagline,
+              "Hero tagline",
+            ) ?? "",
+          };
+        }
+        if (normalizedCustomization) {
+          normalizedCustomization = validateCustomSectionItems(
+            [normalizedCustomization],
+            "Portfolio customization",
+          )[0] as typeof normalizedCustomization;
+        }
         portfolioFields = {
           ...rest,
-          ...(headline !== undefined ? { headline: headline ?? "" } : {}),
-          ...(summary !== undefined ? { summary: summary ?? "" } : {}),
+          ...(title !== undefined
+            ? { title: normalizeRequiredLabel(title, "Title") }
+            : {}),
+          ...(headline !== undefined
+            ? {
+                headline:
+                  normalizeOptionalLabel(headline, "Headline") ?? "",
+              }
+            : {}),
+          ...(summary !== undefined
+            ? { summary: normalizeLongText(summary, "Summary") }
+            : {}),
           ...(resolvedTemplateId !== undefined ? { templateId: resolvedTemplateId } : {}),
+          ...(contactEmail !== undefined
+            ? {
+                contactEmail: normalizeOptionalEmail(
+                  contactEmail,
+                  "Contact email",
+                ),
+              }
+            : {}),
+          ...(phone !== undefined
+            ? { phone: normalizeOptionalPhone(phone) }
+            : {}),
+          ...(location !== undefined
+            ? { location: normalizeOptionalLabel(location, "Location") }
+            : {}),
+          ...(metaTitle !== undefined
+            ? { metaTitle: normalizeOptionalLabel(metaTitle, "Meta title") }
+            : {}),
+          ...(metaDescription !== undefined
+            ? {
+                metaDescription:
+                  metaDescription == null
+                    ? null
+                    : normalizeLongText(metaDescription, "Meta description"),
+              }
+            : {}),
           ...(avatarUrl !== undefined
             ? {
                 avatarUrl: normalizeOptionalStoredUrl(
@@ -256,7 +367,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         where: { userId: session.userId },
         data: {
           ...portfolioFields,
-          ...(customization
+          ...(normalizedCustomization
             ? {
               customization: {
                 ...(existingCustomization?.customization &&
@@ -264,7 +375,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
                   !Array.isArray(existingCustomization.customization)
                   ? existingCustomization.customization
                   : {}),
-                ...customization,
+                ...normalizedCustomization,
               },
             }
             : {}),
@@ -276,23 +387,44 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     {
       body: t.Partial(
         t.Object({
-          title: t.String(),
-          headline: t.Union([t.String(), t.Null()]),
-          summary: t.Union([t.String(), t.Null()]),
+          title: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
+          headline: t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
+          summary: t.Union([
+            t.String({ maxLength: MAX_LONG_TEXT_CHARS }),
+            t.Null(),
+          ]),
           avatarUrl: t.Union([
             t.String({ maxLength: MAX_STORED_URL_CHARS }),
             t.Null(),
           ]),
-          contactEmail: t.Union([t.String(), t.Null()]),
-          phone: t.Union([t.String(), t.Null()]),
-          location: t.Union([t.String(), t.Null()]),
+          contactEmail: t.Union([
+            t.String({ maxLength: MAX_EMAIL_CHARS }),
+            t.Null(),
+          ]),
+          phone: t.Union([
+            t.String({ maxLength: MAX_PHONE_CHARS }),
+            t.Null(),
+          ]),
+          location: t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
           websiteUrl: t.Union([
             t.String({ maxLength: MAX_STORED_URL_CHARS }),
             t.Null(),
           ]),
           templateId: t.String(),
-          metaTitle: t.Union([t.String(), t.Null()]),
-          metaDescription: t.Union([t.String(), t.Null()]),
+          metaTitle: t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
+          metaDescription: t.Union([
+            t.String({ maxLength: MAX_LONG_TEXT_CHARS }),
+            t.Null(),
+          ]),
           customization: t.Object({
             navbar: t.Optional(
               t.Object({
@@ -306,6 +438,18 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
                   }),
                 ),
               }),
+            ),
+            sectionLabels: t.Optional(
+              t.Record(
+                t.String(),
+                t.String({
+                  minLength: 1,
+                  maxLength: MAX_SHORT_LABEL_CHARS,
+                }),
+              ),
+            ),
+            heroTagline: t.Optional(
+              t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
             ),
           }),
         }),
@@ -479,21 +623,23 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       return { error: "Portfolio not found" };
     }
 
-    await prisma.$transaction([
-      prisma.experience.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.education.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.skill.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.project.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.article.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.certification.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.achievement.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.customSection.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.socialProfile.deleteMany({ where: { portfolioId: p.id } }),
-      prisma.portfolio.update({
+    await withPortfolioWriteLock(p.id, async (tx) => {
+      await Promise.all([
+        tx.experience.deleteMany({ where: { portfolioId: p.id } }),
+        tx.education.deleteMany({ where: { portfolioId: p.id } }),
+        tx.skill.deleteMany({ where: { portfolioId: p.id } }),
+        tx.project.deleteMany({ where: { portfolioId: p.id } }),
+        tx.article.deleteMany({ where: { portfolioId: p.id } }),
+        tx.certification.deleteMany({ where: { portfolioId: p.id } }),
+        tx.achievement.deleteMany({ where: { portfolioId: p.id } }),
+        tx.customSection.deleteMany({ where: { portfolioId: p.id } }),
+        tx.socialProfile.deleteMany({ where: { portfolioId: p.id } }),
+      ]);
+      await tx.portfolio.update({
         where: { id: p.id },
         data: { livePreviewProjectIds: [] },
-      }),
-    ]);
+      });
+    });
 
     return { success: true };
   })
@@ -515,30 +661,38 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Portfolio not found" };
       }
 
-      const count = await prisma.experience.count({
-        where: { portfolioId: p.id },
-      });
-
       try {
-        const description =
-          ctx.body.description != null &&
-            String(ctx.body.description).trim() !== ""
-            ? String(ctx.body.description)
-            : "";
+        const description = normalizeLongText(
+          ctx.body.description,
+          "Experience description",
+        );
 
-        return await prisma.experience.create({
-          data: {
-            company: ctx.body.company,
-            role: ctx.body.role,
-            description,
-            location: ctx.body.location ?? null,
-            portfolioId: p.id,
-            sortOrder: count,
-            startDate: ctx.body.startDate
-              ? resumeDateOrThrow(ctx.body.startDate)
-              : null,
-            endDate: toOptionalResumeEndDate(ctx.body.endDate),
-          },
+        return await withPortfolioWriteLock(p.id, async (tx) => {
+          const count = await tx.experience.count({
+            where: { portfolioId: p.id },
+          });
+          if (count >= MAX_SECTION_ROWS) {
+            throw new ContentValidationError(
+              `Experiences must contain at most ${MAX_SECTION_ROWS} items`,
+            );
+          }
+          return tx.experience.create({
+            data: {
+              company: normalizeRequiredLabel(ctx.body.company, "Company"),
+              role: normalizeRequiredLabel(ctx.body.role, "Role"),
+              description,
+              location: normalizeOptionalLabel(
+                ctx.body.location,
+                "Experience location",
+              ),
+              portfolioId: p.id,
+              sortOrder: count,
+              startDate: ctx.body.startDate
+                ? resumeDateOrThrow(ctx.body.startDate)
+                : null,
+              endDate: toOptionalResumeEndDate(ctx.body.endDate),
+            },
+          });
         });
       } catch (error) {
         ctx.set.status = 400;
@@ -552,12 +706,19 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({
-        company: t.String(),
-        role: t.String(),
-        description: t.Optional(t.Union([t.String(), t.Null()])),
+        company: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
+        role: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
+        description: t.Optional(
+          t.Union([t.String({ maxLength: MAX_LONG_TEXT_CHARS }), t.Null()]),
+        ),
         startDate: t.Optional(t.Union([t.String(), t.Null()])),
         endDate: t.Optional(t.Union([t.String(), t.Null()])),
-        location: t.Optional(t.Union([t.String(), t.Null()])),
+        location: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
+        ),
       }),
     },
   )
@@ -570,15 +731,34 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
       try {
-        const data: any = { ...ctx.body };
-        if (ctx.body.startDate !== undefined) {
-          data.startDate = ctx.body.startDate
-            ? toDateOrThrow(ctx.body.startDate)
+        const { startDate, endDate, ...rest } = ctx.body;
+        const data: Prisma.ExperienceUpdateManyMutationInput = { ...rest };
+        if (ctx.body.company !== undefined) {
+          data.company = normalizeRequiredLabel(ctx.body.company, "Company");
+        }
+        if (ctx.body.role !== undefined) {
+          data.role = normalizeRequiredLabel(ctx.body.role, "Role");
+        }
+        if (ctx.body.description !== undefined) {
+          data.description = normalizeLongText(
+            ctx.body.description,
+            "Experience description",
+          );
+        }
+        if (ctx.body.location !== undefined) {
+          data.location = normalizeOptionalLabel(
+            ctx.body.location,
+            "Experience location",
+          );
+        }
+        if (startDate !== undefined) {
+          data.startDate = startDate
+            ? toDateOrThrow(startDate)
             : null;
         }
-        if (ctx.body.endDate !== undefined) {
-          data.endDate = ctx.body.endDate
-            ? toOptionalDate(ctx.body.endDate)
+        if (endDate !== undefined) {
+          data.endDate = endDate
+            ? toOptionalDate(endDate)
             : null;
         }
 
@@ -610,12 +790,15 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     {
       body: t.Partial(
         t.Object({
-          company: t.String(),
-          role: t.String(),
-          description: t.String(),
+          company: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
+          role: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
+          description: t.String({ maxLength: MAX_LONG_TEXT_CHARS }),
           startDate: t.String(),
           endDate: t.Union([t.String(), t.Null()]),
-          location: t.Union([t.String(), t.Null()]),
+          location: t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
           sortOrder: t.Number(),
         }),
       ),
@@ -657,21 +840,41 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Portfolio not found" };
       }
 
-      const count = await prisma.education.count({
-        where: { portfolioId: p.id },
-      });
-
       try {
-        return await prisma.education.create({
-          data: {
-            ...ctx.body,
-            portfolioId: p.id,
-            sortOrder: count,
-            startDate: ctx.body.startDate
-              ? resumeDateOrThrow(ctx.body.startDate)
-              : null,
-            endDate: toOptionalResumeEndDate(ctx.body.endDate),
-          },
+        return await withPortfolioWriteLock(p.id, async (tx) => {
+          const count = await tx.education.count({
+            where: { portfolioId: p.id },
+          });
+          if (count >= MAX_SECTION_ROWS) {
+            throw new ContentValidationError(
+              `Education must contain at most ${MAX_SECTION_ROWS} items`,
+            );
+          }
+          return tx.education.create({
+            data: {
+              ...ctx.body,
+              institution: normalizeRequiredLabel(
+                ctx.body.institution,
+                "Institution",
+              ),
+              degree: normalizeRequiredLabel(ctx.body.degree, "Degree"),
+              field: normalizeOptionalLabel(ctx.body.field, "Field of study"),
+              gpa: normalizeOptionalLabel(ctx.body.gpa, "GPA"),
+              description:
+                ctx.body.description == null
+                  ? null
+                  : normalizeLongText(
+                      ctx.body.description,
+                      "Education description",
+                    ),
+              portfolioId: p.id,
+              sortOrder: count,
+              startDate: ctx.body.startDate
+                ? resumeDateOrThrow(ctx.body.startDate)
+                : null,
+              endDate: toOptionalResumeEndDate(ctx.body.endDate),
+            },
+          });
         });
       } catch (error) {
         ctx.set.status = 400;
@@ -685,13 +888,28 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({
-        institution: t.String(),
-        degree: t.String(),
-        field: t.Optional(t.Union([t.String(), t.Null()])),
-        description: t.Optional(t.Union([t.String(), t.Null()])),
+        institution: t.String({
+          minLength: 1,
+          maxLength: MAX_SHORT_LABEL_CHARS,
+        }),
+        degree: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
+        field: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
+        ),
+        description: t.Optional(
+          t.Union([t.String({ maxLength: MAX_LONG_TEXT_CHARS }), t.Null()]),
+        ),
         startDate: t.Optional(t.Union([t.String(), t.Null()])),
         endDate: t.Optional(t.Union([t.String(), t.Null()])),
-        gpa: t.Optional(t.Union([t.String(), t.Null()])),
+        gpa: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
+        ),
       }),
     },
   )
@@ -704,15 +922,43 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
       try {
-        const data: any = { ...ctx.body };
-        if (ctx.body.startDate !== undefined) {
-          data.startDate = ctx.body.startDate
-            ? toDateOrThrow(ctx.body.startDate)
+        const { startDate, endDate, ...rest } = ctx.body;
+        const data: Prisma.EducationUpdateManyMutationInput = { ...rest };
+        if (ctx.body.institution !== undefined) {
+          data.institution = normalizeRequiredLabel(
+            ctx.body.institution,
+            "Institution",
+          );
+        }
+        if (ctx.body.degree !== undefined) {
+          data.degree = normalizeRequiredLabel(ctx.body.degree, "Degree");
+        }
+        if (ctx.body.field !== undefined) {
+          data.field = normalizeOptionalLabel(
+            ctx.body.field,
+            "Field of study",
+          );
+        }
+        if (ctx.body.description !== undefined) {
+          data.description =
+            ctx.body.description == null
+              ? null
+              : normalizeLongText(
+                  ctx.body.description,
+                  "Education description",
+                );
+        }
+        if (ctx.body.gpa !== undefined) {
+          data.gpa = normalizeOptionalLabel(ctx.body.gpa, "GPA");
+        }
+        if (startDate !== undefined) {
+          data.startDate = startDate
+            ? toDateOrThrow(startDate)
             : null;
         }
-        if (ctx.body.endDate !== undefined) {
-          data.endDate = ctx.body.endDate
-            ? toOptionalDate(ctx.body.endDate)
+        if (endDate !== undefined) {
+          data.endDate = endDate
+            ? toOptionalDate(endDate)
             : null;
         }
 
@@ -744,13 +990,28 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     {
       body: t.Partial(
         t.Object({
-          institution: t.String(),
-          degree: t.String(),
-          field: t.Union([t.String(), t.Null()]),
-          description: t.Union([t.String(), t.Null()]),
+          institution: t.String({
+            minLength: 1,
+            maxLength: MAX_SHORT_LABEL_CHARS,
+          }),
+          degree: t.String({
+            minLength: 1,
+            maxLength: MAX_SHORT_LABEL_CHARS,
+          }),
+          field: t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
+          description: t.Union([
+            t.String({ maxLength: MAX_LONG_TEXT_CHARS }),
+            t.Null(),
+          ]),
           startDate: t.String(),
           endDate: t.Union([t.String(), t.Null()]),
-          gpa: t.Union([t.String(), t.Null()]),
+          gpa: t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
           sortOrder: t.Number(),
         }),
       ),
@@ -791,14 +1052,60 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 404;
         return { error: "Portfolio not found" };
       }
-      return prisma.skill.create({
-        data: { ...ctx.body, portfolioId: p.id },
-      });
+      try {
+        const name = normalizeRequiredLabel(
+          ctx.body.name,
+          "Skill name",
+          MAX_SKILL_FIELD_CHARS,
+        );
+        const category =
+          normalizeOptionalLabel(
+            ctx.body.category,
+            "Skill category",
+            MAX_SKILL_FIELD_CHARS,
+          ) ?? "General";
+        return await withPortfolioWriteLock(p.id, async (tx) => {
+          const existing = await tx.skill.findFirst({
+            where: {
+              portfolioId: p.id,
+              name: { equals: name, mode: "insensitive" },
+              category: { equals: category, mode: "insensitive" },
+            },
+          });
+          if (existing) return existing;
+          const count = await tx.skill.count({
+            where: { portfolioId: p.id },
+          });
+          if (count >= MAX_SKILLS) {
+            throw new ContentValidationError(
+              `Skills must contain at most ${MAX_SKILLS} items`,
+            );
+          }
+          return tx.skill.create({
+            data: {
+              ...ctx.body,
+              name,
+              category,
+              portfolioId: p.id,
+            },
+          });
+        });
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error: error instanceof Error ? error.message : "Invalid skill",
+        };
+      }
     },
     {
       body: t.Object({
-        name: t.String(),
-        category: t.Optional(t.String()),
+        name: t.String({
+          minLength: 1,
+          maxLength: MAX_SKILL_FIELD_CHARS,
+        }),
+        category: t.Optional(
+          t.String({ maxLength: MAX_SKILL_FIELD_CHARS }),
+        ),
         level: t.Optional(t.Union([t.Number(), t.Null()])),
       }),
     },
@@ -837,14 +1144,42 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Portfolio not found" };
       }
 
-      // Delete existing and recreate
-      await prisma.skill.deleteMany({ where: { portfolioId: p.id } });
-      const created = await prisma.skill.createMany({
-        data: ctx.body.skills.map((s, i) => ({
-          ...s,
-          portfolioId: p.id,
-          sortOrder: i,
-        })),
+      let skills;
+      try {
+        const seen = new Set<string>();
+        skills = ctx.body.skills.flatMap((skill) => {
+          const name = normalizeRequiredLabel(
+            skill.name,
+            "Skill name",
+            MAX_SKILL_FIELD_CHARS,
+          );
+          const category =
+            normalizeOptionalLabel(
+              skill.category,
+              "Skill category",
+              MAX_SKILL_FIELD_CHARS,
+            ) ?? "General";
+          const key = `${name.toLowerCase()}:${category.toLowerCase()}`;
+          if (seen.has(key)) return [];
+          seen.add(key);
+          return [{ ...skill, name, category }];
+        });
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error: error instanceof Error ? error.message : "Invalid skills",
+        };
+      }
+
+      const created = await withPortfolioWriteLock(p.id, async (tx) => {
+        await tx.skill.deleteMany({ where: { portfolioId: p.id } });
+        return tx.skill.createMany({
+          data: skills.map((s, i) => ({
+            ...s,
+            portfolioId: p.id,
+            sortOrder: i,
+          })),
+        });
       });
 
       return { count: created.count };
@@ -853,10 +1188,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       body: t.Object({
         skills: t.Array(
           t.Object({
-            name: t.String(),
-            category: t.Optional(t.String()),
+            name: t.String({
+              minLength: 1,
+              maxLength: MAX_SKILL_FIELD_CHARS,
+            }),
+            category: t.Optional(
+              t.String({ maxLength: MAX_SKILL_FIELD_CHARS }),
+            ),
             level: t.Optional(t.Union([t.Number(), t.Null()])),
           }),
+          { maxItems: MAX_SKILLS },
         ),
       }),
     },
@@ -879,29 +1220,50 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Portfolio not found" };
       }
 
-      const count = await prisma.project.count({
-        where: { portfolioId: p.id },
-      });
-
       try {
-        return await prisma.project.create({
-          data: {
-            ...ctx.body,
-            imageUrl: normalizeOptionalStoredUrl(
-              ctx.body.imageUrl,
-              "Project image URL",
-            ),
-            liveUrl: normalizeOptionalStoredUrl(
-              ctx.body.liveUrl,
-              "Project live URL",
-            ),
-            sourceUrl: normalizeOptionalStoredUrl(
-              ctx.body.sourceUrl,
-              "Project source URL",
-            ),
-            portfolioId: p.id,
-            sortOrder: count,
-          },
+        return await withPortfolioWriteLock(p.id, async (tx) => {
+          const count = await tx.project.count({
+            where: { portfolioId: p.id },
+          });
+          if (count >= MAX_SECTION_ROWS) {
+            throw new ContentValidationError(
+              `Projects must contain at most ${MAX_SECTION_ROWS} items`,
+            );
+          }
+          return tx.project.create({
+            data: {
+              ...ctx.body,
+              title: normalizeRequiredLabel(ctx.body.title, "Project title"),
+              description: normalizeLongText(
+                ctx.body.description,
+                "Project description",
+              ),
+              imageUrl: normalizeOptionalStoredUrl(
+                ctx.body.imageUrl,
+                "Project image URL",
+              ),
+              liveUrl: normalizeOptionalStoredUrl(
+                ctx.body.liveUrl,
+                "Project live URL",
+              ),
+              sourceUrl: normalizeOptionalStoredUrl(
+                ctx.body.sourceUrl,
+                "Project source URL",
+              ),
+              techStack: normalizeStringList(
+                ctx.body.techStack ?? [],
+                "Tech stack",
+                MAX_TECH_STACK_ITEMS,
+                MAX_TECH_STACK_ITEM_CHARS,
+              ),
+              language: normalizeOptionalLabel(
+                ctx.body.language,
+                "Project language",
+              ),
+              portfolioId: p.id,
+              sortOrder: count,
+            },
+          });
         });
       } catch (error) {
         ctx.set.status = 400;
@@ -912,8 +1274,8 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({
-        title: t.String(),
-        description: t.String(),
+        title: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
+        description: t.String({ maxLength: MAX_LONG_TEXT_CHARS }),
         imageUrl: t.Optional(
           t.Union([
             t.String({ maxLength: MAX_STORED_URL_CHARS }),
@@ -932,11 +1294,21 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             t.Null(),
           ]),
         ),
-        techStack: t.Optional(t.Array(t.String())),
+        techStack: t.Optional(
+          t.Array(
+            t.String({ minLength: 1, maxLength: MAX_TECH_STACK_ITEM_CHARS }),
+            { maxItems: MAX_TECH_STACK_ITEMS },
+          ),
+        ),
         featured: t.Optional(t.Boolean()),
         githubStars: t.Optional(t.Union([t.Number(), t.Null()])),
         githubForks: t.Optional(t.Union([t.Number(), t.Null()])),
-        language: t.Optional(t.Union([t.String(), t.Null()])),
+        language: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
+        ),
       }),
     },
   )
@@ -952,6 +1324,22 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       try {
         data = {
           ...ctx.body,
+          ...(ctx.body.title !== undefined
+            ? {
+                title: normalizeRequiredLabel(
+                  ctx.body.title,
+                  "Project title",
+                ),
+              }
+            : {}),
+          ...(ctx.body.description !== undefined
+            ? {
+                description: normalizeLongText(
+                  ctx.body.description,
+                  "Project description",
+                ),
+              }
+            : {}),
           ...(ctx.body.imageUrl !== undefined
             ? {
                 imageUrl: normalizeOptionalStoredUrl(
@@ -973,6 +1361,16 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
                 sourceUrl: normalizeOptionalStoredUrl(
                   ctx.body.sourceUrl,
                   "Project source URL",
+                ),
+              }
+            : {}),
+          ...(ctx.body.techStack !== undefined
+            ? {
+                techStack: normalizeStringList(
+                  ctx.body.techStack,
+                  "Tech stack",
+                  MAX_TECH_STACK_ITEMS,
+                  MAX_TECH_STACK_ITEM_CHARS,
                 ),
               }
             : {}),
@@ -1003,8 +1401,11 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     {
       body: t.Partial(
         t.Object({
-          title: t.String(),
-          description: t.String(),
+          title: t.String({
+            minLength: 1,
+            maxLength: MAX_SHORT_LABEL_CHARS,
+          }),
+          description: t.String({ maxLength: MAX_LONG_TEXT_CHARS }),
           imageUrl: t.Union([
             t.String({ maxLength: MAX_STORED_URL_CHARS }),
             t.Null(),
@@ -1017,7 +1418,10 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
             t.String({ maxLength: MAX_STORED_URL_CHARS }),
             t.Null(),
           ]),
-          techStack: t.Array(t.String()),
+          techStack: t.Array(
+            t.String({ minLength: 1, maxLength: MAX_TECH_STACK_ITEM_CHARS }),
+            { maxItems: MAX_TECH_STACK_ITEMS },
+          ),
           featured: t.Boolean(),
           sortOrder: t.Number(),
         }),
@@ -1061,17 +1465,32 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       }
 
       try {
-        return await prisma.certification.create({
-          data: {
-            ...ctx.body,
-            portfolioId: p.id,
-            issueDate: toOptionalDate(ctx.body.issueDate),
-            expiryDate: toOptionalDate(ctx.body.expiryDate),
-            url: normalizeOptionalStoredUrl(
-              ctx.body.url,
-              "Certification URL",
-            ),
-          },
+        return await withPortfolioWriteLock(p.id, async (tx) => {
+          const count = await tx.certification.count({
+            where: { portfolioId: p.id },
+          });
+          if (count >= MAX_SECTION_ROWS) {
+            throw new ContentValidationError(
+              `Certifications must contain at most ${MAX_SECTION_ROWS} items`,
+            );
+          }
+          return tx.certification.create({
+            data: {
+              ...ctx.body,
+              name: normalizeRequiredLabel(
+                ctx.body.name,
+                "Certification name",
+              ),
+              issuer: normalizeRequiredLabel(ctx.body.issuer, "Issuer"),
+              portfolioId: p.id,
+              issueDate: toOptionalDate(ctx.body.issueDate),
+              expiryDate: toOptionalDate(ctx.body.expiryDate),
+              url: normalizeOptionalStoredUrl(
+                ctx.body.url,
+                "Certification URL",
+              ),
+            },
+          });
         });
       } catch (error) {
         ctx.set.status = 400;
@@ -1085,8 +1504,8 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({
-        name: t.String(),
-        issuer: t.String(),
+        name: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
+        issuer: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
         issueDate: t.Optional(t.Union([t.String(), t.Null()])),
         expiryDate: t.Optional(t.Union([t.String(), t.Null()])),
         url: t.Optional(
@@ -1109,6 +1528,17 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
       try {
         const data = {
           ...ctx.body,
+          name:
+            ctx.body.name === undefined
+              ? undefined
+              : normalizeRequiredLabel(
+                  ctx.body.name,
+                  "Certification name",
+                ),
+          issuer:
+            ctx.body.issuer === undefined
+              ? undefined
+              : normalizeRequiredLabel(ctx.body.issuer, "Issuer"),
           issueDate:
             ctx.body.issueDate === undefined
               ? undefined
@@ -1154,8 +1584,14 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     {
       body: t.Partial(
         t.Object({
-          name: t.String(),
-          issuer: t.String(),
+          name: t.String({
+            minLength: 1,
+            maxLength: MAX_SHORT_LABEL_CHARS,
+          }),
+          issuer: t.String({
+            minLength: 1,
+            maxLength: MAX_SHORT_LABEL_CHARS,
+          }),
           issueDate: t.Union([t.String(), t.Null()]),
           expiryDate: t.Union([t.String(), t.Null()]),
           url: t.Union([
@@ -1208,20 +1644,30 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
           ctx.body.url,
           "Social profile URL",
         );
+        const platform = normalizeRequiredLabel(
+          ctx.body.platform,
+          "Social platform",
+        );
+        const username = normalizeOptionalLabel(
+          ctx.body.username,
+          "Social username",
+        );
         return await prisma.socialProfile.upsert({
           where: {
             portfolioId_platform: {
               portfolioId: p.id,
-              platform: ctx.body.platform,
+              platform,
             },
           },
           update: {
             url,
-            username: ctx.body.username,
+            username,
           },
           create: {
             ...ctx.body,
+            platform,
             url,
+            username,
             portfolioId: p.id,
           },
         });
@@ -1235,9 +1681,17 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({
-        platform: t.String(),
+        platform: t.String({
+          minLength: 1,
+          maxLength: MAX_SHORT_LABEL_CHARS,
+        }),
         url: t.String({ maxLength: MAX_STORED_URL_CHARS }),
-        username: t.Optional(t.Union([t.String(), t.Null()])),
+        username: t.Optional(
+          t.Union([
+            t.String({ maxLength: MAX_SHORT_LABEL_CHARS }),
+            t.Null(),
+          ]),
+        ),
       }),
     },
   )
@@ -1277,22 +1731,39 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Portfolio not found" };
       }
 
-      const count = await prisma.achievement.count({
-        where: { portfolioId: p.id },
-      });
-
-      return prisma.achievement.create({
-        data: {
-          ...ctx.body,
-          portfolioId: p.id,
-          sortOrder: count,
-          date: ctx.body.date ? resumeDateOrThrow(ctx.body.date) : null,
-        },
-      });
+      try {
+        return await withPortfolioWriteLock(p.id, async (tx) => {
+          const count = await tx.achievement.count({
+            where: { portfolioId: p.id },
+          });
+          if (count >= MAX_SECTION_ROWS) {
+            throw new ContentValidationError(
+              `Achievements must contain at most ${MAX_SECTION_ROWS} items`,
+            );
+          }
+          return tx.achievement.create({
+            data: {
+              ...ctx.body,
+              title: normalizeRequiredLabel(
+                ctx.body.title,
+                "Achievement title",
+              ),
+              portfolioId: p.id,
+              sortOrder: count,
+              date: ctx.body.date ? resumeDateOrThrow(ctx.body.date) : null,
+            },
+          });
+        });
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error: error instanceof Error ? error.message : "Invalid achievement",
+        };
+      }
     },
     {
       body: t.Object({
-        title: t.String(),
+        title: t.String({ minLength: 1, maxLength: MAX_SHORT_LABEL_CHARS }),
         date: t.Optional(t.Union([t.String(), t.Null()])),
       }),
     },
@@ -1305,11 +1776,26 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         ctx.set.status = 401;
         return { error: "Unauthorized" };
       }
-      const updateData: any = { ...ctx.body };
-      if (ctx.body.date !== undefined) {
-        updateData.date = ctx.body.date
-          ? resumeDateOrThrow(ctx.body.date)
-          : null;
+      let updateData: Prisma.AchievementUpdateManyMutationInput;
+      try {
+        const { date, ...rest } = ctx.body;
+        updateData = { ...rest };
+        if (ctx.body.title !== undefined) {
+          updateData.title = normalizeRequiredLabel(
+            ctx.body.title,
+            "Achievement title",
+          );
+        }
+        if (date !== undefined) {
+          updateData.date = date
+            ? resumeDateOrThrow(date)
+            : null;
+        }
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error: error instanceof Error ? error.message : "Invalid achievement",
+        };
       }
       const { count } = await prisma.achievement.updateMany({
         where: {
@@ -1330,7 +1816,10 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     {
       body: t.Partial(
         t.Object({
-          title: t.String(),
+          title: t.String({
+            minLength: 1,
+            maxLength: MAX_SHORT_LABEL_CHARS,
+          }),
           date: t.Union([t.String(), t.Null()]),
           sortOrder: t.Number(),
         }),
@@ -1373,33 +1862,71 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Portfolio not found" };
       }
 
-      const count = await prisma.customSection.count({
-        where: { portfolioId: p.id },
-      });
+      let sectionType: string;
+      let label: string;
+      try {
+        sectionType = normalizeRequiredLabel(
+          ctx.body.sectionType,
+          "Section type",
+        );
+        label = normalizeRequiredLabel(
+          ctx.body.label,
+          "Custom section label",
+        );
+      } catch (error) {
+        ctx.set.status = 400;
+        return {
+          error:
+            error instanceof Error ? error.message : "Invalid custom section",
+        };
+      }
 
       try {
-        const items = normalizeStoredUrlsInJson(
+        const rawItems = validateCustomSectionItems(
           ctx.body.items ?? [],
           "Custom section items",
         );
-        return await prisma.customSection.upsert({
-          where: {
-            portfolioId_sectionType: {
-              portfolioId: p.id,
-              sectionType: ctx.body.sectionType,
+        const items = validateCustomSectionItems(
+          normalizeStoredUrlsInJson(rawItems, "Custom section items"),
+          "Custom section items",
+        );
+        return await withPortfolioWriteLock(p.id, async (tx) => {
+          const existing = await tx.customSection.findUnique({
+            where: {
+              portfolioId_sectionType: {
+                portfolioId: p.id,
+                sectionType,
+              },
             },
-          },
-          update: {
-            label: ctx.body.label,
-            items: items as any,
-          },
-          create: {
-            portfolioId: p.id,
-            sectionType: ctx.body.sectionType,
-            label: ctx.body.label,
-            items: items as any,
-            sortOrder: count,
-          },
+            select: { id: true },
+          });
+          const count = await tx.customSection.count({
+            where: { portfolioId: p.id },
+          });
+          if (!existing && count >= MAX_CUSTOM_SECTIONS) {
+            throw new ContentValidationError(
+              `Custom sections must contain at most ${MAX_CUSTOM_SECTIONS} items`,
+            );
+          }
+          return tx.customSection.upsert({
+            where: {
+              portfolioId_sectionType: {
+                portfolioId: p.id,
+                sectionType,
+              },
+            },
+            update: {
+              label,
+            items: items as Prisma.InputJsonValue,
+            },
+            create: {
+              portfolioId: p.id,
+              sectionType,
+              label,
+            items: items as Prisma.InputJsonValue,
+              sortOrder: count,
+            },
+          });
         });
       } catch (error) {
         ctx.set.status = 400;
@@ -1411,9 +1938,19 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     },
     {
       body: t.Object({
-        sectionType: t.String(),
-        label: t.String(),
-        items: t.Optional(t.Array(t.Record(t.String(), t.Unknown()))),
+        sectionType: t.String({
+          minLength: 1,
+          maxLength: MAX_SHORT_LABEL_CHARS,
+        }),
+        label: t.String({
+          minLength: 1,
+          maxLength: MAX_SHORT_LABEL_CHARS,
+        }),
+        items: t.Optional(
+          t.Array(t.Record(t.String(), t.Unknown()), {
+            maxItems: MAX_CUSTOM_SECTION_ITEMS,
+          }),
+        ),
       }),
     },
   )
@@ -1426,12 +1963,22 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         return { error: "Unauthorized" };
       }
       const { items, ...rest } = ctx.body;
+      let label = rest.label;
       let normalizedItems;
       try {
+        if (label !== undefined) {
+          label = normalizeRequiredLabel(label, "Custom section label");
+        }
         normalizedItems =
           items === undefined
             ? undefined
-            : normalizeStoredUrlsInJson(items, "Custom section items");
+            : validateCustomSectionItems(
+                normalizeStoredUrlsInJson(
+                  validateCustomSectionItems(items, "Custom section items"),
+                  "Custom section items",
+                ),
+                "Custom section items",
+              );
       } catch (error) {
         ctx.set.status = 400;
         return {
@@ -1446,8 +1993,9 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
         },
         data: {
           ...rest,
+          ...(label !== undefined ? { label } : {}),
           ...(normalizedItems !== undefined
-            ? { items: normalizedItems as any }
+            ? { items: normalizedItems as Prisma.InputJsonValue }
             : {}),
         },
       });
@@ -1463,8 +2011,13 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     {
       body: t.Partial(
         t.Object({
-          label: t.String(),
-          items: t.Array(t.Record(t.String(), t.Unknown())),
+          label: t.String({
+            minLength: 1,
+            maxLength: MAX_SHORT_LABEL_CHARS,
+          }),
+          items: t.Array(t.Record(t.String(), t.Unknown()), {
+            maxItems: MAX_CUSTOM_SECTION_ITEMS,
+          }),
           sortOrder: t.Number(),
         }),
       ),
@@ -1498,7 +2051,7 @@ export const portfolio = new Elysia({ prefix: "/portfolio" })
     }
 
     try {
-      const result = await bulkImportPortfolioData(session.userId, ctx.body as any);
+      const result = await bulkImportPortfolioData(session.userId, ctx.body);
       return { success: true, portfolio: result };
     } catch (err) {
       const message = err instanceof Error ? err.message : "Bulk import failed";
