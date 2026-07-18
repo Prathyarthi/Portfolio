@@ -36,12 +36,21 @@ import {
   hasNonEmptyStringValues,
   normalizeDate,
 } from "@/features/portfolio/lib/edit-step-dirty";
+import {
+  type FieldErrors,
+  clientValidators,
+  validationMessage,
+  validateField,
+} from "@/features/portfolio/lib/client-validation";
+import { MAX_SHORT_LABEL_CHARS } from "@/lib/content-policy";
 
 interface AchievementEntry {
   id?: string;
   title: string;
   date: string;
 }
+
+type AchievementField = "title";
 
 const emptyEntry: AchievementEntry = {
   title: "",
@@ -57,10 +66,17 @@ export function AchievementForm() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<AchievementEntry>(emptyEntry);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors<AchievementField>>(
+    {},
+  );
   const editingCardRef = useScrollIntoView<HTMLDivElement>(Boolean(editingId));
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFieldErrors((errors) => ({
+      ...errors,
+      [e.target.name]: undefined,
+    }));
   }
 
   function startEditing(ach: any) {
@@ -71,15 +87,33 @@ export function AchievementForm() {
       title: ach.title ?? "",
       date: ach.date ? ach.date.substring(0, 10) : "",
     });
+    setFieldErrors({});
   }
 
   function cancelEditing() {
     setEditingId(null);
     setIsAdding(false);
     setForm(emptyEntry);
+    setFieldErrors({});
   }
 
+  const validationErrors = useMemo(() => {
+    const errors: FieldErrors<AchievementField> = {};
+    validateField(errors, "title", () =>
+      clientValidators.requiredLabel(
+        form.title,
+        "Achievement title",
+        MAX_SHORT_LABEL_CHARS,
+      ),
+    );
+    return errors;
+  }, [form.title]);
+
   async function handleAdd() {
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      return;
+    }
     try {
       await addAchievement.mutateAsync({
         title: form.title.trim(),
@@ -87,13 +121,17 @@ export function AchievementForm() {
       });
       toast.success("Achievement added");
       cancelEditing();
-    } catch {
-      toast.error("Failed to add achievement");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to add achievement"));
     }
   }
 
   async function handleUpdate() {
     if (!editingId) return;
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      return;
+    }
     try {
       await updateAchievement.mutateAsync({
         id: editingId,
@@ -102,8 +140,8 @@ export function AchievementForm() {
       });
       toast.success("Achievement updated");
       cancelEditing();
-    } catch {
-      toast.error("Failed to update achievement");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to update achievement"));
     }
   }
 
@@ -112,18 +150,21 @@ export function AchievementForm() {
       await deleteAchievement.mutateAsync(id);
       toast.success("Achievement deleted");
       if (editingId === id) cancelEditing();
-    } catch {
-      toast.error("Failed to delete achievement");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to delete achievement"));
     }
   }
 
-  const achievements = portfolio?.achievements ?? [];
+  const achievements = useMemo(
+    () => portfolio?.achievements ?? [],
+    [portfolio?.achievements],
+  );
 
   const isDirty = useMemo(() => {
     if (!isAdding && !editingId) return false;
     if (isAdding) return hasNonEmptyStringValues(form);
     const original = achievements.find(
-      (ach: { id: string }) => ach.id === editingId
+      (ach: { id: string }) => ach.id === editingId,
     );
     if (!original) return true;
     return fieldsDiffer(
@@ -132,7 +173,7 @@ export function AchievementForm() {
         title: original.title,
         date: normalizeDate(original.date),
       },
-      ["title", "date"]
+      ["title", "date"],
     );
   }, [isAdding, editingId, form, achievements]);
 
@@ -142,7 +183,7 @@ export function AchievementForm() {
     if (isAdding) return emptyEntry;
     if (!editingId) return emptyEntry;
     const original = achievements.find(
-      (ach: { id: string }) => ach.id === editingId
+      (ach: { id: string }) => ach.id === editingId,
     );
     if (!original) return emptyEntry;
     return {
@@ -186,6 +227,7 @@ export function AchievementForm() {
             onClick={() => {
               setIsAdding(true);
               setForm(emptyEntry);
+              setFieldErrors({});
             }}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -198,9 +240,7 @@ export function AchievementForm() {
         <Card className="border-primary/30">
           <CardHeader>
             <CardTitle className="text-base">New Achievement</CardTitle>
-            <CardDescription>
-              Add a new achievement entry.
-            </CardDescription>
+            <CardDescription>Add a new achievement entry.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -212,8 +252,25 @@ export function AchievementForm() {
                 name="title"
                 value={form.title}
                 onChange={handleChange}
+                onBlur={() => setFieldErrors({ title: validationErrors.title })}
                 placeholder="e.g., Won Best Innovation Award at TechConf 2025"
+                aria-invalid={Boolean(
+                  fieldErrors.title || validationErrors.title,
+                )}
+                aria-describedby={
+                  fieldErrors.title || validationErrors.title
+                    ? "achievement-title-error"
+                    : undefined
+                }
               />
+              {(fieldErrors.title || validationErrors.title) && (
+                <p
+                  id="achievement-title-error"
+                  className="text-sm text-destructive"
+                >
+                  {fieldErrors.title || validationErrors.title}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -235,7 +292,12 @@ export function AchievementForm() {
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button onClick={handleAdd} disabled={isMutating}>
+              <Button
+                onClick={handleAdd}
+                disabled={
+                  isMutating || Object.keys(validationErrors).length > 0
+                }
+              >
                 {isMutating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -253,7 +315,8 @@ export function AchievementForm() {
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <Trophy className="h-10 w-10 text-muted-foreground/40 mb-3" />
             <p className="text-muted-foreground">
-              No achievements added yet. Click &quot;Add Achievement&quot; to get started.
+              No achievements added yet. Click &quot;Add Achievement&quot; to
+              get started.
             </p>
           </CardContent>
         </Card>
@@ -264,89 +327,121 @@ export function AchievementForm() {
               key={ach.id}
               ref={editingId === ach.id ? editingCardRef : undefined}
             >
-            <Card className={editingId === ach.id ? "border-primary/30" : ""}>
-              {editingId === ach.id ? (
-                <CardContent className="space-y-4 pt-6">
-                  <div>
-                    <h4 className="text-base font-semibold">Edit Achievement</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Update this achievement entry.
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <FieldLabel htmlFor={`title-${ach.id}`} unsaved={isFieldUnsaved("title")}>
-                      Title
-                    </FieldLabel>
-                    <Input
-                      id={`title-${ach.id}`}
-                      name="title"
-                      value={form.title}
-                      onChange={handleChange}
-                      placeholder="e.g., Won Best Innovation Award at TechConf 2025"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <FieldLabel htmlFor={`date-${ach.id}`} unsaved={isFieldUnsaved("date")}>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      Date (optional)
-                    </FieldLabel>
-                    <Input
-                      id={`date-${ach.id}`}
-                      name="date"
-                      type="date"
-                      value={form.date}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={cancelEditing}>
-                      <X className="mr-2 h-4 w-4" />
-                      Cancel
-                    </Button>
-                    <Button onClick={handleUpdate} disabled={isMutating}>
-                      {isMutating ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Check className="mr-2 h-4 w-4" />
-                      )}
-                      Save
-                    </Button>
-                  </div>
-                </CardContent>
-              ) : (
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-base">{ach.title}</h4>
-                    {ach.date && (
-                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
-                        <Calendar className="h-3 w-3" />
-                        {ach.date.substring(0, 10)}
+              <Card className={editingId === ach.id ? "border-primary/30" : ""}>
+                {editingId === ach.id ? (
+                  <CardContent className="space-y-4 pt-6">
+                    <div>
+                      <h4 className="text-base font-semibold">
+                        Edit Achievement
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Update this achievement entry.
                       </p>
-                    )}
-                  </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => startEditing(ach)}
-                      disabled={isMutating}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => handleDelete(ach.id)}
-                      disabled={isMutating}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-              )}
-            </Card>
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel
+                        htmlFor={`title-${ach.id}`}
+                        unsaved={isFieldUnsaved("title")}
+                      >
+                        Title
+                      </FieldLabel>
+                      <Input
+                        id={`title-${ach.id}`}
+                        name="title"
+                        value={form.title}
+                        onChange={handleChange}
+                        onBlur={() =>
+                          setFieldErrors({ title: validationErrors.title })
+                        }
+                        placeholder="e.g., Won Best Innovation Award at TechConf 2025"
+                        aria-invalid={Boolean(
+                          fieldErrors.title || validationErrors.title,
+                        )}
+                        aria-describedby={
+                          fieldErrors.title || validationErrors.title
+                            ? `achievement-title-${ach.id}-error`
+                            : undefined
+                        }
+                      />
+                      {(fieldErrors.title || validationErrors.title) && (
+                        <p
+                          id={`achievement-title-${ach.id}-error`}
+                          className="text-sm text-destructive"
+                        >
+                          {fieldErrors.title || validationErrors.title}
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <FieldLabel
+                        htmlFor={`date-${ach.id}`}
+                        unsaved={isFieldUnsaved("date")}
+                      >
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        Date (optional)
+                      </FieldLabel>
+                      <Input
+                        id={`date-${ach.id}`}
+                        name="date"
+                        type="date"
+                        value={form.date}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={cancelEditing}>
+                        <X className="mr-2 h-4 w-4" />
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleUpdate}
+                        disabled={
+                          isMutating || Object.keys(validationErrors).length > 0
+                        }
+                      >
+                        {isMutating ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Check className="mr-2 h-4 w-4" />
+                        )}
+                        Save
+                      </Button>
+                    </div>
+                  </CardContent>
+                ) : (
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-base">{ach.title}</h4>
+                        {ach.date && (
+                          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+                            <Calendar className="h-3 w-3" />
+                            {ach.date.substring(0, 10)}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => startEditing(ach)}
+                          disabled={isMutating}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => handleDelete(ach.id)}
+                          disabled={isMutating}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
             </div>
           ))}
         </div>

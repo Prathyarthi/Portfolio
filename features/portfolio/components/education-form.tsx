@@ -32,6 +32,12 @@ import {
 } from "lucide-react";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
 import { hasNonEmptyStringValues, fieldDiffers } from "@/features/portfolio/lib/edit-step-dirty";
+import {
+  clientValidators,
+  type FieldErrors,
+  validateField,
+  validationMessage,
+} from "@/features/portfolio/lib/client-validation";
 
 interface EducationEntry {
   institution: string;
@@ -53,6 +59,36 @@ const emptyEntry: EducationEntry = {
   gpa: "",
 };
 
+type EducationField = keyof EducationEntry;
+
+function validateEducationForm(form: EducationEntry) {
+  const errors: FieldErrors<EducationField> = {};
+  validateField(errors, "institution", () =>
+    clientValidators.requiredLabel(form.institution, "Institution")
+  );
+  validateField(errors, "degree", () =>
+    clientValidators.requiredLabel(form.degree, "Degree")
+  );
+  validateField(errors, "field", () =>
+    clientValidators.optionalLabel(form.field, "Field of study")
+  );
+  validateField(errors, "gpa", () =>
+    clientValidators.optionalLabel(form.gpa, "GPA")
+  );
+  validateField(errors, "description", () =>
+    clientValidators.longText(form.description, "Education description")
+  );
+  return errors;
+}
+
+function FieldError({ error }: { error?: string }) {
+  return error ? (
+    <p className="text-sm text-destructive" role="alert">
+      {error}
+    </p>
+  ) : null;
+}
+
 export function EducationForm() {
   const { data: portfolio, isLoading } = usePortfolio();
   const addEducation = useAddEducation();
@@ -60,19 +96,33 @@ export function EducationForm() {
 
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<EducationEntry>(emptyEntry);
+  const [fieldErrors, setFieldErrors] =
+    useState<FieldErrors<EducationField>>({});
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const field = e.target.name as EducationField;
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function handleBlur(field: EducationField) {
+    const error = validateEducationForm(form)[field];
+    setFieldErrors((prev) => ({ ...prev, [field]: error }));
   }
 
   function cancelAdding() {
     setIsAdding(false);
     setForm(emptyEntry);
+    setFieldErrors({});
   }
 
   async function handleAdd() {
+    const errors = validateEducationForm(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     try {
       await addEducation.mutateAsync({
         institution: form.institution.trim(),
@@ -85,8 +135,8 @@ export function EducationForm() {
       });
       toast.success("Education added");
       cancelAdding();
-    } catch {
-      toast.error("Failed to add education");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to add education"));
     }
   }
 
@@ -94,8 +144,8 @@ export function EducationForm() {
     try {
       await deleteEducation.mutateAsync(id);
       toast.success("Education deleted");
-    } catch {
-      toast.error("Failed to delete education");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to delete education"));
     }
   }
 
@@ -118,6 +168,8 @@ export function EducationForm() {
 
   const educations = portfolio?.educations ?? [];
   const isMutating = addEducation.isPending || deleteEducation.isPending;
+  const currentErrors = validateEducationForm(form);
+  const isFormValid = Object.keys(currentErrors).length === 0;
 
   return (
     <div className="space-y-6">
@@ -136,6 +188,7 @@ export function EducationForm() {
             onClick={() => {
               setIsAdding(true);
               setForm(emptyEntry);
+              setFieldErrors({});
             }}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -165,8 +218,11 @@ export function EducationForm() {
                   name="institution"
                   value={form.institution}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("institution")}
+                  aria-invalid={Boolean(currentErrors.institution)}
                   placeholder="MIT"
                 />
+                <FieldError error={fieldErrors.institution} />
               </div>
               <div className="space-y-2">
                 <FieldLabel htmlFor="degree" unsaved={isFieldUnsaved("degree")}>
@@ -178,8 +234,11 @@ export function EducationForm() {
                   name="degree"
                   value={form.degree}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("degree")}
+                  aria-invalid={Boolean(currentErrors.degree)}
                   placeholder="Bachelor of Science"
                 />
+                <FieldError error={fieldErrors.degree} />
               </div>
             </div>
 
@@ -194,8 +253,11 @@ export function EducationForm() {
                   name="field"
                   value={form.field}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("field")}
+                  aria-invalid={Boolean(currentErrors.field)}
                   placeholder="Computer Science"
                 />
+                <FieldError error={fieldErrors.field} />
               </div>
               <div className="space-y-2">
                 <FieldLabel htmlFor="gpa" unsaved={isFieldUnsaved("gpa")}>
@@ -206,8 +268,11 @@ export function EducationForm() {
                   name="gpa"
                   value={form.gpa}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("gpa")}
+                  aria-invalid={Boolean(currentErrors.gpa)}
                   placeholder="3.9 / 4.0"
                 />
+                <FieldError error={fieldErrors.gpa} />
               </div>
             </div>
 
@@ -249,9 +314,12 @@ export function EducationForm() {
                 name="description"
                 value={form.description}
                 onChange={handleChange}
+                onBlur={() => handleBlur("description")}
+                aria-invalid={Boolean(currentErrors.description)}
                 placeholder="Notable coursework, achievements, activities..."
                 rows={3}
               />
+              <FieldError error={fieldErrors.description} />
             </div>
 
             <div className="flex justify-end gap-2">
@@ -259,7 +327,10 @@ export function EducationForm() {
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button onClick={handleAdd} disabled={isMutating}>
+              <Button
+                onClick={handleAdd}
+                disabled={isMutating || !isFormValid}
+              >
                 {isMutating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (

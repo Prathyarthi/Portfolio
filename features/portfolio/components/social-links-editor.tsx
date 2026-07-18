@@ -36,6 +36,13 @@ import {
 import { GithubIcon as Github, LinkedinIcon as Linkedin, TwitterIcon as Twitter } from "@/components/icons";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
 import { fieldDiffers } from "@/features/portfolio/lib/edit-step-dirty";
+import {
+  clientValidators,
+  type FieldErrors,
+  validateField,
+  validationMessage,
+} from "@/features/portfolio/lib/client-validation";
+import { normalizeRequiredStoredUrl } from "@/lib/content-policy";
 
 const PLATFORMS = [
   { value: "github", label: "GitHub", icon: Github, urlPrefix: "https://github.com/" },
@@ -51,6 +58,22 @@ const PLATFORMS = [
   { value: "youtube", label: "YouTube", icon: Globe, urlPrefix: "https://youtube.com/@" },
   { value: "other", label: "Other", icon: ExternalLink, urlPrefix: "" },
 ] as const;
+
+type SocialField = "platform" | "url" | "username";
+
+function validateSocialFields(platform: string, url: string, username: string) {
+  const errors: FieldErrors<SocialField> = {};
+  validateField(errors, "platform", () =>
+    clientValidators.requiredLabel(platform, "Social platform")
+  );
+  validateField(errors, "url", () =>
+    normalizeRequiredStoredUrl(url, "Social profile URL")
+  );
+  validateField(errors, "username", () =>
+    clientValidators.optionalLabel(username, "Social username")
+  );
+  return errors;
+}
 
 function getPlatformIcon(platform: string) {
   const found = PLATFORMS.find((p) => p.value === platform);
@@ -70,6 +93,7 @@ export function SocialLinksEditor() {
   const [platform, setPlatform] = useState<string>("github");
   const [url, setUrl] = useState("");
   const [username, setUsername] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors<SocialField>>({});
   const formBaseline = useRef({ platform: "github", url: "", username: "" });
 
   function openForm(values: { platform: string; url: string; username: string }) {
@@ -77,6 +101,7 @@ export function SocialLinksEditor() {
     setPlatform(values.platform);
     setUrl(values.url);
     setUsername(values.username);
+    setFieldErrors({});
     setIsAdding(true);
   }
 
@@ -85,10 +110,12 @@ export function SocialLinksEditor() {
     setPlatform("github");
     setUrl("");
     setUsername("");
+    setFieldErrors({});
   }
 
   function handlePlatformChange(value: string) {
     setPlatform(value);
+    setFieldErrors((prev) => ({ ...prev, platform: undefined }));
     // Auto-fill URL prefix when platform changes
     const platformDef = PLATFORMS.find((p) => p.value === value);
     if (platformDef && platformDef.urlPrefix && !url) {
@@ -97,6 +124,10 @@ export function SocialLinksEditor() {
   }
 
   async function handleAdd() {
+    const errors = validateSocialFields(platform, url, username);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     try {
       await upsertSocial.mutateAsync({
         platform,
@@ -105,8 +136,10 @@ export function SocialLinksEditor() {
       });
       toast.success(`${getPlatformLabel(platform)} profile saved`);
       cancelAdding();
-    } catch {
-      toast.error("Failed to save social profile");
+    } catch (error) {
+      toast.error(
+        validationMessage(error, "Failed to save social profile")
+      );
     }
   }
 
@@ -151,7 +184,8 @@ export function SocialLinksEditor() {
     );
   }
 
-  const isMutating = upsertSocial.isPending;
+  const isFormInvalid =
+    Object.keys(validateSocialFields(platform, url, username)).length > 0;
 
   const existingPlatforms = new Set(socials.map((s: { platform: string }) => s.platform));
 
@@ -197,7 +231,13 @@ export function SocialLinksEditor() {
               <div className="space-y-2">
                 <FieldLabel unsaved={isPlatformUnsaved}>Platform</FieldLabel>
                 <Select value={platform} onValueChange={handlePlatformChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger
+                    className="w-full"
+                    aria-invalid={Boolean(fieldErrors.platform)}
+                    aria-describedby={
+                      fieldErrors.platform ? "social-platform-error" : undefined
+                    }
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -215,6 +255,14 @@ export function SocialLinksEditor() {
                     ))}
                   </SelectContent>
                 </Select>
+                {fieldErrors.platform && (
+                  <p
+                    id="social-platform-error"
+                    className="text-sm text-destructive"
+                  >
+                    {fieldErrors.platform}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <FieldLabel htmlFor="social-username" unsaved={isUsernameUnsaved}>
@@ -223,9 +271,34 @@ export function SocialLinksEditor() {
                 <Input
                   id="social-username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    setFieldErrors((prev) => ({
+                      ...prev,
+                      username: undefined,
+                    }));
+                  }}
+                  onBlur={() =>
+                    setFieldErrors((prev) => ({
+                      ...prev,
+                      username: validateSocialFields(platform, url, username)
+                        .username,
+                    }))
+                  }
+                  aria-invalid={Boolean(fieldErrors.username)}
+                  aria-describedby={
+                    fieldErrors.username ? "social-username-error" : undefined
+                  }
                   placeholder="your-username"
                 />
+                {fieldErrors.username && (
+                  <p
+                    id="social-username-error"
+                    className="text-sm text-destructive"
+                  >
+                    {fieldErrors.username}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -236,10 +309,28 @@ export function SocialLinksEditor() {
               <Input
                 id="social-url"
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  setFieldErrors((prev) => ({ ...prev, url: undefined }));
+                }}
+                onBlur={() =>
+                  setFieldErrors((prev) => ({
+                    ...prev,
+                    url: validateSocialFields(platform, url, username).url,
+                  }))
+                }
+                aria-invalid={Boolean(fieldErrors.url)}
+                aria-describedby={
+                  fieldErrors.url ? "social-url-error" : undefined
+                }
                 placeholder="https://github.com/your-username"
                 type="url"
               />
+              {fieldErrors.url && (
+                <p id="social-url-error" className="text-sm text-destructive">
+                  {fieldErrors.url}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-end gap-2">
@@ -247,7 +338,10 @@ export function SocialLinksEditor() {
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button onClick={handleAdd} disabled={upsertSocial.isPending}>
+              <Button
+                onClick={handleAdd}
+                disabled={upsertSocial.isPending || isFormInvalid}
+              >
                 {upsertSocial.isPending ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (

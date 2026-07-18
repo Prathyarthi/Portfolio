@@ -48,6 +48,17 @@ import {
   fieldDiffers,
   hasNonEmptyStringValues,
 } from "@/features/portfolio/lib/edit-step-dirty";
+import {
+  clientValidators,
+  type FieldErrors,
+  validateField,
+  validationMessage,
+} from "@/features/portfolio/lib/client-validation";
+import {
+  MAX_TECH_STACK_ITEM_CHARS,
+  MAX_TECH_STACK_ITEMS,
+  normalizeStringList,
+} from "@/lib/content-policy";
 
 interface ProjectEntry {
   id?: string;
@@ -59,6 +70,13 @@ interface ProjectEntry {
   featured: boolean;
 }
 
+type ProjectField =
+  | "title"
+  | "description"
+  | "liveUrl"
+  | "sourceUrl"
+  | "techStack";
+
 const emptyEntry: ProjectEntry = {
   title: "",
   description: "",
@@ -67,6 +85,31 @@ const emptyEntry: ProjectEntry = {
   techStack: [],
   featured: false,
 };
+
+function validateProject(form: ProjectEntry) {
+  const errors: FieldErrors<ProjectField> = {};
+  validateField(errors, "title", () =>
+    clientValidators.requiredLabel(form.title, "Project title")
+  );
+  validateField(errors, "description", () =>
+    clientValidators.longText(form.description, "Project description")
+  );
+  validateField(errors, "liveUrl", () =>
+    clientValidators.optionalUrl(form.liveUrl, "Project live URL")
+  );
+  validateField(errors, "sourceUrl", () =>
+    clientValidators.optionalUrl(form.sourceUrl, "Project source URL")
+  );
+  validateField(errors, "techStack", () =>
+    normalizeStringList(
+      form.techStack,
+      "Tech stack",
+      MAX_TECH_STACK_ITEMS,
+      MAX_TECH_STACK_ITEM_CHARS
+    )
+  );
+  return errors;
+}
 
 export function ProjectForm() {
   const { data: portfolio, isLoading } = usePortfolio();
@@ -79,6 +122,9 @@ export function ProjectForm() {
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<ProjectEntry>(emptyEntry);
   const [techInput, setTechInput] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<
+    FieldErrors<ProjectField>
+  >({});
   const [enableLivePreviewOnSave, setEnableLivePreviewOnSave] = useState(false);
   const [editLivePreviewEnabled, setEditLivePreviewEnabled] = useState(false);
   const editingCardRef = useScrollIntoView<HTMLDivElement>(Boolean(editingId));
@@ -118,7 +164,14 @@ export function ProjectForm() {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const field = e.target.name as ProjectField;
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function validateProjectField(field: ProjectField) {
+    const message = validateProject(form)[field];
+    setFieldErrors((prev) => ({ ...prev, [field]: message }));
   }
 
   function startEditing(project: any) {
@@ -138,6 +191,7 @@ export function ProjectForm() {
       featured: project.featured ?? false,
     });
     setTechInput("");
+    setFieldErrors({});
   }
 
   function cancelEditing() {
@@ -145,6 +199,7 @@ export function ProjectForm() {
     setIsAdding(false);
     setForm(emptyEntry);
     setTechInput("");
+    setFieldErrors({});
     setEnableLivePreviewOnSave(false);
     setEditLivePreviewEnabled(false);
   }
@@ -154,6 +209,7 @@ export function ProjectForm() {
     setEditingId(null);
     setForm(emptyEntry);
     setTechInput("");
+    setFieldErrors({});
     setEnableLivePreviewOnSave(false);
   }
 
@@ -164,8 +220,22 @@ export function ProjectForm() {
       toast.error("Tech already added");
       return;
     }
+    const errors: FieldErrors<ProjectField> = {};
+    validateField(errors, "techStack", () =>
+      normalizeStringList(
+        [...form.techStack, tag],
+        "Tech stack",
+        MAX_TECH_STACK_ITEMS,
+        MAX_TECH_STACK_ITEM_CHARS
+      )
+    );
+    if (errors.techStack) {
+      setFieldErrors((prev) => ({ ...prev, techStack: errors.techStack }));
+      return;
+    }
     setForm((prev) => ({ ...prev, techStack: [...prev.techStack, tag] }));
     setTechInput("");
+    setFieldErrors((prev) => ({ ...prev, techStack: undefined }));
   }
 
   function removeTechTag(tag: string) {
@@ -173,6 +243,7 @@ export function ProjectForm() {
       ...prev,
       techStack: prev.techStack.filter((t) => t !== tag),
     }));
+    setFieldErrors((prev) => ({ ...prev, techStack: undefined }));
   }
 
   function handleTechKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -223,6 +294,10 @@ export function ProjectForm() {
   }
 
   async function handleAdd() {
+    const errors = validateProject(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     try {
       const created = await addProject.mutateAsync({
         title: form.title.trim(),
@@ -251,13 +326,17 @@ export function ProjectForm() {
 
       toast.success("Project added");
       cancelEditing();
-    } catch {
-      toast.error("Failed to add project");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to add project"));
     }
   }
 
   async function handleUpdate() {
     if (!editingId) return;
+    const errors = validateProject(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     try {
       const wantPreview = editLivePreviewEnabled && Boolean(form.liveUrl.trim());
       const alreadySaved = livePreviewProjectIds.includes(editingId);
@@ -293,8 +372,8 @@ export function ProjectForm() {
 
       toast.success("Project updated");
       cancelEditing();
-    } catch {
-      toast.error("Failed to update project");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to update project"));
     }
   }
 
@@ -308,8 +387,8 @@ export function ProjectForm() {
       }
       toast.success("Project deleted");
       if (editingId === id) cancelEditing();
-    } catch {
-      toast.error("Failed to delete project");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to delete project"));
     }
   }
 
@@ -398,6 +477,22 @@ export function ProjectForm() {
       : false;
 
   const isEditing = Boolean(isAdding || editingId);
+  const isFormInvalid = Object.keys(validateProject(form)).length > 0;
+  const techInputInvalid = Boolean(
+    techInput.trim() &&
+      (() => {
+        const errors: FieldErrors<ProjectField> = {};
+        validateField(errors, "techStack", () =>
+          normalizeStringList(
+            [...form.techStack, techInput.trim()],
+            "Tech stack",
+            MAX_TECH_STACK_ITEMS,
+            MAX_TECH_STACK_ITEM_CHARS
+          )
+        );
+        return errors.techStack;
+      })()
+  );
 
   const isFeaturedUnsaved =
     isEditing && form.featured !== savedForm.featured;
@@ -436,8 +531,21 @@ export function ProjectForm() {
               name="title"
               value={form.title}
               onChange={handleChange}
+              onBlur={() => validateProjectField("title")}
+              aria-invalid={Boolean(fieldErrors.title)}
+              aria-describedby={
+                fieldErrors.title ? `proj-title-error${suffix}` : undefined
+              }
               placeholder="My Awesome Project"
             />
+            {fieldErrors.title && (
+              <p
+                id={`proj-title-error${suffix}`}
+                className="text-sm text-destructive"
+              >
+                {fieldErrors.title}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-3 pt-6">
             <Switch
@@ -463,9 +571,24 @@ export function ProjectForm() {
             name="description"
             value={form.description}
             onChange={handleChange}
+            onBlur={() => validateProjectField("description")}
+            aria-invalid={Boolean(fieldErrors.description)}
+            aria-describedby={
+              fieldErrors.description
+                ? `proj-description-error${suffix}`
+                : undefined
+            }
             placeholder="Describe what the project does, the problem it solves, and your role..."
             rows={4}
           />
+          {fieldErrors.description && (
+            <p
+              id={`proj-description-error${suffix}`}
+              className="text-sm text-destructive"
+            >
+              {fieldErrors.description}
+            </p>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -480,8 +603,21 @@ export function ProjectForm() {
               type="url"
               value={form.liveUrl}
               onChange={handleChange}
+              onBlur={() => validateProjectField("liveUrl")}
+              aria-invalid={Boolean(fieldErrors.liveUrl)}
+              aria-describedby={
+                fieldErrors.liveUrl ? `live-url-error${suffix}` : undefined
+              }
               placeholder="https://my-project.com"
             />
+            {fieldErrors.liveUrl && (
+              <p
+                id={`live-url-error${suffix}`}
+                className="text-sm text-destructive"
+              >
+                {fieldErrors.liveUrl}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <FieldLabel htmlFor={`sourceUrl${suffix}`} unsaved={isFieldUnsaved("sourceUrl")}>
@@ -494,8 +630,21 @@ export function ProjectForm() {
               type="url"
               value={form.sourceUrl}
               onChange={handleChange}
+              onBlur={() => validateProjectField("sourceUrl")}
+              aria-invalid={Boolean(fieldErrors.sourceUrl)}
+              aria-describedby={
+                fieldErrors.sourceUrl ? `source-url-error${suffix}` : undefined
+              }
               placeholder="https://github.com/user/project"
             />
+            {fieldErrors.sourceUrl && (
+              <p
+                id={`source-url-error${suffix}`}
+                className="text-sm text-destructive"
+              >
+                {fieldErrors.sourceUrl}
+              </p>
+            )}
           </div>
         </div>
 
@@ -504,15 +653,54 @@ export function ProjectForm() {
           <div className="flex gap-2">
             <Input
               value={techInput}
-              onChange={(e) => setTechInput(e.target.value)}
+              onChange={(e) => {
+                setTechInput(e.target.value);
+                setFieldErrors((prev) => ({
+                  ...prev,
+                  techStack: undefined,
+                }));
+              }}
+              onBlur={() => {
+                if (!techInput.trim()) return;
+                const errors: FieldErrors<ProjectField> = {};
+                validateField(errors, "techStack", () =>
+                  normalizeStringList(
+                    [...form.techStack, techInput.trim()],
+                    "Tech stack",
+                    MAX_TECH_STACK_ITEMS,
+                    MAX_TECH_STACK_ITEM_CHARS
+                  )
+                );
+                setFieldErrors((prev) => ({
+                  ...prev,
+                  techStack: errors.techStack,
+                }));
+              }}
               onKeyDown={handleTechKeyDown}
+              aria-invalid={Boolean(fieldErrors.techStack)}
+              aria-describedby={
+                fieldErrors.techStack ? `tech-stack-error${suffix}` : undefined
+              }
               placeholder="Type a technology and press Enter..."
               className="flex-1"
             />
-            <Button type="button" variant="outline" onClick={addTechTag}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addTechTag}
+              disabled={!techInput.trim() || techInputInvalid}
+            >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
+          {fieldErrors.techStack && (
+            <p
+              id={`tech-stack-error${suffix}`}
+              className="text-sm text-destructive"
+            >
+              {fieldErrors.techStack}
+            </p>
+          )}
           {form.techStack.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {form.techStack.map((tech) => (
@@ -579,7 +767,10 @@ export function ProjectForm() {
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button onClick={handleAdd} disabled={isMutating}>
+              <Button
+                onClick={handleAdd}
+                disabled={isMutating || isFormInvalid}
+              >
                 {isMutating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -638,7 +829,10 @@ export function ProjectForm() {
                       <X className="mr-2 h-4 w-4" />
                       Cancel
                     </Button>
-                    <Button onClick={handleUpdate} disabled={isMutating}>
+                    <Button
+                      onClick={handleUpdate}
+                      disabled={isMutating || isFormInvalid}
+                    >
                       {isMutating ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (

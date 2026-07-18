@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
 import {
   usePortfolio,
@@ -28,6 +28,13 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Plus, X, Wrench, Code2, Boxes, Brain } from "lucide-react";
+import {
+  type FieldErrors,
+  clientValidators,
+  validationMessage,
+  validateField,
+} from "@/features/portfolio/lib/client-validation";
+import { MAX_SKILL_FIELD_CHARS, MAX_SKILLS } from "@/lib/content-policy";
 
 const CATEGORIES = [
   { value: "language", label: "Language", icon: Code2 },
@@ -45,6 +52,8 @@ const CATEGORY_COLORS: Record<string, string> = {
     "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
 };
 
+type SkillField = "name" | "category" | "form";
+
 export function SkillsEditor() {
   const { data: portfolio, isLoading } = usePortfolio();
   const addSkill = useAddSkill();
@@ -52,29 +61,57 @@ export function SkillsEditor() {
 
   const [skillName, setSkillName] = useState("");
   const [category, setCategory] = useState<string>("language");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors<SkillField>>({});
 
   useEditStepDirty("skills", skillName.trim() !== "");
 
-  async function handleAdd() {
-    const name = skillName.trim();
-
-    // Prevent duplicates
-    const existing = portfolio?.skills ?? [];
-    if (
-      existing.some(
-        (s: any) => s.name.toLowerCase() === name.toLowerCase()
+  const skills = useMemo(() => portfolio?.skills ?? [], [portfolio?.skills]);
+  const validationErrors = useMemo(() => {
+    const errors: FieldErrors<SkillField> = {};
+    validateField(errors, "name", () =>
+      clientValidators.requiredLabel(
+        skillName,
+        "Skill name",
+        MAX_SKILL_FIELD_CHARS,
+      ),
+    );
+    validateField(errors, "category", () =>
+      clientValidators.requiredLabel(
+        category,
+        "Skill category",
+        MAX_SKILL_FIELD_CHARS,
+      ),
+    );
+    if (skills.length >= MAX_SKILLS) {
+      errors.form = `Skills must contain at most ${MAX_SKILLS} items`;
+    } else if (
+      skills.some(
+        (skill: { name: string; category: string }) =>
+          String(skill.name).trim().toLowerCase() ===
+            skillName.trim().toLowerCase() &&
+          String(skill.category).trim().toLowerCase() ===
+            category.trim().toLowerCase(),
       )
     ) {
-      toast.error("Skill already exists");
+      errors.name = "Skill already exists in this category";
+    }
+    return errors;
+  }, [category, skillName, skills]);
+
+  async function handleAdd() {
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
       return;
     }
 
+    const name = skillName.trim();
     try {
       await addSkill.mutateAsync({ name, category });
       setSkillName("");
+      setFieldErrors({});
       toast.success(`Added "${name}"`);
-    } catch {
-      toast.error("Failed to add skill");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to add skill"));
     }
   }
 
@@ -82,8 +119,8 @@ export function SkillsEditor() {
     try {
       await deleteSkill.mutateAsync(id);
       toast.success(`Removed "${name}"`);
-    } catch {
-      toast.error("Failed to remove skill");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to remove skill"));
     }
   }
 
@@ -102,7 +139,6 @@ export function SkillsEditor() {
     );
   }
 
-  const skills = portfolio?.skills ?? [];
   const isMutating = addSkill.isPending || deleteSkill.isPending;
 
   // Group skills by category
@@ -111,7 +147,7 @@ export function SkillsEditor() {
     skills: skills.filter((s: any) => s.category === cat.value),
   }));
   const uncategorized = skills.filter(
-    (s: any) => !CATEGORIES.some((c) => c.value === s.category)
+    (s: any) => !CATEGORIES.some((c) => c.value === s.category),
   );
 
   return (
@@ -137,21 +173,71 @@ export function SkillsEditor() {
         <CardContent>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1 space-y-2">
-              <FieldLabel htmlFor="skill-name" unsaved={skillName.trim() !== ""}>
+              <FieldLabel
+                htmlFor="skill-name"
+                unsaved={skillName.trim() !== ""}
+              >
                 Skill Name
               </FieldLabel>
               <Input
                 id="skill-name"
                 value={skillName}
-                onChange={(e) => setSkillName(e.target.value)}
+                onChange={(e) => {
+                  setSkillName(e.target.value);
+                  setFieldErrors((errors) => ({
+                    ...errors,
+                    name: undefined,
+                    form: undefined,
+                  }));
+                }}
+                onBlur={() =>
+                  setFieldErrors((errors) => ({
+                    ...errors,
+                    name: validationErrors.name,
+                    form: validationErrors.form,
+                  }))
+                }
                 onKeyDown={handleKeyDown}
                 placeholder="e.g. TypeScript, React, Docker..."
+                aria-invalid={Boolean(
+                  fieldErrors.name || validationErrors.name,
+                )}
+                aria-describedby={
+                  fieldErrors.name || validationErrors.name
+                    ? "skill-name-error"
+                    : undefined
+                }
               />
+              {(fieldErrors.name || validationErrors.name) && (
+                <p id="skill-name-error" className="text-sm text-destructive">
+                  {fieldErrors.name || validationErrors.name}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-[160px]">
+              <Select
+                value={category}
+                onValueChange={(value) => {
+                  setCategory(value);
+                  setFieldErrors((errors) => ({
+                    ...errors,
+                    category: undefined,
+                    name: undefined,
+                  }));
+                }}
+              >
+                <SelectTrigger
+                  className="w-[160px]"
+                  aria-invalid={Boolean(
+                    fieldErrors.category || validationErrors.category,
+                  )}
+                  aria-describedby={
+                    fieldErrors.category || validationErrors.category
+                      ? "skill-category-error"
+                      : undefined
+                  }
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -162,8 +248,19 @@ export function SkillsEditor() {
                   ))}
                 </SelectContent>
               </Select>
+              {(fieldErrors.category || validationErrors.category) && (
+                <p
+                  id="skill-category-error"
+                  className="text-sm text-destructive"
+                >
+                  {fieldErrors.category || validationErrors.category}
+                </p>
+              )}
             </div>
-            <Button onClick={handleAdd} disabled={isMutating}>
+            <Button
+              onClick={handleAdd}
+              disabled={isMutating || Object.keys(validationErrors).length > 0}
+            >
               {addSkill.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -172,6 +269,11 @@ export function SkillsEditor() {
               Add
             </Button>
           </div>
+          {(fieldErrors.form || validationErrors.form) && (
+            <p className="mt-3 text-sm text-destructive">
+              {fieldErrors.form || validationErrors.form}
+            </p>
+          )}
         </CardContent>
       </Card>
 

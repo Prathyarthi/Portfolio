@@ -4,8 +4,18 @@ import { EDIT_FORM_FIELD_CLASS } from "@/features/dashboard/constants/form-layou
 type FormFieldProps = {
   children: React.ReactNode;
   className?: string;
+  error?: string;
 };
 
-export function FormField({ children, className }: FormFieldProps) {
-  return <div className={cn(EDIT_FORM_FIELD_CLASS, className)}>{children}</div>;
+export function FormField({ children, className, error }: FormFieldProps) {
+  return (
+    <div className={cn(EDIT_FORM_FIELD_CLASS, className)}>
+      {children}
+      {error ? (
+        <p className="text-sm text-destructive" role="alert">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
 }

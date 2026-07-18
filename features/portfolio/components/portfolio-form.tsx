@@ -22,12 +22,55 @@ import {
 import { EditFormActions } from "@/features/portfolio/components/edit-form-actions";
 import { useEditStepDirty } from "@/features/portfolio/context/edit-dirty-context";
 import { fieldsDiffer, fieldDiffers } from "@/features/portfolio/lib/edit-step-dirty";
+import {
+  clientValidators,
+  type FieldErrors,
+  validateField,
+  validationMessage,
+} from "@/features/portfolio/lib/client-validation";
+
+type PortfolioField =
+  | "title"
+  | "headline"
+  | "summary"
+  | "contactEmail"
+  | "phone"
+  | "location"
+  | "websiteUrl";
+
+type PortfolioFormState = Record<PortfolioField, string>;
+
+function validatePortfolioForm(form: PortfolioFormState) {
+  const errors: FieldErrors<PortfolioField> = {};
+  validateField(errors, "title", () =>
+    clientValidators.requiredLabel(form.title, "Title")
+  );
+  validateField(errors, "headline", () =>
+    clientValidators.optionalLabel(form.headline, "Headline")
+  );
+  validateField(errors, "summary", () =>
+    clientValidators.longText(form.summary, "Summary")
+  );
+  validateField(errors, "contactEmail", () =>
+    clientValidators.email(form.contactEmail, "Contact email")
+  );
+  validateField(errors, "phone", () =>
+    clientValidators.phone(form.phone, "Phone")
+  );
+  validateField(errors, "location", () =>
+    clientValidators.optionalLabel(form.location, "Location")
+  );
+  validateField(errors, "websiteUrl", () =>
+    clientValidators.optionalUrl(form.websiteUrl, "Website URL")
+  );
+  return errors;
+}
 
 export function PortfolioForm() {
   const { data: portfolio, isLoading } = usePortfolio();
   const updatePortfolio = useUpdatePortfolio();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<PortfolioFormState>({
     title: "",
     headline: "",
     summary: "",
@@ -36,6 +79,8 @@ export function PortfolioForm() {
     location: "",
     websiteUrl: "",
   });
+  const [fieldErrors, setFieldErrors] =
+    useState<FieldErrors<PortfolioField>>({});
 
   useEffect(() => {
     if (portfolio) {
@@ -97,10 +142,23 @@ export function PortfolioForm() {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const field = e.target.name as PortfolioField;
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function handleBlur(field: PortfolioField) {
+    const errors: FieldErrors<PortfolioField> = {};
+    const allErrors = validatePortfolioForm(form);
+    if (allErrors[field]) errors[field] = allErrors[field];
+    setFieldErrors((prev) => ({ ...prev, [field]: errors[field] }));
   }
 
   async function handleSave() {
+    const errors = validatePortfolioForm(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     try {
       await updatePortfolio.mutateAsync({
         title: form.title,
@@ -112,10 +170,13 @@ export function PortfolioForm() {
         websiteUrl: form.websiteUrl || null,
       });
       toast.success("Portfolio updated successfully");
-    } catch {
-      toast.error("Failed to update portfolio");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to update portfolio"));
     }
   }
+
+  const currentErrors = validatePortfolioForm(form);
+  const isFormValid = Object.keys(currentErrors).length === 0;
 
   if (isLoading) {
     return (
@@ -133,7 +194,7 @@ export function PortfolioForm() {
             title="Basic Information"
             description="Your name, headline, and a short summary about yourself."
           >
-            <FormField>
+            <FormField error={fieldErrors.title}>
               <FieldLabel htmlFor="title" unsaved={isFieldUnsaved("title")}>
                 Full Name / Title
               </FieldLabel>
@@ -142,10 +203,12 @@ export function PortfolioForm() {
                 name="title"
                 value={form.title}
                 onChange={handleChange}
+                onBlur={() => handleBlur("title")}
+                aria-invalid={Boolean(currentErrors.title)}
                 placeholder="John Doe"
               />
             </FormField>
-            <FormField>
+            <FormField error={fieldErrors.headline}>
               <FieldLabel htmlFor="headline" unsaved={isFieldUnsaved("headline")}>
                 Headline
               </FieldLabel>
@@ -154,10 +217,12 @@ export function PortfolioForm() {
                 name="headline"
                 value={form.headline}
                 onChange={handleChange}
+                onBlur={() => handleBlur("headline")}
+                aria-invalid={Boolean(currentErrors.headline)}
                 placeholder="Full-Stack Developer | Open Source Enthusiast"
               />
             </FormField>
-            <FormField>
+            <FormField error={fieldErrors.summary}>
               <FieldLabel htmlFor="summary" unsaved={isFieldUnsaved("summary")}>
                 Summary
               </FieldLabel>
@@ -166,6 +231,8 @@ export function PortfolioForm() {
                 name="summary"
                 value={form.summary}
                 onChange={handleChange}
+                onBlur={() => handleBlur("summary")}
+                aria-invalid={Boolean(currentErrors.summary)}
                 placeholder="Write a brief summary about yourself, your experience, and what you're passionate about..."
                 rows={5}
               />
@@ -179,7 +246,7 @@ export function PortfolioForm() {
             description="How potential employers or collaborators can reach you."
           >
             <div className={EDIT_FORM_GRID_CLASS}>
-              <FormField>
+              <FormField error={fieldErrors.contactEmail}>
                 <FieldLabel
                   htmlFor="contactEmail"
                   unsaved={isFieldUnsaved("contactEmail")}
@@ -193,10 +260,12 @@ export function PortfolioForm() {
                   type="email"
                   value={form.contactEmail}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("contactEmail")}
+                  aria-invalid={Boolean(currentErrors.contactEmail)}
                   placeholder="john@example.com"
                 />
               </FormField>
-              <FormField>
+              <FormField error={fieldErrors.phone}>
                 <FieldLabel htmlFor="phone" unsaved={isFieldUnsaved("phone")}>
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   Phone
@@ -207,6 +276,8 @@ export function PortfolioForm() {
                   type="tel"
                   value={form.phone}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("phone")}
+                  aria-invalid={Boolean(currentErrors.phone)}
                   placeholder="+1 (555) 000-0000"
                 />
               </FormField>
@@ -215,7 +286,7 @@ export function PortfolioForm() {
             <Separator />
 
             <div className={EDIT_FORM_GRID_CLASS}>
-              <FormField>
+              <FormField error={fieldErrors.location}>
                 <FieldLabel htmlFor="location" unsaved={isFieldUnsaved("location")}>
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   Location
@@ -225,10 +296,12 @@ export function PortfolioForm() {
                   name="location"
                   value={form.location}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("location")}
+                  aria-invalid={Boolean(currentErrors.location)}
                   placeholder="San Francisco, CA"
                 />
               </FormField>
-              <FormField>
+              <FormField error={fieldErrors.websiteUrl}>
                 <FieldLabel
                   htmlFor="websiteUrl"
                   unsaved={isFieldUnsaved("websiteUrl")}
@@ -242,6 +315,8 @@ export function PortfolioForm() {
                   type="url"
                   value={form.websiteUrl}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("websiteUrl")}
+                  aria-invalid={Boolean(currentErrors.websiteUrl)}
                   placeholder="https://your-website.com"
                 />
               </FormField>
@@ -251,7 +326,10 @@ export function PortfolioForm() {
       </Card>
 
       <EditFormActions>
-        <Button onClick={handleSave} disabled={updatePortfolio.isPending || !isDirty}>
+        <Button
+          onClick={handleSave}
+          disabled={updatePortfolio.isPending || !isDirty || !isFormValid}
+        >
           {updatePortfolio.isPending ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (

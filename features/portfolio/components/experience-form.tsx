@@ -40,6 +40,12 @@ import {
   hasNonEmptyStringValues,
   normalizeDate,
 } from "@/features/portfolio/lib/edit-step-dirty";
+import {
+  clientValidators,
+  type FieldErrors,
+  validateField,
+  validationMessage,
+} from "@/features/portfolio/lib/client-validation";
 
 interface ExperienceEntry {
   id?: string;
@@ -60,6 +66,33 @@ const emptyEntry: ExperienceEntry = {
   location: "",
 };
 
+type ExperienceField = Exclude<keyof ExperienceEntry, "id">;
+
+function validateExperienceForm(form: ExperienceEntry) {
+  const errors: FieldErrors<ExperienceField> = {};
+  validateField(errors, "company", () =>
+    clientValidators.requiredLabel(form.company, "Company")
+  );
+  validateField(errors, "role", () =>
+    clientValidators.requiredLabel(form.role, "Role")
+  );
+  validateField(errors, "description", () =>
+    clientValidators.longText(form.description, "Experience description")
+  );
+  validateField(errors, "location", () =>
+    clientValidators.optionalLabel(form.location, "Experience location")
+  );
+  return errors;
+}
+
+function FieldError({ error }: { error?: string }) {
+  return error ? (
+    <p className="text-sm text-destructive" role="alert">
+      {error}
+    </p>
+  ) : null;
+}
+
 export function ExperienceForm() {
   const { data: portfolio, isLoading } = usePortfolio();
   const addExperience = useAddExperience();
@@ -69,17 +102,27 @@ export function ExperienceForm() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<ExperienceEntry>(emptyEntry);
+  const [fieldErrors, setFieldErrors] =
+    useState<FieldErrors<ExperienceField>>({});
   const editingCardRef = useScrollIntoView<HTMLDivElement>(Boolean(editingId));
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const field = e.target.name as ExperienceField;
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function handleBlur(field: ExperienceField) {
+    const error = validateExperienceForm(form)[field];
+    setFieldErrors((prev) => ({ ...prev, [field]: error }));
   }
 
   function startEditing(exp: any) {
     setEditingId(exp.id);
     setIsAdding(false);
+    setFieldErrors({});
     setForm({
       id: exp.id,
       company: exp.company ?? "",
@@ -95,9 +138,14 @@ export function ExperienceForm() {
     setEditingId(null);
     setIsAdding(false);
     setForm(emptyEntry);
+    setFieldErrors({});
   }
 
   async function handleAdd() {
+    const errors = validateExperienceForm(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     try {
       await addExperience.mutateAsync({
         company: form.company.trim(),
@@ -109,13 +157,17 @@ export function ExperienceForm() {
       });
       toast.success("Experience added");
       cancelEditing();
-    } catch {
-      toast.error("Failed to add experience");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to add experience"));
     }
   }
 
   async function handleUpdate() {
     if (!editingId) return;
+    const errors = validateExperienceForm(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
     try {
       await updateExperience.mutateAsync({
         id: editingId,
@@ -128,8 +180,8 @@ export function ExperienceForm() {
       });
       toast.success("Experience updated");
       cancelEditing();
-    } catch {
-      toast.error("Failed to update experience");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to update experience"));
     }
   }
 
@@ -138,8 +190,8 @@ export function ExperienceForm() {
       await deleteExperience.mutateAsync(id);
       toast.success("Experience deleted");
       if (editingId === id) cancelEditing();
-    } catch {
-      toast.error("Failed to delete experience");
+    } catch (error) {
+      toast.error(validationMessage(error, "Failed to delete experience"));
     }
   }
 
@@ -202,6 +254,8 @@ export function ExperienceForm() {
     addExperience.isPending ||
     updateExperience.isPending ||
     deleteExperience.isPending;
+  const currentErrors = validateExperienceForm(form);
+  const isFormValid = Object.keys(currentErrors).length === 0;
 
   return (
     <div className="space-y-6">
@@ -220,6 +274,7 @@ export function ExperienceForm() {
             onClick={() => {
               setIsAdding(true);
               setForm(emptyEntry);
+              setFieldErrors({});
             }}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -249,8 +304,11 @@ export function ExperienceForm() {
                   name="company"
                   value={form.company}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("company")}
+                  aria-invalid={Boolean(currentErrors.company)}
                   placeholder="Google"
                 />
+                <FieldError error={fieldErrors.company} />
               </div>
               <div className="space-y-2">
                 <FieldLabel htmlFor="role" unsaved={isFieldUnsaved("role")}>
@@ -262,8 +320,11 @@ export function ExperienceForm() {
                   name="role"
                   value={form.role}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("role")}
+                  aria-invalid={Boolean(currentErrors.role)}
                   placeholder="Senior Software Engineer"
                 />
+                <FieldError error={fieldErrors.role} />
               </div>
             </div>
 
@@ -309,8 +370,11 @@ export function ExperienceForm() {
                   name="location"
                   value={form.location}
                   onChange={handleChange}
+                  onBlur={() => handleBlur("location")}
+                  aria-invalid={Boolean(currentErrors.location)}
                   placeholder="San Francisco, CA"
                 />
+                <FieldError error={fieldErrors.location} />
               </div>
             </div>
 
@@ -323,9 +387,12 @@ export function ExperienceForm() {
                 name="description"
                 value={form.description}
                 onChange={handleChange}
+                onBlur={() => handleBlur("description")}
+                aria-invalid={Boolean(currentErrors.description)}
                 placeholder="Describe your responsibilities, achievements, and impact..."
                 rows={4}
               />
+              <FieldError error={fieldErrors.description} />
             </div>
 
             <div className="flex justify-end gap-2">
@@ -335,7 +402,7 @@ export function ExperienceForm() {
               </Button>
               <Button
                 onClick={handleAdd}
-                disabled={isMutating}
+                disabled={isMutating || !isFormValid}
               >
                 {isMutating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -388,8 +455,11 @@ export function ExperienceForm() {
                         name="company"
                         value={form.company}
                         onChange={handleChange}
+                        onBlur={() => handleBlur("company")}
+                        aria-invalid={Boolean(currentErrors.company)}
                         placeholder="Google"
                       />
+                      <FieldError error={fieldErrors.company} />
                     </div>
                     <div className="space-y-2">
                       <FieldLabel htmlFor={`role-${exp.id}`} unsaved={isFieldUnsaved("role")}>
@@ -401,8 +471,11 @@ export function ExperienceForm() {
                         name="role"
                         value={form.role}
                         onChange={handleChange}
+                        onBlur={() => handleBlur("role")}
+                        aria-invalid={Boolean(currentErrors.role)}
                         placeholder="Senior Software Engineer"
                       />
+                      <FieldError error={fieldErrors.role} />
                     </div>
                   </div>
 
@@ -443,8 +516,11 @@ export function ExperienceForm() {
                         name="location"
                         value={form.location}
                         onChange={handleChange}
+                        onBlur={() => handleBlur("location")}
+                        aria-invalid={Boolean(currentErrors.location)}
                         placeholder="San Francisco, CA"
                       />
+                      <FieldError error={fieldErrors.location} />
                     </div>
                   </div>
 
@@ -457,9 +533,12 @@ export function ExperienceForm() {
                       name="description"
                       value={form.description}
                       onChange={handleChange}
+                      onBlur={() => handleBlur("description")}
+                      aria-invalid={Boolean(currentErrors.description)}
                       placeholder="Describe your responsibilities, achievements, and impact..."
                       rows={4}
                     />
+                    <FieldError error={fieldErrors.description} />
                   </div>
 
                   <div className="flex justify-end gap-2">
@@ -467,7 +546,10 @@ export function ExperienceForm() {
                       <X className="mr-2 h-4 w-4" />
                       Cancel
                     </Button>
-                    <Button onClick={handleUpdate} disabled={isMutating}>
+                    <Button
+                      onClick={handleUpdate}
+                      disabled={isMutating || !isFormValid}
+                    >
                       {isMutating ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (

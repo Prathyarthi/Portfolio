@@ -2,13 +2,27 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
+async function throwPortfolioApiError(
+  response: Response,
+  fallbackMessage: string,
+): Promise<never> {
+  const body = await response.clone().json().catch(() => null) as
+    | { error?: unknown; message?: unknown; summary?: unknown }
+    | null;
+  const text = body ? "" : await response.text().catch(() => "");
+  const message = [body?.error, body?.message, body?.summary]
+    .find((value): value is string => typeof value === "string" && value.trim().length > 0);
+
+  throw new Error(message?.trim() || text.trim() || fallbackMessage);
+}
+
 export function usePortfolio() {
   return useQuery({
     queryKey: ["portfolio"],
     queryFn: async () => {
       const res = await fetch("/api/portfolio", { cache: "no-store" });
       if (res.status === 404) return null;
-      if (!res.ok) throw new Error("Failed to fetch portfolio");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to fetch portfolio");
       return res.json();
     },
   });
@@ -23,14 +37,7 @@ export function useCreatePortfolio() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(
-          typeof data.error === "string"
-            ? data.error
-            : "Failed to create portfolio",
-        );
-      }
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to create portfolio");
 
       return res.json();
     },
@@ -47,7 +54,7 @@ export function useUpdatePortfolio() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update portfolio");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to update portfolio");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -64,12 +71,7 @@ export function useUpdateLivePreview() {
         body: JSON.stringify({ projectIds }),
       });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(
-          typeof data.error === "string"
-            ? data.error
-            : "Failed to update live preview preferences"
-        );
+        await throwPortfolioApiError(res, "Failed to update live preview preferences");
       }
       return res.json();
     },
@@ -87,14 +89,7 @@ export function useClearImportableContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(
-          typeof data.error === "string"
-            ? data.error
-            : "Failed to clear content",
-        );
-      }
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to clear content");
       return res.json() as Promise<{ success: boolean }>;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -118,17 +113,7 @@ export function useUpdateTemplate() {
         res = await sendUpdate("/api/portfolio");
       }
 
-      if (!res.ok) {
-        const data = await res.json().catch(async () => {
-          const text = await res.text().catch(() => "");
-          return text ? { error: text } : {};
-        });
-        throw new Error(
-          typeof data.error === "string"
-            ? data.error
-            : "Failed to update template"
-        );
-      }
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to update template");
 
       return res.json();
     },
@@ -145,14 +130,10 @@ export function usePublishPortfolio() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isPublished }),
       });
-      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(
-          typeof data.error === "string"
-            ? data.error
-            : "Failed to update publish status",
-        );
+        await throwPortfolioApiError(res, "Failed to update publish status");
       }
+      const data = await res.json();
       return data;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -168,10 +149,7 @@ export function useUpdateSlug() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to update slug");
-      }
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to update slug");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -188,7 +166,7 @@ export function useAddExperience() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to add experience");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to add experience");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -204,7 +182,7 @@ export function useUpdateExperience() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update experience");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to update experience");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -218,7 +196,7 @@ export function useDeleteExperience() {
       const res = await fetch(`/api/portfolio/experience/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete experience");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to delete experience");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -235,7 +213,7 @@ export function useAddEducation() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to add education");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to add education");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -249,7 +227,7 @@ export function useDeleteEducation() {
       const res = await fetch(`/api/portfolio/education/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete education");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to delete education");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -266,7 +244,7 @@ export function useAddSkill() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to add skill");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to add skill");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -280,7 +258,7 @@ export function useDeleteSkill() {
       const res = await fetch(`/api/portfolio/skill/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete skill");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to delete skill");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -297,7 +275,7 @@ export function useAddProject() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to add project");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to add project");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -313,7 +291,7 @@ export function useUpdateProject() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update project");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to update project");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -327,7 +305,7 @@ export function useDeleteProject() {
       const res = await fetch(`/api/portfolio/project/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete project");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to delete project");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -348,7 +326,7 @@ export function useUpsertSocial() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update social profile");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to update social profile");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -365,7 +343,7 @@ export function useAddCertification() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to add certification");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to add certification");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -379,7 +357,7 @@ export function useDeleteCertification() {
       const res = await fetch(`/api/portfolio/certification/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete certification");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to delete certification");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -400,7 +378,7 @@ export function useUpsertCustomSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to save custom section");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to save custom section");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -416,7 +394,7 @@ export function useUpdateCustomSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update custom section");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to update custom section");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -430,7 +408,7 @@ export function useDeleteCustomSection() {
       const res = await fetch(`/api/portfolio/custom-section/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete custom section");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to delete custom section");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -447,7 +425,7 @@ export function useAddAchievement() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to add achievement");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to add achievement");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -463,7 +441,7 @@ export function useUpdateAchievement() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to update achievement");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to update achievement");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
@@ -477,7 +455,7 @@ export function useDeleteAchievement() {
       const res = await fetch(`/api/portfolio/achievement/${id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Failed to delete achievement");
+      if (!res.ok) await throwPortfolioApiError(res, "Failed to delete achievement");
       return res.json();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio"] }),
