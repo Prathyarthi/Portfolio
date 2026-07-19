@@ -26,7 +26,7 @@ model User {
   /// Razorpay subscription ID for managing the subscription (cancel, etc.)
   razorpaySubscriptionId String?
 
-  /// Cancellation is scheduled at the end of the paid billing cycle.
+  /// Provider cancellation is complete; paid Pro access remains until the period end.
   subscriptionCancelAtPeriodEnd Boolean   @default(false)
   subscriptionCurrentPeriodEnd  DateTime?
 
