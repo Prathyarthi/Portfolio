@@ -1,0 +1,37 @@
+.root {
+  --font-sans: var(--font-aurora-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-aurora-display), sans-serif;
+  --font-mono: var(--font-aurora-mono), ui-monospace, SFMono-Regular, monospace;
+
+  min-height: 100vh;
+  background-color: #0a0c10;
+  color: #cbd5e1;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  scrollbar-color: #1e293b #0a0c10;
+  scrollbar-width: thin;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.root ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.root ::-webkit-scrollbar-track {
+  background: #0a0c10;
+}
+
+.root ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 0;
+}
+
+.root ::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
