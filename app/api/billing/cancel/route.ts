@@ -62,12 +62,12 @@ export async function POST() {
 
     const subscription = (await razorpay.subscriptions.cancel(
       providerSubscriptionId,
-      true
+      false
     )) as { current_end?: number };
     const currentPeriodEnd =
       typeof subscription.current_end === "number"
         ? new Date(subscription.current_end * 1000)
-        : null;
+        : user.subscriptionCurrentPeriodEnd;
 
     await prisma.$transaction(async (tx) => {
       await tx.user.update({

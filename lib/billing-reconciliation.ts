@@ -29,6 +29,8 @@ export async function reconcileUserBilling(userId: string) {
     select: {
       id: true,
       razorpaySubscriptionId: true,
+      subscriptionCancelAtPeriodEnd: true,
+      subscriptionCurrentPeriodEnd: true,
     },
   });
   if (!user?.razorpaySubscriptionId) return { status: "none" as const };
@@ -63,7 +65,17 @@ export async function reconcileUserBilling(userId: string) {
   const currentPeriodEnd =
     typeof subscription.current_end === "number"
       ? new Date(subscription.current_end * 1000)
-      : null;
+      : user.subscriptionCurrentPeriodEnd;
+  // An app-confirmed cancellation keeps local paid access through current_end,
+  // even though the provider subscription itself is already terminal.
+  const cancelAtPeriodEnd =
+    user.subscriptionCancelAtPeriodEnd ||
+    subscription.has_scheduled_changes === true;
+  const retainPaidAccess =
+    terminal &&
+    cancelAtPeriodEnd &&
+    currentPeriodEnd !== null &&
+    currentPeriodEnd.getTime() > Date.now();
 
   await prisma.$transaction(async (tx) => {
     await tx.billingSubscription.upsert({
@@ -76,17 +88,14 @@ export async function reconcileUserBilling(userId: string) {
         providerPlanId: providerPlanId || "unknown",
         interval: interval ?? subscription.notes?.interval ?? "unknown",
         status: providerStatus,
-        cancelAtPeriodEnd:
-          subscription.has_scheduled_changes ?? false,
+        cancelAtPeriodEnd,
         currentPeriodEnd,
       },
       update: {
         providerPlanId: providerPlanId || "unknown",
         ...(interval && { interval }),
         status: providerStatus,
-        ...(subscription.has_scheduled_changes !== undefined && {
-          cancelAtPeriodEnd: subscription.has_scheduled_changes,
-        }),
+        cancelAtPeriodEnd,
         currentPeriodEnd,
       },
     });
@@ -96,7 +105,7 @@ export async function reconcileUserBilling(userId: string) {
         id: userId,
         razorpaySubscriptionId: user.razorpaySubscriptionId,
       },
-      data: terminal
+      data: terminal && !retainPaidAccess
         ? {
             subscriptionStatus: "none",
             razorpaySubscriptionId: null,
@@ -104,9 +113,10 @@ export async function reconcileUserBilling(userId: string) {
             subscriptionCurrentPeriodEnd: null,
           }
         : {
-            subscriptionStatus: legacyStatusForProvider(providerStatus),
-            subscriptionCancelAtPeriodEnd:
-              subscription.has_scheduled_changes ?? false,
+            subscriptionStatus: retainPaidAccess
+              ? "active"
+              : legacyStatusForProvider(providerStatus),
+            subscriptionCancelAtPeriodEnd: cancelAtPeriodEnd,
             subscriptionCurrentPeriodEnd: currentPeriodEnd,
           },
     });

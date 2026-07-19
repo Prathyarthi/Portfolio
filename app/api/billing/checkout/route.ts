@@ -98,13 +98,30 @@ export async function POST(req: Request) {
       where: { id: session.user.id },
       select: {
         subscriptionStatus: true,
+        subscriptionCancelAtPeriodEnd: true,
+        subscriptionCurrentPeriodEnd: true,
         email: true,
       },
     });
     if (!user) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
-    if (user.subscriptionStatus === "active") {
+    const retainedAccessExpired =
+      user.subscriptionStatus === "active" &&
+      user.subscriptionCancelAtPeriodEnd &&
+      user.subscriptionCurrentPeriodEnd !== null &&
+      user.subscriptionCurrentPeriodEnd.getTime() <= Date.now();
+    if (retainedAccessExpired) {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+          subscriptionStatus: "none",
+          razorpaySubscriptionId: null,
+          subscriptionCancelAtPeriodEnd: false,
+          subscriptionCurrentPeriodEnd: null,
+        },
+      });
+    } else if (user.subscriptionStatus === "active") {
       return NextResponse.json(
         { error: "Your Pro subscription is already active." },
         { status: 409 }

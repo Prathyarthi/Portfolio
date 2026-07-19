@@ -66,7 +66,7 @@ export function PreviewToolbar({
     <>
       <div className="flex w-full shrink-0 flex-wrap items-center gap-1.5 sm:w-auto">
         <div
-          className="hidden shrink-0 items-center gap-0.5 rounded-[var(--radius-md)] bg-surface-sunken p-0.5 md:flex"
+          className="hidden shrink-0 items-center gap-0.5 rounded-[var(--radius-md)] bg-surface-sunken p-0.5"
           role="group"
           aria-label="Preview device"
         >

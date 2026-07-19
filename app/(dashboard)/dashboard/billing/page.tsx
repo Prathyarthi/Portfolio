@@ -185,11 +185,11 @@ export default function BillingPage() {
         </div>
       )}
 
-      {cancelled && (
+      {cancelled && cancelAtPeriodEnd && (
         <div className="flex items-center gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
-          Your cancellation is scheduled
-          {currentPeriodEnd ? ` for ${currentPeriodEnd}` : " for the end of this billing cycle"}.
+          Subscription cancelled. Your Pro access remains available
+          {currentPeriodEnd ? ` through ${currentPeriodEnd}` : " through the current billing cycle"}.
         </div>
       )}
 
@@ -218,7 +218,7 @@ export default function BillingPage() {
               <div className="flex-1">
                 <p className="text-sm font-medium text-teal-200">
                   {cancelAtPeriodEnd
-                    ? "Pro remains active until the billing cycle ends"
+                    ? "Pro access remains active until the billing cycle ends"
                     : "Pro subscription is active"}
                 </p>
                 <p className="mt-0.5 text-body-sm text-text-secondary">

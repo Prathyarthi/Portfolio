@@ -16,6 +16,8 @@ export interface UserBillingProfile {
   createdAt: Date;
   /** From DB: none | pending | active — Pro is `active`. */
   subscriptionStatus?: string | null;
+  subscriptionCancelAtPeriodEnd?: boolean;
+  subscriptionCurrentPeriodEnd?: Date | null;
 }
 
 export interface AccessSnapshot {
@@ -43,7 +45,12 @@ export function resolveAccessForUser(
     user.createdAt.getTime() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000
   );
   const inTrial = now.getTime() < trialEndsAtDate.getTime();
-  const paidPro = isProSubscription(user.subscriptionStatus);
+  const paidThroughCancellation =
+    !user.subscriptionCancelAtPeriodEnd ||
+    !user.subscriptionCurrentPeriodEnd ||
+    now.getTime() < user.subscriptionCurrentPeriodEnd.getTime();
+  const paidPro =
+    isProSubscription(user.subscriptionStatus) && paidThroughCancellation;
   const allowUnconfiguredBillingAccess =
     process.env.NODE_ENV !== "production" &&
     process.env.ALLOW_UNCONFIGURED_BILLING_ACCESS === "true";

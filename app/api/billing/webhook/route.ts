@@ -189,6 +189,11 @@ export async function POST(req: Request) {
       ) {
         return "invalid-transition";
       }
+      // Preserve an app-confirmed cancellation so terminal provider events do
+      // not erase the customer's remaining paid-access window.
+      const cancelAtPeriodEnd =
+        existingSubscription?.cancelAtPeriodEnd === true ||
+        subscriptionEntity?.has_scheduled_changes === true;
 
       const billingSubscription =
         await tx.billingSubscription.upsert({
@@ -202,8 +207,7 @@ export async function POST(req: Request) {
               subscriptionEntity?.notes?.interval ??
               "unknown",
             status: providerStatus,
-            cancelAtPeriodEnd:
-              subscriptionEntity?.has_scheduled_changes ?? false,
+            cancelAtPeriodEnd,
             currentPeriodEnd,
             lastEventAt: occurredAt,
             lastEventId: providerEventId,
@@ -212,10 +216,7 @@ export async function POST(req: Request) {
             providerPlanId,
             ...(configuredInterval && { interval: configuredInterval }),
             status: providerStatus,
-            ...(subscriptionEntity?.has_scheduled_changes !== undefined && {
-              cancelAtPeriodEnd:
-                subscriptionEntity.has_scheduled_changes,
-            }),
+            cancelAtPeriodEnd,
             ...(currentPeriodEnd && { currentPeriodEnd }),
             lastEventAt: occurredAt,
             lastEventId: providerEventId,
@@ -241,7 +242,11 @@ export async function POST(req: Request) {
 
       const currentUser = await tx.user.findUnique({
         where: { id: userId },
-        select: { razorpaySubscriptionId: true },
+        select: {
+          razorpaySubscriptionId: true,
+          subscriptionCancelAtPeriodEnd: true,
+          subscriptionCurrentPeriodEnd: true,
+        },
       });
       const isCurrent =
         currentUser?.razorpaySubscriptionId === subscriptionId;
@@ -252,9 +257,20 @@ export async function POST(req: Request) {
       if (!isCurrent && !canRecoverCurrent) return "recorded";
 
       const terminal = isTerminalProviderStatus(providerStatus);
+      const paidThrough =
+        currentPeriodEnd ??
+        billingSubscription.currentPeriodEnd ??
+        currentUser?.subscriptionCurrentPeriodEnd ??
+        null;
+      const retainPaidAccess =
+        terminal &&
+        (currentUser?.subscriptionCancelAtPeriodEnd === true ||
+          billingSubscription.cancelAtPeriodEnd) &&
+        paidThrough !== null &&
+        paidThrough.getTime() > Date.now();
       await tx.user.update({
         where: { id: userId },
-        data: terminal
+        data: terminal && !retainPaidAccess
           ? {
               subscriptionStatus: "none",
               razorpaySubscriptionId: null,
@@ -262,19 +278,20 @@ export async function POST(req: Request) {
               subscriptionCurrentPeriodEnd: null,
             }
           : {
-              subscriptionStatus:
-                configuredInterval || providerStatus !== "active"
+              subscriptionStatus: retainPaidAccess
+                ? "active"
+                : configuredInterval || providerStatus !== "active"
                   ? legacyStatusForProvider(providerStatus)
                   : "none",
               razorpaySubscriptionId:
                 configuredInterval || providerStatus !== "active"
                   ? billingSubscription.providerSubscriptionId
                   : null,
-              subscriptionCancelAtPeriodEnd:
-                subscriptionEntity?.has_scheduled_changes ??
-                billingSubscription.cancelAtPeriodEnd,
-              ...(currentPeriodEnd && {
-                subscriptionCurrentPeriodEnd: currentPeriodEnd,
+              subscriptionCancelAtPeriodEnd: retainPaidAccess
+                ? true
+                : billingSubscription.cancelAtPeriodEnd,
+              ...(paidThrough && {
+                subscriptionCurrentPeriodEnd: paidThrough,
               }),
             },
       });
