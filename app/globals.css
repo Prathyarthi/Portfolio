@@ -559,6 +559,51 @@ body {
 }
 .marquee-track { animation: marquee 32s linear infinite; }
 
+/* ─── Company showcase ─────────────────────────────────────────── */
+@keyframes company-marquee-forward {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 6px)); }
+}
+
+@keyframes company-marquee-reverse {
+  from { transform: translateX(calc(-50% - 6px)); }
+  to { transform: translateX(0); }
+}
+
+.company-marquee {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 8%,
+    #000 92%,
+    transparent
+  );
+}
+
+.company-marquee__track {
+  display: flex;
+  width: max-content;
+  gap: 12px;
+  animation: company-marquee-forward 38s linear infinite;
+  will-change: transform;
+}
+
+.company-marquee__track--reverse {
+  animation-name: company-marquee-reverse;
+  animation-duration: 42s;
+}
+
+.company-marquee:hover .company-marquee__track {
+  animation-play-state: paused;
+}
+
 /* ─── Signature: Transform Rail ─────────────────────────────────── */
 @keyframes rail-cursor-blink {
   0%, 49% { opacity: 1; }
